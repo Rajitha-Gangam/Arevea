@@ -1,0 +1,42 @@
+PODS:
+  - AWSAuthCore (2.9.10):
+    - AWSCore (= 2.9.10)
+  - AWSCognitoIdentityProvider (2.9.10):
+    - AWSCognitoIdentityProviderASF (= 1.0.1)
+    - AWSCore (= 2.9.10)
+  - AWSCognitoIdentityProviderASF (1.0.1)
+  - AWSCore (2.9.10)
+  - AWSMobileClient (2.9.10):
+    - AWSAuthCore (= 2.9.10)
+    - AWSCognitoIdentityProvider (= 2.9.10)
+  - IQKeyboardManagerSwift (6.5.5)
+  - KeychainAccess (4.1.0)
+
+DEPENDENCIES:
+  - AWSCore (~> 2.9.0)
+  - AWSMobileClient (~> 2.9.0)
+  - IQKeyboardManagerSwift
+  - KeychainAccess
+
+SPEC REPOS:
+  https://github.com/cocoapods/specs.git:
+    - AWSAuthCore
+    - AWSCognitoIdentityProvider
+    - AWSCognitoIdentityProviderASF
+    - AWSCore
+    - AWSMobileClient
+    - IQKeyboardManagerSwift
+    - KeychainAccess
+
+SPEC CHECKSUMS:
+  AWSAuthCore: d6d222a7eeae403f968afb5b9b3975bd96340d91
+  AWSCognitoIdentityProvider: 5e72467f174a970e9d357fc06666e3f32e6eda70
+  AWSCognitoIdentityProviderASF: f94f1a502e72ef3d0a1de93e10bf7a79c8698118
+  AWSCore: 22b6bbc6761ca9981d878155d11bc02edd681a64
+  AWSMobileClient: a0768be5b34a5a2eb39fd3fcd5d4f14125d4ebbb
+  IQKeyboardManagerSwift: 0fb93310284665245591f50f7a5e38de615960b7
+  KeychainAccess: 445e28864fe6d3458b41fa211bcdc39890e8bd5a
+
+PODFILE CHECKSUM: 4cbb6f5108484f2e820a0a7fb42d2bb8b9ea6328
+
+COCOAPODS: 1.7.3
