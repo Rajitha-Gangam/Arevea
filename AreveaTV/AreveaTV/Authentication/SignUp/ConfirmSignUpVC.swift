@@ -9,11 +9,12 @@
 import UIKit
 import AWSMobileClient
 
-class ConfirmSignUpVC: UIViewController {
+class ConfirmSignUpVC: UIViewController,UITextFieldDelegate {
     
     @IBOutlet weak var txtCode: UITextField!
     var username: String?
-    
+    @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
+
     override func viewDidLoad() {
         super.viewDidLoad()
         self.assignbackground();
@@ -41,7 +42,12 @@ class ConfirmSignUpVC: UIViewController {
     }
     
     func resendSignUpHandler(result: SignUpResult?, error: Error?) {
+        DispatchQueue.main.async {
+            self.activityIndicator.stopAnimating();
+            self.activityIndicator.isHidden = true;
+        }
         if let error = error {
+            showAlert(strMsg: "\(error)");
             print("\(error)")
             return
         }
@@ -68,12 +74,17 @@ class ConfirmSignUpVC: UIViewController {
             print("No username")
             return
         }
-        
+        activityIndicator.isHidden = false
+        activityIndicator.startAnimating()
         AWSMobileClient.sharedInstance().resendSignUpCode(username: username,
                                                           completionHandler: resendSignUpHandler)
     }
     
     func handleConfirmation(signUpResult: SignUpResult?, error: Error?) {
+        DispatchQueue.main.async {
+            self.activityIndicator.stopAnimating();
+            self.activityIndicator.isHidden = true;
+        }
         if let error =  error as? AWSMobileClientError {
             switch(error) {
             case .codeMismatch:
@@ -81,7 +92,7 @@ class ConfirmSignUpVC: UIViewController {
             case .expiredCode(let message):
                 self.showAlert(strMsg: message);
             default:
-                self.showAlert(strMsg: error.localizedDescription);
+                showAlert(strMsg: "\(error)");
                 break
             }
             print("There's an error : \(error.localizedDescription)")
@@ -114,16 +125,23 @@ class ConfirmSignUpVC: UIViewController {
     }
     
     @IBAction func confirmSignUp(_ sender: Any) {
-        
-        guard let verificationCode = txtCode.text,
-            let username = self.username else {
-                print("No username")
-                return
+        txtCode.resignFirstResponder();
+        if (txtCode.text?.count == 0){
+            showAlert(strMsg: "Please enter verification code");
+        }else{
+            guard let verificationCode = txtCode.text,
+                let username = self.username else {
+                    print("No username")
+                    return
+            }
+            activityIndicator.isHidden = false
+            activityIndicator.startAnimating()
+            AWSMobileClient.sharedInstance().confirmSignUp(username: username,
+                                                           confirmationCode: verificationCode,
+                                                           completionHandler: handleConfirmation)
+            
         }
         
-        AWSMobileClient.sharedInstance().confirmSignUp(username: username,
-                                                       confirmationCode: verificationCode,
-                                                       completionHandler: handleConfirmation)
     }
     
     @IBAction func dismissModal(_ sender: Any) {
@@ -133,5 +151,17 @@ class ConfirmSignUpVC: UIViewController {
                 break
             }
         }
+    }
+    // MARK: Text Field Delegate Methods
+    
+    func textFieldDidBeginEditing(_ textField: UITextField) {
+    }
+    func textFieldDidEndEditing(_ textField: UITextField) {
+        textField.resignFirstResponder();
+    }
+    
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder();
+        return true;
     }
 }

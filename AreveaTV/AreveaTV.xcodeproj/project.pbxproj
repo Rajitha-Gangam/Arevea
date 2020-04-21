@@ -11,6 +11,23 @@
 		1891CA65244AC82B00EE1E45 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1891CA64244AC82B00EE1E45 /* SceneDelegate.swift */; };
 		1891CA6A244AC82B00EE1E45 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1891CA68244AC82B00EE1E45 /* Main.storyboard */; };
 		1891CA6D244AC82B00EE1E45 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1891CA6B244AC82B00EE1E45 /* LaunchScreen.storyboard */; };
+		18D48042244E8F2B00640C1A /* libc++.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 18D48041244E8F2B00640C1A /* libc++.tbd */; };
+		18D48044244E8F4500640C1A /* libz.1.2.11.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 18D48043244E8F4500640C1A /* libz.1.2.11.tbd */; };
+		18D48046244E8F4E00640C1A /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 18D48045244E8F4E00640C1A /* libz.tbd */; };
+		18D48048244E8F5B00640C1A /* libiconv.2.4.0.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 18D48047244E8F5B00640C1A /* libiconv.2.4.0.tbd */; };
+		18D4804A244E8F6300640C1A /* OpenAL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 18D48049244E8F6300640C1A /* OpenAL.framework */; };
+		18D4804C244E8F6A00640C1A /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 18D4804B244E8F6A00640C1A /* QuartzCore.framework */; };
+		18D4804E244E8F7000640C1A /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 18D4804D244E8F7000640C1A /* CoreFoundation.framework */; };
+		18D48050244E8F7B00640C1A /* R5Streaming.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 18D4804F244E8F7A00640C1A /* R5Streaming.framework */; };
+		18D48052244E90B100640C1A /* side_menu.png in Resources */ = {isa = PBXBuildFile; fileRef = 18D48051244E90B100640C1A /* side_menu.png */; };
+		18D48054244E932A00640C1A /* R5options.plist in Resources */ = {isa = PBXBuildFile; fileRef = 18D48053244E932A00640C1A /* R5options.plist */; };
+		18D48057244EA59D00640C1A /* DashBoardCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18D48055244EA59D00640C1A /* DashBoardCell.swift */; };
+		18D48058244EA59D00640C1A /* DashBoardCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 18D48056244EA59D00640C1A /* DashBoardCell.xib */; };
+		18D4805B244ED8F700640C1A /* dj.png in Resources */ = {isa = PBXBuildFile; fileRef = 18D4805A244ED8F700640C1A /* dj.png */; };
+		18D48060244EDDA300640C1A /* BaseTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18D4805E244EDDA200640C1A /* BaseTest.swift */; };
+		18D48063244EDDC900640C1A /* StreamDetailVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18D48062244EDDC900640C1A /* StreamDetailVC.swift */; };
+		18D48066244EDE4000640C1A /* ALToastView.m in Sources */ = {isa = PBXBuildFile; fileRef = 18D48065244EDE4000640C1A /* ALToastView.m */; };
+		18D48069244EDF9800640C1A /* Testbed.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18D48068244EDF9800640C1A /* Testbed.swift */; };
 		18EB81BD244ACAB9008EB09A /* SplashVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18EB81BC244ACAB9008EB09A /* SplashVC.swift */; };
 		18EB81C4244ACC40008EB09A /* LoginVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18EB81C3244ACC40008EB09A /* LoginVC.swift */; };
 		18EB81C7244ACC4F008EB09A /* SignUpVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18EB81C5244ACC4F008EB09A /* SignUpVC.swift */; };
@@ -35,6 +52,25 @@
 		1891CA69244AC82B00EE1E45 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		1891CA6C244AC82B00EE1E45 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		1891CA6E244AC82B00EE1E45 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		18D48041244E8F2B00640C1A /* libc++.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libc++.tbd"; path = "usr/lib/libc++.tbd"; sourceTree = SDKROOT; };
+		18D48043244E8F4500640C1A /* libz.1.2.11.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.1.2.11.tbd; path = usr/lib/libz.1.2.11.tbd; sourceTree = SDKROOT; };
+		18D48045244E8F4E00640C1A /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
+		18D48047244E8F5B00640C1A /* libiconv.2.4.0.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libiconv.2.4.0.tbd; path = usr/lib/libiconv.2.4.0.tbd; sourceTree = SDKROOT; };
+		18D48049244E8F6300640C1A /* OpenAL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenAL.framework; path = System/Library/Frameworks/OpenAL.framework; sourceTree = SDKROOT; };
+		18D4804B244E8F6A00640C1A /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
+		18D4804D244E8F7000640C1A /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
+		18D4804F244E8F7A00640C1A /* R5Streaming.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = R5Streaming.framework; sourceTree = "<group>"; };
+		18D48051244E90B100640C1A /* side_menu.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = side_menu.png; sourceTree = "<group>"; };
+		18D48053244E932A00640C1A /* R5options.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; name = R5options.plist; path = AreveaTV/Resources/R5options.plist; sourceTree = SOURCE_ROOT; };
+		18D48055244EA59D00640C1A /* DashBoardCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashBoardCell.swift; sourceTree = "<group>"; };
+		18D48056244EA59D00640C1A /* DashBoardCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = DashBoardCell.xib; sourceTree = "<group>"; };
+		18D4805A244ED8F700640C1A /* dj.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = dj.png; sourceTree = "<group>"; };
+		18D4805E244EDDA200640C1A /* BaseTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BaseTest.swift; sourceTree = "<group>"; };
+		18D48062244EDDC900640C1A /* StreamDetailVC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StreamDetailVC.swift; sourceTree = "<group>"; };
+		18D48064244EDE4000640C1A /* ALToastView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ALToastView.h; sourceTree = "<group>"; };
+		18D48065244EDE4000640C1A /* ALToastView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ALToastView.m; sourceTree = "<group>"; };
+		18D48067244EDEFA00640C1A /* AreveaTV-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "AreveaTV-Bridging-Header.h"; sourceTree = "<group>"; };
+		18D48068244EDF9800640C1A /* Testbed.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Testbed.swift; sourceTree = "<group>"; };
 		18EB81BC244ACAB9008EB09A /* SplashVC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SplashVC.swift; sourceTree = "<group>"; };
 		18EB81C3244ACC40008EB09A /* LoginVC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LoginVC.swift; sourceTree = "<group>"; };
 		18EB81C5244ACC4F008EB09A /* SignUpVC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SignUpVC.swift; sourceTree = "<group>"; };
@@ -59,6 +95,14 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				18D48050244E8F7B00640C1A /* R5Streaming.framework in Frameworks */,
+				18D4804E244E8F7000640C1A /* CoreFoundation.framework in Frameworks */,
+				18D4804C244E8F6A00640C1A /* QuartzCore.framework in Frameworks */,
+				18D4804A244E8F6300640C1A /* OpenAL.framework in Frameworks */,
+				18D48048244E8F5B00640C1A /* libiconv.2.4.0.tbd in Frameworks */,
+				18D48046244E8F4E00640C1A /* libz.tbd in Frameworks */,
+				18D48044244E8F4500640C1A /* libz.1.2.11.tbd in Frameworks */,
+				18D48042244E8F2B00640C1A /* libc++.tbd in Frameworks */,
 				C8D0A372F8CE8663D84930A1 /* Pods_AreveaTV.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -69,6 +113,14 @@
 		0679B73572824C8FC160B513 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				18D4804F244E8F7A00640C1A /* R5Streaming.framework */,
+				18D4804D244E8F7000640C1A /* CoreFoundation.framework */,
+				18D4804B244E8F6A00640C1A /* QuartzCore.framework */,
+				18D48049244E8F6300640C1A /* OpenAL.framework */,
+				18D48047244E8F5B00640C1A /* libiconv.2.4.0.tbd */,
+				18D48045244E8F4E00640C1A /* libz.tbd */,
+				18D48043244E8F4500640C1A /* libz.1.2.11.tbd */,
+				18D48041244E8F2B00640C1A /* libc++.tbd */,
 				9290EFE9F47E13554D29A225 /* Pods_AreveaTV.framework */,
 			);
 			name = Frameworks;
@@ -77,6 +129,7 @@
 		1891CA56244AC82B00EE1E45 = {
 			isa = PBXGroup;
 			children = (
+				18D48067244EDEFA00640C1A /* AreveaTV-Bridging-Header.h */,
 				1891CA61244AC82B00EE1E45 /* AreveaTV */,
 				1891CA60244AC82B00EE1E45 /* Products */,
 				D7872CF7AC4A51A0B3A07F8E /* Pods */,
@@ -107,6 +160,15 @@
 				18EB81CF244AD305008EB09A /* Resources */,
 			);
 			path = AreveaTV;
+			sourceTree = "<group>";
+		};
+		18D48059244EA5A600640C1A /* DashBoardCell */ = {
+			isa = PBXGroup;
+			children = (
+				18D48055244EA59D00640C1A /* DashBoardCell.swift */,
+				18D48056244EA59D00640C1A /* DashBoardCell.xib */,
+			);
+			path = DashBoardCell;
 			sourceTree = "<group>";
 		};
 		18EB81BB244ACAA8008EB09A /* Splash */ = {
@@ -156,7 +218,14 @@
 		18EB81C2244ACC2C008EB09A /* DashBoard */ = {
 			isa = PBXGroup;
 			children = (
+				18D48064244EDE4000640C1A /* ALToastView.h */,
+				18D48065244EDE4000640C1A /* ALToastView.m */,
+				18D48068244EDF9800640C1A /* Testbed.swift */,
+				18D48053244E932A00640C1A /* R5options.plist */,
 				18EB81CD244ACC86008EB09A /* DashBoardVC.swift */,
+				18D4805E244EDDA200640C1A /* BaseTest.swift */,
+				18D48062244EDDC900640C1A /* StreamDetailVC.swift */,
+				18D48059244EA5A600640C1A /* DashBoardCell */,
 			);
 			path = DashBoard;
 			sourceTree = "<group>";
@@ -174,8 +243,10 @@
 			children = (
 				18EB81D2244AD3D1008EB09A /* bg.png */,
 				18EB81D3244AD3D2008EB09A /* icon_fb.png */,
+				18D4805A244ED8F700640C1A /* dj.png */,
 				18EB81D4244AD3D2008EB09A /* icon_insta.png */,
 				18EB81D5244AD3D2008EB09A /* logo.png */,
+				18D48051244E90B100640C1A /* side_menu.png */,
 				18EB81D6244AD3D2008EB09A /* splash.png */,
 				18EB81D1244AD3D1008EB09A /* icon_twitter.png */,
 			);
@@ -251,15 +322,19 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				18D4805B244ED8F700640C1A /* dj.png in Resources */,
 				18EB81DC244AD3D2008EB09A /* splash.png in Resources */,
 				18EB81DA244AD3D2008EB09A /* icon_insta.png in Resources */,
+				18D48058244EA59D00640C1A /* DashBoardCell.xib in Resources */,
 				18EB81D7244AD3D2008EB09A /* icon_twitter.png in Resources */,
+				18D48054244E932A00640C1A /* R5options.plist in Resources */,
 				18EB81DB244AD3D2008EB09A /* logo.png in Resources */,
 				1891CA6A244AC82B00EE1E45 /* Main.storyboard in Resources */,
 				18EB81DE244B4341008EB09A /* awsconfiguration.json in Resources */,
 				18EB81D9244AD3D2008EB09A /* icon_fb.png in Resources */,
 				18EB81D8244AD3D2008EB09A /* bg.png in Resources */,
 				1891CA6D244AC82B00EE1E45 /* LaunchScreen.storyboard in Resources */,
+				18D48052244E90B100640C1A /* side_menu.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -314,12 +389,17 @@
 			files = (
 				18EB81C7244ACC4F008EB09A /* SignUpVC.swift in Sources */,
 				18EB81C8244ACC4F008EB09A /* ConfirmSignUpVC.swift in Sources */,
+				18D48063244EDDC900640C1A /* StreamDetailVC.swift in Sources */,
 				18EB81CE244ACC86008EB09A /* DashBoardVC.swift in Sources */,
+				18D48066244EDE4000640C1A /* ALToastView.m in Sources */,
 				18EB81CB244ACC5B008EB09A /* ResetPasswordVC.swift in Sources */,
+				18D48060244EDDA300640C1A /* BaseTest.swift in Sources */,
 				1891CA63244AC82B00EE1E45 /* AppDelegate.swift in Sources */,
 				1891CA65244AC82B00EE1E45 /* SceneDelegate.swift in Sources */,
 				18EB81C4244ACC40008EB09A /* LoginVC.swift in Sources */,
 				18EB81BD244ACAB9008EB09A /* SplashVC.swift in Sources */,
+				18D48069244EDF9800640C1A /* Testbed.swift in Sources */,
+				18D48057244EA59D00640C1A /* DashBoardCell.swift in Sources */,
 				18EB81CC244ACC5B008EB09A /* NewPasswordVC.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -380,6 +460,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_BITCODE = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -440,6 +521,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_BITCODE = NO;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -465,15 +547,22 @@
 			baseConfigurationReference = A548ED8DA0ABEB1FF1BF009E /* Pods-AreveaTV.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = M6U48XKJMW;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
 				INFOPLIST_FILE = AreveaTV/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.product.AreveaTV;
+				PRODUCT_BUNDLE_IDENTIFIER = com.techvedika.arevea;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "Arevea Development";
+				SWIFT_OBJC_BRIDGING_HEADER = "AreveaTV-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -484,15 +573,22 @@
 			baseConfigurationReference = 783C47A52DE81D11826FBA5C /* Pods-AreveaTV.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = M6U48XKJMW;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
 				INFOPLIST_FILE = AreveaTV/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.product.AreveaTV;
+				PRODUCT_BUNDLE_IDENTIFIER = com.techvedika.arevea;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "Arevea Development";
+				SWIFT_OBJC_BRIDGING_HEADER = "AreveaTV-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};

@@ -9,10 +9,11 @@
 import UIKit
 import AWSMobileClient
 
-class ResetPasswordVC: UIViewController {
+class ResetPasswordVC: UIViewController ,UITextFieldDelegate{
     
     @IBOutlet weak var txtEmail: UITextField!
-    
+    @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
+
     override func viewDidLoad() {
         super.viewDidLoad()
         self.assignbackground();
@@ -30,46 +31,75 @@ class ResetPasswordVC: UIViewController {
         view.addSubview(imageView)
         self.view.sendSubviewToBack(imageView)
     }
-    
-    @IBAction func submitUsername(_ sender: Any) {
+    func showAlert(strMsg: String){
+        let alert = UIAlertController(title: "Alert", message: strMsg, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
         
-        guard let username = txtEmail.text else {
-            print("No username")
-            return
+        DispatchQueue.main.async {
+            self.present(alert, animated: true)
         }
-        
-        AWSMobileClient.sharedInstance().forgotPassword(username: username) { (forgotPasswordResult, error) in
-            if let forgotPasswordResult = forgotPasswordResult {
-                switch(forgotPasswordResult.forgotPasswordState) {
-                case .confirmationCodeSent:
-                    
-                    guard let codeDeliveryDetails = forgotPasswordResult.codeDeliveryDetails else {
-                        return
-                    }
-                    
-                    let alert = UIAlertController(title: "Code sent",
-                                                  message: "Confirmation code sent via \(codeDeliveryDetails.deliveryMedium) to: \(codeDeliveryDetails.destination!)",
-                        preferredStyle: .alert)
-                    
-                    alert.addAction(UIAlertAction(title: "Dismiss", style: .cancel) { _ in
-                        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-                        appDelegate.USER_EMAIL = username;
-                        let storyboard = UIStoryboard(name: "Main", bundle: nil);
-                        let vc = storyboard.instantiateViewController(withIdentifier: "NewPasswordVC") as! NewPasswordVC
-                        self.navigationController?.pushViewController(vc, animated: true)
-                    })
-                    
-                    DispatchQueue.main.async {
-                        self.present(alert, animated: true, completion: nil)
-                    }
-                    
-                default:
-                    print("Error: Invalid case.")
+    }
+    func isValidEmail() -> Bool {
+           let emailRegEx = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}"
+           let emailPred = NSPredicate(format:"SELF MATCHES %@", emailRegEx)
+           return emailPred.evaluate(with: txtEmail.text)
+       }
+    @IBAction func submitUsername(_ sender: Any) {
+        txtEmail.resignFirstResponder();
+        if (txtEmail.text?.count == 0){
+            showAlert(strMsg: "Please enter email");
+        }else if (!isValidEmail()){
+            showAlert(strMsg: "Please enter valid email");
+        }else{
+            guard let username = txtEmail.text else {
+                print("No username")
+                return
+            }
+            activityIndicator.isHidden = false
+            activityIndicator.startAnimating()
+            AWSMobileClient.sharedInstance().forgotPassword(username: username) { (forgotPasswordResult, error) in
+                DispatchQueue.main.async {
+                    self.activityIndicator.stopAnimating();
+                    self.activityIndicator.isHidden = true;
                 }
-            } else if let error = error {
-                print("Error occurred: \(error.localizedDescription)")
+                if let error = error {
+                    self.showAlert(strMsg: "\(error)");
+                           print("\(error)")
+                           return
+                       }
+                if let forgotPasswordResult = forgotPasswordResult {
+                    switch(forgotPasswordResult.forgotPasswordState) {
+                    case .confirmationCodeSent:
+                        
+                        guard let codeDeliveryDetails = forgotPasswordResult.codeDeliveryDetails else {
+                            return
+                        }
+                        
+                        let alert = UIAlertController(title: "Code sent",
+                                                      message: "Confirmation code sent via \(codeDeliveryDetails.deliveryMedium) to: \(codeDeliveryDetails.destination!)",
+                            preferredStyle: .alert)
+                        
+                        alert.addAction(UIAlertAction(title: "Dismiss", style: .cancel) { _ in
+                            let appDelegate = UIApplication.shared.delegate as! AppDelegate
+                            appDelegate.USER_EMAIL = username;
+                            let storyboard = UIStoryboard(name: "Main", bundle: nil);
+                            let vc = storyboard.instantiateViewController(withIdentifier: "NewPasswordVC") as! NewPasswordVC
+                            self.navigationController?.pushViewController(vc, animated: true)
+                        })
+                        
+                        DispatchQueue.main.async {
+                            self.present(alert, animated: true, completion: nil)
+                        }
+                        
+                    default:
+                        print("Error: Invalid case.")
+                    }
+                } else if let error = error {
+                    print("Error occurred: \(error.localizedDescription)")
+                }
             }
         }
+        
         
         
     }
@@ -82,4 +112,16 @@ class ResetPasswordVC: UIViewController {
             }
         }
     }
+    // MARK: Text Field Delegate Methods
+
+    func textFieldDidBeginEditing(_ textField: UITextField) {
+     }
+     func textFieldDidEndEditing(_ textField: UITextField) {
+         textField.resignFirstResponder();
+     }
+    
+     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+         textField.resignFirstResponder();
+         return true;
+     }
 }

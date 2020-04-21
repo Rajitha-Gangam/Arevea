@@ -13,6 +13,7 @@ class LoginVC: UIViewController,UITextFieldDelegate {
     
     @IBOutlet weak var txtUserName: UITextField!
     @IBOutlet weak var txtPassword: UITextField!
+    @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -44,9 +45,15 @@ class LoginVC: UIViewController,UITextFieldDelegate {
     func AWSsignIn(){
         let username = txtUserName.text!
         let password = txtPassword.text!
+        activityIndicator.isHidden = false
+        activityIndicator.startAnimating()
         
         AWSMobileClient.sharedInstance().signIn(username: username, password: password) {
             (signInResult, error) in
+            DispatchQueue.main.async {
+                self.activityIndicator.stopAnimating();
+                self.activityIndicator.isHidden = true;
+            }
             if let error =  error as? AWSMobileClientError {
                 switch(error) {
                 case .notAuthorized(let message):
@@ -65,7 +72,7 @@ class LoginVC: UIViewController,UITextFieldDelegate {
                     }
                     
                 default:
-                    self.showAlert(strMsg: error.localizedDescription);
+                    self.showAlert(strMsg: "\(error)");
                     break
                 }
                 print("There's an error : \(error.localizedDescription)")
@@ -94,9 +101,18 @@ class LoginVC: UIViewController,UITextFieldDelegate {
             }
         }
     }
+    func isValidEmail() -> Bool {
+        let emailRegEx = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}"
+        let emailPred = NSPredicate(format:"SELF MATCHES %@", emailRegEx)
+        return emailPred.evaluate(with: txtUserName.text)
+    }
     @IBAction func login(_ sender: Any) {
+        txtUserName.resignFirstResponder();
+        txtPassword.resignFirstResponder();
         if (txtUserName.text?.count == 0){
-            showAlert(strMsg: "Please enter username");
+            showAlert(strMsg: "Please enter email");
+        }else if (!isValidEmail()){
+            showAlert(strMsg: "Please enter valid email");
         }else if (txtPassword.text?.count == 0){
             showAlert(strMsg: "Please enter password");
         }else{
@@ -125,6 +141,18 @@ class LoginVC: UIViewController,UITextFieldDelegate {
                                                                 print("Status: \(userState.rawValue)")
                                                             }
         }
+    }
+    // MARK: Text Field Delegate Methods
+    
+    func textFieldDidBeginEditing(_ textField: UITextField) {
+    }
+    func textFieldDidEndEditing(_ textField: UITextField) {
+        textField.resignFirstResponder();
+    }
+    
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder();
+        return true;
     }
 }
 
