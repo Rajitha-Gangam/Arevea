@@ -9,6 +9,8 @@
 import UIKit
 
 class DashBoardCell: UITableViewCell {
+    @IBOutlet weak var image1: UIImageView!
+    @IBOutlet weak var image2: UIImageView!
 
     override func awakeFromNib() {
         super.awakeFromNib()

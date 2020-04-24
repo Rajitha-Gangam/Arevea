@@ -21,6 +21,19 @@ class ConfirmSignUpVC: UIViewController,UITextFieldDelegate {
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         username = appDelegate.USER_EMAIL;
         // Do any additional setup after loading the view.
+        addDoneButton()
+
+    }
+    func addDoneButton() {
+        let toolbar = UIToolbar()
+        let flexButton = UIBarButtonItem(barButtonSystemItem: UIBarButtonItem.SystemItem.flexibleSpace, target: nil, action: nil)
+        let doneButton = UIBarButtonItem(title: "Done", style: .plain, target: self, action:#selector(resignKB(_:)))
+        toolbar.setItems([flexButton, doneButton], animated: true)
+        toolbar.sizeToFit()
+        txtCode.inputAccessoryView = toolbar;
+    }
+    @IBAction func resignKB(_ sender: Any) {
+        txtCode.resignFirstResponder();
     }
     func assignbackground(){
         let background = UIImage(named: "bg")
@@ -163,5 +176,8 @@ class ConfirmSignUpVC: UIViewController,UITextFieldDelegate {
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder();
         return true;
+    }
+    override var preferredStatusBarStyle: UIStatusBarStyle {
+        return .lightContent // .default
     }
 }

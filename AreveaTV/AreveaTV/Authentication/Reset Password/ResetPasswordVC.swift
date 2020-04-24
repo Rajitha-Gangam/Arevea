@@ -19,6 +19,19 @@ class ResetPasswordVC: UIViewController ,UITextFieldDelegate{
         self.assignbackground();
         
         // Do any additional setup after loading the view.
+        addDoneButton()
+
+    }
+    func addDoneButton() {
+        let toolbar = UIToolbar()
+        let flexButton = UIBarButtonItem(barButtonSystemItem: UIBarButtonItem.SystemItem.flexibleSpace, target: nil, action: nil)
+        let doneButton = UIBarButtonItem(title: "Done", style: .plain, target: self, action:#selector(resignKB(_:)))
+        toolbar.setItems([flexButton, doneButton], animated: true)
+        toolbar.sizeToFit()
+        txtEmail.inputAccessoryView = toolbar;
+    }
+    @IBAction func resignKB(_ sender: Any) {
+        txtEmail.resignFirstResponder();
     }
     func assignbackground(){
         let background = UIImage(named: "bg")
@@ -124,4 +137,7 @@ class ResetPasswordVC: UIViewController ,UITextFieldDelegate{
          textField.resignFirstResponder();
          return true;
      }
+    override var preferredStatusBarStyle: UIStatusBarStyle {
+        return .lightContent // .default
+    }
 }

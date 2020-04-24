@@ -28,9 +28,28 @@ class SignUpVC: UIViewController ,UITextFieldDelegate{
         //        txtPassword.text = "V@rshitha12345";
         //        txtCfrmPassword.text =  "V@rshitha12345";
         //        txtPhone.text = "+918096823214";
+        addDoneButton()
 
     }
-    
+    func addDoneButton() {
+        let toolbar = UIToolbar()
+        let flexButton = UIBarButtonItem(barButtonSystemItem: UIBarButtonItem.SystemItem.flexibleSpace, target: nil, action: nil)
+        let doneButton = UIBarButtonItem(title: "Done", style: .plain, target: self, action:#selector(resignKB(_:)))
+        toolbar.setItems([flexButton, doneButton], animated: true)
+        toolbar.sizeToFit()
+        txtUserName.inputAccessoryView = toolbar;
+        txtEmail.inputAccessoryView = toolbar;
+        txtPhone.inputAccessoryView = toolbar;
+        txtPassword.inputAccessoryView = toolbar;
+        txtCfrmPassword.inputAccessoryView = toolbar;
+    }
+    @IBAction func resignKB(_ sender: Any) {
+        txtUserName.resignFirstResponder();
+        txtEmail.resignFirstResponder();
+        txtPhone.resignFirstResponder();
+        txtPassword.resignFirstResponder();
+        txtCfrmPassword.resignFirstResponder();
+    }
     func assignbackground(){
         let background = UIImage(named: "bg")
         var imageView : UIImageView!
@@ -52,6 +71,7 @@ class SignUpVC: UIViewController ,UITextFieldDelegate{
             switch(error) {
             case .usernameExists(let message):
             showAlert(strMsg: message);
+                
             default:
                 showAlert(strMsg: "\(error)");
                 break
@@ -201,4 +221,7 @@ class SignUpVC: UIViewController ,UITextFieldDelegate{
        self.view.frame = self.view.frame.offsetBy(dx: 0, dy: movement)
        UIView.commitAnimations()
    }
+    override var preferredStatusBarStyle: UIStatusBarStyle {
+        return .lightContent // .default
+    }
 }

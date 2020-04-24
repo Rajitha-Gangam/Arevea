@@ -166,7 +166,10 @@ if [[ "$CONFIGURATION" == "Debug" ]]; then
   install_framework "${BUILT_PRODUCTS_DIR}/AWSCognitoIdentityProviderASF/AWSCognitoIdentityProviderASF.framework"
   install_framework "${BUILT_PRODUCTS_DIR}/AWSCore/AWSCore.framework"
   install_framework "${BUILT_PRODUCTS_DIR}/AWSMobileClient/AWSMobileClient.framework"
+  install_framework "${BUILT_PRODUCTS_DIR}/Alamofire/Alamofire.framework"
   install_framework "${BUILT_PRODUCTS_DIR}/IQKeyboardManagerSwift/IQKeyboardManagerSwift.framework"
+  install_framework "${PODS_ROOT}/Instabug/Instabug.framework"
+  install_dsym "${PODS_ROOT}/Instabug/Instabug.framework.dSYM"
   install_framework "${BUILT_PRODUCTS_DIR}/KeychainAccess/KeychainAccess.framework"
 fi
 if [[ "$CONFIGURATION" == "Release" ]]; then
@@ -175,7 +178,10 @@ if [[ "$CONFIGURATION" == "Release" ]]; then
   install_framework "${BUILT_PRODUCTS_DIR}/AWSCognitoIdentityProviderASF/AWSCognitoIdentityProviderASF.framework"
   install_framework "${BUILT_PRODUCTS_DIR}/AWSCore/AWSCore.framework"
   install_framework "${BUILT_PRODUCTS_DIR}/AWSMobileClient/AWSMobileClient.framework"
+  install_framework "${BUILT_PRODUCTS_DIR}/Alamofire/Alamofire.framework"
   install_framework "${BUILT_PRODUCTS_DIR}/IQKeyboardManagerSwift/IQKeyboardManagerSwift.framework"
+  install_framework "${PODS_ROOT}/Instabug/Instabug.framework"
+  install_dsym "${PODS_ROOT}/Instabug/Instabug.framework.dSYM"
   install_framework "${BUILT_PRODUCTS_DIR}/KeychainAccess/KeychainAccess.framework"
 fi
 if [ "${COCOAPODS_PARALLEL_CODE_SIGN}" == "true" ]; then

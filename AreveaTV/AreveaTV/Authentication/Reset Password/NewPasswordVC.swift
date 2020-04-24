@@ -14,7 +14,7 @@ class NewPasswordVC: UIViewController ,UITextFieldDelegate{
     @IBOutlet weak var txtCode: UITextField!
     @IBOutlet weak var txtPwd: UITextField!
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
-
+    
     var username: String?
     
     
@@ -25,6 +25,21 @@ class NewPasswordVC: UIViewController ,UITextFieldDelegate{
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         username = appDelegate.USER_EMAIL;
         // Do any additional setup after loading the view.
+        addDoneButton()
+        
+    }
+    func addDoneButton() {
+        let toolbar = UIToolbar()
+        let flexButton = UIBarButtonItem(barButtonSystemItem: UIBarButtonItem.SystemItem.flexibleSpace, target: nil, action: nil)
+        let doneButton = UIBarButtonItem(title: "Done", style: .plain, target: self, action:#selector(resignKB(_:)))
+        toolbar.setItems([flexButton, doneButton], animated: true)
+        toolbar.sizeToFit()
+        txtCode.inputAccessoryView = toolbar;
+        txtPwd.inputAccessoryView = toolbar;
+    }
+    @IBAction func resignKB(_ sender: Any) {
+        txtCode.resignFirstResponder();
+        txtPwd.resignFirstResponder();
     }
     func assignbackground(){
         let background = UIImage(named: "bg")
@@ -60,20 +75,20 @@ class NewPasswordVC: UIViewController ,UITextFieldDelegate{
             }
             activityIndicator.isHidden = false
             activityIndicator.startAnimating()
-
+            
             AWSMobileClient.sharedInstance().confirmForgotPassword(username: username,
                                                                    newPassword: newPassword,
                                                                    confirmationCode: confirmationCode) { (forgotPasswordResult, error) in
                                                                     DispatchQueue.main.async {
-                                                                                                                                          self.activityIndicator.stopAnimating();
-                                                                                                                                          self.activityIndicator.isHidden = true;
-                                                                                                                                      }
+                                                                        self.activityIndicator.stopAnimating();
+                                                                        self.activityIndicator.isHidden = true;
+                                                                    }
                                                                     if let error = error {
                                                                         self.showAlert(strMsg: "\(error)");
-                                                                               print("\(error)")
-                                                                               return
-                                                                           }
-                                                                  
+                                                                        print("\(error)")
+                                                                        return
+                                                                    }
+                                                                    
                                                                     if let forgotPasswordResult = forgotPasswordResult {
                                                                         switch(forgotPasswordResult.forgotPasswordState) {
                                                                         case .done:
@@ -90,11 +105,14 @@ class NewPasswordVC: UIViewController ,UITextFieldDelegate{
     }
     
     @IBAction func dismiss(_ sender: Any) {
+        DispatchQueue.main.async {
+
         for controller in self.navigationController!.viewControllers as Array {
             if controller.isKind(of: LoginVC.self) {
                 self.navigationController!.popToViewController(controller, animated: true)
                 break
             }
+        }
         }
     }
     // MARK: Text Field Delegate Methods
@@ -108,5 +126,8 @@ class NewPasswordVC: UIViewController ,UITextFieldDelegate{
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder();
         return true;
+    }
+    override var preferredStatusBarStyle: UIStatusBarStyle {
+        return .lightContent // .default
     }
 }

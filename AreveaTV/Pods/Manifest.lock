@@ -1,4 +1,5 @@
 PODS:
+  - Alamofire (5.1.0)
   - AWSAuthCore (2.9.10):
     - AWSCore (= 2.9.10)
   - AWSCognitoIdentityProvider (2.9.10):
@@ -9,34 +10,41 @@ PODS:
   - AWSMobileClient (2.9.10):
     - AWSAuthCore (= 2.9.10)
     - AWSCognitoIdentityProvider (= 2.9.10)
+  - Instabug (9.1.2)
   - IQKeyboardManagerSwift (6.5.5)
   - KeychainAccess (4.1.0)
 
 DEPENDENCIES:
+  - Alamofire
   - AWSCore (~> 2.9.0)
   - AWSMobileClient (~> 2.9.0)
+  - Instabug
   - IQKeyboardManagerSwift
   - KeychainAccess
 
 SPEC REPOS:
   https://github.com/cocoapods/specs.git:
+    - Alamofire
     - AWSAuthCore
     - AWSCognitoIdentityProvider
     - AWSCognitoIdentityProviderASF
     - AWSCore
     - AWSMobileClient
+    - Instabug
     - IQKeyboardManagerSwift
     - KeychainAccess
 
 SPEC CHECKSUMS:
+  Alamofire: 9d5c5f602928e512395b30950c5984eca840093c
   AWSAuthCore: d6d222a7eeae403f968afb5b9b3975bd96340d91
   AWSCognitoIdentityProvider: 5e72467f174a970e9d357fc06666e3f32e6eda70
   AWSCognitoIdentityProviderASF: f94f1a502e72ef3d0a1de93e10bf7a79c8698118
   AWSCore: 22b6bbc6761ca9981d878155d11bc02edd681a64
   AWSMobileClient: a0768be5b34a5a2eb39fd3fcd5d4f14125d4ebbb
+  Instabug: a638cb57c8768b102bab2930b68ed81f2d7ab877
   IQKeyboardManagerSwift: 0fb93310284665245591f50f7a5e38de615960b7
   KeychainAccess: 445e28864fe6d3458b41fa211bcdc39890e8bd5a
 
-PODFILE CHECKSUM: 4cbb6f5108484f2e820a0a7fb42d2bb8b9ea6328
+PODFILE CHECKSUM: 438cc73271f2bb0c1d36ce2894ae87ee517a0087
 
 COCOAPODS: 1.7.3

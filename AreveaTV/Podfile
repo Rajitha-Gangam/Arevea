@@ -9,5 +9,6 @@ target 'AreveaTV' do
   pod 'IQKeyboardManagerSwift'
   pod 'AWSCore', '~> 2.9.0'
   pod 'AWSMobileClient', '~> 2.9.0'
-
+  pod 'Instabug'
+pod ‘Alamofire’
 end

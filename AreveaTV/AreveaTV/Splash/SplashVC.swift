@@ -20,42 +20,54 @@ class SplashVC: UIViewController {
         //        activityIndicator.isHidden = false
         //        activityIndicator.startAnimating()
         
-        AWSMobileClient.sharedInstance().initialize { (userState, error) in
-            if let error = error {
-                print("error: \(error.localizedDescription)")
-                return
-            }
-            
-            guard let userState = userState else {
-                return
-            }
-            
-            print("The user is \(userState.rawValue).")
-            
-            // self.activityIndicator.stopAnimating()
-            
-            // Check if user availability
-            switch userState {
-                
-                
-            case .signedIn:
-                // Show home page
-                NSLog("signedIn");
-                let vc = UIStoryboard.init(name: "Main", bundle: Bundle.main).instantiateViewController(withIdentifier: "DashBoardVC") as? DashBoardVC
-                self.navigationController?.pushViewController(vc!, animated: true)
-                break
-            default:
-                NSLog("default");
-                let storyboard = UIStoryboard(name: "Main", bundle: nil);
-                let vc = storyboard.instantiateViewController(withIdentifier: "LoginVC") as! LoginVC
-                self.navigationController?.pushViewController(vc, animated: true)
-                break
-            }
+        delayWithSeconds(10000){}
+    }
+    
+    func delayWithSeconds(_ seconds: Double, completion: @escaping () -> ()) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + seconds) {
+            completion()
         }
+    }
+    func initAWS(){
+        AWSMobileClient.sharedInstance().initialize { (userState, error) in
+                   if let error = error {
+                       print("error: \(error.localizedDescription)")
+                       return
+                   }
+                   
+                   guard let userState = userState else {
+                       return
+                   }
+                   
+                   print("The user is \(userState.rawValue).")
+                   
+                   // self.activityIndicator.stopAnimating()
+                   
+                   // Check if user availability
+                   switch userState {
+                       
+                       
+                   case .signedIn:
+                       // Show home page
+                       NSLog("signedIn");
+                       let vc = UIStoryboard.init(name: "Main", bundle: Bundle.main).instantiateViewController(withIdentifier: "DashBoardVC") as? DashBoardVC
+                       self.navigationController?.pushViewController(vc!, animated: true)
+                       break
+                   default:
+                       NSLog("default");
+                       let storyboard = UIStoryboard(name: "Main", bundle: nil);
+                       let vc = storyboard.instantiateViewController(withIdentifier: "LoginVC") as! LoginVC
+                       self.navigationController?.pushViewController(vc, animated: true)
+                       break
+                   }
+               }
+    }
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(true);
+        initAWS();
     }
     func assignbackground(){
         let background = UIImage(named: "splash")
-        
         var imageView : UIImageView!
         imageView = UIImageView(frame: view.bounds)
         imageView.contentMode =  UIView.ContentMode.scaleAspectFill
@@ -64,5 +76,8 @@ class SplashVC: UIViewController {
         imageView.center = view.center
         view.addSubview(imageView)
         self.view.sendSubviewToBack(imageView)
+    }
+    override var preferredStatusBarStyle: UIStatusBarStyle {
+        return .lightContent // .default
     }
 }

@@ -9,20 +9,42 @@
 import UIKit
 import AWSMobileClient
 
-class LoginVC: UIViewController,UITextFieldDelegate {
+class LoginVC: UIViewController,UITextFieldDelegate, UIPickerViewDelegate, UIPickerViewDataSource {
     
     @IBOutlet weak var txtUserName: UITextField!
     @IBOutlet weak var txtPassword: UITextField!
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
-    
+    @IBOutlet weak var txtEnv: UITextField!
+
+    var pickerData: [String] = [String]()
     override func viewDidLoad() {
         super.viewDidLoad()
         self.assignbackground();
         txtUserName.delegate = self;
         txtPassword.delegate = self;
         self.navigationController?.isNavigationBarHidden = true
-        
+        txtUserName.text = "grajitha2009@gmail.com";
+        txtPassword.text = "V@rshitha12345";
+        addDoneButton()
+        pickerData = ["dev", "qa", "pre-prod", "prod"]
+        createPickerView()
+        dismissPickerView()
+
     }
+    @IBAction func resignKB(_ sender: Any) {
+        txtUserName.resignFirstResponder();
+        txtPassword.resignFirstResponder();
+    }
+    func addDoneButton() {
+        let toolbar = UIToolbar()
+        let flexButton = UIBarButtonItem(barButtonSystemItem: UIBarButtonItem.SystemItem.flexibleSpace, target: nil, action: nil)
+        let doneButton = UIBarButtonItem(title: "Done", style: .plain, target: self, action:#selector(resignKB(_:)))
+        toolbar.setItems([flexButton, doneButton], animated: true)
+        toolbar.sizeToFit()
+        txtUserName.inputAccessoryView = toolbar;
+        txtPassword.inputAccessoryView = toolbar;
+    }
+
     func assignbackground(){
         let background = UIImage(named: "bg")
         var imageView : UIImageView!
@@ -122,7 +144,7 @@ class LoginVC: UIViewController,UITextFieldDelegate {
     
     @IBAction func signUp(_ sender: Any) {
         let storyboard = UIStoryboard(name: "Main", bundle: nil);
-        let vc = storyboard.instantiateViewController(withIdentifier: "SignUpVC") as! SignUpVC
+        let vc = storyboard.instantiateViewController(withIdentifier: "SubscriptionPlanVC") as! SubscriptionPlanVC
         self.navigationController?.pushViewController(vc, animated: true)
     }
     @IBAction func forgotPassword(_ sender: Any) {
@@ -132,7 +154,7 @@ class LoginVC: UIViewController,UITextFieldDelegate {
     }
     @IBAction func facebook(_ sender: Any) {
         // Perform SAML token federation
-        AWSMobileClient.sharedInstance().federatedSignIn(providerName: "Facebook",
+       /* AWSMobileClient.sharedInstance().federatedSignIn(providerName: "Facebook",
                                                          token: "230469618276761") { (userState, error) in
                                                             if let error = error as? AWSMobileClientError {
                                                                 print(error.localizedDescription)
@@ -140,7 +162,7 @@ class LoginVC: UIViewController,UITextFieldDelegate {
                                                             if let userState = userState {
                                                                 print("Status: \(userState.rawValue)")
                                                             }
-        }
+        }*/
     }
     // MARK: Text Field Delegate Methods
     
@@ -153,6 +175,49 @@ class LoginVC: UIViewController,UITextFieldDelegate {
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder();
         return true;
+    }
+    override var preferredStatusBarStyle: UIStatusBarStyle {
+        return .lightContent // .default
+    }
+    // MARK: Picker DataSource & Delegate Methods
+
+   func numberOfComponents(in pickerView: UIPickerView) -> Int {
+        return 1
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
+        return pickerData.count
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
+        return pickerData[row]
+       
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
+        var selectedItem = pickerData[row]
+        txtEnv.text = selectedItem
+    }
+    
+    func createPickerView() {
+        let pickerView = UIPickerView()
+        pickerView.delegate = self
+        txtEnv.inputView = pickerView
+    }
+    
+    func dismissPickerView() {
+        let toolBar = UIToolbar()
+        toolBar.sizeToFit()
+        let flexButton = UIBarButtonItem(barButtonSystemItem: UIBarButtonItem.SystemItem.flexibleSpace, target: nil, action: nil)
+        let button = UIBarButtonItem(title: "Done", style: .plain, target: self, action: #selector(self.action))
+        toolBar.setItems([flexButton, button], animated: true)
+        toolBar.setItems([button], animated: true)
+        toolBar.isUserInteractionEnabled = true
+        txtEnv.inputAccessoryView = toolBar
+    }
+    
+    @objc func action() {
+       view.endEditing(true)
     }
 }
 
