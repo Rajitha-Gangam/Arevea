@@ -11,9 +11,11 @@ import R5Streaming
 
 @objc(SubscribeTest)
 class SubscribeTest: BaseTest {
-    
-    var current_rotation = 0;
+    var slider: UISlider?
 
+    var current_rotation = 0;
+    var audioBtn: UIButton? = nil
+    var videoBtn: UIButton? = nil
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -32,13 +34,96 @@ class SubscribeTest: BaseTest {
         self.subscribeStream = R5Stream(connection: connection)
         self.subscribeStream!.delegate = self
         self.subscribeStream?.client = self;
-        
+       // self.subscribeStream.subscribeToAudio = YES;
+
         currentView?.attach(subscribeStream)
         
         self.subscribeStream!.play(Testbed.getParameter(param: "stream1") as! String, withHardwareAcceleration:Testbed.getParameter(param: "hwaccel_on") as! Bool)
         
+         //self.subscribeStream!.audioController.setPlaybackGain(0);
+        //setPlaybackGain(0) means mute
+        //setPlaybackGain(1.0f); means unmute
+        
+        let screenSize = UIScreen.main.bounds.size
+        
+        audioBtn = UIButton(frame: CGRect(x: (screenSize.width * 0.6) - 100, y: screenSize.height - 100, width: 50, height: 50))
+        audioBtn?.backgroundColor = UIColor.darkGray
+        audioBtn?.setTitle("", for: UIControl.State.normal)
+        audioBtn?.setImage(UIImage.init(named: "mute.png"), for: .normal);
+        view.addSubview(audioBtn!)
+        let tap = UITapGestureRecognizer(target: self, action: #selector(pauseAudio))
+        audioBtn?.addGestureRecognizer(tap)
+        
+//        videoBtn = UIButton(frame: CGRect(x: (screenSize.width * 0.6) - 120, y: screenSize.height - 40, width: 50, height: 40))
+//        videoBtn?.backgroundColor = UIColor.darkGray
+//        videoBtn?.setTitle("video", for: UIControl.State.normal)
+//        view.addSubview(videoBtn!)
+//        let tap2 = UITapGestureRecognizer(target: self, action: #selector(pauseVideo))
+//        videoBtn?.addGestureRecognizer(tap2)
+        let f = self.view.frame
+        slider = UISlider(frame: CGRect(x:40, y:f.size.height - 40, width:f.size.width - 80, height:20))
+        slider?.minimumValue = 0
+        slider?.maximumValue = 100
+        slider?.isContinuous = true
+        slider?.tintColor = UIColor.blue
+        slider?.value = 100
+        slider?.addTarget(self, action: #selector(sliderValueDidChange(sender:)), for: .valueChanged)
+        self.view.addSubview(slider!)
+        
+    }
+    @objc func sliderValueDidChange(sender:UISlider!) {
+           self.subscribeStream?.audioController.volume = slider!.value / 100
+       }
+    @objc func pauseAudio() {
+        
+        let hasAudio = !(self.subscribeStream?.pauseAudio)!;
+        self.subscribeStream?.pauseAudio = hasAudio;
+        if (hasAudio){
+            audioBtn?.setImage(UIImage.init(named: "mute.png"), for: .normal);
+            ALToastView.toast(in: self.view, withText:"Pausing Audio")
+        }else{
+            audioBtn?.setImage(UIImage.init(named: "unmute.png"), for: .normal);
+            ALToastView.toast(in: self.view, withText:"Playing Audio")
+
+        }
+        
     }
     
+    @objc func pauseVideo() {
+        
+        let hasVideo = !(self.subscribeStream?.pauseVideo)!;
+        self.subscribeStream?.pauseVideo = hasVideo;
+        ALToastView.toast(in: self.view, withText:"Pausing Video")
+        
+    }
+
+    func handleSingleTap(_ recognizer : UITapGestureRecognizer) {
+
+        let hasAudio = !(self.subscribeStream?.pauseAudio)!;
+        let hasVideo = !(self.subscribeStream?.pauseVideo)!;
+
+        if (hasAudio && hasVideo) {
+            self.subscribeStream?.pauseAudio = true
+            self.subscribeStream?.pauseVideo = false
+            ALToastView.toast(in: self.view, withText:"Pausing Audio")
+        }
+        else if (hasVideo && !hasAudio) {
+            self.subscribeStream?.pauseVideo = true
+            self.subscribeStream?.pauseAudio = false
+            ALToastView.toast(in: self.view, withText:"Pausing Video")
+        }
+        else if (!hasVideo && hasAudio) {
+            self.subscribeStream?.pauseVideo = true
+            self.subscribeStream?.pauseAudio = true
+            ALToastView.toast(in: self.view, withText:"Pausing Audio/Video")
+        }
+        else {
+            self.subscribeStream?.pauseVideo = false
+            self.subscribeStream?.pauseAudio = false
+            ALToastView.toast(in: self.view, withText:"Resuming Audio/Video")
+        }
+
+    }
     func updateOrientation(value: Int) {
         
         if current_rotation == value {

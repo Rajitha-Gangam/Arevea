@@ -7,8 +7,12 @@ target 'AreveaTV' do
  use_frameworks!
   pod 'KeychainAccess'
   pod 'IQKeyboardManagerSwift'
-  pod 'AWSCore', '~> 2.9.0'
-  pod 'AWSMobileClient', '~> 2.9.0'
+  pod 'AWSCore'
+  pod 'AWSMobileClient'
+  pod 'AWSCognito'
+  pod 'AWSFacebookSignIn'
+  pod 'AWSCognitoIdentityProvider'
+  pod 'AWSAuthUI'
   pod 'Instabug'
-pod ‘Alamofire’
+  pod ‘Alamofire’
 end

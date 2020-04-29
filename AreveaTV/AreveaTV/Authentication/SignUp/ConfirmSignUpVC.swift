@@ -17,11 +17,10 @@ class ConfirmSignUpVC: UIViewController,UITextFieldDelegate {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.assignbackground();
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        username = appDelegate.USER_EMAIL;
         // Do any additional setup after loading the view.
         addDoneButton()
+        self.assignbackground();
+        username = UserDefaults.standard.string(forKey: "user_email");
 
     }
     func addDoneButton() {

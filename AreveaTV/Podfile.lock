@@ -1,23 +1,46 @@
 PODS:
   - Alamofire (5.1.0)
-  - AWSAuthCore (2.9.10):
-    - AWSCore (= 2.9.10)
-  - AWSCognitoIdentityProvider (2.9.10):
+  - AWSAuthCore (2.13.2):
+    - AWSCore (= 2.13.2)
+  - AWSAuthUI (2.13.2):
+    - AWSAuthCore (= 2.13.2)
+    - AWSCore (= 2.13.2)
+  - AWSCognito (2.13.2):
+    - AWSCore (= 2.13.2)
+  - AWSCognitoIdentityProvider (2.13.2):
     - AWSCognitoIdentityProviderASF (= 1.0.1)
-    - AWSCore (= 2.9.10)
+    - AWSCore (= 2.13.2)
   - AWSCognitoIdentityProviderASF (1.0.1)
-  - AWSCore (2.9.10)
-  - AWSMobileClient (2.9.10):
-    - AWSAuthCore (= 2.9.10)
-    - AWSCognitoIdentityProvider (= 2.9.10)
+  - AWSCore (2.13.2)
+  - AWSFacebookSignIn (2.13.2):
+    - AWSAuthCore (= 2.13.2)
+    - FBSDKCoreKit (= 5.8)
+    - FBSDKLoginKit (= 5.8)
+  - AWSMobileClient (2.13.2):
+    - AWSAuthCore (= 2.13.2)
+    - AWSCognitoIdentityProvider (= 2.13.2)
+  - FBSDKCoreKit (5.8.0):
+    - FBSDKCoreKit/Basics (= 5.8.0)
+    - FBSDKCoreKit/Core (= 5.8.0)
+  - FBSDKCoreKit/Basics (5.8.0)
+  - FBSDKCoreKit/Core (5.8.0):
+    - FBSDKCoreKit/Basics
+  - FBSDKLoginKit (5.8.0):
+    - FBSDKLoginKit/Login (= 5.8.0)
+  - FBSDKLoginKit/Login (5.8.0):
+    - FBSDKCoreKit (~> 5.0)
   - Instabug (9.1.2)
   - IQKeyboardManagerSwift (6.5.5)
   - KeychainAccess (4.1.0)
 
 DEPENDENCIES:
   - Alamofire
-  - AWSCore (~> 2.9.0)
-  - AWSMobileClient (~> 2.9.0)
+  - AWSAuthUI
+  - AWSCognito
+  - AWSCognitoIdentityProvider
+  - AWSCore
+  - AWSFacebookSignIn
+  - AWSMobileClient
   - Instabug
   - IQKeyboardManagerSwift
   - KeychainAccess
@@ -26,25 +49,35 @@ SPEC REPOS:
   https://github.com/cocoapods/specs.git:
     - Alamofire
     - AWSAuthCore
+    - AWSAuthUI
+    - AWSCognito
     - AWSCognitoIdentityProvider
     - AWSCognitoIdentityProviderASF
     - AWSCore
+    - AWSFacebookSignIn
     - AWSMobileClient
+    - FBSDKCoreKit
+    - FBSDKLoginKit
     - Instabug
     - IQKeyboardManagerSwift
     - KeychainAccess
 
 SPEC CHECKSUMS:
   Alamofire: 9d5c5f602928e512395b30950c5984eca840093c
-  AWSAuthCore: d6d222a7eeae403f968afb5b9b3975bd96340d91
-  AWSCognitoIdentityProvider: 5e72467f174a970e9d357fc06666e3f32e6eda70
+  AWSAuthCore: 890aaf36fa3a913a5948851a576c02456bed4c5b
+  AWSAuthUI: 37a1821b367d063fe3551eff3b5be52eec510636
+  AWSCognito: 76ba3381182437140c460ae3849a15bc75a782f9
+  AWSCognitoIdentityProvider: 68455a8d170bb6cd0ec17d261da0ab3d623232b0
   AWSCognitoIdentityProviderASF: f94f1a502e72ef3d0a1de93e10bf7a79c8698118
-  AWSCore: 22b6bbc6761ca9981d878155d11bc02edd681a64
-  AWSMobileClient: a0768be5b34a5a2eb39fd3fcd5d4f14125d4ebbb
+  AWSCore: 8e878a5b1b99cdf3d7df0c1c86be0bfcd6294c11
+  AWSFacebookSignIn: 35e2e05e10e955c4d3e981302076d4f458391e52
+  AWSMobileClient: bdec2a26617590bd3eece9bf208005bc4682d424
+  FBSDKCoreKit: e7dcac0aabcfb09d0166998edd95fe3b05a0ce5d
+  FBSDKLoginKit: 1b0cf04df0370b37404213157b060d6666ede814
   Instabug: a638cb57c8768b102bab2930b68ed81f2d7ab877
   IQKeyboardManagerSwift: 0fb93310284665245591f50f7a5e38de615960b7
   KeychainAccess: 445e28864fe6d3458b41fa211bcdc39890e8bd5a
 
-PODFILE CHECKSUM: 438cc73271f2bb0c1d36ce2894ae87ee517a0087
+PODFILE CHECKSUM: dd6832756f3353e4d1e87bd1a32f616b7b24b1b9
 
 COCOAPODS: 1.7.3

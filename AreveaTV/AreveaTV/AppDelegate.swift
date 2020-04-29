@@ -10,10 +10,13 @@ import UIKit
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
+    var window: UIWindow? // <-- Here
 
     var USER_EMAIL = "";
     var plan = "";
-    var baseURL = "http://52.25.98.205/api/user/v1";
+    //var baseURL = "http://52.25.98.205/api/user/v1";
+    var baseURL = "https://private-anon-c5fd1ec25e-viv3consumer.apiary-mock.com/dev";
+    //var baseURL = "https://eku2g4rzxl.execute-api.us-west-2.amazonaws.com/dev";
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
         

@@ -196,7 +196,7 @@ class BaseTest: UIViewController , R5StreamDelegate {
     func setupDefaultR5VideoViewController() -> R5VideoViewController{
         
         currentView = getNewR5VideoViewController(rect: self.view.frame)
-        
+        print("frame:",self.view.frame);
         self.addChild(currentView!)
         self.view.addSubview(currentView!.view)
         

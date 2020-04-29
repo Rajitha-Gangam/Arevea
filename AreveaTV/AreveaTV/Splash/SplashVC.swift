@@ -8,7 +8,6 @@
 
 import UIKit
 import AWSMobileClient
-
 class SplashVC: UIViewController {
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     
@@ -21,7 +20,10 @@ class SplashVC: UIViewController {
         //        activityIndicator.startAnimating()
         
         delayWithSeconds(10000){}
+        
+        
     }
+    
     
     func delayWithSeconds(_ seconds: Double, completion: @escaping () -> ()) {
         DispatchQueue.main.asyncAfter(deadline: .now() + seconds) {
@@ -45,8 +47,6 @@ class SplashVC: UIViewController {
                    
                    // Check if user availability
                    switch userState {
-                       
-                       
                    case .signedIn:
                        // Show home page
                        NSLog("signedIn");

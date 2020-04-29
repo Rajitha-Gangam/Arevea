@@ -9,11 +9,14 @@
 },
 "CognitoUserPool": {
 "Default": {
-"PoolId": "us-east-1_DjsrvpsGK",
-"AppClientId": "4k7kpmnaula0fqnmk7vidcotlo",
-"AppClientSecret": "1gpdkl3ss152cp4f6145n16j359oulb8ehl2vptbk2qhh3fd769i",
-"Region": "us-east-1"
+"PoolId": "us-west-2_DImSWAWlU",
+"AppClientId": "1tqk7dl1eqqu0mdps6i9jh7akh",
+"Region": "us-west-2"
 }
+},
+"FacebookSignIn": {
+    "AppId": "230469618276761",
+    "Permissions": "public_profile"
 }
 }
 

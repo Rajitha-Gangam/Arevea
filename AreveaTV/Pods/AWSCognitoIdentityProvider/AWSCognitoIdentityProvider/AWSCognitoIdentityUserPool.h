@@ -66,7 +66,15 @@ NS_ASSUME_NONNULL_BEGIN
 - (AWSTask<AWSCognitoIdentityUserPoolSignUpResponse *> *)signUp:(NSString *)username
                                                        password:(NSString *)password
                                                  userAttributes:(nullable NSArray<AWSCognitoIdentityUserAttributeType *> *)userAttributes
+                                                 validationData:(nullable NSArray<AWSCognitoIdentityUserAttributeType *> *)validationData
+                                                 clientMetaData:(nullable NSDictionary<NSString *, NSString*> *) clientMetaData;
+
+
+- (AWSTask<AWSCognitoIdentityUserPoolSignUpResponse *> *)signUp:(NSString *)username
+                                                       password:(NSString *)password
+                                                 userAttributes:(nullable NSArray<AWSCognitoIdentityUserAttributeType *> *)userAttributes
                                                  validationData:(nullable NSArray<AWSCognitoIdentityUserAttributeType *> *)validationData;
+
 
 /**
  Return the user who last authenticated.  Username may be nil if current user is unknown.
@@ -184,6 +192,11 @@ shouldProvideCognitoValidationData:(BOOL)shouldProvideCognitoValidationData
  */
 @property(nonatomic, strong) NSDictionary<NSString*,NSString*>* challengeResponses;
 
+/**
+ A map of custom key-value pairs that you can provide as input for any custom workflows that this action triggers.
+ */
+@property(nonatomic, copy, nullable) NSDictionary<NSString*, NSString*> *clientMetaData;
+
 -(instancetype) initWithChallengeResponses: (NSDictionary<NSString*,NSString*> *) challengeResponses;
 
 @end
@@ -202,6 +215,11 @@ shouldProvideCognitoValidationData:(BOOL)shouldProvideCognitoValidationData
  required attributes.  Any other attributes are optional.
  */
 @property(nonatomic, strong, nullable) NSArray<AWSCognitoIdentityUserAttributeType*> *userAttributes;
+
+/**
+ A map of custom key-value pairs that you can provide as input for any custom workflows that this action triggers.
+ */
+@property(nonatomic, copy, nullable) NSDictionary<NSString*, NSString*> *clientMetaData;
 
 /**
  Initializer given a new password and map of user attributes to set 

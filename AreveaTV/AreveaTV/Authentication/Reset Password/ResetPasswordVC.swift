@@ -93,8 +93,8 @@ class ResetPasswordVC: UIViewController ,UITextFieldDelegate{
                             preferredStyle: .alert)
                         
                         alert.addAction(UIAlertAction(title: "Dismiss", style: .cancel) { _ in
-                            let appDelegate = UIApplication.shared.delegate as! AppDelegate
-                            appDelegate.USER_EMAIL = username;
+                            UserDefaults.standard.set(username, forKey: "user_email")
+
                             let storyboard = UIStoryboard(name: "Main", bundle: nil);
                             let vc = storyboard.instantiateViewController(withIdentifier: "NewPasswordVC") as! NewPasswordVC
                             self.navigationController?.pushViewController(vc, animated: true)

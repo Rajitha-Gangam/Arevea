@@ -8,15 +8,23 @@
 
 import UIKit
 import AWSMobileClient
+import AWSAuthCore
+import FBSDKCoreKit
+import AWSCognito
+protocol GLLoginDelegate {
+    func didFinishLogin(status: Bool)
+}
 
 class LoginVC: UIViewController,UITextFieldDelegate, UIPickerViewDelegate, UIPickerViewDataSource {
-    
+    var loginDelegate: GLLoginDelegate?
+
     @IBOutlet weak var txtUserName: UITextField!
     @IBOutlet weak var txtPassword: UITextField!
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     @IBOutlet weak var txtEnv: UITextField!
 
     var pickerData: [String] = [String]()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         self.assignbackground();
@@ -72,6 +80,7 @@ class LoginVC: UIViewController,UITextFieldDelegate, UIPickerViewDelegate, UIPic
         
         AWSMobileClient.sharedInstance().signIn(username: username, password: password) {
             (signInResult, error) in
+            print("signInResult:\(String(describing: signInResult))");
             DispatchQueue.main.async {
                 self.activityIndicator.stopAnimating();
                 self.activityIndicator.isHidden = true;
@@ -85,9 +94,7 @@ class LoginVC: UIViewController,UITextFieldDelegate, UIPickerViewDelegate, UIPic
                 case .userNotConfirmed(let message):
                     print("userNotConfirmed:",message)
                     DispatchQueue.main.async {
-                        
-                        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-                        appDelegate.USER_EMAIL = username;
+                        UserDefaults.standard.set(username, forKey: "user_email")
                         let storyboard = UIStoryboard(name: "Main", bundle: nil);
                         let vc = storyboard.instantiateViewController(withIdentifier: "ConfirmSignUpVC") as! ConfirmSignUpVC
                         self.navigationController?.pushViewController(vc, animated: true)
@@ -107,6 +114,7 @@ class LoginVC: UIViewController,UITextFieldDelegate, UIPickerViewDelegate, UIPic
             switch (signInResult.signInState) {
             case .signedIn:
                 print("User is signed in.")
+                UserDefaults.standard.set(username, forKey: "user_email")
                 DispatchQueue.main.async {
                     let storyboard = UIStoryboard(name: "Main", bundle: nil);
                     let vc = storyboard.instantiateViewController(withIdentifier: "DashBoardVC") as! DashBoardVC
@@ -154,16 +162,53 @@ class LoginVC: UIViewController,UITextFieldDelegate, UIPickerViewDelegate, UIPic
     }
     @IBAction func facebook(_ sender: Any) {
         // Perform SAML token federation
-       /* AWSMobileClient.sharedInstance().federatedSignIn(providerName: "Facebook",
-                                                         token: "230469618276761") { (userState, error) in
-                                                            if let error = error as? AWSMobileClientError {
-                                                                print(error.localizedDescription)
-                                                            }
-                                                            if let userState = userState {
-                                                                print("Status: \(userState.rawValue)")
-                                                            }
-        }*/
+//       AWSMobileClient.sharedInstance().federatedSignIn(providerName: "Facebook",
+//                                                         token: "230469618276761") { (userState, error) in
+//                                                            if let error = error as? AWSMobileClientError {
+//                                                                print(error.localizedDescription)
+//                                                            }
+//                                                            if let userState = userState {
+//                                                                print("Status: \(userState.rawValue)")
+//                                                            }
+//        }
+        awsSignInFacebook(fbAuthToken: "230469618276761")
+       
     }
+    func awsSignInFacebook(fbAuthToken: String){
+        let logins = ["graph.facebook.com" : fbAuthToken]
+        let customIdentityProvider = CustomIdentityProvider(tokens: logins)
+        //        let credentialsProvider = AWSCognitoCredentialsProvider(regionType: .APSouth1, identityPoolId: AWSConstants.CognitoFederatedIdentityUserPoolId, identityProviderManager: customIdentityProvider)
+
+        
+        let credentialsProvider = AWSCognitoCredentialsProvider(regionType: .USEast1, identityPoolId: "us-east-1_DjsrvpsGK")
+        let configuration = AWSServiceConfiguration(region: .USEast1, credentialsProvider: credentialsProvider)
+        AWSServiceManager.default().defaultServiceConfiguration = configuration
+        
+        credentialsProvider.getIdentityId().continueWith { (task: AWSTask!) -> AnyObject? in
+            
+            if (task.error != nil) {
+                print("Error: " + (task.error?.localizedDescription)!)
+                
+            } else {
+                // the task result will contain the identity id
+                let cognitoId = task.result
+                print("Cognito ID : \(cognitoId)")
+            }
+            return nil
+        }
+    }
+    class CustomIdentityProvider: NSObject, AWSIdentityProviderManager {
+        var tokens : [String : String]?
+        
+        init(tokens: [String : String]) {
+            self.tokens = tokens
+        }
+        
+        @objc func logins() -> AWSTask<NSDictionary> {
+            return AWSTask(result: tokens! as NSDictionary)
+        }
+    }
+    
     // MARK: Text Field Delegate Methods
     
     func textFieldDidBeginEditing(_ textField: UITextField) {
@@ -179,6 +224,29 @@ class LoginVC: UIViewController,UITextFieldDelegate, UIPickerViewDelegate, UIPic
     override var preferredStatusBarStyle: UIStatusBarStyle {
         return .lightContent // .default
     }
+    
+    // MARK: Picker  Methods
+    func createPickerView() {
+           let pickerView = UIPickerView()
+           pickerView.delegate = self
+           txtEnv.inputView = pickerView
+       }
+       
+       func dismissPickerView() {
+           let toolBar = UIToolbar()
+           toolBar.sizeToFit()
+           let flexButton = UIBarButtonItem(barButtonSystemItem: UIBarButtonItem.SystemItem.flexibleSpace, target: nil, action: nil)
+           let button = UIBarButtonItem(title: "Done", style: .plain, target: self, action: #selector(self.action))
+           toolBar.setItems([flexButton, button], animated: true)
+           toolBar.isUserInteractionEnabled = true
+           txtEnv.inputAccessoryView = toolBar
+        
+        
+       }
+       
+       @objc func action() {
+          view.endEditing(true)
+       }
     // MARK: Picker DataSource & Delegate Methods
 
    func numberOfComponents(in pickerView: UIPickerView) -> Int {
@@ -199,25 +267,10 @@ class LoginVC: UIViewController,UITextFieldDelegate, UIPickerViewDelegate, UIPic
         txtEnv.text = selectedItem
     }
     
-    func createPickerView() {
-        let pickerView = UIPickerView()
-        pickerView.delegate = self
-        txtEnv.inputView = pickerView
-    }
-    
-    func dismissPickerView() {
-        let toolBar = UIToolbar()
-        toolBar.sizeToFit()
-        let flexButton = UIBarButtonItem(barButtonSystemItem: UIBarButtonItem.SystemItem.flexibleSpace, target: nil, action: nil)
-        let button = UIBarButtonItem(title: "Done", style: .plain, target: self, action: #selector(self.action))
-        toolBar.setItems([flexButton, button], animated: true)
-        toolBar.setItems([button], animated: true)
-        toolBar.isUserInteractionEnabled = true
-        txtEnv.inputAccessoryView = toolBar
-    }
-    
-    @objc func action() {
-       view.endEditing(true)
+   
+}
+extension LoginVC: AWSSignInDelegate {
+    func onLogin(signInProvider: AWSSignInProvider, result: Any?, error: Error?) {
+        //print(result)
     }
 }
-

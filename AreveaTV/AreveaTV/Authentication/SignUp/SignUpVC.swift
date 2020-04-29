@@ -11,25 +11,37 @@ import AWSMobileClient
 
 class SignUpVC: UIViewController ,UITextFieldDelegate{
     
-    @IBOutlet weak var txtUserName: UITextField!
+    @IBOutlet weak var txtFirstName: UITextField!
+    @IBOutlet weak var txtLastName: UITextField!
     @IBOutlet weak var txtEmail: UITextField!
     @IBOutlet weak var txtPhone: UITextField!
     @IBOutlet weak var txtPassword: UITextField!
     @IBOutlet weak var txtCfrmPassword: UITextField!
+    @IBOutlet weak var txtDOB: UITextField!
+    
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     @IBOutlet private weak var scrollView: UIScrollView!
-
+    var planID = "0";
     override func viewDidLoad() {
         super.viewDidLoad()
         self.assignbackground();
         self.navigationController?.isNavigationBarHidden = true
         //        txtEmail.text = "grajitha2009@gmail.com"
-        //        txtUserName.text = "Rajitha Gangam";
+        //        txtFirstName.text = "Rajitha Gangam";
         //        txtPassword.text = "V@rshitha12345";
         //        txtCfrmPassword.text =  "V@rshitha12345";
         //        txtPhone.text = "+918096823214";
         addDoneButton()
-
+        let datePickerView = UIDatePicker()
+        datePickerView.datePickerMode = .date
+        datePickerView.addTarget(self, action: #selector(selectDate(sender:)), for: .valueChanged)
+        datePickerView.maximumDate = Date()
+        txtDOB.inputView = datePickerView
+    }
+    @objc func selectDate(sender: UIDatePicker){
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "YYYY-MM-dd"
+        txtDOB.text = dateFormatter.string(from: sender.date)
     }
     func addDoneButton() {
         let toolbar = UIToolbar()
@@ -37,18 +49,24 @@ class SignUpVC: UIViewController ,UITextFieldDelegate{
         let doneButton = UIBarButtonItem(title: "Done", style: .plain, target: self, action:#selector(resignKB(_:)))
         toolbar.setItems([flexButton, doneButton], animated: true)
         toolbar.sizeToFit()
-        txtUserName.inputAccessoryView = toolbar;
+        txtFirstName.inputAccessoryView = toolbar;
+        txtLastName.inputAccessoryView = toolbar;
         txtEmail.inputAccessoryView = toolbar;
         txtPhone.inputAccessoryView = toolbar;
         txtPassword.inputAccessoryView = toolbar;
         txtCfrmPassword.inputAccessoryView = toolbar;
+        txtDOB.inputAccessoryView = toolbar
+        
     }
     @IBAction func resignKB(_ sender: Any) {
-        txtUserName.resignFirstResponder();
+        txtFirstName.resignFirstResponder();
+        txtLastName.resignFirstResponder();
         txtEmail.resignFirstResponder();
         txtPhone.resignFirstResponder();
         txtPassword.resignFirstResponder();
         txtCfrmPassword.resignFirstResponder();
+        txtDOB.resignFirstResponder();
+        
     }
     func assignbackground(){
         let background = UIImage(named: "bg")
@@ -70,7 +88,7 @@ class SignUpVC: UIViewController ,UITextFieldDelegate{
         if let error = error as? AWSMobileClientError {
             switch(error) {
             case .usernameExists(let message):
-            showAlert(strMsg: message);
+                showAlert(strMsg: message);
                 
             default:
                 showAlert(strMsg: "\(error)");
@@ -104,8 +122,8 @@ class SignUpVC: UIViewController ,UITextFieldDelegate{
                 guard let username = self.txtEmail.text else {
                     return
                 }
-                let appDelegate = UIApplication.shared.delegate as! AppDelegate
-                appDelegate.USER_EMAIL = username;
+                UserDefaults.standard.set(username, forKey: "user_email")
+                
                 let storyboard = UIStoryboard(name: "Main", bundle: nil);
                 let vc = storyboard.instantiateViewController(withIdentifier: "ConfirmSignUpVC") as! ConfirmSignUpVC
                 self.navigationController?.pushViewController(vc, animated: true)
@@ -143,20 +161,20 @@ class SignUpVC: UIViewController ,UITextFieldDelegate{
         return emailPred.evaluate(with: txtEmail.text)
     }
     @IBAction func signUp(_ sender: Any) {
-        txtUserName.resignFirstResponder();
-        txtEmail.resignFirstResponder();
-        txtPhone.resignFirstResponder();
-        txtPassword.resignFirstResponder();
-        txtCfrmPassword.resignFirstResponder();
+        resignKB(sender)
         
-        let userName = txtUserName.text!;
+        let firstName = txtFirstName.text!;
+        let lastName = txtLastName.text!;
         let email = txtEmail.text!;
         let phone = txtPhone.text!;
         let pwd = txtPassword.text!;
         let cfrmPwd = txtCfrmPassword.text!;
+        let dob = txtDOB.text!;
         
-        if (userName.count == 0){
-            showAlert(strMsg: "Please enter name");
+        if (firstName.count == 0){
+            showAlert(strMsg: "Please enter first name");
+        }else if (lastName.count == 0){
+            showAlert(strMsg: "Please enter last name");
         }else if (email.count == 0){
             showAlert(strMsg: "Please enter email");
         }else if (!isValidEmail()){
@@ -169,13 +187,15 @@ class SignUpVC: UIViewController ,UITextFieldDelegate{
             showAlert(strMsg: "Please enter confirm password");
         }else if(pwd != cfrmPwd){
             showAlert(strMsg: "password and confirm password did not match");
+        }else if(dob.count == 0){
+            showAlert(strMsg: "Please enter date of birth");
         }else{
             activityIndicator.isHidden = false
             activityIndicator.startAnimating()
             //username value shoulb be like email
             AWSMobileClient.sharedInstance().signUp(username: email,
                                                     password: pwd,
-                                                    userAttributes: ["email" : email, "name": userName,"phone_number":phone],
+                                                    userAttributes: ["email" : email, "name":firstName,"phone_number":phone,"family_name":lastName,"birthdate":dob,"custom:plan":planID],
                                                     completionHandler: signUpHandler);
         }
     }
@@ -186,12 +206,14 @@ class SignUpVC: UIViewController ,UITextFieldDelegate{
     // MARK: Text Field Delegate Methods
     
     func textFieldDidBeginEditing(_ textField: UITextField) {
-        self.animateTextField(textField: textField, up:true)
-
+        if (textField==txtPassword || textField==txtCfrmPassword || textField==txtDOB){
+            self.animateTextField(textField: textField, up:true)
+        }
     }
     func textFieldDidEndEditing(_ textField: UITextField) {
-        self.animateTextField(textField: textField, up:false)
-
+        if (textField==txtPassword || textField==txtCfrmPassword || textField==txtDOB){
+            self.animateTextField(textField: textField, up:false)
+        }
         textField.resignFirstResponder();
     }
     
@@ -200,27 +222,27 @@ class SignUpVC: UIViewController ,UITextFieldDelegate{
         return true;
     }
     // MARK: Keyboard  Delegate Methods
-
-   func animateTextField(textField: UITextField, up: Bool)
-   {
-       let movementDistance:CGFloat = -130
-       let movementDuration: Double = 0.3
-
-       var movement:CGFloat = 0
-       if up
-       {
-           movement = movementDistance
-       }
-       else
-       {
-           movement = -movementDistance
-       }
-       UIView.beginAnimations("animateTextField", context: nil)
-       UIView.setAnimationBeginsFromCurrentState(true)
-       UIView.setAnimationDuration(movementDuration)
-       self.view.frame = self.view.frame.offsetBy(dx: 0, dy: movement)
-       UIView.commitAnimations()
-   }
+    
+    func animateTextField(textField: UITextField, up: Bool)
+    {
+        let movementDistance:CGFloat = -130
+        let movementDuration: Double = 0.3
+        
+        var movement:CGFloat = 0
+        if up
+        {
+            movement = movementDistance
+        }
+        else
+        {
+            movement = -movementDistance
+        }
+        UIView.beginAnimations("animateTextField", context: nil)
+        UIView.setAnimationBeginsFromCurrentState(true)
+        UIView.setAnimationDuration(movementDuration)
+        self.view.frame = self.view.frame.offsetBy(dx: 0, dy: movement)
+        UIView.commitAnimations()
+    }
     override var preferredStatusBarStyle: UIStatusBarStyle {
         return .lightContent // .default
     }

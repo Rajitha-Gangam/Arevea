@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="15705" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15706"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="DBCollectionViewCell" id="gTV-IL-0wX" customClass="DBCollectionViewCell" customModule="AreveaTV" customModuleProvider="target">
+            <rect key="frame" x="0.0" y="0.0" width="160" height="160"/>
+            <autoresizingMask key="autoresizingMask"/>
+            <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center">
+                <rect key="frame" x="0.0" y="0.0" width="160" height="160"/>
+                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                <subviews>
+                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="pys-Gx-xKc">
+                        <rect key="frame" x="0.0" y="0.0" width="160" height="160"/>
+                        <subviews>
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="channel2.png" translatesAutoresizingMaskIntoConstraints="NO" id="5Ee-aW-gem">
+                                <rect key="frame" x="0.0" y="0.0" width="160" height="160"/>
+                            </imageView>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="plc-7m-BHl">
+                                <rect key="frame" x="8" y="131" width="144" height="21"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                        </subviews>
+                        <color key="backgroundColor" red="0.0039215686269999999" green="0.1137254902" blue="0.1529411765" alpha="1" colorSpace="calibratedRGB"/>
+                        <constraints>
+                            <constraint firstAttribute="bottom" secondItem="plc-7m-BHl" secondAttribute="bottom" constant="8" id="5vv-jN-mRk"/>
+                            <constraint firstItem="5Ee-aW-gem" firstAttribute="leading" secondItem="pys-Gx-xKc" secondAttribute="leading" id="GLx-XA-Sz0"/>
+                            <constraint firstItem="5Ee-aW-gem" firstAttribute="top" secondItem="pys-Gx-xKc" secondAttribute="top" id="Gir-xc-bNo"/>
+                            <constraint firstItem="plc-7m-BHl" firstAttribute="leading" secondItem="pys-Gx-xKc" secondAttribute="leading" constant="8" id="KRG-wm-dAN"/>
+                            <constraint firstAttribute="trailing" secondItem="plc-7m-BHl" secondAttribute="trailing" constant="8" id="KzA-kI-Fo2"/>
+                            <constraint firstAttribute="bottom" secondItem="5Ee-aW-gem" secondAttribute="bottom" id="c3H-6d-GjZ"/>
+                            <constraint firstAttribute="trailing" secondItem="5Ee-aW-gem" secondAttribute="trailing" id="cj6-9y-kB6"/>
+                        </constraints>
+                    </view>
+                </subviews>
+            </view>
+            <constraints>
+                <constraint firstAttribute="trailing" secondItem="pys-Gx-xKc" secondAttribute="trailing" id="Ncc-Gi-Ep0"/>
+                <constraint firstItem="pys-Gx-xKc" firstAttribute="leading" secondItem="gTV-IL-0wX" secondAttribute="leading" id="YgI-wG-Xcg"/>
+                <constraint firstAttribute="bottom" secondItem="pys-Gx-xKc" secondAttribute="bottom" id="au3-72-Bhg"/>
+                <constraint firstItem="pys-Gx-xKc" firstAttribute="top" secondItem="gTV-IL-0wX" secondAttribute="top" id="rWp-uK-AvG"/>
+            </constraints>
+            <viewLayoutGuide key="safeArea" id="ZTg-uK-7eu"/>
+            <connections>
+                <outlet property="imgCategory" destination="5Ee-aW-gem" id="Iw6-KO-7gC"/>
+                <outlet property="nameLabel" destination="plc-7m-BHl" id="cRH-D5-93N"/>
+            </connections>
+            <point key="canvasLocation" x="137.68115942028987" y="120.53571428571428"/>
+        </collectionViewCell>
+    </objects>
+    <resources>
+        <image name="channel2.png" width="178" height="171"/>
+    </resources>
+</document>

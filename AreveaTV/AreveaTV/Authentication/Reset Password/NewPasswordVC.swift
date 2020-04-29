@@ -16,17 +16,14 @@ class NewPasswordVC: UIViewController ,UITextFieldDelegate{
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     
     var username: String?
-    
-    
-    
+    var camefrom = "";
     override func viewDidLoad() {
         super.viewDidLoad()
         self.assignbackground();
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        username = appDelegate.USER_EMAIL;
+        username = UserDefaults.standard.string(forKey: "user_email");
         // Do any additional setup after loading the view.
         addDoneButton()
-        
+    
     }
     func addDoneButton() {
         let toolbar = UIToolbar()
@@ -105,15 +102,19 @@ class NewPasswordVC: UIViewController ,UITextFieldDelegate{
     }
     
     @IBAction func dismiss(_ sender: Any) {
-        DispatchQueue.main.async {
-
-        for controller in self.navigationController!.viewControllers as Array {
-            if controller.isKind(of: LoginVC.self) {
-                self.navigationController!.popToViewController(controller, animated: true)
-                break
-            }
+        if (camefrom == "profile"){
+            self.navigationController?.popViewController(animated: true)
+        }else{
+            DispatchQueue.main.async {
+                   for controller in self.navigationController!.viewControllers as Array {
+                       if controller.isKind(of: LoginVC.self) {
+                           self.navigationController!.popToViewController(controller, animated: true)
+                           break
+                       }
+                   }
+                   }
         }
-        }
+       
     }
     // MARK: Text Field Delegate Methods
     
