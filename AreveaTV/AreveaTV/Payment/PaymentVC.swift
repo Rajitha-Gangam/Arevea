@@ -28,7 +28,10 @@ class PaymentVC: UIViewController,UITextFieldDelegate {
     @IBOutlet weak var viewTip: UIView!
     @IBOutlet weak var viewOrderDetails: UIView!
     @IBOutlet weak var lblTier: UILabel!
-    
+    @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
+    @IBOutlet weak var btnUserName: UIButton!
+    let appDelegate = UIApplication.shared.delegate as! AppDelegate
+
     var isTip = false;
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -48,8 +51,13 @@ class PaymentVC: UIViewController,UITextFieldDelegate {
         }
         addDoneButton()
     }
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated);
+        self.btnUserName.setTitle(appDelegate.USER_NAME, for: .normal)
+    }
     func addDoneButton() {
-        let toolbar = UIToolbar()
+        let toolbar =  UIToolbar(frame: CGRect(x: 0, y: 0, width: view.frame.size.width, height: 35))
+
         let flexButton = UIBarButtonItem(barButtonSystemItem: UIBarButtonItem.SystemItem.flexibleSpace, target: nil, action: nil)
         let doneButton = UIBarButtonItem(title: "Done", style: .plain, target: self, action:#selector(resignKB(_:)))
         toolbar.setItems([flexButton, doneButton], animated: true)
@@ -108,7 +116,7 @@ class PaymentVC: UIViewController,UITextFieldDelegate {
         if (isTip){
             strAmount = txtTipAmount.text!;
         }else{
-            strAmount = UserDefaults.standard.value(forKey: "plan_amount") as! String;
+           strAmount = UserDefaults.standard.value(forKey: "plan_amount") as! String;
         }
         let strUsername = txtNameOnCard.text!
         let strCreditCardNum = txtCreditCardNo.text!
@@ -144,7 +152,7 @@ class PaymentVC: UIViewController,UITextFieldDelegate {
         }else if (strAddress1.count == 0){
             showAlert(strMsg: "Please enter address line1");
             return
-        }else if (strAddress2.count == 0){
+        }else if (strCity.count == 0){
             showAlert(strMsg: "Please enter city name");
             return
         }else if (strState.count == 0){
@@ -180,29 +188,38 @@ class PaymentVC: UIViewController,UITextFieldDelegate {
             
         }
     }
+    // MARK: Handler for makePayment API
+
     func makePayment(params:[String:Any]){
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
         let url: String = appDelegate.baseURL +  "/makePayment"
         let params = params;
-        
+        activityIndicator.isHidden = false
+        activityIndicator.startAnimating()
         AF.request(url, method: .post,  parameters: params, encoding: JSONEncoding.default)
             .responseJSON { response in
                 switch response.result {
                 case .success(let value):
                     if let json = value as? [String: Any] {
-                        if (json["status"]as! Int == 0){
-                            print(json["message"] as! String)
+                        if (json["status"]as? Int == 0){
+                            self.activityIndicator.isHidden = true;
+                            self.activityIndicator.stopAnimating();
+                            print(json["message"] as? String ?? "")
                             self.showAlert(strMsg: "Paid amount successfully")
+                            self.navigationController?.popViewController(animated: true)
                         }else{
-                            let strError = json["message"] as! String
-                            print(strError)
-                            self.showAlert(strMsg: strError)
+                            let strError = json["message"] as? String
+                            print(strError ?? "")
+                            self.showAlert(strMsg: strError ?? "")
+                            self.activityIndicator.isHidden = true;
+                            self.activityIndicator.stopAnimating();
                         }
                         
                     }
                 case .failure(let error):
                     print(error)
                     self.showAlert(strMsg: error.localizedDescription)
+                    self.activityIndicator.isHidden = true;
+                    self.activityIndicator.stopAnimating();
                 }
         }
     }
@@ -248,9 +265,7 @@ class PaymentVC: UIViewController,UITextFieldDelegate {
     
     func animateTextField(textField: UITextField, up: Bool)
     {
-        let movementDistance:CGFloat = -150
-        let movementDuration: Double = 0.3
-        
+        let movementDistance:CGFloat = -230
         var movement:CGFloat = 0
         if up
         {
@@ -260,11 +275,9 @@ class PaymentVC: UIViewController,UITextFieldDelegate {
         {
             movement = -movementDistance
         }
-        UIView.beginAnimations("animateTextField", context: nil)
-        UIView.setAnimationBeginsFromCurrentState(true)
-        UIView.setAnimationDuration(movementDuration)
-        self.view.frame = self.view.frame.offsetBy(dx: 0, dy: movement)
-        UIView.commitAnimations()
+        UIView.animate(withDuration: 0.3, animations: {
+                   self.view.frame = self.view.frame.offsetBy(dx: 0, dy: movement)
+        })
     }
     
     func formatCardNumber(textField: UITextField, shouldChangeCharactersInRange range: NSRange, replacementString string: String) -> Bool {

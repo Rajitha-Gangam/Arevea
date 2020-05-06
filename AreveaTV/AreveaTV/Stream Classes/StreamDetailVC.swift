@@ -30,70 +30,60 @@
 
 import UIKit
 import R5Streaming
+import AVKit
 
 class StreamDetailVC: UIViewController, UITextFieldDelegate {
-
+    
     var r5ViewController : BaseTest? = nil
-
+    @IBOutlet weak var viewVOD: UIView!
+    
     var detailItem: NSDictionary? {
         didSet {
             // Update the view.
-           // self.configureView()
+            // self.configureView()
         }
     }
-
-  override func viewDidLoad() {
-      super.viewDidLoad()
-      // Do any additional setup after loading the view, typically from a nib.
-
-      Testbed.setLicenseKey(value:"YI8J-RDXS-DMLH-H5DZ")
-      Testbed.setStream1Name(name: "stream1")
-      Testbed.setStream2Name(name: "stream2")
-      Testbed.setHost(ip: "vimal.cloudext.co");
-      Testbed.setServerPort(port: "8,554")
-      Testbed.setDebug(on: true)
-      Testbed.setVideo(on: true)
-      Testbed.setAudio(on: true)
-      Testbed.setHWAccel(on: true)
-      Testbed.setRecord(on: true)
-      Testbed.setRecordAppend(on: true)
-
-      self.configureView()
-
-  }
-
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        // Do any additional setup after loading the view, typically from a nib.
+        
+        Testbed.setLicenseKey(value:"YI8J-RDXS-DMLH-H5DZ")
+        Testbed.setStream1Name(name: "stream1")
+        Testbed.setStream2Name(name: "stream2")
+        Testbed.setHost(ip: "vimal.cloudext.co");
+        Testbed.setServerPort(port: "8,554")
+        Testbed.setDebug(on: true)
+        Testbed.setVideo(on: true)
+        Testbed.setAudio(on: true)
+        Testbed.setHWAccel(on: true)
+        Testbed.setRecord(on: true)
+        Testbed.setRecordAppend(on: true)
+        
+        self.configureView()
+        
+    }
+    
     func configureView() {
         // Update the user interface for the detail item.
-
         // Access the static shared interface to ensure it's loaded
         _ = Testbed.sharedInstance
-
-      
+        
         if(self.detailItem != nil){
-
-          
-
             Testbed.setLocalOverrides(params: self.detailItem!["LocalProperties"] as? NSMutableDictionary)
-
-
             let className = self.detailItem!["class"] as! String
             let mClass = NSClassFromString(className) as! BaseTest.Type;
-            
             //only add this view if it isn't HOME
-                r5ViewController  = mClass.init()
-
-                self.addChild(r5ViewController!)
-                self.view.addSubview(r5ViewController!.view)
-
-                //r5ViewController!.view.autoresizesSubviews = false
-                //r5ViewController!.view.autoresizingMask = [UIViewAutoresizing.FlexibleHeight, UIViewAutoresizing.FlexibleWidth];
-
+            r5ViewController  = mClass.init()
+            r5ViewController?.view.frame = self.viewVOD.bounds
+            self.viewVOD.addSubview(r5ViewController!.view)
+           
+            self.addChild(r5ViewController!)
+            
+            //r5ViewController!.view.autoresizesSubviews = false
+            //r5ViewController!.view.autoresizingMask = [UIViewAutoresizing.FlexibleHeight, UIViewAutoresizing.FlexibleWidth];
         }
-
-
     }
-   
-
     @objc func showInfo(){
         let alert = UIAlertView()
         alert.title = "Info"
@@ -101,34 +91,24 @@ class StreamDetailVC: UIViewController, UITextFieldDelegate {
         alert.addButton(withTitle: "OK")
         alert.show()
     }
-
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         self.view.endEditing(true)
         return false
     }
-
-
     override func viewWillDisappear(_ animated: Bool) {
-       closeCurrentTest()
+        closeCurrentTest()
         self.navigationController?.isNavigationBarHidden = true
-
     }
-
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated);
         self.navigationController?.isNavigationBarHidden = false
-
     }
-
     func closeCurrentTest(){
-
         if( r5ViewController != nil ){
             r5ViewController!.closeTest()
             r5ViewController = nil
         }
-
     }
-
     var shouldClose:Bool{
         get{
             if(r5ViewController != nil){
@@ -139,31 +119,24 @@ class StreamDetailVC: UIViewController, UITextFieldDelegate {
             }
         }
     }
-
-    
-
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
-
     open override var shouldAutorotate:Bool {
         get {
             return true
         }
     }
-
     open override var supportedInterfaceOrientations: UIInterfaceOrientationMask {
         get {
             return [UIInterfaceOrientationMask.all]
         }
     }
-
     func navigationControllerSupportedInterfaceOrientations(_ navigationController: UINavigationController) -> UIInterfaceOrientationMask {
         return UIInterfaceOrientationMask.all
     }
     override var preferredStatusBarStyle: UIStatusBarStyle {
         return .lightContent // .default
     }
-
 }

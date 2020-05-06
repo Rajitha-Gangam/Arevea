@@ -13,10 +13,13 @@ class ChannelsVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Col
     @IBOutlet weak var tblMain: UITableView!
     @IBOutlet weak var lblTitle: UILabel!
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
+    let appDelegate = UIApplication.shared.delegate as! AppDelegate
+    @IBOutlet weak var btnUserName: UIButton!
 
     var detailItem: String = "";
     var aryChannels = [Any]();
-    
+    var orgId = 0;
+    var organizationName = "Organization Name";
     var aryMainMenu :[[String: String]] = [["name":"House","icon":"channel1.png"],["name":"Bass","icon":"channel2.png"],["name":"Bass","icon":"channel4.png"],["name":"House","icon":"channel3.png"],["name":"House","icon":"channel4.png"],
                                            ["name":"Bass","icon":"channel1.png"],
                                            ["name":"Bass","icon":"channel2.png"],
@@ -28,18 +31,25 @@ class ChannelsVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Col
         // Do any additional setup after loading the view.
         self.navigationController?.isNavigationBarHidden = true
         tblMain.register(UINib(nibName: "DashBoardCell", bundle: nil), forCellReuseIdentifier: "DashBoardCell")
-        lblTitle.text = "Channels";
+        lblTitle.text = organizationName;
         organizationChannels();
+    }
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated);
+        self.btnUserName.setTitle(appDelegate.USER_NAME, for: .normal)
     }
     func showAlert(strMsg: String){
         let alert = UIAlertController(title: "Alert", message: strMsg, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
         self.present(alert, animated: true)
     }
+    // MARK: Handler for organizationChannels API
+
     func organizationChannels(){
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         let url: String = appDelegate.baseURL +  "/organizationChannels"
-        let params: [String: Any] = ["organization_id": "1"]
+        let params: [String: Any] = ["organization_id": orgId]
+        print("organizationChannels params:",params)
         activityIndicator.isHidden = false
         activityIndicator.startAnimating()
         AF.request(url, method: .post,  parameters: params, encoding: JSONEncoding.default)
@@ -47,8 +57,13 @@ class ChannelsVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Col
                 switch response.result {
                 case .success(let value):
                     if let json = value as? [String: Any] {
-                        self.aryChannels = json["channels"] as! [Any];
-                        NSLog("aryChannels count:%d", self.aryChannels.count);
+                        let arySub = json["Data"] as? [Any];
+                        if (arySub?.count ?? 0 > 0){
+                            let element = arySub?[0] as? [String:Any];
+                            self.aryChannels = element?["channels"] as? [Any] ?? [Any]();
+                            NSLog("aryChannels count:%d", self.aryChannels.count);
+                        }
+                       
                         self.activityIndicator.isHidden = true;
                         self.activityIndicator.stopAnimating();
                         self.tblMain.reloadData()
@@ -62,10 +77,7 @@ class ChannelsVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Col
                 }
         }
     }
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated);
-        
-    }
+    
     @IBAction func back(_ sender: Any) {
         self.navigationController?.popViewController(animated: true);
     }
@@ -107,14 +119,28 @@ class ChannelsVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Col
         return UIColor(red: CGFloat(red), green: CGFloat(green), blue: CGFloat(blue), alpha: CGFloat(alpha))
     }
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let storyboard = UIStoryboard(name: "Main", bundle: nil);
-        let vc = storyboard.instantiateViewController(withIdentifier: "ChannelDetailVC") as! ChannelDetailVC
-        self.navigationController?.pushViewController(vc, animated: true)
+//        let storyboard = UIStoryboard(name: "Main", bundle: nil);
+//        let vc = storyboard.instantiateViewController(withIdentifier: "ChannelDetailVC") as! ChannelDetailVC
+//        self.navigationController?.pushViewController(vc, animated: true)
         
     }
     func collectionView(collectionviewcell: DBCollectionViewCell?, index: Int, didTappedInTableViewCell: DashBoardCell) {
+        activityIndicator.isHidden = false
+        activityIndicator.startAnimating()
+        
+        let orgsList = didTappedInTableViewCell.rowWithItems
+        let selectedOrg = orgsList[index] as? [String: Any]
+        
           let storyboard = UIStoryboard(name: "Main", bundle: nil);
            let vc = storyboard.instantiateViewController(withIdentifier: "ChannelDetailVC") as! ChannelDetailVC
+        vc.orgId = orgId;
+        print("userId:",selectedOrg?["user_id"] as Any)
+        if (selectedOrg?["user_id"] as? Int) != nil {
+            vc.performerId = selectedOrg?["user_id"] as! Int
+        }
+        else {
+            vc.performerId = 1;
+        }
            self.navigationController?.pushViewController(vc, animated: true)
        }
     override var preferredStatusBarStyle: UIStatusBarStyle {

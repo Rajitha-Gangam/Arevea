@@ -20,7 +20,8 @@ class SubscriptionPlanVC: UIViewController {
     @IBOutlet weak var lblTier2: UILabel!
     @IBOutlet weak var lblTier1Amount: UILabel!
     @IBOutlet weak var lblTier2Amount: UILabel!
-
+    @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
+    
     var comingfrom = "";
     var planID = 0;
     var tier1Amount = 0;
@@ -34,41 +35,44 @@ class SubscriptionPlanVC: UIViewController {
             //before sign up we need to call standard/premium plans
             lblTier1.text = "Standard";
             lblTier2.text = "Premium";
-            getSubscriptionPlans();
+            getSubscriptionPlans()
         }else{
             //if suer comes from channel details subscription
             //after signin need to call tier plans
             lblTier1.text = "Tier - 1";
             lblTier2.text = "Tier - 2";
-            getOrganizationSubscription();
+            getOrganizationSubscription()
         }
     }
-    func getSubscriptionPlans(){
+    // MARK: Handler for getSubscriptionPlans API,before signup
+    
+    func getSubscriptionPlans() {
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         let url: String = appDelegate.baseURL +  "/getSubscriptionPlans"
         let params: [String: Any] = ["plan_type": "user"]
-        
-       AF.request(url, method: .post,  parameters: params, encoding: JSONEncoding.default)
+        activityIndicator.isHidden = false
+        activityIndicator.startAnimating()
+        AF.request(url, method: .post,  parameters: params, encoding: JSONEncoding.default)
             .responseJSON { response in
                 switch response.result {
                 case .success(let value):
                     if let json = value as? [String: Any] {
-                        if (json["status"]as! Int == 0){
-                            print(json["message"] as! String)
-                            self.arySubscriptionsData = json["subscription_plan"] as! [Any];
-                            NSLog("plans count:%d", self.arySubscriptionsData.count);
+                        if (json["status"]as? Int == 0){
+                            self.activityIndicator.isHidden = true;
+                            self.activityIndicator.stopAnimating();
+                            self.arySubscriptionsData = json["subscription_plan"] as? [Any] ?? [Any]();
                             if (self.arySubscriptionsData.count > 0){
-                                let dic = self.arySubscriptionsData[0] as! [String:Any];
-                                
-                                let aryFeatureList = dic["feature_details"] as! [Any];
-//                                self.tier1Amount = dic["tier_base_amount"] as! Int;
-//                                self.lblTier1.text = "$\(self.tier1Amount)";
-                                self.planID = dic["id"] as! Int;
+                                let dic = self.arySubscriptionsData[0] as? [String:Any];
+                                let aryFeatureList = dic?["feature_details"] as? [Any] ?? [Any]();
+                                //                                self.tier1Amount = dic["tier_base_amount"] as? Int;
+                                //                                self.lblTier1.text = "$\(self.tier1Amount)";
+
+                                self.planID = dic?["id"] as? Int ?? 0;
                                 self.lblTier1Amount.text = "$0";
                                 var strPrem1 = "";
                                 for item in aryFeatureList{
-                                    let item1 = item as AnyObject;
-                                    let strFeauture = item1["feature_name"] as! String;
+                                    let item1 = item as! [String:Any];
+                                    let strFeauture = item1["feature_name"] as! String
                                     strPrem1 += strFeauture + "\n\n";
                                 }
                                 self.txtTier1Desc.text = strPrem1.lowercased();
@@ -77,16 +81,16 @@ class SubscriptionPlanVC: UIViewController {
                                 self.txtTier1Desc.text = "";
                             }
                             if (self.arySubscriptionsData.count > 1){
-                                let dic = self.arySubscriptionsData[1] as! [String:Any];
-                                self.planID = dic["id"] as! Int;
-
-                                let aryFeatureList = dic["feature_details"] as! [Any];
-//                                self.tier2Amount = dic["tier_base_amount"] as! Int;
-//                                self.lblTier2.text = "$\(self.tier2Amount)";
+                                let dic = self.arySubscriptionsData[1] as? [String:Any];
+                                self.planID = dic?["id"] as? Int ?? 0;
+                                let aryFeatureList = dic?["feature_details"] as? [Any] ?? [Any]();
+                                //                                self.tier2Amount = dic["tier_base_amount"] as? Int;
+                                //                                self.lblTier2.text = "$\(self.tier2Amount)";
                                 self.lblTier2Amount.text = "$10";
                                 var strPrem1 = "";
                                 for item in aryFeatureList{
-                                    let item1 = item as AnyObject;
+                                    let item1 = item as! [String:Any];
+                                    //NSLog("==14: item1:%@",item1 )
                                     let strFeauture = item1["feature_name"] as! String;
                                     strPrem1 += strFeauture + "\n\n";
                                 }
@@ -96,19 +100,24 @@ class SubscriptionPlanVC: UIViewController {
                             }
                             
                         }else{
-                            let strError = json["message"] as! String
-                            print(strError)
-                            self.showAlert(strMsg: strError)
+                            let strError = json["message"] as? String
+                            self.showAlert(strMsg: strError ?? "")
+                            self.activityIndicator.isHidden = true;
+                            self.activityIndicator.stopAnimating();
                         }
                         
                     }
                 case .failure(let error):
                     print(error)
                     self.showAlert(strMsg: error.localizedDescription)
+                    self.activityIndicator.isHidden = true;
+                    self.activityIndicator.stopAnimating();
                 }
         }
     }
-    func getOrganizationSubscription(){
+    // MARK: Handler for getSubscriptionPlans API,from video details page
+    
+    func getOrganizationSubscription() {
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         let url: String = appDelegate.baseURL +  "/getOrganizationSubscription"
         let params: [String: Any] = ["organization_id": 1]
@@ -118,21 +127,21 @@ class SubscriptionPlanVC: UIViewController {
                 switch response.result {
                 case .success(let value):
                     if let json = value as? [String: Any] {
-                        if (json["status"]as! Int == 0){
-                            print(json["message"] as! String)
-                            self.arySubscriptionsData = json["subscriptionsData"] as! [Any];
+                        if (json["status"]as? Int == 0){
+                            print(json["message"] as? String ?? "")
+                            self.arySubscriptionsData = json["subscriptionsData"] as? [Any] ?? [Any]();
                             NSLog("plans count:%d", self.arySubscriptionsData.count);
                             if (self.arySubscriptionsData.count > 0){
-                                let dic = self.arySubscriptionsData[0] as! [String:Any];
+                                let dic = self.arySubscriptionsData[0] as? [String:Any];
                                 
-                                let aryFeatureList = dic["feature_details"] as! [Any];
-                                self.tier1Amount = dic["tier_base_amount"] as! Int;
+                                let aryFeatureList = dic?["feature_details"] as? [Any] ?? [Any]();
+                                self.tier1Amount = dic?["tier_base_amount"] as? Int ?? 0;
                                 self.lblTier1Amount.text = "$\(self.tier1Amount)";
                                 var strPrem1 = "";
                                 for item in aryFeatureList{
-                                    let item1 = item as AnyObject;
+                                    let item1 = item as! [String:Any];
                                     let strFeauture = item1["feature_name"] as! String;
-                                    strPrem1 += strFeauture + "\n\n";
+                                    strPrem1 += strFeauture  + "\n\n";
                                 }
                                 self.txtTier1Desc.text = strPrem1.lowercased();
                             }
@@ -140,14 +149,14 @@ class SubscriptionPlanVC: UIViewController {
                                 self.txtTier1Desc.text = "";
                             }
                             if (self.arySubscriptionsData.count > 1){
-                                let dic = self.arySubscriptionsData[1] as! [String:Any];
+                                let dic = self.arySubscriptionsData[1] as? [String:Any];
                                 
-                                let aryFeatureList = dic["feature_details"] as! [Any];
-                                self.tier2Amount = dic["tier_base_amount"] as! Int;
+                                let aryFeatureList = dic?["feature_details"] as? [Any] ?? [Any]();
+                                self.tier2Amount = dic?["tier_base_amount"] as? Int ?? 0;
                                 self.lblTier2Amount.text = "$\(self.tier2Amount)";
                                 var strPrem1 = "";
                                 for item in aryFeatureList{
-                                    let item1 = item as AnyObject;
+                                    let item1 = item as! [String:Any];
                                     let strFeauture = item1["feature_name"] as! String;
                                     strPrem1 += strFeauture + "\n\n";
                                 }
@@ -158,15 +167,19 @@ class SubscriptionPlanVC: UIViewController {
                             }
                             
                         }else{
-                            let strError = json["message"] as! String
-                            print(strError)
-                            self.showAlert(strMsg: strError)
+                            let strError = json["message"] as? String
+                            print(strError ?? "")
+                            self.showAlert(strMsg: strError ?? "")
+                            self.activityIndicator.isHidden = true;
+                            self.activityIndicator.stopAnimating();
                         }
                         
                     }
                 case .failure(let error):
                     print(error)
                     self.showAlert(strMsg: error.localizedDescription)
+                    self.activityIndicator.isHidden = true;
+                    self.activityIndicator.stopAnimating();
                 }
         }
     }

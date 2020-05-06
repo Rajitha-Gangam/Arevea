@@ -44,32 +44,34 @@ class SubscribeTest: BaseTest {
         //setPlaybackGain(0) means mute
         //setPlaybackGain(1.0f); means unmute
         
-        let screenSize = UIScreen.main.bounds.size
+        //addControls()
         
-        audioBtn = UIButton(frame: CGRect(x: (screenSize.width * 0.6) - 100, y: screenSize.height - 100, width: 50, height: 50))
-        audioBtn?.backgroundColor = UIColor.darkGray
-        audioBtn?.setTitle("", for: UIControl.State.normal)
-        audioBtn?.setImage(UIImage.init(named: "mute.png"), for: .normal);
-        view.addSubview(audioBtn!)
-        let tap = UITapGestureRecognizer(target: self, action: #selector(pauseAudio))
-        audioBtn?.addGestureRecognizer(tap)
-        
-//        videoBtn = UIButton(frame: CGRect(x: (screenSize.width * 0.6) - 120, y: screenSize.height - 40, width: 50, height: 40))
-//        videoBtn?.backgroundColor = UIColor.darkGray
-//        videoBtn?.setTitle("video", for: UIControl.State.normal)
-//        view.addSubview(videoBtn!)
-//        let tap2 = UITapGestureRecognizer(target: self, action: #selector(pauseVideo))
-//        videoBtn?.addGestureRecognizer(tap2)
-        let f = self.view.frame
-        slider = UISlider(frame: CGRect(x:40, y:f.size.height - 40, width:f.size.width - 80, height:20))
-        slider?.minimumValue = 0
-        slider?.maximumValue = 100
-        slider?.isContinuous = true
-        slider?.tintColor = UIColor.blue
-        slider?.value = 100
-        slider?.addTarget(self, action: #selector(sliderValueDidChange(sender:)), for: .valueChanged)
-        self.view.addSubview(slider!)
-        
+    }
+    func addControls(){
+        let screenSize = currentView?.view.bounds.size
+                
+                audioBtn = UIButton(frame: CGRect(x: ((screenSize?.width ?? 0.0) * 0.6) - 100, y: (screenSize?.height ?? 0.0) - 100, width: 50, height: 50))
+                audioBtn?.backgroundColor = UIColor.darkGray
+                audioBtn?.setTitle("", for: UIControl.State.normal)
+                audioBtn?.setImage(UIImage.init(named: "mute.png"), for: .normal);
+                view.addSubview(audioBtn!)
+                let tap = UITapGestureRecognizer(target: self, action: #selector(pauseAudio))
+                audioBtn?.addGestureRecognizer(tap)
+                
+        //        videoBtn = UIButton(frame: CGRect(x: (screenSize.width * 0.6) - 120, y: screenSize.height - 40, width: 50, height: 40))
+        //        videoBtn?.backgroundColor = UIColor.darkGray
+        //        videoBtn?.setTitle("video", for: UIControl.State.normal)
+        //        view.addSubview(videoBtn!)
+        //        let tap2 = UITapGestureRecognizer(target: self, action: #selector(pauseVideo))
+        //        videoBtn?.addGestureRecognizer(tap2)
+                slider = UISlider(frame: CGRect(x:40, y:(screenSize?.height ?? 0.0) - 40, width:(screenSize?.width ?? 0.0) - 80, height:20))
+                slider?.minimumValue = 0
+                slider?.maximumValue = 100
+                slider?.isContinuous = true
+                slider?.tintColor = UIColor.blue
+                slider?.value = 100
+                slider?.addTarget(self, action: #selector(sliderValueDidChange(sender:)), for: .valueChanged)
+                self.view.addSubview(slider!)
     }
     @objc func sliderValueDidChange(sender:UISlider!) {
            self.subscribeStream?.audioController.volume = slider!.value / 100
@@ -88,6 +90,7 @@ class SubscribeTest: BaseTest {
         }
         
     }
+    
     
     @objc func pauseVideo() {
         

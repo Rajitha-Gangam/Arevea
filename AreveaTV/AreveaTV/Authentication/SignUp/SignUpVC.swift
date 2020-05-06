@@ -44,7 +44,8 @@ class SignUpVC: UIViewController ,UITextFieldDelegate{
         txtDOB.text = dateFormatter.string(from: sender.date)
     }
     func addDoneButton() {
-        let toolbar = UIToolbar()
+        let toolbar =  UIToolbar(frame: CGRect(x: 0, y: 0, width: view.frame.size.width, height: 35))
+
         let flexButton = UIBarButtonItem(barButtonSystemItem: UIBarButtonItem.SystemItem.flexibleSpace, target: nil, action: nil)
         let doneButton = UIBarButtonItem(title: "Done", style: .plain, target: self, action:#selector(resignKB(_:)))
         toolbar.setItems([flexButton, doneButton], animated: true)
@@ -226,8 +227,6 @@ class SignUpVC: UIViewController ,UITextFieldDelegate{
     func animateTextField(textField: UITextField, up: Bool)
     {
         let movementDistance:CGFloat = -130
-        let movementDuration: Double = 0.3
-        
         var movement:CGFloat = 0
         if up
         {
@@ -237,11 +236,9 @@ class SignUpVC: UIViewController ,UITextFieldDelegate{
         {
             movement = -movementDistance
         }
-        UIView.beginAnimations("animateTextField", context: nil)
-        UIView.setAnimationBeginsFromCurrentState(true)
-        UIView.setAnimationDuration(movementDuration)
-        self.view.frame = self.view.frame.offsetBy(dx: 0, dy: movement)
-        UIView.commitAnimations()
+        UIView.animate(withDuration: 0.3, animations: {
+                   self.view.frame = self.view.frame.offsetBy(dx: 0, dy: movement)
+        })
     }
     override var preferredStatusBarStyle: UIStatusBarStyle {
         return .lightContent // .default

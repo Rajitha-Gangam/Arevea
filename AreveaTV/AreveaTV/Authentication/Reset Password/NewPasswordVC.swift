@@ -23,10 +23,11 @@ class NewPasswordVC: UIViewController ,UITextFieldDelegate{
         username = UserDefaults.standard.string(forKey: "user_email");
         // Do any additional setup after loading the view.
         addDoneButton()
-    
+        
     }
     func addDoneButton() {
-        let toolbar = UIToolbar()
+        let toolbar =  UIToolbar(frame: CGRect(x: 0, y: 0, width: view.frame.size.width, height: 35))
+        
         let flexButton = UIBarButtonItem(barButtonSystemItem: UIBarButtonItem.SystemItem.flexibleSpace, target: nil, action: nil)
         let doneButton = UIBarButtonItem(title: "Done", style: .plain, target: self, action:#selector(resignKB(_:)))
         toolbar.setItems([flexButton, doneButton], animated: true)
@@ -79,22 +80,23 @@ class NewPasswordVC: UIViewController ,UITextFieldDelegate{
                                                                     DispatchQueue.main.async {
                                                                         self.activityIndicator.stopAnimating();
                                                                         self.activityIndicator.isHidden = true;
-                                                                    }
-                                                                    if let error = error {
-                                                                        self.showAlert(strMsg: "\(error)");
-                                                                        print("\(error)")
-                                                                        return
-                                                                    }
-                                                                    
-                                                                    if let forgotPasswordResult = forgotPasswordResult {
-                                                                        switch(forgotPasswordResult.forgotPasswordState) {
-                                                                        case .done:
-                                                                            self.dismiss(self)
-                                                                        default:
-                                                                            print("Error: Could not change password.")
+                                                                        
+                                                                        if let error = error {
+                                                                            self.showAlert(strMsg: "\(error)");
+                                                                            print("\(error)")
+                                                                            return
                                                                         }
-                                                                    } else if let error = error {
-                                                                        print("Error occurred: \(error.localizedDescription)")
+                                                                        
+                                                                        if let forgotPasswordResult = forgotPasswordResult {
+                                                                            switch(forgotPasswordResult.forgotPasswordState) {
+                                                                            case .done:
+                                                                                self.dismiss(self)
+                                                                            default:
+                                                                                print("Error: Could not change password.")
+                                                                            }
+                                                                        } else if let error = error {
+                                                                            print("Error occurred: \(error.localizedDescription)")
+                                                                        }
                                                                     }
             }
         }
@@ -103,18 +105,38 @@ class NewPasswordVC: UIViewController ,UITextFieldDelegate{
     
     @IBAction func dismiss(_ sender: Any) {
         if (camefrom == "profile"){
-            self.navigationController?.popViewController(animated: true)
+            for controller in self.navigationController!.viewControllers as Array {
+                if controller.isKind(of: DashBoardVC.self) {
+                    self.navigationController!.popToViewController(controller, animated: true)
+                    break
+                }
+            }
         }else{
-            DispatchQueue.main.async {
-                   for controller in self.navigationController!.viewControllers as Array {
-                       if controller.isKind(of: LoginVC.self) {
-                           self.navigationController!.popToViewController(controller, animated: true)
-                           break
-                       }
-                   }
-                   }
+            signIn(sender);
         }
-       
+    }
+    @IBAction func signIn(_ sender: Any){
+        if (camefrom == "profile"){
+            AWSMobileClient.sharedInstance().signOut() { error in
+                if let error = error {
+                    print(error)
+                    return
+                }
+            }
+        }
+        var isLoginExists = false
+        for controller in self.navigationController!.viewControllers as Array {
+            if controller.isKind(of: LoginVC.self) {
+                self.navigationController!.popToViewController(controller, animated: true)
+                isLoginExists = true;
+                break
+            }
+        }
+        if (!isLoginExists){
+            let storyboard = UIStoryboard(name: "Main", bundle: nil);
+            let vc = storyboard.instantiateViewController(withIdentifier: "LoginVC") as! LoginVC
+            self.navigationController?.pushViewController(vc, animated: true)
+        }
     }
     // MARK: Text Field Delegate Methods
     

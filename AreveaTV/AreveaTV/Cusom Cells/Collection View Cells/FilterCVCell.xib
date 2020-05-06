@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="15705" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15706"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="FilterCVCell" id="gTV-IL-0wX" customClass="FilterCVCell" customModule="AreveaTV" customModuleProvider="target">
+            <rect key="frame" x="0.0" y="0.0" width="100" height="40"/>
+            <autoresizingMask key="autoresizingMask"/>
+            <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center">
+                <rect key="frame" x="0.0" y="0.0" width="100" height="40"/>
+                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                <subviews>
+                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Q1m-ou-JuE">
+                        <rect key="frame" x="0.0" y="0.0" width="100" height="40"/>
+                        <color key="backgroundColor" red="0.0039215686269999999" green="0.1137254902" blue="0.1529411765" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <constraints>
+                            <constraint firstAttribute="height" constant="40" id="GQg-Lm-pQ6"/>
+                        </constraints>
+                        <state key="normal" title="Button">
+                            <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        </state>
+                        <userDefinedRuntimeAttributes>
+                            <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
+                                <integer key="value" value="25"/>
+                            </userDefinedRuntimeAttribute>
+                        </userDefinedRuntimeAttributes>
+                    </button>
+                </subviews>
+            </view>
+            <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+            <constraints>
+                <constraint firstItem="Q1m-ou-JuE" firstAttribute="leading" secondItem="gTV-IL-0wX" secondAttribute="leading" id="Kad-Ui-Y2R"/>
+                <constraint firstAttribute="bottom" secondItem="Q1m-ou-JuE" secondAttribute="bottom" id="dl6-Gi-hn4"/>
+                <constraint firstItem="Q1m-ou-JuE" firstAttribute="top" secondItem="gTV-IL-0wX" secondAttribute="top" id="ehb-7O-B8x"/>
+                <constraint firstAttribute="trailing" secondItem="Q1m-ou-JuE" secondAttribute="trailing" id="iMh-hD-X0Z"/>
+            </constraints>
+            <viewLayoutGuide key="safeArea" id="ZTg-uK-7eu"/>
+            <connections>
+                <outlet property="btn" destination="Q1m-ou-JuE" id="qTC-jl-mOE"/>
+            </connections>
+            <point key="canvasLocation" x="140.57971014492756" y="86.383928571428569"/>
+        </collectionViewCell>
+    </objects>
+</document>

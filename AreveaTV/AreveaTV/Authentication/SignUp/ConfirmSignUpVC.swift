@@ -24,7 +24,8 @@ class ConfirmSignUpVC: UIViewController,UITextFieldDelegate {
 
     }
     func addDoneButton() {
-        let toolbar = UIToolbar()
+        let toolbar =  UIToolbar(frame: CGRect(x: 0, y: 0, width: view.frame.size.width, height: 35))
+
         let flexButton = UIBarButtonItem(barButtonSystemItem: UIBarButtonItem.SystemItem.flexibleSpace, target: nil, action: nil)
         let doneButton = UIBarButtonItem(title: "Done", style: .plain, target: self, action:#selector(resignKB(_:)))
         toolbar.setItems([flexButton, doneButton], animated: true)

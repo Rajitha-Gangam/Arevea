@@ -177,7 +177,7 @@ class BaseTest: UIViewController , R5StreamDelegate {
         
         //this is just to have a white background to the example
         let backView : UIView = UIView(frame: self.view.frame);
-        backView.backgroundColor = UIColor.white;
+        backView.backgroundColor = UIColor.clear;
         self.view.addSubview(backView);
         
     }
@@ -204,7 +204,7 @@ class BaseTest: UIViewController , R5StreamDelegate {
         
         currentView?.showPreview(true)
 
-        currentView?.showDebugInfo(true)
+        currentView?.showDebugInfo(false)
         
         return currentView!
     }

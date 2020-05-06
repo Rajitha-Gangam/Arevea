@@ -15,4 +15,6 @@ target 'AreveaTV' do
   pod 'AWSAuthUI'
   pod 'Instabug'
   pod ‘Alamofire’
+  pod 'Firebase/Core'
+  pod 'Firebase/Firestore'
 end
