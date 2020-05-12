@@ -8,6 +8,8 @@
 
 import UIKit
 import Firebase
+import SendBirdSDK
+
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow? // <-- Here
@@ -24,13 +26,21 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     //var baseURL = "https://eku2g4rzxl.execute-api.us-west-2.amazonaws.com/dev";
     
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+
+        if let USER_NAME  = UserDefaults.standard.string(forKey: "USER_NAME")  {
+            self.USER_NAME = USER_NAME
+        }
+        if let USER_NAME_FULL  = UserDefaults.standard.string(forKey: "USER_NAME_FULL")  {
+            self.USER_NAME_FULL = USER_NAME_FULL
+        }
         
         
-        
+
         self.window?.makeKeyAndVisible()
         // Use Firebase library to configure APIs
         FirebaseApp.configure()
-        
+        SBDMain.initWithApplicationId("9308C3B1-A36D-47E2-BA3C-8F6F362C35AF")
+
         return true
     }
     

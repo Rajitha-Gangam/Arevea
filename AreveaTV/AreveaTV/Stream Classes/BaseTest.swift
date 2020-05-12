@@ -106,15 +106,21 @@ class BaseTest: UIViewController , R5StreamDelegate {
 //        self.removeFromParentViewController()
     }
     
-    func getConfig()->R5Configuration{
+    func getConfig(url:String)->R5Configuration{
+        
         // Set up the configuration
         let config = R5Configuration()
-        config.host = "vimal.cloudext.co";
-        config.port = 8554;
-        config.contextName = "live";
+        
+        let userName = Testbed.getParameter(param: "username") as! String
+        let password = Testbed.getParameter(param: "password") as! String
+        config.parameters = "username=" + userName + ";password=" + password + ";"
+        
+        config.host = url;//"livestream.arevea.tv";
+        config.port = Int32(Testbed.getParameter(param: "port") as! Int);
+        config.contextName = (Testbed.getParameter(param: "context") as! String)
         config.`protocol` = Int32(r5_rtsp.rawValue);
-        config.buffer_time = 0.5;
-        config.licenseKey = "YI8J-RDXS-DMLH-H5DZ";
+        config.buffer_time = Testbed.getParameter(param: "buffer_time") as! Float
+        config.licenseKey = (Testbed.getParameter(param: "license_key") as! String)
         return config
     }
     
@@ -135,7 +141,6 @@ class BaseTest: UIViewController , R5StreamDelegate {
         self.publishStream = R5Stream(connection: connection)
         self.publishStream!.delegate = self
         
-        if(Testbed.getParameter(param: "video_on") as! Bool){
             // Attach the video from camera to stream
             let videoDevice = AVCaptureDevice.devices(for: AVMediaType.video).last as? AVCaptureDevice
             
@@ -146,16 +151,13 @@ class BaseTest: UIViewController , R5StreamDelegate {
             camera?.fps = Int32(Testbed.getParameter(param: "fps") as! Int)
             camera?.orientation = 90
             self.publishStream!.attachVideo(camera)
-        }
-        if(Testbed.getParameter(param: "audio_on") as! Bool){
+        
             // Attach the audio from microphone to stream
             let audioDevice = AVCaptureDevice.default(for: AVMediaType.audio)
             let microphone = R5Microphone(device: audioDevice)
             microphone?.bitrate = 32
             NSLog("Got device %@", String(describing: audioDevice?.localizedName))
             self.publishStream!.attachAudio(microphone)
-        }
-
     }
     
     override func viewDidLoad() {

@@ -12,12 +12,16 @@
     import FBSDKCoreKit
     import AWSCognito
     import Alamofire
+    import SendBirdSDK
     
     protocol GLLoginDelegate {
         func didFinishLogin(status: Bool)
     }
     
     class LoginVC: UIViewController,UITextFieldDelegate, UIPickerViewDelegate, UIPickerViewDataSource {
+        // MARK: Variables Declarataion
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        
         var loginDelegate: GLLoginDelegate?
         
         @IBOutlet weak var txtUserName: UITextField!
@@ -26,6 +30,9 @@
         @IBOutlet weak var txtEnv: UITextField!
         
         var pickerData: [String] = [String]()
+        var sendBirdUserId = "";
+        
+        // MARK: View Life Cycle Methods
         
         override func viewDidLoad() {
             super.viewDidLoad()
@@ -40,11 +47,12 @@
             
         }
         override func viewWillAppear(_ animated: Bool) {
+            txtUserName.text = "";
+            txtPassword.text = "";
 //            txtUserName.text = "grajitha2009@gmail.com";
 //            txtPassword.text = "V@rshitha12345";
             
-                        txtUserName.text = "";
-                        txtPassword.text = "";
+            
         }
         @IBAction func resignKB(_ sender: Any) {
             txtUserName.resignFirstResponder();
@@ -88,8 +96,9 @@
             AWSMobileClient.sharedInstance().signIn(username: username, password: password) {
                 (signInResult, error) in
                 print("signInResult:\(String(describing: signInResult))");
+                
                 DispatchQueue.main.async {
-                    self.activityIndicator.stopAnimating();
+                    self.activityIndicator.stopAnimating()
                     self.activityIndicator.isHidden = true;
                 }
                 if let error =  error as? AWSMobileClientError {
@@ -234,7 +243,6 @@
         }
         // MARK: Handler for getUser API, using for filters
         func getUser(){
-            let appDelegate = UIApplication.shared.delegate as! AppDelegate
             let url: String = appDelegate.baseURL +  "/getUser"
             let params: [String: Any] = ["email":txtUserName.text!]
             activityIndicator.isHidden = false
@@ -247,15 +255,26 @@
                             if (json["status"]as? Int == 0){
                                 print(json["message"] ?? "")
                                 let user = json["user"] as? [String:Any];
-                                print("user:",user ?? "")
+                               // print("user:",user ?? "")
                                 UserDefaults.standard.set(user?["id"], forKey: "user_id")
                                 UserDefaults.standard.set(user?["user_type"], forKey: "user_type")
+                                UserDefaults.standard.set(user?["session_token"], forKey: "session_token")
                                 
-                                let storyboard = UIStoryboard(name: "Main", bundle: nil);
-                                let vc = storyboard.instantiateViewController(withIdentifier: "DashBoardVC") as! DashBoardVC
-                                self.navigationController?.pushViewController(vc, animated: true)
+                                let fn = user?["user_first_name"] as? String
+                                let ln = user?["user_last_name"]as? String
+                                let strName = String((fn?.first)!) + String((ln?.first)!)
+                                UserDefaults.standard.set(user?["session_token"], forKey: "session_token")
+                               self.appDelegate.USER_NAME = strName;
+                                self.appDelegate.USER_NAME_FULL = (fn ?? "") + " " + (ln ?? "")
+                                UserDefaults.standard.set(self.appDelegate.USER_NAME, forKey: "USER_NAME")
+                                UserDefaults.standard.set(self.appDelegate.USER_NAME_FULL, forKey: "USER_NAME_FULL")
+
+
+                                
+                                
                                 self.activityIndicator.isHidden = true;
                                 self.activityIndicator.stopAnimating();
+                                self.setupSendBirdUI()
                             }else{
                                 let strError = json["message"] as? String
                                 print(strError ?? "")
@@ -263,7 +282,6 @@
                                 self.activityIndicator.isHidden = true;
                                 self.activityIndicator.stopAnimating();
                                 //we are calling logout here, bcz if user click on login again it shoold work with AWS, otherwise, user alreday loggen in state will come
-                                
                                 AWSMobileClient.sharedInstance().signOut() { error in
                                     if let error = error {
                                         print(error)
@@ -332,6 +350,61 @@
             let selectedItem = pickerData[row]
             txtEnv.text = selectedItem
         }
+        // MARK: Send Bird Methods
+        
+        func setupSendBirdUI() {
+            if let userId = UserDefaults.standard.object(forKey: "sendbird_user_id") as? String {
+                self.sendBirdUserId = userId
+            }
+            
+            self.sendBirdConnect()
+        }
+        func sendBirdConnect() {
+            
+            // self.view.endEditing(true)
+            if SBDMain.getConnectState() == .open {
+                SBDMain.disconnect {
+//                    DispatchQueue.main.async {
+//                        //self.setUIsForDefault()
+//                    }
+                    self.sendBirdConnect()
+                }
+                print("sendBirdConnect disconnect")
+            }
+            else {
+                activityIndicator.isHidden = false
+                activityIndicator.startAnimating()
+                let userId = UserDefaults.standard.string(forKey: "user_id");
+                let nickname = appDelegate.USER_NAME_FULL
+                
+                let userDefault = UserDefaults.standard
+                userDefault.setValue(userId, forKey: "sendbird_user_id")
+                userDefault.setValue(nickname, forKey: "sendbird_user_nickname")
+                
+                //self.setUIsWhileConnecting()
+                
+                ConnectionManager.login(userId: userId ?? "1", nickname: nickname) { user, error in
+                    self.activityIndicator.isHidden = true;
+                    self.activityIndicator.stopAnimating();
+                    guard error == nil else {
+                        DispatchQueue.main.async {
+                            // self.setUIsForDefault()
+                        }
+                        // self.showAlert(strMsg:error?.localizedDescription ?? "" )
+                        return
+                    }
+                    
+                    DispatchQueue.main.async {
+                        // self.setUIsForDefault()
+                        print("Logged In With SendBird Successfully")
+                        let storyboard = UIStoryboard(name: "Main", bundle: nil);
+                        let vc = storyboard.instantiateViewController(withIdentifier: "DashBoardVC") as! DashBoardVC
+                        self.navigationController?.pushViewController(vc, animated: true)
+                    }
+                }
+            }
+        }
+        
         
         
     }

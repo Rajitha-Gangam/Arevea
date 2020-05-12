@@ -8,6 +8,7 @@
 
 import UIKit
 import AWSMobileClient
+import Alamofire
 
 class ConfirmSignUpVC: UIViewController,UITextFieldDelegate {
     
@@ -120,12 +121,12 @@ class ConfirmSignUpVC: UIViewController,UITextFieldDelegate {
         switch(signUpResult.signUpConfirmationState) {
         case .confirmed:
             print("User is signed up and confirmed.")
-            
-            DispatchQueue.main.async {
-                let storyboard = UIStoryboard(name: "Main", bundle: nil);
-                let vc = storyboard.instantiateViewController(withIdentifier: "DashBoardVC") as! DashBoardVC
-                self.navigationController?.pushViewController(vc, animated: true)
-            }
+            getUser()
+//            DispatchQueue.main.async {
+//                let storyboard = UIStoryboard(name: "Main", bundle: nil);
+//                let vc = storyboard.instantiateViewController(withIdentifier: "DashBoardVC") as! DashBoardVC
+//                self.navigationController?.pushViewController(vc, animated: true)
+//            }
             
         case .unconfirmed:
             var username = self.username!;
@@ -165,6 +166,63 @@ class ConfirmSignUpVC: UIViewController,UITextFieldDelegate {
             }
         }
     }
+    // MARK: Handler for getUser API, using for filters
+           func getUser(){
+               let appDelegate = UIApplication.shared.delegate as! AppDelegate
+               let url: String = appDelegate.baseURL +  "/getUser"
+            let params: [String: Any] = ["email":self.username ?? ""]
+               activityIndicator.isHidden = false
+               activityIndicator.startAnimating()
+               AF.request(url, method: .post,  parameters: params, encoding: JSONEncoding.default)
+                   .responseJSON { response in
+                       switch response.result {
+                       case .success(let value):
+                           if let json = value as? [String: Any] {
+                               if (json["status"]as? Int == 0){
+                                   print(json["message"] ?? "")
+                                   let user = json["user"] as? [String:Any];
+                                   print("user:",user ?? "")
+                                   UserDefaults.standard.set(user?["id"], forKey: "user_id")
+                                   UserDefaults.standard.set(user?["user_type"], forKey: "user_type")
+                                   
+                                   let storyboard = UIStoryboard(name: "Main", bundle: nil);
+                                   let vc = storyboard.instantiateViewController(withIdentifier: "DashBoardVC") as! DashBoardVC
+                                   self.navigationController?.pushViewController(vc, animated: true)
+                                   self.activityIndicator.isHidden = true;
+                                   self.activityIndicator.stopAnimating();
+                               }else{
+                                   let strError = json["message"] as? String
+                                   print(strError ?? "")
+                                   self.showAlert(strMsg: strError ?? "")
+                                   self.activityIndicator.isHidden = true;
+                                   self.activityIndicator.stopAnimating();
+                                   //we are calling logout here, bcz if user click on login again it shoold work with AWS, otherwise, user alreday loggen in state will come
+                                   
+                                   AWSMobileClient.sharedInstance().signOut() { error in
+                                       if let error = error {
+                                           print(error)
+                                           return
+                                       }
+                                   }
+                                   
+                               }
+                               
+                           }
+                       case .failure(let error):
+                           print(error)
+                           self.activityIndicator.isHidden = true;
+                           self.activityIndicator.stopAnimating();
+                           self.showAlert(strMsg: error.localizedDescription)
+                           //we are calling logout here, bcz if user click on login again it shoold work with AWS, otherwise, user alreday loggen in state will come
+                           AWSMobileClient.sharedInstance().signOut() { error in
+                               if let error = error {
+                                   print(error)
+                                   return
+                               }
+                           }
+                       }
+               }
+           }
     // MARK: Text Field Delegate Methods
     
     func textFieldDidBeginEditing(_ textField: UITextField) {

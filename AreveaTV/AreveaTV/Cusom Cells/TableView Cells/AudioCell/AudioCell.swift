@@ -14,6 +14,7 @@ class AudioCell: UITableViewCell {
     @IBOutlet weak var audioSlider: UISlider!
     @IBOutlet weak var lblDuration: UILabel!
     @IBOutlet weak var btnVolume:UIButton!
+    @IBOutlet weak var lblTitle:UILabel!
     override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code

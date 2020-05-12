@@ -39,9 +39,9 @@ class ProfileVC: UIViewController,UITextFieldDelegate {
     }
     @IBAction func updateProfile(_ sender: Any) {
         resignKB(sender)
-        let firstName = txtFirstName.text!;
-        let lastName = txtLastName.text!;
-        let phone = txtPhone.text!;
+        let firstName = txtFirstName.text!.trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
+        let lastName = txtLastName.text!.trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
+        let phone = txtPhone.text!.trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
         if (firstName.count == 0){
             showAlert(strMsg: "Please enter first name");
         }else if (lastName.count == 0){
@@ -85,6 +85,7 @@ class ProfileVC: UIViewController,UITextFieldDelegate {
         let user_id = UserDefaults.standard.string(forKey: "user_id");
         let user_type = UserDefaults.standard.string(forKey: "user_type");
         let params: [String: Any] = ["user_id":user_id ?? "","user_type":user_type ?? ""]
+        print("params:",params)
         activityIndicator.isHidden = false
         activityIndicator.startAnimating()
         AF.request(url, method: .post, parameters: params, encoding: JSONEncoding.default)
@@ -130,11 +131,15 @@ class ProfileVC: UIViewController,UITextFieldDelegate {
     
     // MARK: Handler for setProfile API, using for filters
     func setProfile(){
+        let firstName = txtFirstName.text!.trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
+        let lastName = txtLastName.text!.trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
+        let phone = txtPhone.text!.trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
+        
         let url: String = appDelegate.baseURL +  "/setProfile"
         let user_id = UserDefaults.standard.string(forKey: "user_id");
         let user_email = UserDefaults.standard.string(forKey: "user_email");
 
-        let params: [String: Any] = ["user_id":user_id ?? "","user_first_name":txtFirstName.text!,"user_last_name":txtLastName.text!,"user_phone_number":txtPhone.text!,"user_email":user_email!]
+        let params: [String: Any] = ["user_id":user_id ?? "","user_first_name":firstName,"user_last_name":lastName,"user_phone_number":phone,"user_email":user_email!]
         activityIndicator.isHidden = false
         activityIndicator.startAnimating()
         AF.request(url, method: .post, parameters: params, encoding: JSONEncoding.default)

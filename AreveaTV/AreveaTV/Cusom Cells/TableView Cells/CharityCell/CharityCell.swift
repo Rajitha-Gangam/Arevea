@@ -10,6 +10,11 @@ import UIKit
 
 class CharityCell: UITableViewCell {
     @IBOutlet weak var btnDonate: UIButton!
+    @IBOutlet weak var lblCharityName: UILabel!
+    @IBOutlet weak var lblCharityDesc: UILabel!
+    @IBOutlet weak var imgCharity: UIImageView!
+
+
     override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code

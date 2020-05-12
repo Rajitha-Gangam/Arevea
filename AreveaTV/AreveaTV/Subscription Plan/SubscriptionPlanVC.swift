@@ -208,6 +208,7 @@ class SubscriptionPlanVC: UIViewController {
                 
                 let storyboard = UIStoryboard(name: "Main", bundle: nil);
                 let vc = storyboard.instantiateViewController(withIdentifier: "PaymentVC") as! PaymentVC
+                vc.details = "subscription_plan"
                 self.navigationController?.pushViewController(vc, animated: true)
             }
         }else
@@ -221,6 +222,7 @@ class SubscriptionPlanVC: UIViewController {
                 
                 let storyboard = UIStoryboard(name: "Main", bundle: nil);
                 let vc = storyboard.instantiateViewController(withIdentifier: "PaymentVC") as! PaymentVC
+                vc.details = "subscription_plan"
                 self.navigationController?.pushViewController(vc, animated: true)
             }
         }

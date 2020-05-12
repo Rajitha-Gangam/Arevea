@@ -45,7 +45,7 @@ class SignUpVC: UIViewController ,UITextFieldDelegate{
     }
     func addDoneButton() {
         let toolbar =  UIToolbar(frame: CGRect(x: 0, y: 0, width: view.frame.size.width, height: 35))
-
+        
         let flexButton = UIBarButtonItem(barButtonSystemItem: UIBarButtonItem.SystemItem.flexibleSpace, target: nil, action: nil)
         let doneButton = UIBarButtonItem(title: "Done", style: .plain, target: self, action:#selector(resignKB(_:)))
         toolbar.setItems([flexButton, doneButton], animated: true)
@@ -163,13 +163,12 @@ class SignUpVC: UIViewController ,UITextFieldDelegate{
     }
     @IBAction func signUp(_ sender: Any) {
         resignKB(sender)
-        
-        let firstName = txtFirstName.text!;
-        let lastName = txtLastName.text!;
-        let email = txtEmail.text!;
-        let phone = txtPhone.text!;
-        let pwd = txtPassword.text!;
-        let cfrmPwd = txtCfrmPassword.text!;
+        let firstName = txtFirstName.text!.trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
+        let lastName = txtLastName.text!.trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
+        let phone = txtPhone.text!.trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
+        let email = txtEmail.text!.trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
+        let pwd = txtPassword.text!.trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
+        let cfrmPwd = txtCfrmPassword.text!.trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
         let dob = txtDOB.text!;
         
         if (firstName.count == 0){
@@ -237,7 +236,7 @@ class SignUpVC: UIViewController ,UITextFieldDelegate{
             movement = -movementDistance
         }
         UIView.animate(withDuration: 0.3, animations: {
-                   self.view.frame = self.view.frame.offsetBy(dx: 0, dy: movement)
+            self.view.frame = self.view.frame.offsetBy(dx: 0, dy: movement)
         })
     }
     override var preferredStatusBarStyle: UIStatusBarStyle {

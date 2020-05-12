@@ -95,6 +95,9 @@
             <viewLayoutGuide key="safeArea" id="njF-e1-oar"/>
             <connections>
                 <outlet property="btnDonate" destination="lON-EE-hX2" id="J33-Sw-PHO"/>
+                <outlet property="imgCharity" destination="YtP-xq-Cqj" id="Rcq-7u-kg9"/>
+                <outlet property="lblCharityDesc" destination="rcc-bm-NpZ" id="jAA-vz-E0e"/>
+                <outlet property="lblCharityName" destination="Q2q-iJ-MPN" id="2pE-Bm-uEy"/>
             </connections>
             <point key="canvasLocation" x="139.85507246376812" y="127.90178571428571"/>
         </tableViewCell>

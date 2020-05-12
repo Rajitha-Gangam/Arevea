@@ -11,6 +11,8 @@ import Alamofire
 
 
 class PaymentVC: UIViewController,UITextFieldDelegate {
+    // MARK: Variables declaration
+
     @IBOutlet weak var lblAmount: UILabel!
     @IBOutlet weak var txtTipAmount: UITextField!
     @IBOutlet weak var txtNameOnCard:UITextField!
@@ -31,13 +33,24 @@ class PaymentVC: UIViewController,UITextFieldDelegate {
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     @IBOutlet weak var btnUserName: UIButton!
     let appDelegate = UIApplication.shared.delegate as! AppDelegate
+    
+    var details = ""
+    var orgId = 0;
+    var performerId = 0;
+    var charityId = 0;
+    var streamId = 0;
 
-    var isTip = false;
+    // MARK: View Life Cycle
+
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         // Do any additional setup after loading the view.
-        if (isTip){
+        
+        var isShowUserInput = true
+        if(details == "subscription_plan" ||  details == "pay_per_view" ){
+            isShowUserInput = false
+        }
+        if (isShowUserInput){
             viewTip.isHidden = false;
             viewOrderDetails.isHidden = true;
         }else{
@@ -45,9 +58,9 @@ class PaymentVC: UIViewController,UITextFieldDelegate {
             viewOrderDetails.isHidden = false;
             let strAmount = UserDefaults.standard.string(forKey: "plan_amount");
             lblAmount.text = "$" + strAmount!;
-            let strPlan = UserDefaults.standard.string(forKey: "plan");
-            lblTier.text = strPlan!;
-
+           // let strPlan = UserDefaults.standard.string(forKey: "plan");
+            //lblTier.text = strPlan!;
+            lblTier.text = "Pay Per View";
         }
         addDoneButton()
     }
@@ -57,7 +70,7 @@ class PaymentVC: UIViewController,UITextFieldDelegate {
     }
     func addDoneButton() {
         let toolbar =  UIToolbar(frame: CGRect(x: 0, y: 0, width: view.frame.size.width, height: 35))
-
+        
         let flexButton = UIBarButtonItem(barButtonSystemItem: UIBarButtonItem.SystemItem.flexibleSpace, target: nil, action: nil)
         let doneButton = UIBarButtonItem(title: "Done", style: .plain, target: self, action:#selector(resignKB(_:)))
         toolbar.setItems([flexButton, doneButton], animated: true)
@@ -76,6 +89,7 @@ class PaymentVC: UIViewController,UITextFieldDelegate {
         
         let datePickerView = UIDatePicker()
         datePickerView.datePickerMode = .date
+        datePickerView.minimumDate = Date()
         datePickerView.addTarget(self, action: #selector(handleChange(sender:)), for: .valueChanged)
         txtExpDate.inputView = datePickerView
         
@@ -113,11 +127,18 @@ class PaymentVC: UIViewController,UITextFieldDelegate {
     @IBAction func pay(_ sender: UIButton) {
         resignKB(sender)
         var strAmount = "";
-        if (isTip){
+        var isShowUserInput = true
+        if(details == "subscription_plan" ||  details == "pay_per_view" ){
+            isShowUserInput = false
+        }
+        if (isShowUserInput){
             strAmount = txtTipAmount.text!;
         }else{
-           strAmount = UserDefaults.standard.value(forKey: "plan_amount") as! String;
+            strAmount = UserDefaults.standard.value(forKey: "plan_amount") as? String ?? "0";
         }
+        //3% processing fee we need to add
+        let intFinalAmount = (Int(strAmount) ?? 0 * 3)/100
+        
         let strUsername = txtNameOnCard.text!
         let strCreditCardNum = txtCreditCardNo.text!
         let strExpDate = txtExpDate.text!
@@ -128,9 +149,9 @@ class PaymentVC: UIViewController,UITextFieldDelegate {
         let strState = txtState.text!
         let strCountry = txtCountry.text!
         let strZip = txtZip.text!
-
         
-        if (strAmount.count == 0 && isTip){
+        
+        if (strAmount.count == 0 && isShowUserInput){
             showAlert(strMsg: "Please enter tip amount");
             return
         }else if (strUsername.count == 0){
@@ -168,34 +189,63 @@ class PaymentVC: UIViewController,UITextFieldDelegate {
             let expDate = strExpDate.components(separatedBy: "/")
             let month = expDate[0];
             let year = expDate[1];
+            var paymentType = ""
+            if(details == "subscription_plan"){
+                paymentType = "user_app_subscription"
+            }
+            else if(details == "donation"){
+                paymentType = "charity_donation"
+            }else if(details == "tip"){
+                paymentType = "performer_tip"
+            }else if(details == "pay_per_view"){
+                paymentType = "pay_per_view"
+            }
             //paymentType -> user_app_subscription for subscription,subscription_id
             //paymentType -> performer_tip for tip,performer_id
-            let params = {
-                ["paymentType":"user_app_subscription",
-                 "organization_id":1,
+            
+            //var paymentTypes = ['channel_subscription', 'pay_per_view', 'performer_tip', 'charity_donation', 'performer_app_subscription', 'user_app_subscription'];
+            
+            var params = ["paymentInfo" :
+                ["paymentType": paymentType,
+                 "organization_id":self.orgId,
+                 "performer_id":self.performerId,
                  "currency": "USD",
                  "amount": strAmount,
-                 "finalAmount": strAmount,
+                 "finalAmount": intFinalAmount,
                  "nameOnCard":strUsername,
-                 "subscription_id": "",
-                 "card": ["cardNumber": strCreditCardNum,"month": month, "year": year],
-                 "bank": ["nameOnAccount": strUsername, "routingNumber": "", "accountNumber": "", "accountType": ""],
+                 "card": ["cardNumber": strCreditCardNum, "month": month, "year": year, "cvv": strCVV],
                  "billingAddress": [
-                    "street1": strAddress1, "city":strCity, "state": strState, "zip": strZip,
+                    "street1": strAddress1, "street2": strAddress2, "city":strCity, "state": strState, "zip": strZip,
                     "country": strCountry
-                    ]]};
-            makePayment(params: params());
-            
+                    ]]] as [String : Any];
+            if(details == "donation"){
+                params["charity_id"] = self.charityId
+            }else if(details == "pay_per_view"){
+                params["stream_id"] = self.streamId
+            }else if(details == "subscription_plan"){
+                //params["subscription_id"] = self.subscriptionID
+            }
+            makePayment(params: params);
         }
     }
     // MARK: Handler for makePayment API
-
+    
     func makePayment(params:[String:Any]){
-        let url: String = appDelegate.baseURL +  "/makePayment"
+        //let url: String = appDelegate.baseURL +  "/makePayment"
+        let url = "https://qa.arevea.tv/api/payment/v1/makePayment"
         let params = params;
+        print("params:",params)
+         let session_token = UserDefaults.standard.string(forKey: "session_token") ?? ""
+        
+
+        let headers: HTTPHeaders = [
+            "Authorization": "Bearer " + session_token,
+            "Accept": "application/json"
+        ]
+
         activityIndicator.isHidden = false
         activityIndicator.startAnimating()
-        AF.request(url, method: .post,  parameters: params, encoding: JSONEncoding.default)
+        AF.request(url, method: .post,  parameters: params,encoding: JSONEncoding.default, headers: headers)
             .responseJSON { response in
                 switch response.result {
                 case .success(let value):
@@ -213,7 +263,6 @@ class PaymentVC: UIViewController,UITextFieldDelegate {
                             self.activityIndicator.isHidden = true;
                             self.activityIndicator.stopAnimating();
                         }
-                        
                     }
                 case .failure(let error):
                     print(error)
@@ -276,7 +325,7 @@ class PaymentVC: UIViewController,UITextFieldDelegate {
             movement = -movementDistance
         }
         UIView.animate(withDuration: 0.3, animations: {
-                   self.view.frame = self.view.frame.offsetBy(dx: 0, dy: movement)
+            self.view.frame = self.view.frame.offsetBy(dx: 0, dy: movement)
         })
     }
     
