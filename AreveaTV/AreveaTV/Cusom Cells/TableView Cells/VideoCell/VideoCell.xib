@@ -2,6 +2,7 @@
 <document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="15705" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
+        <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15706"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -16,27 +17,40 @@
                 <rect key="frame" x="0.0" y="0.0" width="375" height="150"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
-                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="W8l-wF-6RA">
-                        <rect key="frame" x="23" y="0.0" width="329" height="148"/>
-                        <state key="normal" image="sample_detail.png"/>
+                    <button opaque="NO" contentMode="scaleAspectFit" contentHorizontalAlignment="fill" contentVerticalAlignment="fill" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="W8l-wF-6RA">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="150"/>
+                        <state key="normal" image="default-vod.png"/>
+                    </button>
+                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="4h2-rc-PtT">
+                        <rect key="frame" x="152.5" y="40" width="70" height="70"/>
+                        <constraints>
+                            <constraint firstAttribute="height" constant="70" id="THl-dY-pQf"/>
+                            <constraint firstAttribute="width" constant="70" id="Wpj-8x-JNe"/>
+                        </constraints>
+                        <state key="normal" image="play-vod.png"/>
                     </button>
                 </subviews>
                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                 <constraints>
-                    <constraint firstItem="W8l-wF-6RA" firstAttribute="top" secondItem="erj-CU-gAe" secondAttribute="top" id="2xG-FQ-uy7"/>
-                    <constraint firstAttribute="bottom" secondItem="W8l-wF-6RA" secondAttribute="bottom" constant="2" id="OTF-aH-O3f"/>
-                    <constraint firstItem="W8l-wF-6RA" firstAttribute="centerX" secondItem="erj-CU-gAe" secondAttribute="centerX" id="kTh-lU-dIt"/>
+                    <constraint firstItem="4h2-rc-PtT" firstAttribute="centerX" secondItem="erj-CU-gAe" secondAttribute="centerX" id="1aI-Xl-wX5"/>
+                    <constraint firstItem="4h2-rc-PtT" firstAttribute="centerY" secondItem="erj-CU-gAe" secondAttribute="centerY" id="EYR-ql-xk7"/>
+                    <constraint firstAttribute="trailing" secondItem="W8l-wF-6RA" secondAttribute="trailing" id="IMn-BR-hgO"/>
+                    <constraint firstAttribute="bottom" secondItem="W8l-wF-6RA" secondAttribute="bottom" id="V9Z-3t-7Vb"/>
+                    <constraint firstItem="W8l-wF-6RA" firstAttribute="leading" secondItem="erj-CU-gAe" secondAttribute="leading" id="bB4-bj-aQS"/>
+                    <constraint firstItem="W8l-wF-6RA" firstAttribute="top" secondItem="erj-CU-gAe" secondAttribute="top" id="hBq-PX-BWb"/>
                 </constraints>
             </tableViewCellContentView>
             <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
             <viewLayoutGuide key="safeArea" id="jNb-p9-Qcb"/>
             <connections>
                 <outlet property="btnVideo" destination="W8l-wF-6RA" id="1tZ-Uo-4zz"/>
+                <outlet property="btnVideo1" destination="4h2-rc-PtT" id="0yE-Qk-znf"/>
             </connections>
             <point key="canvasLocation" x="136.95652173913044" y="109.82142857142857"/>
         </tableViewCell>
     </objects>
     <resources>
-        <image name="sample_detail.png" width="329" height="148"/>
+        <image name="default-vod.png" width="750" height="300"/>
+        <image name="play-vod.png" width="100" height="100"/>
     </resources>
 </document>

@@ -63,7 +63,34 @@ class SubscribeTelephonyInterruptTest: BaseTest {
                 }
             }
             
+        } else if ((Int(statusCode) == Int(r5_status_netstatus.rawValue) && msg == "NetStream.Play.SufficientBW")) {
+            print("sufficient band Width")
+        }else if ((Int(statusCode) == Int(r5_status_netstatus.rawValue) && msg == "NetStream.Play.InSufficientBW")) {
+            print("Insufficient Band Width")
+        }else if (Int(statusCode) == Int(r5_status_audio_mute.rawValue))
+        {
+                
         }
+        else if (Int(statusCode) == Int(r5_status_audio_unmute.rawValue))
+        {
+                
+        }else if (Int(statusCode) == Int(r5_status_video_mute.rawValue))
+        {
+                
+        }
+        else if (Int(statusCode) == Int(r5_status_video_unmute.rawValue))
+        {
+                
+        }
+        else if (Int(statusCode) == Int(r5_status_disconnected.rawValue))
+        {
+                
+        }
+        else if (Int(statusCode) == Int(r5_status_stop_streaming.rawValue))
+        {
+                       
+        }
+                     
     }
     func config(url:String,stream:String){
         let config = getConfig(url: url)

@@ -62,7 +62,7 @@ static NSMutableArray *toasts;
 - (id)initWithText:(NSString *)text {
 	if ((self = [self initWithFrame:CGRectZero])) {
 		// Add corner radius
-		self.backgroundColor = [UIColor colorWithRed:0 green:0 blue:0 alpha:.6];
+		self.backgroundColor = [UIColor clearColor];
 		self.layer.cornerRadius = 5;
 		self.autoresizingMask = UIViewAutoresizingNone;
 		self.autoresizesSubviews = NO;
@@ -74,10 +74,16 @@ static NSMutableArray *toasts;
 		_textLabel.textColor = [UIColor whiteColor];
 		_textLabel.adjustsFontSizeToFitWidth = NO;
 		_textLabel.backgroundColor = [UIColor clearColor];
+        _textLabel.numberOfLines = 0;
+        CGRect frame = _textLabel.frame;
+        CGFloat width = [UIScreen mainScreen].bounds.size.width;
+        frame.size.width = width-20;
+        frame.origin.x = 10;
+        _textLabel.frame = frame;
 		[_textLabel sizeToFit];
 		
 		[self addSubview:_textLabel];
-		_textLabel.frame = CGRectOffset(_textLabel.frame, 10, 5);
+		//_textLabel.frame = CGRectOffset(_textLabel.frame, 10, 5);
 	}
 	
 	return self;
@@ -119,7 +125,7 @@ static NSMutableArray *toasts;
 
 - (void)fadeToastOut {
 	// Fade in parent view
-  [UIView animateWithDuration:0.3 delay:0 options:UIViewAnimationOptionAllowUserInteraction
+  [UIView animateWithDuration:.8 delay:0 options:UIViewAnimationOptionAllowUserInteraction
    
                    animations:^{
                      self.alpha = 0.f;
@@ -156,7 +162,7 @@ static NSMutableArray *toasts;
 
 		// Fade into parent view
 		[parentView addSubview:view];
-    [UIView animateWithDuration:.5  delay:0 options:UIViewAnimationOptionAllowUserInteraction
+    [UIView animateWithDuration:.1  delay:0 options:UIViewAnimationOptionAllowUserInteraction
                      animations:^{
                          view.alpha = 1.0;
                          [parentView updateConstraints];

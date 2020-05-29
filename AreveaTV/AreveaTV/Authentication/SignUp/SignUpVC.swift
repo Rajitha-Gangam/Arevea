@@ -10,7 +10,7 @@ import UIKit
 import AWSMobileClient
 
 class SignUpVC: UIViewController ,UITextFieldDelegate{
-    
+    // MARK: - Variables Declaration
     @IBOutlet weak var txtFirstName: UITextField!
     @IBOutlet weak var txtLastName: UITextField!
     @IBOutlet weak var txtEmail: UITextField!
@@ -22,8 +22,13 @@ class SignUpVC: UIViewController ,UITextFieldDelegate{
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     @IBOutlet private weak var scrollView: UIScrollView!
     var planID = "0";
+    let appDelegate = UIApplication.shared.delegate as! AppDelegate
+    
+    // MARK: - View Life cycle
+    @IBOutlet weak var viewActivity: UIView!
     override func viewDidLoad() {
         super.viewDidLoad()
+        viewActivity.isHidden = true
         self.assignbackground();
         self.navigationController?.isNavigationBarHidden = true
         //        txtEmail.text = "grajitha2009@gmail.com"
@@ -37,6 +42,13 @@ class SignUpVC: UIViewController ,UITextFieldDelegate{
         datePickerView.addTarget(self, action: #selector(selectDate(sender:)), for: .valueChanged)
         datePickerView.maximumDate = Date()
         txtDOB.inputView = datePickerView
+        
+        
+        //               if #available(iOS 11.0, *) {
+        //                   self.textField.withDefaultPickerUI = true
+        //               } else {
+        //                   // Fallback on earlier versions
+        //               }
     }
     @objc func selectDate(sender: UIDatePicker){
         let dateFormatter = DateFormatter()
@@ -83,8 +95,7 @@ class SignUpVC: UIViewController ,UITextFieldDelegate{
     
     func signUpHandler(signUpResult: SignUpResult?, error: Error?) {
         DispatchQueue.main.async {
-            self.activityIndicator.stopAnimating();
-            self.activityIndicator.isHidden = true;
+            self.viewActivity.isHidden = true
         }
         if let error = error as? AWSMobileClientError {
             switch(error) {
@@ -163,6 +174,11 @@ class SignUpVC: UIViewController ,UITextFieldDelegate{
     }
     @IBAction func signUp(_ sender: Any) {
         resignKB(sender)
+        let netAvailable = appDelegate.isConnectedToInternet()
+        if(!netAvailable){
+            showAlert(strMsg: "Please check your internet connection!")
+            return
+        }
         let firstName = txtFirstName.text!.trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
         let lastName = txtLastName.text!.trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
         let phone = txtPhone.text!.trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
@@ -180,7 +196,9 @@ class SignUpVC: UIViewController ,UITextFieldDelegate{
         }else if (!isValidEmail()){
             showAlert(strMsg: "Please enter valid email");
         }else if (phone.count == 0){
-            showAlert(strMsg: "Please enter phone");
+            showAlert(strMsg: "Please enter phone number");
+        }else if (phone.count != 12 && phone.count != 13){
+            showAlert(strMsg: "Please enter valid phone number");
         }else if (pwd.count == 0){
             showAlert(strMsg: "Please enter password");
         }else if (cfrmPwd.count == 0){
@@ -190,13 +208,12 @@ class SignUpVC: UIViewController ,UITextFieldDelegate{
         }else if(dob.count == 0){
             showAlert(strMsg: "Please enter date of birth");
         }else{
-            activityIndicator.isHidden = false
-            activityIndicator.startAnimating()
+            viewActivity.isHidden = false
             //username value shoulb be like email
-            AWSMobileClient.sharedInstance().signUp(username: email,
-                                                    password: pwd,
-                                                    userAttributes: ["email" : email, "name":firstName,"phone_number":phone,"family_name":lastName,"birthdate":dob,"custom:plan":planID],
-                                                    completionHandler: signUpHandler);
+            AWSMobileClient.default().signUp(username: email,
+                                             password: pwd,
+                                             userAttributes: ["email" : email, "name":firstName,"phone_number":phone,"family_name":lastName,"birthdate":dob,"custom:plan":planID],
+                                             completionHandler: signUpHandler);
         }
     }
     
@@ -217,6 +234,20 @@ class SignUpVC: UIViewController ,UITextFieldDelegate{
         textField.resignFirstResponder();
     }
     
+    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+        if (textField == txtPhone){
+            let maxLength = 13
+            let currentString: NSString = textField.text! as NSString
+            let newString: NSString =
+                currentString.replacingCharacters(in: range, with: string) as NSString
+            if range.length>0  && range.location == 0 {
+                    return false
+                }
+            
+            return newString.length <= maxLength
+        }
+        return true;
+    }
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder();
         return true;

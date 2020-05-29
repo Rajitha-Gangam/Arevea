@@ -4,7 +4,10 @@
 },
 "CredentialsProvider": {
 "CognitoIdentity": {
-"Default": {}
+"Default": {
+    "PoolId": "us-west-2:00b71663-b151-44a1-9164-246be7970493",
+    "Region": "us-west-2"
+}
 }
 },
 "CognitoUserPool": {
@@ -14,10 +17,6 @@
 "Region": "us-west-2"
 }
 },
-"FacebookSignIn": {
-    "AppId": "230469618276761",
-    "Permissions": "public_profile"
-}
 }
 
 

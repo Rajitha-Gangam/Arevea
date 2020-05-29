@@ -10,21 +10,32 @@ import UIKit
 import AWSMobileClient
 import Alamofire
 
-class ProfileVC: UIViewController,UITextFieldDelegate {
+class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDelegate,UINavigationControllerDelegate {
+     // MARK: - Variables Declaration
     @IBOutlet weak var txtFirstName: UITextField!
     @IBOutlet weak var txtLastName: UITextField!
     @IBOutlet weak var txtPhone: UITextField!
     @IBOutlet weak var txtEmail: UITextField!
     let appDelegate = UIApplication.shared.delegate as! AppDelegate
-
-    @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     
+    @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
+    @IBOutlet var btnProfilePic: UIButton!
+    @IBOutlet var btnUpload: UIButton!
+    // var choosenImage = UIImage?.self
+    @IBOutlet var imgProfilePic: UIImageView!
+    var imagePickerController = UIImagePickerController()
+    @IBOutlet weak var viewActivity: UIView!
+    
+    // MARK: - View Life cycle
     override func viewDidLoad() {
         super.viewDidLoad()
+        viewActivity.isHidden = true
         // Do any additional setup after loading the view.
         addDoneButton();
         getProfile();
-
+        btnUpload.isHidden = true
+        imagePickerController.delegate = self
+        imgProfilePic.contentMode = .scaleAspectFill
     }
     
     @IBAction func back(_ sender: Any) {
@@ -35,10 +46,21 @@ class ProfileVC: UIViewController,UITextFieldDelegate {
     }
     @IBAction func updatePwd(_ sender: Any) {
         resignKB(sender)
+        let netAvailable = appDelegate.isConnectedToInternet()
+        if(!netAvailable){
+            showAlert(strMsg: "Please check your internet connection!")
+            return
+        }
         forgotPassword();
     }
     @IBAction func updateProfile(_ sender: Any) {
         resignKB(sender)
+        let netAvailable = appDelegate.isConnectedToInternet()
+        if(!netAvailable){
+            showAlert(strMsg: "Please check your internet connection!")
+            return
+        }
+        
         let firstName = txtFirstName.text!.trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
         let lastName = txtLastName.text!.trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
         let phone = txtPhone.text!.trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
@@ -47,9 +69,11 @@ class ProfileVC: UIViewController,UITextFieldDelegate {
         }else if (lastName.count == 0){
             showAlert(strMsg: "Please enter last name");
         }else if (phone.count == 0){
-            showAlert(strMsg: "Please enter phone");
+            showAlert(strMsg: "Please enter phone number");
+        }else if (phone.count != 13){
+            showAlert(strMsg: "Please enter valid phone number");
         }else{
-        setProfile()
+            setProfile()
         }
     }
     @IBAction func resignKB(_ sender: Any) {
@@ -60,8 +84,8 @@ class ProfileVC: UIViewController,UITextFieldDelegate {
     }
     func addDoneButton() {
         let toolbar =  UIToolbar(frame: CGRect(x: 0, y: 0, width: view.frame.size.width, height: 35))
-
-
+        
+        
         let flexButton = UIBarButtonItem(barButtonSystemItem: UIBarButtonItem.SystemItem.flexibleSpace, target: nil, action: nil)
         let doneButton = UIBarButtonItem(title: "Done", style: .plain, target: self, action:#selector(resignKB(_:)))
         toolbar.setItems([flexButton, doneButton], animated: true)
@@ -79,115 +103,188 @@ class ProfileVC: UIViewController,UITextFieldDelegate {
             self.present(alert, animated: true)
         }
     }
-    // MARK: Handler for getProfile API, using for filters
+    // MARK: Download Image from URL
+    func getData(from url: URL, completion: @escaping (Data?, URLResponse?, Error?) -> ()) {
+        URLSession.shared.dataTask(with: url, completionHandler: completion).resume()
+    }
+    func downloadImage(from url: URL, imageView: UIImageView) {
+        getData(from: url) { data, response, error in
+            guard let data = data, error == nil else { return }
+            print(response?.suggestedFilename ?? url.lastPathComponent)
+            DispatchQueue.main.async() { [weak self] in
+                imageView.contentMode = .scaleAspectFill
+                imageView.image = UIImage(data: data)
+                self?.viewActivity.isHidden = true
+            }
+        }
+    }
+    // MARK: Handler for performerEvents API, using for upcoming schedules
     func getProfile(){
-        let url: String = appDelegate.baseURL +  "/getProfile"
+        let netAvailable = appDelegate.isConnectedToInternet()
+        if(!netAvailable){
+            showAlert(strMsg: "Please check your internet connection!")
+            return
+        }
+        viewActivity.isHidden = false
+        let httpMethodName = "POST"
+        let URLString: String = "/getProfile"
         let user_id = UserDefaults.standard.string(forKey: "user_id");
         let user_type = UserDefaults.standard.string(forKey: "user_type");
         let params: [String: Any] = ["user_id":user_id ?? "","user_type":user_type ?? ""]
         print("params:",params)
-        activityIndicator.isHidden = false
-        activityIndicator.startAnimating()
-        AF.request(url, method: .post, parameters: params, encoding: JSONEncoding.default)
-            .responseJSON { response in
-                switch response.result {
-                case .success(let value):
-                    if let json = value as? [String: Any] {
+        let headerParameters = [
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+        ]
+        // Construct the request object
+        let apiRequest = AWSAPIGatewayRequest(httpMethod: httpMethodName,
+                                              urlString: URLString,
+                                              queryParameters: [:],
+                                              headerParameters: headerParameters,
+                                              httpBody: params)
+        // Fetch the Cloud Logic client to be used for invocation
+        let invocationClient = AreveaAPIClient.client(forKey:appDelegate.AWSCognitoIdentityPoolId)
+        invocationClient.invoke(apiRequest).continueWith { (task: AWSTask) -> Any? in
+            if let error = task.error {
+                print("Error occurred: \(error)")
+                self.showAlert(strMsg: error as? String ?? error.localizedDescription)
+                // Handle error here
+                return nil
+            }
+            // Handle successful result here
+            let result = task.result!
+            let responseString = String(data: result.responseData!, encoding: .utf8)
+            let data = responseString!.data(using: .utf8)!
+            do {
+                let resultObj = try JSONSerialization.jsonObject(with: data, options : .allowFragments)
+                DispatchQueue.main.async {
+                    
+                    //print(resultObj)
+                    if let json = resultObj as? [String: Any] {
                         print(json)
                         if (json["status"]as? Int == 0){
-                            print(json["message"] ?? "")
-                            var profile_data = [Any]()
-                            profile_data = json["profile_data"] as? [Any] ?? [Any]()
-                            if (profile_data.count > 0)
-                            {
-                                let  firstItem = profile_data[0] as? [String:Any]
+                            //print(json["message"] ?? "")
+                            let profile_data = json["profile_data"] as? [String:Any] ?? [:]
                                 self.txtEmail.text = UserDefaults.standard.string(forKey: "user_email");
+                                
+                            self.txtFirstName.text = profile_data["user_first_name"] as? String
+                            self.txtLastName.text = profile_data["user_last_name"]as? String
+                            self.txtPhone.text = profile_data["user_phone_number"]as? String
+                                
+                            let strURL = profile_data["profie_pic"]as? String ?? ""
+                                if let url = URL(string: strURL){
+                                      self.downloadImage(from: url as URL, imageView: self.imgProfilePic)
+                                }else{
+                                    self.viewActivity.isHidden = true
+                                }
+                                
+                            
 
-                                self.txtFirstName.text = firstItem?["user_first_name"] as? String
-                                self.txtLastName.text = firstItem?["user_last_name"]as? String
-                                self.txtPhone.text = firstItem?["user_phone_number"]as? String
-                            }
-                            self.activityIndicator.isHidden = true;
-                            self.activityIndicator.stopAnimating();
                         }else{
                             let strError = json["message"] as? String
-                            print(strError ?? "")
+                            //print(strError ?? "")
                             self.showAlert(strMsg: strError ?? "")
-                            self.activityIndicator.isHidden = true;
-                            self.activityIndicator.stopAnimating();
+                            self.viewActivity.isHidden = true
                         }
                         
                     }
-                case .failure(let error):
-                    print(error)
-                    self.activityIndicator.isHidden = true;
-                    self.activityIndicator.stopAnimating();
-                    self.showAlert(strMsg: error.localizedDescription)
                 }
+                
+            } catch let error as NSError {
+                //print(error)
+                self.showAlert(strMsg: error.localizedDescription)
+            }
+            return nil
         }
     }
-    
-    
-    
-    // MARK: Handler for setProfile API, using for filters
+    // MARK: Handler for performerEvents API, using for upcoming schedules
     func setProfile(){
+        let netAvailable = appDelegate.isConnectedToInternet()
+        if(!netAvailable){
+            showAlert(strMsg: "Please check your internet connection!")
+            return
+        }
+       viewActivity.isHidden = false
         let firstName = txtFirstName.text!.trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
         let lastName = txtLastName.text!.trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
         let phone = txtPhone.text!.trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
         
-        let url: String = appDelegate.baseURL +  "/setProfile"
+        let httpMethodName = "POST"
+        let URLString: String = "/setProfile"
         let user_id = UserDefaults.standard.string(forKey: "user_id");
         let user_email = UserDefaults.standard.string(forKey: "user_email");
-
+        
         let params: [String: Any] = ["user_id":user_id ?? "","user_first_name":firstName,"user_last_name":lastName,"user_phone_number":phone,"user_email":user_email!]
-        activityIndicator.isHidden = false
-        activityIndicator.startAnimating()
-        AF.request(url, method: .post, parameters: params, encoding: JSONEncoding.default)
-            .responseJSON { response in
-                switch response.result {
-                case .success(let value):
-                    if let json = value as? [String: Any] {
+        print("params:",params)
+        let headerParameters = [
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+        ]
+        // Construct the request object
+        let apiRequest = AWSAPIGatewayRequest(httpMethod: httpMethodName,
+                                              urlString: URLString,
+                                              queryParameters: [:],
+                                              headerParameters: headerParameters,
+                                              httpBody: params)
+        // Fetch the Cloud Logic client to be used for invocation
+        let invocationClient = AreveaAPIClient.client(forKey:appDelegate.AWSCognitoIdentityPoolId)
+        invocationClient.invoke(apiRequest).continueWith { (task: AWSTask) -> Any? in
+            if let error = task.error {
+                print("Error occurred: \(error)")
+                self.showAlert(strMsg: error as? String ?? error.localizedDescription)
+                // Handle error here
+                return nil
+            }
+            // Handle successful result here
+            let result = task.result!
+            let responseString = String(data: result.responseData!, encoding: .utf8)
+            let data = responseString!.data(using: .utf8)!
+            do {
+                let resultObj = try JSONSerialization.jsonObject(with: data, options : .allowFragments)
+                DispatchQueue.main.async {
+                    
+                    //print(resultObj)
+                    if let json = resultObj as? [String: Any] {
                         print(json)
                         if (json["status"]as? Int == 0){
-                            print(json["message"] ?? "")
+                            //print(json["message"] ?? "")
                             self.showAlert(strMsg:"Profile updated successfully")
-                            self.activityIndicator.isHidden = true;
-                            self.activityIndicator.stopAnimating();
+                            self.viewActivity.isHidden = true
                             self.navigationController?.popViewController(animated: true);
                             let fn = self.txtFirstName.text!
                             let ln = self.txtLastName.text!
                             let strName = String((fn.first)!) + String((ln.first)!)
                             self.appDelegate.USER_NAME = strName;
                             self.appDelegate.USER_NAME_FULL = fn + " " + ln
-                            
+                            UserDefaults.standard.set(self.appDelegate.USER_NAME, forKey: "USER_NAME")
+                            UserDefaults.standard.set(self.appDelegate.USER_NAME_FULL, forKey: "USER_NAME_FULL")
                         }else{
                             let strError = json["message"] as? String
-                            print(strError ?? "")
+                            //print(strError ?? "")
                             self.showAlert(strMsg: strError ?? "")
-                            self.activityIndicator.isHidden = true;
-                            self.activityIndicator.stopAnimating();
+                            self.viewActivity.isHidden = true
                         }
                         
                     }
-                case .failure(let error):
-                    print(error)
-                    self.activityIndicator.isHidden = true;
-                    self.activityIndicator.stopAnimating();
-                    self.showAlert(strMsg: error.localizedDescription)
                 }
+                
+            } catch let error as NSError {
+                //print(error)
+                self.showAlert(strMsg: error.localizedDescription)
+            }
+            return nil
         }
     }
     
+    
     func forgotPassword(){
         
-        let username =  UserDefaults.standard.string(forKey: "user_email") as! String;
+        let username =  UserDefaults.standard.string(forKey: "user_email")!;
         
-        activityIndicator.isHidden = false
-        activityIndicator.startAnimating()
-        AWSMobileClient.sharedInstance().forgotPassword(username: username) { (forgotPasswordResult, error) in
+        viewActivity.isHidden = false
+        AWSMobileClient.default().forgotPassword(username: username) { (forgotPasswordResult, error) in
             DispatchQueue.main.async {
-                self.activityIndicator.stopAnimating();
-                self.activityIndicator.isHidden = true;
+                self.viewActivity.isHidden = true
             }
             if let error = error {
                 self.showAlert(strMsg: "\(error)");
@@ -245,10 +342,10 @@ class ProfileVC: UIViewController,UITextFieldDelegate {
     // MARK: Text Field Delegate Methods
     
     func textFieldDidBeginEditing(_ textField: UITextField) {
-            self.animateTextField(textField: textField, up:true)
+        self.animateTextField(textField: textField, up:true)
     }
     func textFieldDidEndEditing(_ textField: UITextField) {
-            self.animateTextField(textField: textField, up:false)
+        self.animateTextField(textField: textField, up:false)
         textField.resignFirstResponder();
     }
     
@@ -256,6 +353,20 @@ class ProfileVC: UIViewController,UITextFieldDelegate {
         textField.resignFirstResponder();
         return true;
     }
+    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+          if (textField == txtPhone){
+              let maxLength = 13
+              let currentString: NSString = textField.text! as NSString
+              let newString: NSString =
+                  currentString.replacingCharacters(in: range, with: string) as NSString
+              if range.length>0  && range.location == 0 {
+                      return false
+                  }
+              
+              return newString.length <= maxLength
+          }
+          return true;
+      }
     // MARK: Keyboard  Delegate Methods
     
     func animateTextField(textField: UITextField, up: Bool)
@@ -271,7 +382,99 @@ class ProfileVC: UIViewController,UITextFieldDelegate {
             movement = -movementDistance
         }
         UIView.animate(withDuration: 0.3, animations: {
-                   self.view.frame = self.view.frame.offsetBy(dx: 0, dy: movement)
+            self.view.frame = self.view.frame.offsetBy(dx: 0, dy: movement)
         })
+    }
+    
+    // MARK: Profile Pic Update Methods
+    
+    @IBAction func chooseProfilePic() {
+        let actionsheet = UIAlertController(title: "Photo Source", message: "Choose A Source", preferredStyle: .actionSheet)
+        actionsheet.addAction(UIAlertAction(title: "Camera", style: .default, handler: { (action:UIAlertAction)in
+            if UIImagePickerController.isSourceTypeAvailable(.camera){
+                self.imagePickerController.sourceType = .camera
+                self.present(self.imagePickerController, animated: true, completion: nil)
+            }else
+            {
+                print("Camera is Not Available")
+            }
+        }))
+        actionsheet.addAction(UIAlertAction(title: "Photo Library", style: .default, handler: { (action:UIAlertAction)in
+            if UIImagePickerController.isSourceTypeAvailable(.savedPhotosAlbum){
+                self.imagePickerController.sourceType = .savedPhotosAlbum
+                self.imagePickerController.allowsEditing = false
+                self.present(self.imagePickerController, animated: true, completion: nil)
+            }
+        }))
+        actionsheet.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+        self.present(actionsheet,animated: true, completion: nil)
+        
+    }
+    
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+        if let pickedImage = info[UIImagePickerController.InfoKey.originalImage] as? UIImage {
+            print("didFinishPickingImage")
+            self.btnUpload.isHidden = false
+            imgProfilePic.contentMode = .scaleAspectFill
+            imgProfilePic.image = pickedImage
+        }
+        dismiss(animated: true, completion: nil)
+    }
+    
+    @IBAction func updateProfilePic(){
+        let netAvailable = appDelegate.isConnectedToInternet()
+        if(!netAvailable){
+            showAlert(strMsg: "Please check your internet connection!")
+            return
+        }
+        viewActivity.isHidden = false
+        let url = "https://qa.arevea.tv/api/user/v1/uploadFile" /* your API url */
+        //  let url = "https://eku2g4rzxl.execute-api.us-west-2.amazonaws.com/dev/uploadProfilePic" /* your API url */
+        let headers: HTTPHeaders = [
+            "Content-type": "multipart/form-data",
+            appDelegate.securityKey: appDelegate.securityValue]
+        let user_id = UserDefaults.standard.string(forKey: "user_id");
+        
+        let params: [String: Any] = ["user_id":user_id ?? "","image_for":"profile"]
+        
+        AF.upload(multipartFormData: { (multipartFormData) in
+            for (key, value) in params {
+                multipartFormData.append("\(value)".data(using: String.Encoding.utf8)!, withName: key as String)
+            }
+            let image1 = self.imgProfilePic.image
+            //let image1 = UIImage.init(named: "charity-img.png")
+            var imageData = image1!.jpegData(compressionQuality: 1.0)
+            if(Double(imageData!.count ) / 1024 > 400)
+            {
+                imageData = image1?.jpegData(compressionQuality: 0.5)
+            }
+            multipartFormData.append(imageData!, withName: "image", fileName: "profile_pic.png", mimeType: "image/png")
+        }, to: url, usingThreshold: UInt64.init(),
+           method: .post,headers: headers).responseJSON{ response in
+            print(response)
+            switch response.result {
+            case .success(let value):
+                if let json = value as? [String: Any] {
+                    print(json)
+                    if (json["status"]as? Int == 0){
+                        //print(json["message"] ?? "")
+                        self.showAlert(strMsg:"Profile picture updated successfully")
+                        self.viewActivity.isHidden = true
+                        UserDefaults.standard.set("false", forKey: "is_profile_pic_loaded_left_menu")
+                        
+                    }else{
+                        let strError = json["message"] as? String
+                        //print(strError ?? "")
+                        self.showAlert(strMsg: strError ?? "")
+                        self.viewActivity.isHidden = true
+                    }
+                }
+            case .failure(let error):
+                //print(error)
+                self.viewActivity.isHidden = true
+                self.showAlert(strMsg: error.localizedDescription)
+                
+            }
+        }
     }
 }

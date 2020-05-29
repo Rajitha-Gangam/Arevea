@@ -10,7 +10,8 @@ import UIKit
 import Alamofire
 import MaterialComponents.MaterialCollections
 
-class ChannelsVC: UIViewController,UITableViewDelegate,UITableViewDataSource,CollectionViewCellDelegate,OpenChanannelChatDelegate{
+class ChannelsVC: UIViewController,UITableViewDelegate,UITableViewDataSource,CollectionViewCellDelegate,OpenChanannelChatDelegate,UISearchBarDelegate{
+    // MARK: - Variables Declaration
     @IBOutlet weak var tblMain: UITableView!
     @IBOutlet weak var lblTitle: UILabel!
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
@@ -24,11 +25,13 @@ class ChannelsVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Col
     var aryFilterSubCategoriesData = [Any]();
     var aryFilterGenresData = [Any]();
     private let chipIdentifier = "Chip"
-       fileprivate let HeaderIdentifier = "Header"
-    var sectionFilters = ["Categories","Sub Categories","Genres"]
+    fileprivate let HeaderIdentifier = "Header"
+    var sectionFilters = ["Sub Categories","Genres"]
     @IBOutlet weak var lblNoData: UILabel!
-
+    
     var aryChannels = [Any]();
+    var arySearchChannels = [Any]();
+    var aryFilterChannels = [Any]();
     var orgId = 0;
     var organizationName = "Organization Name";
     var aryMainMenu :[[String: String]] = [["name":"House","icon":"channel1.png"],["name":"Bass","icon":"channel2.png"],["name":"Bass","icon":"channel4.png"],["name":"House","icon":"channel3.png"],["name":"House","icon":"channel4.png"],
@@ -37,12 +40,26 @@ class ChannelsVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Col
                                            ["name":"House","icon":"channel3.png"],
                                            ["name":"Bass","icon":"channel2.png"],
                                            ["name":"House","icon":"channel3.png"]];
+    @IBOutlet weak var viewActivity: UIView!
+    var searchActive : Bool = false
+    var searchToggle : Bool = false
+    @IBOutlet weak var searchBar: UISearchBar!
+    var strFilterValue = ""
+    var subCategoryId = 0;
+    var genreId = 0;
+    var isFilter = false;
+    // MARK: - View Life cycle
     override func viewDidLoad() {
         super.viewDidLoad()
+        viewActivity.isHidden = true
+        self.searchBar.delegate = self
+        searchBar.isHidden = true;
+        topConstaintTblMain?.constant = 1;
         // Do any additional setup after loading the view.
         self.navigationController?.isNavigationBarHidden = true
         tblMain.register(UINib(nibName: "DashBoardCell", bundle: nil), forCellReuseIdentifier: "DashBoardCell")
         lblTitle.text = organizationName;
+        let netAvailable = appDelegate.isConnectedToInternet()
         organizationChannels(inputData: ["category":self.strSelectedCategory]);
         //filterAPI()
         filterCVSetup()
@@ -50,7 +67,11 @@ class ChannelsVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Col
         mdChipCard.isHidden = true;
         topConstaintTblMain?.constant = 1;
         tblMain.layoutIfNeeded()
-
+        if(!netAvailable){
+            showAlert(strMsg: "Please check your internet connection!")
+            return
+        }
+        
     }
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated);
@@ -72,16 +93,19 @@ class ChannelsVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Col
         alert.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
         self.present(alert, animated: true)
     }
+    
     // MARK: Handler for organizationChannels API
-
+    
     func organizationChannels(inputData:[String: Any]){
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         let url: String = appDelegate.baseURL +  "/organizationChannels"
         let params: [String: Any] = ["organization_id": orgId]
         print("organizationChannels params:",params)
-        activityIndicator.isHidden = false
-        activityIndicator.startAnimating()
-        AF.request(url, method: .post,  parameters: params, encoding: JSONEncoding.default)
+        viewActivity.isHidden = false
+        let headers: HTTPHeaders
+        headers = [appDelegate.securityKey: appDelegate.securityValue]
+        
+        AF.request(url, method: .post,  parameters: params, encoding: JSONEncoding.default,headers:headers)
             .responseJSON { response in
                 switch response.result {
                 case .success(let value):
@@ -90,25 +114,33 @@ class ChannelsVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Col
                         let aryData = json["Data"] as? [Any] ?? [Any]();
                         for (index,_) in aryData.enumerated(){
                             let arySub = aryData[index] as? [String: Any]
-                            let arrayCategories = arySub?["channels"] as? [Any] ?? [Any]()
-                            self.aryChannels += arrayCategories
+                            let arrayChannels = arySub?["channels"] as? [Any] ?? [Any]()
+                            self.aryChannels += arrayChannels
+                            let arrayCategories = arySub?["categories"] as? [Any] ?? [Any]()
+                            self.aryFilterSubCategoriesData += arrayCategories
+                            
+                            let arrayGenres = arySub?["genres"] as? [Any] ?? [Any]()
+                            self.aryFilterGenresData += arrayGenres
                         }
+                        //print("aryData:",aryData)
                         if (aryData.count > 0){
                             self.lblNoData.isHidden = true;
                         }else{
                             self.aryChannels = [Any]()
                             self.lblNoData.isHidden = false;
                         }
-                       
-                        self.activityIndicator.isHidden = true;
-                        self.activityIndicator.stopAnimating();
+                        
+                        print("subcate:",self.aryFilterSubCategoriesData.count)
+                        print("genre:",self.aryFilterGenresData.count)
+                        
+                        self.collectionViewFilter.reloadData()
+                        self.viewActivity.isHidden = true
                         self.tblMain.reloadData()
                         
                     }
                 case .failure(let error):
-                    print(error)
-                    self.activityIndicator.isHidden = true;
-                    self.activityIndicator.stopAnimating();
+                    //print(error)
+                    self.viewActivity.isHidden = true
                     self.showAlert(strMsg: error.localizedDescription)
                 }
         }
@@ -119,66 +151,115 @@ class ChannelsVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Col
     }
     // MARK: Filter Events
     @IBAction func openFilter(_ sender: Any) {
-//        if (mdChipCard.isHidden){
-//            strSelectedCategory = "";
-//            collectionViewFilter.reloadData()
-//            mdChipCard.isHidden = false;
-//            topConstaintTblMain?.constant = 236;
-//            tblMain.layoutIfNeeded()
-//        }else{
-//            mdChipCard.isHidden = true;
-//            topConstaintTblMain?.constant = 1;
-//            tblMain.layoutIfNeeded()
-//        }
-       
+        searchBar.isHidden = true;
+        searchToggle = false;
+        searchActive = false;
+        if (mdChipCard.isHidden){
+            strSelectedCategory = "";
+            collectionViewFilter.reloadData()
+            mdChipCard.isHidden = false;
+            topConstaintTblMain?.constant = 236;
+            tblMain.layoutIfNeeded()
+        }else{
+            mdChipCard.isHidden = true;
+            topConstaintTblMain?.constant = 1;
+            tblMain.layoutIfNeeded()
+        }
+        
     }
     @IBAction func clearFilter(_ sender: Any) {
+        let netAvailable = appDelegate.isConnectedToInternet()
+        if(!netAvailable){
+            showAlert(strMsg: "Please check your internet connection!")
+            return
+        }
         mdChipCard.isHidden = true;
         topConstaintTblMain?.constant = 1;
         tblMain.layoutIfNeeded()
-        organizationChannels(inputData: ["category":""]);
+        if(isFilter == true)
+        {
+            isFilter = false;
+            tblMain.reloadData()
+        }
+        //organizationChannels(inputData: ["category":""]);
     }
     @IBAction func applyFilter(_ sender: Any) {
+        let netAvailable = appDelegate.isConnectedToInternet()
+        if(!netAvailable){
+            showAlert(strMsg: "Please check your internet connection!")
+            return
+        }
         mdChipCard.isHidden = true;
         topConstaintTblMain?.constant = 1;
+        isFilter = true;
+        reloadFilterData()
         tblMain.layoutIfNeeded()
-        if (strSelectedCategory != ""){
-            organizationChannels(inputData: ["category":self.strSelectedCategory]);
+    }
+    func reloadFilterData()
+    {
+        aryFilterChannels = [Any]()
+        for (index,_) in aryChannels.enumerated(){
+            let channelObj = aryChannels[index] as? [String: Any]
+            if (strFilterValue == "subcategory"){
+                let aryCatIds = channelObj?["category_ids"] as? [Any] ?? [Any]();
+                
+                for (index1,_) in aryCatIds.enumerated(){
+                    let categoryId = aryCatIds[index1] as? Int ?? 0
+                    if(subCategoryId == categoryId){
+                        aryFilterChannels.append(channelObj ?? [:])
+                        break
+                    }
+                }
+            }else{
+                let aryGenreIds = channelObj?["genre_ids"] as? [Any] ?? [Any]();
+                for (index1,_) in aryGenreIds.enumerated(){
+                   // print("--for 2")
+                    let genreId = aryGenreIds[index1] as? Int ?? 0
+                    if(self.genreId == genreId){
+                        aryFilterChannels.append(channelObj ?? [:])
+                       // print("--for 2 break")
+                        break
+                    }
+                }
+            }
+            
         }
+        //print("aryFilteredChannels:",aryFilteredChannels)
+        //print("aryFilterChannels count:",aryFilterChannels.count)
+        tblMain.reloadData()
     }
     // MARK: Handler for allCategories API, using for filters
     func filterAPI(){
         let url: String = appDelegate.baseURL +  "/categories"
         let params: [String: Any] = [:]
-        activityIndicator.isHidden = false
-        activityIndicator.startAnimating()
-        AF.request(url, method: .post,  parameters: params, encoding: JSONEncoding.default)
+        viewActivity.isHidden = false
+        let headers: HTTPHeaders
+        headers = [appDelegate.securityKey: appDelegate.securityValue]
+        
+        AF.request(url, method: .post,  parameters: params, encoding: JSONEncoding.default,headers:headers)
             .responseJSON { response in
                 switch response.result {
                 case .success(let value):
                     if let json = value as? [String: Any] {
                         if (json["statusCode"]as? String == "200"){
-                            print(json["message"] as? String ?? "")
+                            //print(json["message"] as? String ?? "")
                             self.aryFilterCategoriesData = json["Data"] as? [Any] ?? [Any]();
                             print("--ary:",self.aryFilterCategoriesData.count)
                             //self.tblFilter.reloadData();
                             let indexSet = IndexSet(integer: 0)//reloading first section
                             self.collectionViewFilter.reloadSections(indexSet)
-                            self.activityIndicator.isHidden = true;
-                            self.activityIndicator.stopAnimating();
+                            self.viewActivity.isHidden = true
                         }else{
                             let strError = json["message"] as? String
-                            print(strError ?? "")
+                            //print(strError ?? "")
                             self.showAlert(strMsg: strError ?? "")
-                            self.activityIndicator.isHidden = true;
-                            self.activityIndicator.stopAnimating();
+                            self.viewActivity.isHidden = true
                         }
                         
                     }
                 case .failure(let error):
-                    print(error)
-                    self.activityIndicator.isHidden = true;
-                    self.activityIndicator.stopAnimating();
+                    //print(error)
+                    self.viewActivity.isHidden = true
                     self.showAlert(strMsg: error.localizedDescription)
                 }
         }
@@ -199,7 +280,14 @@ class ChannelsVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Col
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return aryChannels.count;
+        if (searchActive && arySearchChannels.count == 0){
+            lblNoData.isHidden = false
+        }else if(!searchActive && aryChannels.count == 0){
+            lblNoData.isHidden = false
+        }else{
+            lblNoData.isHidden = true
+        }
+        return 1;
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) ->  CGFloat {
@@ -208,8 +296,17 @@ class ChannelsVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Col
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "DashBoardCell", for: indexPath) as! DashBoardCell
-        let rowArray = aryChannels;
-        cell.updateCellWith(row: rowArray,controller: "channels")
+        if (searchActive){
+            let rowArray = arySearchChannels;
+            cell.updateCellWith(row: rowArray,controller: "channels")
+        }else if (isFilter){
+            let rowArray = aryFilterChannels;
+            cell.updateCellWith(row: rowArray,controller: "channels")
+        }else{
+            let rowArray = aryChannels;
+            cell.updateCellWith(row: rowArray,controller: "channels")
+        }
+        
         cell.cellDelegate = self
         return cell
     }
@@ -221,33 +318,37 @@ class ChannelsVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Col
         return UIColor(red: CGFloat(red), green: CGFloat(green), blue: CGFloat(blue), alpha: CGFloat(alpha))
     }
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-//        let storyboard = UIStoryboard(name: "Main", bundle: nil);
-//        let vc = storyboard.instantiateViewController(withIdentifier: "ChannelDetailVC") as! ChannelDetailVC
-//        self.navigationController?.pushViewController(vc, animated: true)
+        //        let storyboard = UIStoryboard(name: "Main", bundle: nil);
+        //        let vc = storyboard.instantiateViewController(withIdentifier: "ChannelDetailVC") as! ChannelDetailVC
+        //        self.navigationController?.pushViewController(vc, animated: true)
         
     }
     func collectionView(collectionviewcell: DBCollectionViewCell?, index: Int, didTappedInTableViewCell: DashBoardCell) {
-        activityIndicator.isHidden = false
-        activityIndicator.startAnimating()
+        viewActivity.isHidden = false
         
         let orgsList = didTappedInTableViewCell.rowWithItems
         let selectedOrg = orgsList[index] as? [String: Any]
         print("selected channel:",selectedOrg)
-          let storyboard = UIStoryboard(name: "Main", bundle: nil);
-           let vc = storyboard.instantiateViewController(withIdentifier: "ChannelDetailVC") as! ChannelDetailVC
+        let storyboard = UIStoryboard(name: "Main", bundle: nil);
+        let vc = storyboard.instantiateViewController(withIdentifier: "ChannelDetailVC") as! ChannelDetailVC
         vc.delegate = self
         vc.orgId = orgId;
-//        print("userId:",selectedOrg?["user_id"] as Any)
+        appDelegate.isLiveLoad = "1"
+        //        print("userId:",selectedOrg?["user_id"] as Any)
         if (selectedOrg?["user_id"] as? Int) != nil {
             vc.performerId = selectedOrg?["user_id"] as! Int
         }
         else {
             vc.performerId = 1;
         }
-           self.navigationController?.pushViewController(vc, animated: true)
-       }
+        vc.strTitle = selectedOrg?["performer_display_name"] as? String ?? "Channel Details"
+        self.navigationController?.pushViewController(vc, animated: true)
+    }
     override var preferredStatusBarStyle: UIStatusBarStyle {
         return .lightContent // .default
+    }
+    override func viewDidDisappear(_ animated: Bool) {
+        viewActivity.isHidden = true
     }
     
 }
@@ -255,7 +356,7 @@ class ChannelsVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Col
 
 extension ChannelsVC: UICollectionViewDataSource , UICollectionViewDelegateFlowLayout{
     func numberOfSections(in collectionView: UICollectionView) -> Int {
-        return 3
+        return sectionFilters.count
     }
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
         return CGSize(width: 100, height: 50)
@@ -274,12 +375,9 @@ extension ChannelsVC: UICollectionViewDataSource , UICollectionViewDelegateFlowL
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         switch section {
         case 0:
-            return self.aryFilterCategoriesData.count
-        case 1:
             return self.aryFilterSubCategoriesData.count
-        case 2:
+        case 1:
             return self.aryFilterGenresData.count
-            
         default:
             print("")
         }
@@ -292,17 +390,13 @@ extension ChannelsVC: UICollectionViewDataSource , UICollectionViewDelegateFlowL
         var selectedItem = [String : Any]()
         switch indexPath.section {
         case 0:
-            selectedItem = self.aryFilterCategoriesData[indexPath.row] as?  [String : Any] ?? [:];
-            cell.chipView.titleLabel.text = selectedItem["category"] as? String
-
-        case 1:
             selectedItem = self.aryFilterSubCategoriesData[indexPath.row] as?  [String : Any] ?? [:];
-            cell.chipView.titleLabel.text = selectedItem["subCategory"] as? String
-
-        case 2:
+            cell.chipView.titleLabel.text = selectedItem["category_name"] as? String
+            
+        case 1:
             selectedItem = self.aryFilterGenresData[indexPath.row] as?  [String : Any] ?? [:];
-            cell.chipView.titleLabel.text = selectedItem["genres"] as? String
-
+            cell.chipView.titleLabel.text = selectedItem["genre_name"] as? String
+            
         default:
             print("")
         }
@@ -323,19 +417,17 @@ extension ChannelsVC: UICollectionViewDataSource , UICollectionViewDelegateFlowL
         print("section:",indexPath.section)
         print("row:",indexPath.row)
         if (indexPath.section == 0){
-            let selectedItem = self.aryFilterCategoriesData[indexPath.row] as? [String : Any];
-            let strValue = selectedItem?["category"] as? String;
-            print("strValue cat:",strValue ?? "")
-            self.strSelectedCategory = strValue ?? ""
-            self.aryFilterSubCategoriesData = selectedItem?["subcategory"] as? [Any] ?? [Any]();
-            self.aryFilterGenresData = selectedItem?["genre"] as? [Any] ?? [Any]();
-            let indexSet = IndexSet(integersIn: 1...2)//reload 1,2 sections
-            collectionViewFilter.reloadSections(indexSet)
-        }else if (indexPath.section == 1){
             let selectedItem = aryFilterSubCategoriesData[indexPath.row] as? [String : Any];
-            let strValue = selectedItem?["subCategory"] as? String;
-            print("strValue sub:",strValue ?? "")
-            self.strSelectedCategory = strValue ?? ""
+            let catId = selectedItem?["id"] as? Int ?? 0;
+            _ = selectedItem?["category_name"] as? String ?? ""
+            strFilterValue = "subcategory"
+            self.subCategoryId = catId;
+        }else if (indexPath.section == 1){
+            let selectedItem = aryFilterGenresData[indexPath.row] as? [String : Any];
+            let genreId = selectedItem?["id"] as? Int ?? 0;
+            _ = selectedItem?["genre_name"] as? String ?? ""
+            strFilterValue = "genre"
+            self.genreId = genreId;
         }
     }
     
@@ -347,5 +439,68 @@ extension ChannelsVC: UICollectionViewDataSource , UICollectionViewDelegateFlowL
         //            self.aryFilterSubCategoriesData = selectedItem?["subcategory"] as? [Any] ?? [Any]();
         //            self.aryFilterGenresData = selectedItem?["genre"] as? [Any] ?? [Any]();
         //        }
+    }
+    //MARK: UISearchbar delegate
+    @IBAction func searchTapped(_ sender: UIButton){
+        searchToggle = !searchToggle
+        searchBar.text = "";
+        if(!mdChipCard.isHidden){
+            mdChipCard.isHidden = true;
+        }
+        //isFilter = false;
+        if (searchToggle){
+            searchBar.isHidden = false;
+            topConstaintTblMain?.constant = 60;
+            tblMain.layoutIfNeeded()
+        }else{
+            searchBar.isHidden = true;
+            topConstaintTblMain?.constant = 1;
+            tblMain.layoutIfNeeded()
+            if (searchActive){
+                searchActive = false;
+                tblMain.reloadData()
+            }
+        }
+    }
+    func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
+        searchActive = false;
+    }
+    
+    func searchBarTextDidEndEditing(_ searchBar: UISearchBar) {
+        searchBar.resignFirstResponder()
+        searchActive = false;
+    }
+    
+    func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
+        searchBar.text = "";
+        searchBar.resignFirstResponder()
+        searchActive = false;
+        self.tblMain.reloadData()
+    }
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        if searchText.isEmpty {
+            //when user press X icon
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                searchBar.resignFirstResponder()
+            }
+            searchActive = false;
+            self.tblMain.reloadData()
+            
+        }
+    }
+    
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        searchBar.resignFirstResponder()
+        let searchString = searchBar.text!
+        if (searchString.count > 0){
+            searchActive = true;
+            let namePredicate = NSPredicate(format: "performer_display_name contains[c] %@",searchString);
+            if (isFilter){
+                arySearchChannels = aryFilterChannels.filter { namePredicate.evaluate(with: $0) };
+            }else{
+                arySearchChannels = aryChannels.filter { namePredicate.evaluate(with: $0) };
+            }
+            tblMain.reloadData()
+        }
     }
 }

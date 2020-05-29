@@ -10,15 +10,20 @@ import UIKit
 import AWSMobileClient
 
 class NewPasswordVC: UIViewController ,UITextFieldDelegate{
-    
+    // MARK: - Variables Declaration
     @IBOutlet weak var txtCode: UITextField!
     @IBOutlet weak var txtPwd: UITextField!
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
+    let appDelegate = UIApplication.shared.delegate as! AppDelegate
     
     var username: String?
     var camefrom = "";
+    @IBOutlet weak var viewActivity: UIView!
+    
+    // MARK: - View Life cycle
     override func viewDidLoad() {
         super.viewDidLoad()
+        viewActivity.isHidden = true
         self.assignbackground();
         username = UserDefaults.standard.string(forKey: "user_email");
         // Do any additional setup after loading the view.
@@ -61,6 +66,12 @@ class NewPasswordVC: UIViewController ,UITextFieldDelegate{
     @IBAction func verifyCode(_ sender: Any) {
         txtPwd.resignFirstResponder();
         txtCode.resignFirstResponder();
+        let netAvailable = appDelegate.isConnectedToInternet()
+        if(!netAvailable){
+            showAlert(strMsg: "Please check your internet connection!")
+            return
+        }
+        
         if (txtCode.text?.count == 0){
             showAlert(strMsg: "Please enter verification code");
         }else if (txtPwd.text?.count == 0){
@@ -71,33 +82,31 @@ class NewPasswordVC: UIViewController ,UITextFieldDelegate{
                 let confirmationCode = txtCode.text else {
                     return
             }
-            activityIndicator.isHidden = false
-            activityIndicator.startAnimating()
+            viewActivity.isHidden = false
             
-            AWSMobileClient.sharedInstance().confirmForgotPassword(username: username,
-                                                                   newPassword: newPassword,
-                                                                   confirmationCode: confirmationCode) { (forgotPasswordResult, error) in
-                                                                    DispatchQueue.main.async {
-                                                                        self.activityIndicator.stopAnimating();
-                                                                        self.activityIndicator.isHidden = true;
-                                                                        
-                                                                        if let error = error {
-                                                                            self.showAlert(strMsg: "\(error)");
-                                                                            print("\(error)")
-                                                                            return
-                                                                        }
-                                                                        
-                                                                        if let forgotPasswordResult = forgotPasswordResult {
-                                                                            switch(forgotPasswordResult.forgotPasswordState) {
-                                                                            case .done:
-                                                                                self.dismiss(self)
-                                                                            default:
-                                                                                print("Error: Could not change password.")
-                                                                            }
-                                                                        } else if let error = error {
-                                                                            print("Error occurred: \(error.localizedDescription)")
-                                                                        }
+            AWSMobileClient.default().confirmForgotPassword(username: username,
+                                                            newPassword: newPassword,
+                                                            confirmationCode: confirmationCode) { (forgotPasswordResult, error) in
+                                                                DispatchQueue.main.async {
+                                                                    self.viewActivity.isHidden = true
+                                                                    
+                                                                    if let error = error {
+                                                                        self.showAlert(strMsg: "\(error)");
+                                                                        print("\(error)")
+                                                                        return
                                                                     }
+                                                                    
+                                                                    if let forgotPasswordResult = forgotPasswordResult {
+                                                                        switch(forgotPasswordResult.forgotPasswordState) {
+                                                                        case .done:
+                                                                            self.dismiss(self)
+                                                                        default:
+                                                                            print("Error: Could not change password.")
+                                                                        }
+                                                                    } else if let error = error {
+                                                                        print("Error occurred: \(error.localizedDescription)")
+                                                                    }
+                                                                }
             }
         }
         
@@ -117,9 +126,9 @@ class NewPasswordVC: UIViewController ,UITextFieldDelegate{
     }
     @IBAction func signIn(_ sender: Any){
         if (camefrom == "profile"){
-            AWSMobileClient.sharedInstance().signOut() { error in
+            AWSMobileClient.default().signOut() { error in
                 if let error = error {
-                    print(error)
+                    //print(error)
                     return
                 }
             }
@@ -141,14 +150,37 @@ class NewPasswordVC: UIViewController ,UITextFieldDelegate{
     // MARK: Text Field Delegate Methods
     
     func textFieldDidBeginEditing(_ textField: UITextField) {
+        if (textField==txtPwd){
+            self.animateTextField(textField: textField, up:true)
+        }
     }
     func textFieldDidEndEditing(_ textField: UITextField) {
+        if (textField==txtPwd){
+            self.animateTextField(textField: textField, up:false)
+        }
         textField.resignFirstResponder();
+
     }
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder();
         return true;
+    }
+    func animateTextField(textField: UITextField, up: Bool)
+    {
+        let movementDistance:CGFloat = -130
+        var movement:CGFloat = 0
+        if up
+        {
+            movement = movementDistance
+        }
+        else
+        {
+            movement = -movementDistance
+        }
+        UIView.animate(withDuration: 0.3, animations: {
+            self.view.frame = self.view.frame.offsetBy(dx: 0, dy: movement)
+        })
     }
     override var preferredStatusBarStyle: UIStatusBarStyle {
         return .lightContent // .default

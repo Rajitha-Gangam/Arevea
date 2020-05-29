@@ -69,15 +69,17 @@ class DashBoardCell: UITableViewCell, UICollectionViewDataSource, UICollectionVi
         if let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "DBCollectionViewCell", for: indexPath) as? DBCollectionViewCell {
             // cell.colorView.backgroundColor = self.rowWithItems?[indexPath.item].color ?? UIColor.black
             let arySub = rowWithItems[indexPath.row] as! [String: Any]
-            if (strController == "dashboard"){
+            if (strController == "dashboard_live"){
+                cell.nameLabel.text = arySub["stream_video_title"]as? String;
+            }
+            else if (strController == "dashboard"){
                 cell.nameLabel.text = arySub["organization_name"]as? String;
                 
             }else if (strController == "channels"){
-                print("arySub:",arySub)
+               // print("arySub:",arySub)
                 if (arySub["performer_display_name"] as? String) != nil
                 {
                     cell.nameLabel.text = arySub["performer_display_name"]as? String;
-                    
                 }else{
                     cell.nameLabel.text = "";
                 }
@@ -87,13 +89,32 @@ class DashBoardCell: UITableViewCell, UICollectionViewDataSource, UICollectionVi
                 cell.nameLabel.textAlignment = .center;
 
             }
-            let imageArr = ["channel1.png","channel2.png","channel3.png","channel4.png"]
-            let RandomNumber = Int(arc4random_uniform(UInt32(imageArr.count)))
-            //imageArr is array of images
-            let image = UIImage.init(named: "\(imageArr[RandomNumber])")
-            
-            cell.imgCategory.image = image
-            
+            let thumbNail = UIImage.init(named: "default-img1.jpg")
+            cell.imgCategory.image = thumbNail
+            cell.imgCategory.contentMode = .scaleAspectFill
+
+            if (strController == "dashboard_live"){
+                let strURL = arySub["video_thumbnail_image"]as? String ?? "";
+                if (strURL != "" && strURL != "NO LOGO" && strURL.range(of:"null") == nil ){
+                if let url = URL(string: strURL){
+                    downloadImage(from:url, imageView: cell.imgCategory)
+                }
+                }
+            }else if (strController == "dashboard"){
+                let strURL = arySub["organization_logo"]as? String ?? "";
+                if (strURL != "" && strURL != "NO LOGO" && strURL.range(of:"null") == nil ){
+                    if let url = URL(string: strURL){
+                        downloadImage(from:url, imageView: cell.imgCategory)
+                    }
+                }
+            }else if (strController == "channels"){
+                let strURL = arySub["performer_profile_pic"]as? String ?? "";
+                if (strURL != "" && strURL != "NO LOGO" && strURL.range(of:"null") == nil ){
+                    if let url = URL(string: strURL){
+                        downloadImage(from:url, imageView: cell.imgCategory)
+                    }
+                }
+            }
             return cell
         }
         return UICollectionViewCell()
@@ -102,6 +123,22 @@ class DashBoardCell: UITableViewCell, UICollectionViewDataSource, UICollectionVi
     // Add spaces at the beginning and the end of the collection view
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
         return UIEdgeInsets(top: 0, left: 5, bottom: 0, right: 5)
+    }
+    func getData(from url: URL, completion: @escaping (Data?, URLResponse?, Error?) -> ()) {
+        URLSession.shared.dataTask(with: url, completionHandler: completion).resume()
+    }
+    func downloadImage(from url: URL,imageView:UIImageView) {
+        //print("Download Started")
+        getData(from: url) { data, response, error in
+            guard let data = data, error == nil else {
+                return
+            }
+            //print(response?.suggestedFilename ?? url.lastPathComponent)
+           // print("Download Finished")
+            DispatchQueue.main.async() { [weak self] in
+                imageView.image = UIImage(data: data)
+            }
+        }
     }
     
 }

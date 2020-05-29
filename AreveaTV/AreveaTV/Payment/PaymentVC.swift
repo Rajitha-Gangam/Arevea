@@ -12,7 +12,7 @@ import Alamofire
 
 class PaymentVC: UIViewController,UITextFieldDelegate {
     // MARK: Variables declaration
-
+    
     @IBOutlet weak var lblAmount: UILabel!
     @IBOutlet weak var txtTipAmount: UITextField!
     @IBOutlet weak var txtNameOnCard:UITextField!
@@ -39,13 +39,13 @@ class PaymentVC: UIViewController,UITextFieldDelegate {
     var performerId = 0;
     var charityId = 0;
     var streamId = 0;
-
+    @IBOutlet weak var viewActivity: UIView!
+    
     // MARK: View Life Cycle
-
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
-        
+        viewActivity.isHidden = true
         var isShowUserInput = true
         if(details == "subscription_plan" ||  details == "pay_per_view" ){
             isShowUserInput = false
@@ -58,11 +58,17 @@ class PaymentVC: UIViewController,UITextFieldDelegate {
             viewOrderDetails.isHidden = false;
             let strAmount = UserDefaults.standard.string(forKey: "plan_amount");
             lblAmount.text = "$" + strAmount!;
-           // let strPlan = UserDefaults.standard.string(forKey: "plan");
+            // let strPlan = UserDefaults.standard.string(forKey: "plan");
             //lblTier.text = strPlan!;
             lblTier.text = "Pay Per View";
         }
         addDoneButton()
+        let netAvailable = appDelegate.isConnectedToInternet()
+        if(!netAvailable){
+            showAlert(strMsg: "Please check your internet connection!")
+            return
+        }
+        
     }
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated);
@@ -126,6 +132,12 @@ class PaymentVC: UIViewController,UITextFieldDelegate {
     }
     @IBAction func pay(_ sender: UIButton) {
         resignKB(sender)
+        let netAvailable = appDelegate.isConnectedToInternet()
+        if(!netAvailable){
+            showAlert(strMsg: "Please check your internet connection!")
+            return
+        }
+        
         var strAmount = "";
         var isShowUserInput = true
         if(details == "subscription_plan" ||  details == "pay_per_view" ){
@@ -134,10 +146,12 @@ class PaymentVC: UIViewController,UITextFieldDelegate {
         if (isShowUserInput){
             strAmount = txtTipAmount.text!;
         }else{
-            strAmount = UserDefaults.standard.value(forKey: "plan_amount") as? String ?? "0";
+            let strAmount1 = UserDefaults.standard.string(forKey: "plan_amount");
+            strAmount = strAmount1!
         }
         //3% processing fee we need to add
-        let intFinalAmount = (Int(strAmount) ?? 0 * 3)/100
+        let gst = (Int(strAmount)! * 3)/100
+        let finalAmount = Int(strAmount)! + gst
         
         let strUsername = txtNameOnCard.text!
         let strCreditCardNum = txtCreditCardNo.text!
@@ -205,19 +219,19 @@ class PaymentVC: UIViewController,UITextFieldDelegate {
             
             //var paymentTypes = ['channel_subscription', 'pay_per_view', 'performer_tip', 'charity_donation', 'performer_app_subscription', 'user_app_subscription'];
             
-            var params = ["paymentInfo" :
+            var params =
                 ["paymentType": paymentType,
                  "organization_id":self.orgId,
                  "performer_id":self.performerId,
                  "currency": "USD",
                  "amount": strAmount,
-                 "finalAmount": intFinalAmount,
+                 "finalAmount": finalAmount,
                  "nameOnCard":strUsername,
                  "card": ["cardNumber": strCreditCardNum, "month": month, "year": year, "cvv": strCVV],
                  "billingAddress": [
                     "street1": strAddress1, "street2": strAddress2, "city":strCity, "state": strState, "zip": strZip,
                     "country": strCountry
-                    ]]] as [String : Any];
+                    ]] as [String : Any];
             if(details == "donation"){
                 params["charity_id"] = self.charityId
             }else if(details == "pay_per_view"){
@@ -225,7 +239,8 @@ class PaymentVC: UIViewController,UITextFieldDelegate {
             }else if(details == "subscription_plan"){
                 //params["subscription_id"] = self.subscriptionID
             }
-            makePayment(params: params);
+            let inputData = ["paymentInfo":params]
+            makePayment(params: inputData);
         }
     }
     // MARK: Handler for makePayment API
@@ -234,47 +249,42 @@ class PaymentVC: UIViewController,UITextFieldDelegate {
         //let url: String = appDelegate.baseURL +  "/makePayment"
         let url = "https://qa.arevea.tv/api/payment/v1/makePayment"
         let params = params;
-        print("params:",params)
-         let session_token = UserDefaults.standard.string(forKey: "session_token") ?? ""
-        
-
+        //print("params:",params)
+        let session_token = UserDefaults.standard.string(forKey: "session_token") ?? ""
         let headers: HTTPHeaders = [
             "Authorization": "Bearer " + session_token,
             "Accept": "application/json"
         ]
-
-        activityIndicator.isHidden = false
-        activityIndicator.startAnimating()
+        viewActivity.isHidden = false
         AF.request(url, method: .post,  parameters: params,encoding: JSONEncoding.default, headers: headers)
             .responseJSON { response in
                 switch response.result {
                 case .success(let value):
                     if let json = value as? [String: Any] {
                         if (json["status"]as? Int == 0){
-                            self.activityIndicator.isHidden = true;
-                            self.activityIndicator.stopAnimating();
-                            print(json["message"] as? String ?? "")
+                            self.viewActivity.isHidden = true
+                            ////print(json["message"] as? String ?? "")
                             self.showAlert(strMsg: "Paid amount successfully")
+                            if(self.details == "pay_per_view"){
+                                self.appDelegate.isLiveLoad = "1"
+                            }
                             self.navigationController?.popViewController(animated: true)
                         }else{
                             let strError = json["message"] as? String
-                            print(strError ?? "")
+                            ////print(strError ?? "")
                             self.showAlert(strMsg: strError ?? "")
-                            self.activityIndicator.isHidden = true;
-                            self.activityIndicator.stopAnimating();
+                            self.viewActivity.isHidden = true
                         }
                     }
                 case .failure(let error):
-                    print(error)
+                    ////print(error)
                     self.showAlert(strMsg: error.localizedDescription)
-                    self.activityIndicator.isHidden = true;
-                    self.activityIndicator.stopAnimating();
+                   self.viewActivity.isHidden = true
                 }
         }
     }
     @IBAction func back(_ sender: Any) {
         self.navigationController?.popViewController(animated: true);
-        
     }
     override var preferredStatusBarStyle: UIStatusBarStyle {
         return .lightContent // .default

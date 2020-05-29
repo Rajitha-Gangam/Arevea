@@ -9,7 +9,8 @@
 #ifndef AreveaTV_Bridging_Header_h
 #define AreveaTV_Bridging_Header_h
 
-#import "ALToastView.h"
 #import <R5Streaming/R5Streaming.h>
+#import "AWSApiGatewayBridge.h"
+#import "ALToastView.h"
 
 #endif /* AreveaTV_Bridging_Header_h */

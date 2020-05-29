@@ -9,39 +9,66 @@
 import UIKit
 import Firebase
 import SendBirdSDK
+import CoreLocation
 
 @UIApplicationMain
-class AppDelegate: UIResponder, UIApplicationDelegate {
+class AppDelegate: UIResponder, UIApplicationDelegate,CLLocationManagerDelegate {
+    // MARK: - Variables Declaration
     var window: UIWindow? // <-- Here
-    
     var USER_EMAIL = "";
     var plan = "";
     var qaURL = "https://qa.arevea.tv/api/user/v1"
     var USER_NAME = "";
     var USER_NAME_FULL = "";
-
+    var isLiveLoad = "0";
+    var locationManager:CLLocationManager!
     //var baseURL = "http://52.25.98.205/api/user/v1";
     //var baseURL = "https://private-anon-c5fd1ec25e-viv3consumer.apiary-mock.com/dev";
     var baseURL = "https://eku2g4rzxl.execute-api.us-west-2.amazonaws.com/dev"
     //var baseURL = "https://eku2g4rzxl.execute-api.us-west-2.amazonaws.com/dev";
+    var securityKey = "x-api-key"
+    var securityValue = "gq78SwjuLY539BLW5G3dN88IXjVtWPLB1YHL1omd"
+    var AWSCognitoIdentityPoolId = "us-west-2:00b71663-b151-44a1-9164-246be7970493"
     
+   var aryCountries = [["region_code":"blr1","countries":["india","sri lanka","bangaldesh","pakistan","china"]],["region_code":"tor1","countries":["canada"]],["region_code":"fra1","countries":["germany"]],["region_code":"lon1","countries":["england"]],["region_code":"sgp1","countries":["singapore"]],["region_code":"sfo1","countries":["United States"]],["region_code":"sfo2","countries":["United States"]],["region_code":"ams2","countries":["netherlands"]],["region_code":"ams3","countries":["netherlands"]],["region_code":"nyc1","countries":["United States"]],["region_code":"nyc2","countries":["United States"]],["region_code":"nyc3","countries":["United States"]]]
+    var strCountry = "United States"
+    var strRegionCode = "sfo1"
+    // MARK: - Application Life cycle
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-
+        
         if let USER_NAME  = UserDefaults.standard.string(forKey: "USER_NAME")  {
             self.USER_NAME = USER_NAME
         }
         if let USER_NAME_FULL  = UserDefaults.standard.string(forKey: "USER_NAME_FULL")  {
             self.USER_NAME_FULL = USER_NAME_FULL
         }
-        
-        
-
         self.window?.makeKeyAndVisible()
         // Use Firebase library to configure APIs
         FirebaseApp.configure()
-        SBDMain.initWithApplicationId("9308C3B1-A36D-47E2-BA3C-8F6F362C35AF")
+        //SBDMain.initWithApplicationId("9308C3B1-A36D-47E2-BA3C-8F6F362C35AF")
+        SBDMain.initWithApplicationId("A72CAA14-FAF5-4B33-A951-78E5267F655F")
 
+       
+
+        locationManager = CLLocationManager()
+        locationManager.delegate = self
+        locationManager.desiredAccuracy = kCLLocationAccuracyBest
+        locationManager.requestAlwaysAuthorization()
+        
+        if CLLocationManager.locationServicesEnabled(){
+            locationManager.startUpdatingLocation()
+        }
+       getRegion()
         return true
+    }
+    func isConnectedToInternet() -> Bool {
+        let hostname = "google.com"
+        let hostinfo = gethostbyname(hostname)
+        //let hostinfo = gethostbyname2(hostname, AF_INET6)//AF_INET6
+        if hostinfo != nil {
+            return true // internet available
+        }
+        return false // no internet
     }
     
     // MARK: UISceneSession Lifecycle
@@ -72,7 +99,44 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     
     
-    
+    //MARK: - location delegate methods
+       func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+           let netAvailable = self.isConnectedToInternet()
+           if(!netAvailable){
+               return
+           }
+           let userLocation :CLLocation = locations[0] as CLLocation
+           let geocoder = CLGeocoder()
+           geocoder.reverseGeocodeLocation(userLocation) { (placemarks, error) in
+               if (error != nil){
+                   print("error in reverseGeocode")
+               }
+               let placemark = placemarks! as [CLPlacemark]
+               if placemark.count>0{
+                   let placemark = placemarks![0]
+                   print("country:",placemark.country!)
+                self.strCountry = placemark.country!
+               }
+           }
+           
+       }
+    func getRegion(){
+        for (i,_) in aryCountries.enumerated(){
+            let element = aryCountries[i]
+            let countryNames = element["countries"] as! [Any];
+            for (j,_) in countryNames.enumerated() {
+                let country = countryNames[j] as! String
+                if(country.lowercased() == strCountry.lowercased()){
+                    print("equal:",country)
+                    strRegionCode = element["region_code"]as! String
+                    return
+                }
+            }
+        }
+    }
+       func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
+           print("Error \(error)")
+       }
     
     
 }

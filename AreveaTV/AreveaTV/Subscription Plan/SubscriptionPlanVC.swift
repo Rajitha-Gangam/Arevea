@@ -13,6 +13,7 @@ extension StringProtocol {
     var firstCapitalized: String { return prefix(1).capitalized + dropFirst() }
 }
 class SubscriptionPlanVC: UIViewController {
+     // MARK: - Variables Declaration
     var arySubscriptionsData = [Any]();
     @IBOutlet weak var txtTier1Desc: UITextView!
     @IBOutlet weak var txtTier2Desc: UITextView!
@@ -21,20 +22,25 @@ class SubscriptionPlanVC: UIViewController {
     @IBOutlet weak var lblTier1Amount: UILabel!
     @IBOutlet weak var lblTier2Amount: UILabel!
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
-    
+    let appDelegate = UIApplication.shared.delegate as! AppDelegate
     var comingfrom = "";
     var planID = 0;
     var tier1Amount = 0;
     var tier2Amount = 0;
+    @IBOutlet weak var viewActivity: UIView!
+    
+    // MARK: - View Life cycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+        viewActivity.isHidden = true
+
         // Do any additional setup after loading the view.
         if (comingfrom == ""){
             //if user comes from sign in(when tap on signup) details subscription
             //before sign up we need to call standard/premium plans
             lblTier1.text = "Standard";
             lblTier2.text = "Premium";
+            
             getSubscriptionPlans()
         }else{
             //if suer comes from channel details subscription
@@ -47,26 +53,35 @@ class SubscriptionPlanVC: UIViewController {
     // MARK: Handler for getSubscriptionPlans API,before signup
     
     func getSubscriptionPlans() {
+        let netAvailable = appDelegate.isConnectedToInternet()
+        if(!netAvailable){
+            showAlert(strMsg: "Please check your internet connection!")
+            return
+        }
+        
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         let url: String = appDelegate.baseURL +  "/getSubscriptionPlans"
         let params: [String: Any] = ["plan_type": "user"]
-        activityIndicator.isHidden = false
-        activityIndicator.startAnimating()
-        AF.request(url, method: .post,  parameters: params, encoding: JSONEncoding.default)
+                viewActivity.isHidden = false
+
+        let headers: HTTPHeaders
+               headers = [appDelegate.securityKey: appDelegate.securityValue]
+        AF.request(url, method: .post,  parameters: params, encoding: JSONEncoding.default,headers:headers)
             .responseJSON { response in
                 switch response.result {
                 case .success(let value):
                     if let json = value as? [String: Any] {
+                        print("json:",json)
                         if (json["status"]as? Int == 0){
-                            self.activityIndicator.isHidden = true;
-                            self.activityIndicator.stopAnimating();
+                                    self.viewActivity.isHidden = true
+
                             self.arySubscriptionsData = json["subscription_plan"] as? [Any] ?? [Any]();
                             if (self.arySubscriptionsData.count > 0){
                                 let dic = self.arySubscriptionsData[0] as? [String:Any];
                                 let aryFeatureList = dic?["feature_details"] as? [Any] ?? [Any]();
                                 //                                self.tier1Amount = dic["tier_base_amount"] as? Int;
                                 //                                self.lblTier1.text = "$\(self.tier1Amount)";
-
+                                
                                 self.planID = dic?["id"] as? Int ?? 0;
                                 self.lblTier1Amount.text = "$0";
                                 var strPrem1 = "";
@@ -102,22 +117,29 @@ class SubscriptionPlanVC: UIViewController {
                         }else{
                             let strError = json["message"] as? String
                             self.showAlert(strMsg: strError ?? "")
-                            self.activityIndicator.isHidden = true;
-                            self.activityIndicator.stopAnimating();
+                            self.viewActivity.isHidden = true
+
                         }
                         
                     }
                 case .failure(let error):
-                    print(error)
+                    ////print(error)
                     self.showAlert(strMsg: error.localizedDescription)
-                    self.activityIndicator.isHidden = true;
-                    self.activityIndicator.stopAnimating();
+                           self.viewActivity.isHidden = true
+
                 }
         }
     }
     // MARK: Handler for getSubscriptionPlans API,from video details page
     
     func getOrganizationSubscription() {
+        let netAvailable = appDelegate.isConnectedToInternet()
+        if(!netAvailable){
+            showAlert(strMsg: "Please check your internet connection!")
+            return
+        }
+        viewActivity.isHidden = false
+
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         let url: String = appDelegate.baseURL +  "/getOrganizationSubscription"
         let params: [String: Any] = ["organization_id": 1]
@@ -128,7 +150,8 @@ class SubscriptionPlanVC: UIViewController {
                 case .success(let value):
                     if let json = value as? [String: Any] {
                         if (json["status"]as? Int == 0){
-                            print(json["message"] as? String ?? "")
+                            self.viewActivity.isHidden = true
+                            //print(json["message"] as? String ?? "")
                             self.arySubscriptionsData = json["subscriptionsData"] as? [Any] ?? [Any]();
                             NSLog("plans count:%d", self.arySubscriptionsData.count);
                             if (self.arySubscriptionsData.count > 0){
@@ -168,22 +191,28 @@ class SubscriptionPlanVC: UIViewController {
                             
                         }else{
                             let strError = json["message"] as? String
-                            print(strError ?? "")
+                            //print(strError ?? "")
                             self.showAlert(strMsg: strError ?? "")
-                            self.activityIndicator.isHidden = true;
-                            self.activityIndicator.stopAnimating();
+                            self.viewActivity.isHidden = true
+
                         }
                         
                     }
                 case .failure(let error):
-                    print(error)
+                    //print(error)
                     self.showAlert(strMsg: error.localizedDescription)
-                    self.activityIndicator.isHidden = true;
-                    self.activityIndicator.stopAnimating();
+                           self.viewActivity.isHidden = true
+
                 }
         }
     }
     @IBAction func trailPlan(_ sender: UIButton) {
+        let netAvailable = appDelegate.isConnectedToInternet()
+        if(!netAvailable){
+            showAlert(strMsg: "Please check your internet connection!")
+            return
+        }
+        
         let storyboard = UIStoryboard(name: "Main", bundle: nil);
         let vc = storyboard.instantiateViewController(withIdentifier: "SignUpVC") as! SignUpVC
         vc.planID = String(self.planID);
@@ -191,6 +220,11 @@ class SubscriptionPlanVC: UIViewController {
     }
     
     @IBAction func selectPlan(_ sender: UIButton) {
+        let netAvailable = appDelegate.isConnectedToInternet()
+        if(!netAvailable){
+            showAlert(strMsg: "Please check your internet connection!")
+            return
+        }
         
         //NSLog("Tag:%d",sender.tag);
         //if tag 10- standard

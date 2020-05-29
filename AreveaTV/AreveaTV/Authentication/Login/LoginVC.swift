@@ -13,6 +13,7 @@
     import AWSCognito
     import Alamofire
     import SendBirdSDK
+    import AWSAPIGateway
     
     protocol GLLoginDelegate {
         func didFinishLogin(status: Bool)
@@ -27,19 +28,19 @@
         @IBOutlet weak var txtUserName: UITextField!
         @IBOutlet weak var txtPassword: UITextField!
         @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
+        @IBOutlet weak var viewActivity: UIView!
         @IBOutlet weak var txtEnv: UITextField!
-        
         var pickerData: [String] = [String]()
-        var sendBirdUserId = "";
         
         // MARK: View Life Cycle Methods
-        
         override func viewDidLoad() {
             super.viewDidLoad()
             self.assignbackground();
             txtUserName.delegate = self;
             txtPassword.delegate = self;
             self.navigationController?.isNavigationBarHidden = true
+            viewActivity.isHidden = true
+            
             addDoneButton()
             pickerData = ["dev", "qa", "pre-prod", "prod"]
             createPickerView()
@@ -49,11 +50,10 @@
         override func viewWillAppear(_ animated: Bool) {
             txtUserName.text = "";
             txtPassword.text = "";
-//            txtUserName.text = "grajitha2009@gmail.com";
-//            txtPassword.text = "V@rshitha12345";
-            
-            
+            txtUserName.text = "grajitha2009@gmail.com";
+            txtPassword.text = "V@rshitha12345";
         }
+        
         @IBAction func resignKB(_ sender: Any) {
             txtUserName.resignFirstResponder();
             txtPassword.resignFirstResponder();
@@ -88,18 +88,20 @@
             }
         }
         func AWSsignIn(){
+            let netAvailable = appDelegate.isConnectedToInternet()
+            if(!netAvailable){
+                showAlert(strMsg: "Please check your internet connection!")
+                return
+            }
             let username = txtUserName.text!
             let password = txtPassword.text!
-            activityIndicator.isHidden = false
-            activityIndicator.startAnimating()
-            
-            AWSMobileClient.sharedInstance().signIn(username: username, password: password) {
+            viewActivity.isHidden = false
+            AWSMobileClient.default().signIn(username: username, password: password) {
                 (signInResult, error) in
                 print("signInResult:\(String(describing: signInResult))");
                 
                 DispatchQueue.main.async {
-                    self.activityIndicator.stopAnimating()
-                    self.activityIndicator.isHidden = true;
+                    self.viewActivity.isHidden = true
                 }
                 if let error =  error as? AWSMobileClientError {
                     switch(error) {
@@ -131,13 +133,10 @@
                 case .signedIn:
                     print("User is signed in.")
                     UserDefaults.standard.set(username, forKey: "user_email")
-                    self.getUser();
-                    //                                    DispatchQueue.main.async {
-                    //                                        let storyboard = UIStoryboard(name: "Main", bundle: nil);
-                    //                                        let vc = storyboard.instantiateViewController(withIdentifier: "DashBoardVC") as! DashBoardVC
-                    //                                        self.navigationController?.pushViewController(vc, animated: true)
-                    //                                    }
-                    
+                    self.delayWithSeconds(2.0){
+                        self.viewActivity.isHidden = false
+                        self.getUser();
+                    }
                 case .newPasswordRequired:
                     print("User needs a new password.")
                     self.showAlert(strMsg: "User needs a new password")
@@ -146,6 +145,11 @@
                     self.showAlert(strMsg: "Sign In needs info which is not et supported")
                     
                 }
+            }
+        }
+        func delayWithSeconds(_ seconds: Double, completion: @escaping () -> ()) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + seconds) {
+                completion()
             }
         }
         func isValidEmail() -> Bool {
@@ -168,25 +172,36 @@
         }
         
         @IBAction func signUp(_ sender: Any) {
+            let netAvailable = appDelegate.isConnectedToInternet()
+            if(!netAvailable){
+                showAlert(strMsg: "Please check your internet connection!")
+                return
+            }
             let storyboard = UIStoryboard(name: "Main", bundle: nil);
-            let vc = storyboard.instantiateViewController(withIdentifier: "SubscriptionPlanVC") as! SubscriptionPlanVC
+            let vc = storyboard.instantiateViewController(withIdentifier: "SignUpVC") as! SignUpVC
             self.navigationController?.pushViewController(vc, animated: true)
         }
         @IBAction func forgotPassword(_ sender: Any) {
+            let netAvailable = appDelegate.isConnectedToInternet()
+            if(!netAvailable){
+                showAlert(strMsg: "Please check your internet connection!")
+                return
+            }
+            
             let storyboard = UIStoryboard(name: "Main", bundle: nil);
             let vc = storyboard.instantiateViewController(withIdentifier: "ResetPasswordVC") as! ResetPasswordVC
             self.navigationController?.pushViewController(vc, animated: true)
         }
         @IBAction func facebook(_ sender: Any) {
             // Perform SAML token federation
-            AWSMobileClient.sharedInstance().federatedSignIn(providerName: "Facebook",
-                                                             token: "230469618276761") { (userState, error) in
-                                                                if let error = error as? AWSMobileClientError {
-                                                                    print(error.localizedDescription)
-                                                                }
-                                                                if let userState = userState {
-                                                                    print("Status: \(userState.rawValue)")
-                                                                }
+            AWSMobileClient.default().federatedSignIn(providerName: "Facebook",
+                                                      token: "230469618276761") { (userState, error) in
+                                                        if let error = error as? AWSMobileClientError {
+                                                            print(error.localizedDescription)
+                                                        }
+                                                        if let userState = userState {
+                                                            print("Status: \(userState.rawValue)")
+                                                        }
             }
             // awsSignInFacebook(fbAuthToken: "230469618276761")
             
@@ -241,73 +256,139 @@
         override var preferredStatusBarStyle: UIStatusBarStyle {
             return .lightContent // .default
         }
-        // MARK: Handler for getUser API, using for filters
-        func getUser(){
+        func logout(){
+            //we are calling logout here, bcz if user click on login again it shoold work with AWS, otherwise, user alreday loggen in state will come
+            AWSMobileClient.default().signOut() { error in
+                if let error = error {
+                    //print(error)
+                    return
+                }
+            }
+        }
+        // MARK: Handler for getCategoryOrganisations API
+        func getUser2(){
             let url: String = appDelegate.baseURL +  "/getUser"
-            let params: [String: Any] = ["email":txtUserName.text!]
-            activityIndicator.isHidden = false
-            activityIndicator.startAnimating()
-            AF.request(url, method: .post,  parameters: params, encoding: JSONEncoding.default)
+            viewActivity.isHidden = false
+            //print("getCategoryOrganisations input:",inputData)
+            let headers: HTTPHeaders
+            headers = [appDelegate.securityKey: appDelegate.securityValue]
+            let username = UserDefaults.standard.string(forKey: "user_email");
+            let params: [String: Any] = ["email":username ?? ""]
+            AF.request(url, method: .post,  parameters: params,encoding: JSONEncoding.default, headers:headers)
                 .responseJSON { response in
                     switch response.result {
                     case .success(let value):
                         if let json = value as? [String: Any] {
-                            if (json["status"]as? Int == 0){
-                                print(json["message"] ?? "")
+                            //print("json:",json)
+                            if (json["statusCode"]as? Int == 0){
+                                //print(json["message"] ?? "")
                                 let user = json["user"] as? [String:Any];
-                               // print("user:",user ?? "")
+                                // print("user:",user ?? "")
                                 UserDefaults.standard.set(user?["id"], forKey: "user_id")
                                 UserDefaults.standard.set(user?["user_type"], forKey: "user_type")
                                 UserDefaults.standard.set(user?["session_token"], forKey: "session_token")
-                                
                                 let fn = user?["user_first_name"] as? String
                                 let ln = user?["user_last_name"]as? String
-                                let strName = String((fn?.first)!) + String((ln?.first)!)
+                                let strName = String((fn?.first ?? "A")) + String((ln?.first ?? "B"))
                                 UserDefaults.standard.set(user?["session_token"], forKey: "session_token")
-                               self.appDelegate.USER_NAME = strName;
+                                self.appDelegate.USER_NAME = strName;
                                 self.appDelegate.USER_NAME_FULL = (fn ?? "") + " " + (ln ?? "")
                                 UserDefaults.standard.set(self.appDelegate.USER_NAME, forKey: "USER_NAME")
                                 UserDefaults.standard.set(self.appDelegate.USER_NAME_FULL, forKey: "USER_NAME_FULL")
-
-
-                                
-                                
-                                self.activityIndicator.isHidden = true;
-                                self.activityIndicator.stopAnimating();
-                                self.setupSendBirdUI()
+                                self.viewActivity.isHidden = true
+                                self.sendBirdConnect()
                             }else{
                                 let strError = json["message"] as? String
-                                print(strError ?? "")
+                                //print(strError ?? "")
                                 self.showAlert(strMsg: strError ?? "")
-                                self.activityIndicator.isHidden = true;
-                                self.activityIndicator.stopAnimating();
-                                //we are calling logout here, bcz if user click on login again it shoold work with AWS, otherwise, user alreday loggen in state will come
-                                AWSMobileClient.sharedInstance().signOut() { error in
-                                    if let error = error {
-                                        print(error)
-                                        return
-                                    }
-                                }
-                                
+                                self.viewActivity.isHidden = true
+                                self.logout()
                             }
                             
                         }
                     case .failure(let error):
-                        print(error)
-                        self.activityIndicator.isHidden = true;
-                        self.activityIndicator.stopAnimating();
+                        //print(error)
+                        self.viewActivity.isHidden = true
                         self.showAlert(strMsg: error.localizedDescription)
-                        //we are calling logout here, bcz if user click on login again it shoold work with AWS, otherwise, user alreday loggen in state will come
-                        AWSMobileClient.sharedInstance().signOut() { error in
-                            if let error = error {
-                                print(error)
-                                return
-                            }
-                        }
                     }
             }
         }
-        
+        // MARK: Handler for getUser API, using for filters
+        func getUser() {
+            let netAvailable = appDelegate.isConnectedToInternet()
+            if(!netAvailable){
+                showAlert(strMsg: "Please check your internet connection!")
+                return
+            }
+            viewActivity.isHidden = false
+            let httpMethodName = "POST"
+            let URLString: String = "/getUser"
+            let username = UserDefaults.standard.string(forKey: "user_email");
+            let params: [String: Any] = ["email":username ?? ""]
+            let headerParameters = [
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            ]
+            // Construct the request object
+            let apiRequest = AWSAPIGatewayRequest(httpMethod: httpMethodName,
+                                                  urlString: URLString,
+                                                  queryParameters: [:],
+                                                  headerParameters: headerParameters,
+                                                  httpBody: params)
+            // Fetch the Cloud Logic client to be used for invocation
+            let invocationClient = AreveaAPIClient.client(forKey:appDelegate.AWSCognitoIdentityPoolId)
+            invocationClient.invoke(apiRequest).continueWith { (task: AWSTask) -> Any? in
+                if let error = task.error {
+                    print("Error occurred: \(error)")
+                    self.showAlert(strMsg: "\(error)")
+                    self.logout()
+                    // Handle error here
+                    return nil
+                }
+                // Handle successful result here
+                let result = task.result!
+                let responseString = String(data: result.responseData!, encoding: .utf8)
+                let data = responseString!.data(using: .utf8)!
+                do {
+                    let resultObj = try JSONSerialization.jsonObject(with: data, options : .allowFragments)
+                    DispatchQueue.main.async {
+                        print(resultObj)
+                        if let json = resultObj as? [String: Any] {
+                            if (json["status"]as? Int == 0){
+                                //print(json["message"] ?? "")
+                                let user = json["user"] as? [String:Any];
+                                // print("user:",user ?? "")
+                                UserDefaults.standard.set(user?["id"], forKey: "user_id")
+                                UserDefaults.standard.set(user?["user_type"], forKey: "user_type")
+                                UserDefaults.standard.set(user?["session_token"], forKey: "session_token")
+                                let fn = user?["user_first_name"] as? String
+                                let ln = user?["user_last_name"]as? String
+                                let strName = String((fn?.first ?? "A")) + String((ln?.first ?? "B"))
+                                UserDefaults.standard.set(user?["session_token"], forKey: "session_token")
+                                self.appDelegate.USER_NAME = strName;
+                                self.appDelegate.USER_NAME_FULL = (fn ?? "") + " " + (ln ?? "")
+                                UserDefaults.standard.set(self.appDelegate.USER_NAME, forKey: "USER_NAME")
+                                UserDefaults.standard.set(self.appDelegate.USER_NAME_FULL, forKey: "USER_NAME_FULL")
+                                self.viewActivity.isHidden = true
+                                self.sendBirdConnect()
+                            }else{
+                                let strError = json["message"] as? String
+                                //print(strError ?? "")
+                                self.showAlert(strMsg: strError ?? "")
+                                self.viewActivity.isHidden = true
+                                self.logout()
+                            }
+                        }
+                    }
+                } catch let error as NSError {
+                    //print(error)
+                    self.showAlert(strMsg: "\(error)")
+                    self.viewActivity.isHidden = true
+                    self.logout()
+                }
+                return nil
+            }
+        }
         // MARK: Picker  Methods
         func createPickerView() {
             let pickerView = UIPickerView()
@@ -351,29 +432,20 @@
             txtEnv.text = selectedItem
         }
         // MARK: Send Bird Methods
-        
-        func setupSendBirdUI() {
-            if let userId = UserDefaults.standard.object(forKey: "sendbird_user_id") as? String {
-                self.sendBirdUserId = userId
-            }
-            
-            self.sendBirdConnect()
-        }
         func sendBirdConnect() {
             
             // self.view.endEditing(true)
             if SBDMain.getConnectState() == .open {
                 SBDMain.disconnect {
-//                    DispatchQueue.main.async {
-//                        //self.setUIsForDefault()
-//                    }
+                    //                    DispatchQueue.main.async {
+                    //                        //self.setUIsForDefault()
+                    //                    }
                     self.sendBirdConnect()
                 }
                 print("sendBirdConnect disconnect")
             }
             else {
-                activityIndicator.isHidden = false
-                activityIndicator.startAnimating()
+                viewActivity.isHidden = false
                 let userId = UserDefaults.standard.string(forKey: "user_id");
                 let nickname = appDelegate.USER_NAME_FULL
                 
@@ -384,8 +456,7 @@
                 //self.setUIsWhileConnecting()
                 
                 ConnectionManager.login(userId: userId ?? "1", nickname: nickname) { user, error in
-                    self.activityIndicator.isHidden = true;
-                    self.activityIndicator.stopAnimating();
+                    self.viewActivity.isHidden = true
                     guard error == nil else {
                         DispatchQueue.main.async {
                             // self.setUIsForDefault()

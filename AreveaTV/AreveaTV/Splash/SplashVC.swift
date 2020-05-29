@@ -9,36 +9,57 @@
 import UIKit
 import AWSMobileClient
 import SendBirdSDK
+import AWSAPIGateway
+import AWSAuthCore
+import AWSCognito
 
 class SplashVC: UIViewController {
+     // MARK: - Variables Declaration
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     let appDelegate = UIApplication.shared.delegate as! AppDelegate
+    var netAvailable = true
+    @IBOutlet weak var viewActivity: UIView!
     
+    // MARK: - View Life cycle
     override func viewDidLoad() {
         super.viewDidLoad()
+        viewActivity.isHidden = true
         assignbackground();
         self.navigationController?.isNavigationBarHidden = true
-        
-        //        activityIndicator.isHidden = false
-        //        activityIndicator.startAnimating()
         delayWithSeconds(2.0){
             self.initAWS();
         }
-        
-        
     }
-    
     override func viewDidAppear(_ animated: Bool) {
-        
+        // Create a service configuration
+        let serviceConfiguration = AWSServiceConfiguration(region: AWSRegionType.USWest2,
+                                                           credentialsProvider: AWSMobileClient.default())
+        // Initialize the API client using the service configuration
+        AreveaAPIClient.registerClient(withConfiguration: serviceConfiguration!, forKey: appDelegate.AWSCognitoIdentityPoolId)
     }
     
+    func showAlert(strMsg: String){
+        let alert = UIAlertController(title: "Alert", message: strMsg, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
+        
+        DispatchQueue.main.async {
+            self.present(alert, animated: true)
+        }
+    }
     func delayWithSeconds(_ seconds: Double, completion: @escaping () -> ()) {
         DispatchQueue.main.asyncAfter(deadline: .now() + seconds) {
             completion()
         }
     }
     func initAWS(){
-        AWSMobileClient.sharedInstance().initialize { (userState, error) in
+        let netAvailable = appDelegate.isConnectedToInternet()
+        if(!netAvailable){
+            showAlert(strMsg: "Please check your internet connection!")
+            return
+        }
+        //self.viewActivity.isHidden = false
+
+        AWSMobileClient.default().initialize { (userState, error) in
             if let error = error {
                 print("error: \(error.localizedDescription)")
                 return
@@ -47,10 +68,10 @@ class SplashVC: UIViewController {
             guard let userState = userState else {
                 return
             }
-            
+            //self.viewActivity.isHidden = true
+
             print("The user is \(userState.rawValue).")
             
-            // self.activityIndicator.stopAnimating()
             
             // Check if user availability
             switch userState {
@@ -60,12 +81,12 @@ class SplashVC: UIViewController {
                     self.sendBirdConnect()
                 }else{
                     //if user is in signed in state, but app deleted, then we do not user values
-                    AWSMobileClient.sharedInstance().signOut() { error in
-                        if let error = error {
-                            print(error)
-                            return
-                        }
-                    }
+                    AWSMobileClient.default().signOut() { error in
+                                            if let error = error {
+                                                //print(error)
+                                                return
+                                            }
+                                        }
                     let storyboard = UIStoryboard(name: "Main", bundle: nil);
                     let vc = storyboard.instantiateViewController(withIdentifier: "LoginVC") as! LoginVC
                     self.navigationController?.pushViewController(vc, animated: true)
@@ -103,8 +124,8 @@ class SplashVC: UIViewController {
             print("sendBirdConnect disconnect")
         }
         else {
-            activityIndicator.isHidden = false
-            activityIndicator.startAnimating()
+          // viewActivity.isHidden = false
+
             let userId = UserDefaults.standard.string(forKey: "user_id");
             let nickname = appDelegate.USER_NAME_FULL
             
@@ -115,8 +136,8 @@ class SplashVC: UIViewController {
             //self.setUIsWhileConnecting()
             
             ConnectionManager.login(userId: userId ?? "1", nickname: nickname) { user, error in
-                self.activityIndicator.isHidden = true;
-                self.activityIndicator.stopAnimating();
+               // self.viewActivity.isHidden = true
+
                 guard error == nil else {
                     DispatchQueue.main.async {
                         // self.setUIsForDefault()

@@ -9,15 +9,21 @@
 import UIKit
 import AWSMobileClient
 import Alamofire
+import SendBirdSDK
 
 class ConfirmSignUpVC: UIViewController,UITextFieldDelegate {
-    
+     // MARK: - Variables Declaration
+    let appDelegate = UIApplication.shared.delegate as! AppDelegate
+
     @IBOutlet weak var txtCode: UITextField!
     var username: String?
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
-
+@IBOutlet weak var viewActivity: UIView!
+    
+    // MARK: - View Life cycle
     override func viewDidLoad() {
         super.viewDidLoad()
+        viewActivity.isHidden = true
         // Do any additional setup after loading the view.
         addDoneButton()
         self.assignbackground();
@@ -57,8 +63,7 @@ class ConfirmSignUpVC: UIViewController,UITextFieldDelegate {
     
     func resendSignUpHandler(result: SignUpResult?, error: Error?) {
         DispatchQueue.main.async {
-            self.activityIndicator.stopAnimating();
-            self.activityIndicator.isHidden = true;
+            self.viewActivity.isHidden = true
         }
         if let error = error {
             showAlert(strMsg: "\(error)");
@@ -84,34 +89,39 @@ class ConfirmSignUpVC: UIViewController,UITextFieldDelegate {
     }
     
     @IBAction func resendCode(_ sender: Any) {
+        let netAvailable = appDelegate.isConnectedToInternet()
+               if(!netAvailable){
+                   showAlert(strMsg: "Please check your internet connection!")
+                   return
+               }
+        
         guard let username = self.username else {
             print("No username")
             return
         }
-        activityIndicator.isHidden = false
-        activityIndicator.startAnimating()
-        AWSMobileClient.sharedInstance().resendSignUpCode(username: username,
+        viewActivity.isHidden = false
+        AWSMobileClient.default().resendSignUpCode(username: username,
                                                           completionHandler: resendSignUpHandler)
     }
     
     func handleConfirmation(signUpResult: SignUpResult?, error: Error?) {
         DispatchQueue.main.async {
-            self.activityIndicator.stopAnimating();
-            self.activityIndicator.isHidden = true;
+            self.viewActivity.isHidden = true
         }
         if let error =  error as? AWSMobileClientError {
             switch(error) {
             case .codeMismatch:
                 self.showAlert(strMsg: "Invalid verification code provided, please try again");
+                 return
             case .expiredCode(let message):
                 self.showAlert(strMsg: message);
-            default:
-                showAlert(strMsg: "\(error)");
-                break
+                 return
+            default: break
+                //showAlert(strMsg: "\(error)");
             }
             print("There's an error : \(error.localizedDescription)")
             print(error)
-            return
+           
         }
         
         guard let signUpResult = signUpResult else {
@@ -121,15 +131,13 @@ class ConfirmSignUpVC: UIViewController,UITextFieldDelegate {
         switch(signUpResult.signUpConfirmationState) {
         case .confirmed:
             print("User is signed up and confirmed.")
-            getUser()
-//            DispatchQueue.main.async {
-//                let storyboard = UIStoryboard(name: "Main", bundle: nil);
-//                let vc = storyboard.instantiateViewController(withIdentifier: "DashBoardVC") as! DashBoardVC
-//                self.navigationController?.pushViewController(vc, animated: true)
-//            }
-            
+            DispatchQueue.main.async {
+                self.viewActivity.isHidden = false
+                self.dismissModal()
+
+            }
         case .unconfirmed:
-            var username = self.username!;
+            let username = self.username!;
             let strError = "User is not confirmed and needs verification via email sent at " + username;
             showAlert(strMsg: strError)
             print("User is not confirmed and needs verification via \(signUpResult.codeDeliveryDetails!.deliveryMedium) sent at \(signUpResult.codeDeliveryDetails!.destination!)")
@@ -140,6 +148,12 @@ class ConfirmSignUpVC: UIViewController,UITextFieldDelegate {
     
     @IBAction func confirmSignUp(_ sender: Any) {
         txtCode.resignFirstResponder();
+        let netAvailable = appDelegate.isConnectedToInternet()
+        if(!netAvailable){
+            showAlert(strMsg: "Please check your internet connection!")
+            return
+        }
+
         if (txtCode.text?.count == 0){
             showAlert(strMsg: "Please enter verification code");
         }else{
@@ -148,9 +162,8 @@ class ConfirmSignUpVC: UIViewController,UITextFieldDelegate {
                     print("No username")
                     return
             }
-            activityIndicator.isHidden = false
-            activityIndicator.startAnimating()
-            AWSMobileClient.sharedInstance().confirmSignUp(username: username,
+            viewActivity.isHidden = false
+            AWSMobileClient.default().confirmSignUp(username: username,
                                                            confirmationCode: verificationCode,
                                                            completionHandler: handleConfirmation)
             
@@ -158,7 +171,7 @@ class ConfirmSignUpVC: UIViewController,UITextFieldDelegate {
         
     }
     
-    @IBAction func dismissModal(_ sender: Any) {
+    @IBAction func dismissModal() {
         for controller in self.navigationController!.viewControllers as Array {
             if controller.isKind(of: LoginVC.self) {
                 self.navigationController!.popToViewController(controller, animated: true)
@@ -166,63 +179,7 @@ class ConfirmSignUpVC: UIViewController,UITextFieldDelegate {
             }
         }
     }
-    // MARK: Handler for getUser API, using for filters
-           func getUser(){
-               let appDelegate = UIApplication.shared.delegate as! AppDelegate
-               let url: String = appDelegate.baseURL +  "/getUser"
-            let params: [String: Any] = ["email":self.username ?? ""]
-               activityIndicator.isHidden = false
-               activityIndicator.startAnimating()
-               AF.request(url, method: .post,  parameters: params, encoding: JSONEncoding.default)
-                   .responseJSON { response in
-                       switch response.result {
-                       case .success(let value):
-                           if let json = value as? [String: Any] {
-                               if (json["status"]as? Int == 0){
-                                   print(json["message"] ?? "")
-                                   let user = json["user"] as? [String:Any];
-                                   print("user:",user ?? "")
-                                   UserDefaults.standard.set(user?["id"], forKey: "user_id")
-                                   UserDefaults.standard.set(user?["user_type"], forKey: "user_type")
-                                   
-                                   let storyboard = UIStoryboard(name: "Main", bundle: nil);
-                                   let vc = storyboard.instantiateViewController(withIdentifier: "DashBoardVC") as! DashBoardVC
-                                   self.navigationController?.pushViewController(vc, animated: true)
-                                   self.activityIndicator.isHidden = true;
-                                   self.activityIndicator.stopAnimating();
-                               }else{
-                                   let strError = json["message"] as? String
-                                   print(strError ?? "")
-                                   self.showAlert(strMsg: strError ?? "")
-                                   self.activityIndicator.isHidden = true;
-                                   self.activityIndicator.stopAnimating();
-                                   //we are calling logout here, bcz if user click on login again it shoold work with AWS, otherwise, user alreday loggen in state will come
-                                   
-                                   AWSMobileClient.sharedInstance().signOut() { error in
-                                       if let error = error {
-                                           print(error)
-                                           return
-                                       }
-                                   }
-                                   
-                               }
-                               
-                           }
-                       case .failure(let error):
-                           print(error)
-                           self.activityIndicator.isHidden = true;
-                           self.activityIndicator.stopAnimating();
-                           self.showAlert(strMsg: error.localizedDescription)
-                           //we are calling logout here, bcz if user click on login again it shoold work with AWS, otherwise, user alreday loggen in state will come
-                           AWSMobileClient.sharedInstance().signOut() { error in
-                               if let error = error {
-                                   print(error)
-                                   return
-                               }
-                           }
-                       }
-               }
-           }
+   
     // MARK: Text Field Delegate Methods
     
     func textFieldDidBeginEditing(_ textField: UITextField) {

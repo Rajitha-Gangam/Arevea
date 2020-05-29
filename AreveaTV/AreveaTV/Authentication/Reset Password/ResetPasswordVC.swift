@@ -10,17 +10,24 @@ import UIKit
 import AWSMobileClient
 
 class ResetPasswordVC: UIViewController ,UITextFieldDelegate{
-    
+     // MARK: - Variables Declaration
     @IBOutlet weak var txtEmail: UITextField!
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
-
+    let appDelegate = UIApplication.shared.delegate as! AppDelegate
+@IBOutlet weak var viewActivity: UIView!
+    
+    // MARK: - View Life cycle
     override func viewDidLoad() {
         super.viewDidLoad()
+        viewActivity.isHidden = true
+
         self.assignbackground();
         
         // Do any additional setup after loading the view.
         addDoneButton()
 
+    }
+      override func viewWillAppear(_ animated: Bool) {
     }
     func addDoneButton() {
         let toolbar =  UIToolbar(frame: CGRect(x: 0, y: 0, width: view.frame.size.width, height: 35))
@@ -60,6 +67,11 @@ class ResetPasswordVC: UIViewController ,UITextFieldDelegate{
        }
     @IBAction func submitUsername(_ sender: Any) {
         txtEmail.resignFirstResponder();
+        let netAvailable = appDelegate.isConnectedToInternet()
+        if(!netAvailable){
+            showAlert(strMsg: "Please check your internet connection!")
+            return
+        }
         if (txtEmail.text?.count == 0){
             showAlert(strMsg: "Please enter email");
         }else if (!isValidEmail()){
@@ -69,12 +81,12 @@ class ResetPasswordVC: UIViewController ,UITextFieldDelegate{
                 print("No username")
                 return
             }
-            activityIndicator.isHidden = false
-            activityIndicator.startAnimating()
-            AWSMobileClient.sharedInstance().forgotPassword(username: username) { (forgotPasswordResult, error) in
+            self.viewActivity.isHidden = false
+
+            AWSMobileClient.default().forgotPassword(username: username) { (forgotPasswordResult, error) in
                 DispatchQueue.main.async {
-                    self.activityIndicator.stopAnimating();
-                    self.activityIndicator.isHidden = true;
+                                self.viewActivity.isHidden = true
+
                 }
                 if let error = error {
                     self.showAlert(strMsg: "\(error)");
