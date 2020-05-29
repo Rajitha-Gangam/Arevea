@@ -47,9 +47,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate,CLLocationManagerDelegate 
         FirebaseApp.configure()
         //SBDMain.initWithApplicationId("9308C3B1-A36D-47E2-BA3C-8F6F362C35AF")
         SBDMain.initWithApplicationId("A72CAA14-FAF5-4B33-A951-78E5267F655F")
-
-       
-
         locationManager = CLLocationManager()
         locationManager.delegate = self
         locationManager.desiredAccuracy = kCLLocationAccuracyBest
@@ -58,7 +55,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate,CLLocationManagerDelegate 
         if CLLocationManager.locationServicesEnabled(){
             locationManager.startUpdatingLocation()
         }
-       getRegion()
+       
         return true
     }
     func isConnectedToInternet() -> Bool {
@@ -116,6 +113,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate,CLLocationManagerDelegate 
                    let placemark = placemarks![0]
                    print("country:",placemark.country!)
                 self.strCountry = placemark.country!
+                self.getRegion()
                }
            }
            

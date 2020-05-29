@@ -28,17 +28,17 @@
 		184A0B5A24741F8A006EDDA3 /* default-img1.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 184A0B5924741F8A006EDDA3 /* default-img1.jpg */; };
 		1864AFCD2454A999004F3AED /* ChannelDetailVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1864AFCC2454A999004F3AED /* ChannelDetailVC.swift */; };
 		1864AFCF2454ACEE004F3AED /* sample_detail.png in Resources */ = {isa = PBXBuildFile; fileRef = 1864AFCE2454ACEE004F3AED /* sample_detail.png */; };
-		1869F51224659CFC003153B1 /* OpenChannelMessageTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1869F50C24659CFC003153B1 /* OpenChannelMessageTableViewCell.swift */; };
-		1869F51324659CFC003153B1 /* OpenChannelMessageTableViewCellDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1869F50D24659CFC003153B1 /* OpenChannelMessageTableViewCellDelegate.swift */; };
-		1869F51424659CFC003153B1 /* OpenChanannelChatDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1869F50E24659CFC003153B1 /* OpenChanannelChatDelegate.swift */; };
-		1869F51524659CFC003153B1 /* OpenChannelUserMessageTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1869F50F24659CFC003153B1 /* OpenChannelUserMessageTableViewCell.swift */; };
-		1869F51624659CFC003153B1 /* OpenChannelUserMessageTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1869F51024659CFC003153B1 /* OpenChannelUserMessageTableViewCell.xib */; };
-		1869F51724659CFC003153B1 /* OpenChannelTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1869F51124659CFC003153B1 /* OpenChannelTableViewCell.swift */; };
 		1869F51924659D5F003153B1 /* SBOpenChatVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1869F51824659D5F003153B1 /* SBOpenChatVC.swift */; };
 		1869F51B24698254003153B1 /* SubscribeTelephonyInterruptTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1869F51A24698254003153B1 /* SubscribeTelephonyInterruptTest.swift */; };
 		186A2EA2245566BE007128E6 /* three-dots.png in Resources */ = {isa = PBXBuildFile; fileRef = 186A2EA1245566BE007128E6 /* three-dots.png */; };
 		186A2EAE24559E68007128E6 /* CommentsCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 186A2EAC24559E68007128E6 /* CommentsCell.swift */; };
 		186A2EAF24559E68007128E6 /* CommentsCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 186A2EAD24559E68007128E6 /* CommentsCell.xib */; };
+		187C57FF2480EA35008C5E89 /* OpenChanannelChatDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 187C57F92480EA35008C5E89 /* OpenChanannelChatDelegate.swift */; };
+		187C58002480EA35008C5E89 /* OpenChannelUserMessageTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 187C57FA2480EA35008C5E89 /* OpenChannelUserMessageTableViewCell.swift */; };
+		187C58012480EA35008C5E89 /* OpenChannelUserMessageTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 187C57FB2480EA35008C5E89 /* OpenChannelUserMessageTableViewCell.xib */; };
+		187C58022480EA35008C5E89 /* OpenChannelTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 187C57FC2480EA35008C5E89 /* OpenChannelTableViewCell.swift */; };
+		187C58032480EA35008C5E89 /* OpenChannelMessageTableViewCellDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 187C57FD2480EA35008C5E89 /* OpenChannelMessageTableViewCellDelegate.swift */; };
+		187C58042480EA35008C5E89 /* OpenChannelMessageTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 187C57FE2480EA35008C5E89 /* OpenChannelMessageTableViewCell.swift */; };
 		187D7B06246B100F0041D5AA /* unmute.png in Resources */ = {isa = PBXBuildFile; fileRef = 187D7AFF246B100E0041D5AA /* unmute.png */; };
 		187D7B07246B100F0041D5AA /* play.png in Resources */ = {isa = PBXBuildFile; fileRef = 187D7B00246B100E0041D5AA /* play.png */; };
 		187D7B08246B100F0041D5AA /* home.png in Resources */ = {isa = PBXBuildFile; fileRef = 187D7B01246B100E0041D5AA /* home.png */; };
@@ -154,17 +154,17 @@
 		184A0B5924741F8A006EDDA3 /* default-img1.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "default-img1.jpg"; sourceTree = "<group>"; };
 		1864AFCC2454A999004F3AED /* ChannelDetailVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChannelDetailVC.swift; sourceTree = "<group>"; };
 		1864AFCE2454ACEE004F3AED /* sample_detail.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = sample_detail.png; sourceTree = "<group>"; };
-		1869F50C24659CFC003153B1 /* OpenChannelMessageTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OpenChannelMessageTableViewCell.swift; sourceTree = "<group>"; };
-		1869F50D24659CFC003153B1 /* OpenChannelMessageTableViewCellDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OpenChannelMessageTableViewCellDelegate.swift; sourceTree = "<group>"; };
-		1869F50E24659CFC003153B1 /* OpenChanannelChatDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OpenChanannelChatDelegate.swift; sourceTree = "<group>"; };
-		1869F50F24659CFC003153B1 /* OpenChannelUserMessageTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OpenChannelUserMessageTableViewCell.swift; sourceTree = "<group>"; };
-		1869F51024659CFC003153B1 /* OpenChannelUserMessageTableViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = OpenChannelUserMessageTableViewCell.xib; sourceTree = "<group>"; };
-		1869F51124659CFC003153B1 /* OpenChannelTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OpenChannelTableViewCell.swift; sourceTree = "<group>"; };
 		1869F51824659D5F003153B1 /* SBOpenChatVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SBOpenChatVC.swift; sourceTree = "<group>"; };
 		1869F51A24698254003153B1 /* SubscribeTelephonyInterruptTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscribeTelephonyInterruptTest.swift; sourceTree = "<group>"; };
 		186A2EA1245566BE007128E6 /* three-dots.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "three-dots.png"; sourceTree = "<group>"; };
 		186A2EAC24559E68007128E6 /* CommentsCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentsCell.swift; sourceTree = "<group>"; };
 		186A2EAD24559E68007128E6 /* CommentsCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = CommentsCell.xib; sourceTree = "<group>"; };
+		187C57F92480EA35008C5E89 /* OpenChanannelChatDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OpenChanannelChatDelegate.swift; sourceTree = "<group>"; };
+		187C57FA2480EA35008C5E89 /* OpenChannelUserMessageTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OpenChannelUserMessageTableViewCell.swift; sourceTree = "<group>"; };
+		187C57FB2480EA35008C5E89 /* OpenChannelUserMessageTableViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = OpenChannelUserMessageTableViewCell.xib; sourceTree = "<group>"; };
+		187C57FC2480EA35008C5E89 /* OpenChannelTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OpenChannelTableViewCell.swift; sourceTree = "<group>"; };
+		187C57FD2480EA35008C5E89 /* OpenChannelMessageTableViewCellDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OpenChannelMessageTableViewCellDelegate.swift; sourceTree = "<group>"; };
+		187C57FE2480EA35008C5E89 /* OpenChannelMessageTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OpenChannelMessageTableViewCell.swift; sourceTree = "<group>"; };
 		187D7AFF246B100E0041D5AA /* unmute.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = unmute.png; sourceTree = "<group>"; };
 		187D7B00246B100E0041D5AA /* play.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = play.png; sourceTree = "<group>"; };
 		187D7B01246B100E0041D5AA /* home.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = home.png; sourceTree = "<group>"; };
@@ -329,12 +329,12 @@
 		1869F50B24659CFC003153B1 /* Open Channel Cells */ = {
 			isa = PBXGroup;
 			children = (
-				1869F50C24659CFC003153B1 /* OpenChannelMessageTableViewCell.swift */,
-				1869F50D24659CFC003153B1 /* OpenChannelMessageTableViewCellDelegate.swift */,
-				1869F50E24659CFC003153B1 /* OpenChanannelChatDelegate.swift */,
-				1869F50F24659CFC003153B1 /* OpenChannelUserMessageTableViewCell.swift */,
-				1869F51024659CFC003153B1 /* OpenChannelUserMessageTableViewCell.xib */,
-				1869F51124659CFC003153B1 /* OpenChannelTableViewCell.swift */,
+				187C57F92480EA35008C5E89 /* OpenChanannelChatDelegate.swift */,
+				187C57FE2480EA35008C5E89 /* OpenChannelMessageTableViewCell.swift */,
+				187C57FD2480EA35008C5E89 /* OpenChannelMessageTableViewCellDelegate.swift */,
+				187C57FC2480EA35008C5E89 /* OpenChannelTableViewCell.swift */,
+				187C57FA2480EA35008C5E89 /* OpenChannelUserMessageTableViewCell.swift */,
+				187C57FB2480EA35008C5E89 /* OpenChannelUserMessageTableViewCell.xib */,
 			);
 			name = "Open Channel Cells";
 			path = "../../../../../Swift/TestSandBird/TestSandBird/Open Channel Cells";
@@ -811,7 +811,6 @@
 				189EBF7C245C086400C52B0E /* Icon-76.png in Resources */,
 				189EBED7245752B800C52B0E /* AudioCell.xib in Resources */,
 				189EBEE624588A1900C52B0E /* filter_with_bg.png in Resources */,
-				1869F51624659CFC003153B1 /* OpenChannelUserMessageTableViewCell.xib in Resources */,
 				182A5EF8245F057800FF6147 /* FilterCVCell.xib in Resources */,
 				184A0B562473AF8C006EDDA3 /* donation-icon.png in Resources */,
 				18EB81DE244B4341008EB09A /* awsconfiguration.json in Resources */,
@@ -827,6 +826,7 @@
 				18D4809924509A5600640C1A /* faq-icon.png in Resources */,
 				18EB81D9244AD3D2008EB09A /* icon_fb.png in Resources */,
 				187D7B08246B100F0041D5AA /* home.png in Resources */,
+				187C58012480EA35008C5E89 /* OpenChannelUserMessageTableViewCell.xib in Resources */,
 				1864AFCF2454ACEE004F3AED /* sample_detail.png in Resources */,
 				18D480A824509F7700640C1A /* SideMenuCell.xib in Resources */,
 				187D7B06246B100F0041D5AA /* unmute.png in Resources */,
@@ -910,19 +910,21 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				187C58022480EA35008C5E89 /* OpenChannelTableViewCell.swift in Sources */,
 				182A5F05246166D700FF6147 /* CharityCell.swift in Sources */,
 				182A5EFC2460163100FF6147 /* ButtonsCVC.swift in Sources */,
-				1869F51324659CFC003153B1 /* OpenChannelMessageTableViewCellDelegate.swift in Sources */,
-				1869F51424659CFC003153B1 /* OpenChanannelChatDelegate.swift in Sources */,
 				18D480C62454552200640C1A /* ProfileVC.swift in Sources */,
 				189EBF322459CEE500C52B0E /* VideoCell.swift in Sources */,
 				182A5EF2245C59C700FF6147 /* SectionHeader.swift in Sources */,
 				18D480BD2452D0CE00640C1A /* SubscriptionPlanVC.swift in Sources */,
 				18D480B12451A30E00640C1A /* ChannelsVC.swift in Sources */,
 				18D480AA24519D1100640C1A /* SubscribeTest.swift in Sources */,
+				187C58002480EA35008C5E89 /* OpenChannelUserMessageTableViewCell.swift in Sources */,
 				18EB81C7244ACC4F008EB09A /* SignUpVC.swift in Sources */,
 				18EB81C8244ACC4F008EB09A /* ConfirmSignUpVC.swift in Sources */,
+				187C58042480EA35008C5E89 /* OpenChannelMessageTableViewCell.swift in Sources */,
 				189EBF392459D25700C52B0E /* UpcomingCell.swift in Sources */,
+				187C57FF2480EA35008C5E89 /* OpenChanannelChatDelegate.swift in Sources */,
 				18D480C02452E00500640C1A /* PaymentVC.swift in Sources */,
 				182A5EF7245F057800FF6147 /* FilterCVCell.swift in Sources */,
 				18EB81CE244ACC86008EB09A /* DashBoardVC.swift in Sources */,
@@ -933,22 +935,20 @@
 				18EB81CB244ACC5B008EB09A /* ResetPasswordVC.swift in Sources */,
 				1869F51B24698254003153B1 /* SubscribeTelephonyInterruptTest.swift in Sources */,
 				18D48060244EDDA300640C1A /* BaseTest.swift in Sources */,
-				1869F51224659CFC003153B1 /* OpenChannelMessageTableViewCell.swift in Sources */,
 				1864AFCD2454A999004F3AED /* ChannelDetailVC.swift in Sources */,
 				184A0B532472CC20006EDDA3 /* PaymentHistoryCell.swift in Sources */,
 				189EBF44245ACD3400C52B0E /* FilterCell.swift in Sources */,
 				187D7B14246D615C0041D5AA /* AreveaAPIClient.swift in Sources */,
 				1891CA63244AC82B00EE1E45 /* AppDelegate.swift in Sources */,
 				18EB81C4244ACC40008EB09A /* LoginVC.swift in Sources */,
+				187C58032480EA35008C5E89 /* OpenChannelMessageTableViewCellDelegate.swift in Sources */,
 				18EB81BD244ACAB9008EB09A /* SplashVC.swift in Sources */,
-				1869F51724659CFC003153B1 /* OpenChannelTableViewCell.swift in Sources */,
 				186A2EAE24559E68007128E6 /* CommentsCell.swift in Sources */,
 				18D480A724509F7700640C1A /* SideMenuCell.swift in Sources */,
 				18D48069244EDF9800640C1A /* Testbed.swift in Sources */,
 				184A0B4F2472CA9E006EDDA3 /* PaymentHistoryVC.swift in Sources */,
 				182A5EF3245C59C700FF6147 /* StickyHeadersCollectionViewFlowLayout.swift in Sources */,
 				180A78C82464243A0013AB0B /* ConnectionManager.swift in Sources */,
-				1869F51524659CFC003153B1 /* OpenChannelUserMessageTableViewCell.swift in Sources */,
 				18D48057244EA59D00640C1A /* DashBoardCell.swift in Sources */,
 				18EB81CC244ACC5B008EB09A /* NewPasswordVC.swift in Sources */,
 			);
