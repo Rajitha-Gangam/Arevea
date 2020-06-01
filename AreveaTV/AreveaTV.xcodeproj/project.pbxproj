@@ -26,6 +26,9 @@
 		184A0B542472CC20006EDDA3 /* PaymentHistoryCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 184A0B522472CC20006EDDA3 /* PaymentHistoryCell.xib */; };
 		184A0B562473AF8C006EDDA3 /* donation-icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 184A0B552473AF8C006EDDA3 /* donation-icon.png */; };
 		184A0B5A24741F8A006EDDA3 /* default-img1.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 184A0B5924741F8A006EDDA3 /* default-img1.jpg */; };
+		1858EAD02482AC8900A69D10 /* delete-icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 1858EACF2482AC8800A69D10 /* delete-icon.png */; };
+		1858EAD22484F51C00A69D10 /* HelpVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1858EAD12484F51C00A69D10 /* HelpVC.swift */; };
+		1858EAD42485113A00A69D10 /* help-icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 1858EAD32485113900A69D10 /* help-icon.png */; };
 		1864AFCD2454A999004F3AED /* ChannelDetailVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1864AFCC2454A999004F3AED /* ChannelDetailVC.swift */; };
 		1864AFCF2454ACEE004F3AED /* sample_detail.png in Resources */ = {isa = PBXBuildFile; fileRef = 1864AFCE2454ACEE004F3AED /* sample_detail.png */; };
 		1869F51924659D5F003153B1 /* SBOpenChatVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1869F51824659D5F003153B1 /* SBOpenChatVC.swift */; };
@@ -152,6 +155,9 @@
 		184A0B522472CC20006EDDA3 /* PaymentHistoryCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = PaymentHistoryCell.xib; sourceTree = "<group>"; };
 		184A0B552473AF8C006EDDA3 /* donation-icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "donation-icon.png"; sourceTree = "<group>"; };
 		184A0B5924741F8A006EDDA3 /* default-img1.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "default-img1.jpg"; sourceTree = "<group>"; };
+		1858EACF2482AC8800A69D10 /* delete-icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "delete-icon.png"; sourceTree = "<group>"; };
+		1858EAD12484F51C00A69D10 /* HelpVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelpVC.swift; sourceTree = "<group>"; };
+		1858EAD32485113900A69D10 /* help-icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "help-icon.png"; sourceTree = "<group>"; };
 		1864AFCC2454A999004F3AED /* ChannelDetailVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChannelDetailVC.swift; sourceTree = "<group>"; };
 		1864AFCE2454ACEE004F3AED /* sample_detail.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = sample_detail.png; sourceTree = "<group>"; };
 		1869F51824659D5F003153B1 /* SBOpenChatVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SBOpenChatVC.swift; sourceTree = "<group>"; };
@@ -648,6 +654,7 @@
 			children = (
 				18D480C42454550100640C1A /* Profile */,
 				18EB81CD244ACC86008EB09A /* DashBoardVC.swift */,
+				1858EAD12484F51C00A69D10 /* HelpVC.swift */,
 			);
 			path = DashBoard;
 			sourceTree = "<group>";
@@ -677,6 +684,8 @@
 				189EBEDC2458190100C52B0E /* drop_down_white.png */,
 				18EB81D5244AD3D2008EB09A /* logo.png */,
 				18D48051244E90B100640C1A /* side_menu.png */,
+				1858EAD32485113900A69D10 /* help-icon.png */,
+				1858EACF2482AC8800A69D10 /* delete-icon.png */,
 				18EB81D6244AD3D2008EB09A /* splash.png */,
 				18EB81D1244AD3D1008EB09A /* icon_twitter.png */,
 				189EBEE424588A1900C52B0E /* back-icon.png */,
@@ -719,7 +728,6 @@
 				1891CA5C244AC82B00EE1E45 /* Frameworks */,
 				1891CA5D244AC82B00EE1E45 /* Resources */,
 				335BAC798DF97301C5416574 /* [CP] Embed Pods Frameworks */,
-				18B8425B247FB91D00FF41AF /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -800,6 +808,7 @@
 				18D4809A24509A5600640C1A /* twitter-icon.png in Resources */,
 				182A5F012460837C00FF6147 /* GoogleService-Info.plist in Resources */,
 				18DA10D12455F8D400E5C9EB /* DBCollectionViewCell.xib in Resources */,
+				1858EAD02482AC8900A69D10 /* delete-icon.png in Resources */,
 				18EB81DB244AD3D2008EB09A /* logo.png in Resources */,
 				18D4809824509A5600640C1A /* sidemenu-bg.png in Resources */,
 				189EBF7E245C086400C52B0E /* Icon-60@2x.png in Resources */,
@@ -840,30 +849,13 @@
 				18D480B72451AA0B00640C1A /* channel1.png in Resources */,
 				1891CA6D244AC82B00EE1E45 /* LaunchScreen.storyboard in Resources */,
 				18D48052244E90B100640C1A /* side_menu.png in Resources */,
+				1858EAD42485113A00A69D10 /* help-icon.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		18B8425B247FB91D00FF41AF /* ShellScript */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 8;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 1;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/FirebaseCrashlytics/run\"\nju07708Iuhtoi6yc\n";
-			showEnvVarsInLog = 0;
-		};
 		1F7D37ABDA7DCAAD48B54C89 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -925,6 +917,7 @@
 				187C58042480EA35008C5E89 /* OpenChannelMessageTableViewCell.swift in Sources */,
 				189EBF392459D25700C52B0E /* UpcomingCell.swift in Sources */,
 				187C57FF2480EA35008C5E89 /* OpenChanannelChatDelegate.swift in Sources */,
+				1858EAD22484F51C00A69D10 /* HelpVC.swift in Sources */,
 				18D480C02452E00500640C1A /* PaymentVC.swift in Sources */,
 				182A5EF7245F057800FF6147 /* FilterCVCell.swift in Sources */,
 				18EB81CE244ACC86008EB09A /* DashBoardVC.swift in Sources */,
@@ -1099,7 +1092,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 1.6;
+				CURRENT_PROJECT_VERSION = 1.7;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = M6U48XKJMW;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -1129,7 +1122,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 1.6;
+				CURRENT_PROJECT_VERSION = 1.7;
 				DEVELOPMENT_TEAM = M6U48XKJMW;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",

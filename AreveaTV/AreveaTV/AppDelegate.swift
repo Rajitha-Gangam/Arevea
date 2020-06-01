@@ -18,6 +18,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate,CLLocationManagerDelegate 
     var USER_EMAIL = "";
     var plan = "";
     var qaURL = "https://qa.arevea.tv/api/user/v1"
+    var qaUploadURL = "https://qa-uploads.arevea.tv/"
     var USER_NAME = "";
     var USER_NAME_FULL = "";
     var isLiveLoad = "0";

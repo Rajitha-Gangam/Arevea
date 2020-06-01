@@ -107,6 +107,7 @@ class ChannelsVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Col
         
         AF.request(url, method: .post,  parameters: params, encoding: JSONEncoding.default,headers:headers)
             .responseJSON { response in
+                self.viewActivity.isHidden = true
                 switch response.result {
                 case .success(let value):
                     if let json = value as? [String: Any] {
@@ -134,13 +135,11 @@ class ChannelsVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Col
                         print("genre:",self.aryFilterGenresData.count)
                         
                         self.collectionViewFilter.reloadData()
-                        self.viewActivity.isHidden = true
                         self.tblMain.reloadData()
                         
                     }
                 case .failure(let error):
                     //print(error)
-                    self.viewActivity.isHidden = true
                     self.showAlert(strMsg: error.localizedDescription)
                 }
         }
@@ -238,6 +237,7 @@ class ChannelsVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Col
         
         AF.request(url, method: .post,  parameters: params, encoding: JSONEncoding.default,headers:headers)
             .responseJSON { response in
+                self.viewActivity.isHidden = true
                 switch response.result {
                 case .success(let value):
                     if let json = value as? [String: Any] {
@@ -248,18 +248,16 @@ class ChannelsVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Col
                             //self.tblFilter.reloadData();
                             let indexSet = IndexSet(integer: 0)//reloading first section
                             self.collectionViewFilter.reloadSections(indexSet)
-                            self.viewActivity.isHidden = true
+                            
                         }else{
                             let strError = json["message"] as? String
                             //print(strError ?? "")
                             self.showAlert(strMsg: strError ?? "")
-                            self.viewActivity.isHidden = true
                         }
                         
                     }
                 case .failure(let error):
                     //print(error)
-                    self.viewActivity.isHidden = true
                     self.showAlert(strMsg: error.localizedDescription)
                 }
         }

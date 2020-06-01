@@ -69,7 +69,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
     var aryFilteredLiveEvents = [Any]();
     var aryFilteredSubCategories = [Any]();
     
-    var arySideMenu : [[String: String]] = [["name":"Home","icon":"home.png"],["name":"My Profile","icon":"user.png"],["name":"Payment History","icon":"donation-icon.png"],["name":"Logout","icon":"logout-icon.png"]];
+    var arySideMenu : [[String: String]] = [["name":"Home","icon":"home.png"],["name":"My Profile","icon":"user.png"],["name":"Payment History","icon":"donation-icon.png"],["name":"Help","icon":"help-icon.png"],["name":"Logout","icon":"logout-icon.png"]];
     
     var aryMainMenu :[[String: String]] = [["name":"House","icon":"channel1.png"],["name":"Bass","icon":"channel1.png"],["name":"Artists","icon":"channel1.png"],["name":"Faq","icon":"channel1.png"],["name":"Logout","icon":"channel1.png"]];
     
@@ -171,6 +171,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
         
         AF.request(url, method: .get, encoding: JSONEncoding.default,headers:headers)
             .responseJSON { response in
+                self.viewActivity.isHidden = true
                 switch response.result {
                 case .success(let value):
                     if let json = value as? [String: Any] {
@@ -181,7 +182,6 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
                     }
                 case .failure(let error):
                     //print(error)
-                    self.viewActivity.isHidden = true
                     self.showAlert(strMsg: error.localizedDescription)
                 }
         }
@@ -195,10 +195,12 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
         headers = [appDelegate.securityKey: appDelegate.securityValue]
         AF.request(url, method: .post,  parameters: inputData,encoding: JSONEncoding.default, headers:headers)
             .responseJSON { response in
+                self.viewActivity.isHidden = true
+
                 switch response.result {
                 case .success(let value):
                     if let json = value as? [String: Any] {
-                        print("getCategoryOrganisations json:",json)
+                        //print("getCategoryOrganisations json:",json)
                         if (json["statusCode"]as? String == "200"){
                             self.arySubCategories = [Any]()
                             self.aryData = json["Data"] as? [Any] ?? [Any]();
@@ -218,18 +220,15 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
                             }else{
                                 self.tblMain.reloadData();
                             }
-                            self.viewActivity.isHidden = true
                         }else{
                             let strError = json["message"] as? String
                             //print(strError ?? "")
                             self.showAlert(strMsg: strError ?? "")
-                            self.viewActivity.isHidden = true
                         }
                         
                     }
                 case .failure(let error):
                     //print(error)
-                    self.viewActivity.isHidden = true
                     self.showAlert(strMsg: error.localizedDescription)
                 }
         }
@@ -316,7 +315,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
                             self.lblUserName.text = self.appDelegate.USER_NAME_FULL
                             self.btnUserName.setTitle(self.appDelegate.USER_NAME, for: .normal)
                             
-                            let strURL = profile_data["profie_pic"]as? String ?? ""
+                            let strURL = profile_data["profile_pic"]as? String ?? ""
                                 if let url = URL(string: strURL){
                                     self.downloadImage(from: url as URL, imageView: self.imgProfilePic)
                                 }else{
@@ -336,6 +335,8 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
             } catch let error as NSError {
                 //print(error)
                 self.showAlert(strMsg: error.localizedDescription)
+                self.viewActivity.isHidden = true
+
             }
             return nil
         }
@@ -549,6 +550,10 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
                 let storyboard = UIStoryboard(name: "Main", bundle: nil);
                 let vc = storyboard.instantiateViewController(withIdentifier: "PaymentHistoryVC") as! PaymentHistoryVC
                 self.navigationController?.pushViewController(vc, animated: true)
+            case "Help":
+                let storyboard = UIStoryboard(name: "Main", bundle: nil);
+                let vc = storyboard.instantiateViewController(withIdentifier: "HelpVC") as! HelpVC
+                self.navigationController?.pushViewController(vc, animated: true)
             default:
                 hideSideMenu()
                 print ("default")
@@ -702,6 +707,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
         headers = [appDelegate.securityKey: appDelegate.securityValue]
         AF.request(url, method: .post,  parameters: params, encoding: JSONEncoding.default,headers:headers)
             .responseJSON { response in
+                self.viewActivity.isHidden = true
                 switch response.result {
                 case .success(let value):
                     if let json = value as? [String: Any] {
@@ -712,18 +718,15 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
                             //self.tblFilter.reloadData();
                             let indexSet = IndexSet(integer: 0)//reloading first section
                             self.collectionViewFilter.reloadSections(indexSet)
-                            self.viewActivity.isHidden = true
                         }else{
                             let strError = json["message"] as? String
                             //print(strError ?? "")
                             self.showAlert(strMsg: strError ?? "")
-                            self.viewActivity.isHidden = true
                         }
                         
                     }
                 case .failure(let error):
                     //print(error)
-                    self.viewActivity.isHidden = true
                     self.showAlert(strMsg: error.localizedDescription)
                 }
         }
@@ -918,6 +921,10 @@ extension DashBoardVC: UICollectionViewDataSource , UICollectionViewDelegateFlow
         
         
     }
-    
+    @IBAction func helpPressed(_ sender: Any){
+        let storyboard = UIStoryboard(name: "Main", bundle: nil);
+                   let vc = storyboard.instantiateViewController(withIdentifier: "HelpVC") as! HelpVC
+        self.navigationController?.pushViewController(vc, animated: true)
+    }
     
 }

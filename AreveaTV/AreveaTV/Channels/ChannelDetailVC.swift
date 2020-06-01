@@ -60,7 +60,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
     var streamVideoCode = ""
     
     var streamId = 0;
-    var buttonNames = ["Info", "Donate", "Share","Profile","Upcoming", "Videos", "Audios"]
+    var buttonNames = ["Comments","Info", "Donate", "Share","Profile","Upcoming", "Videos", "Audios"]
     
     var aryComments = [["name":"Cameron","desc":"Lorem Ipsum is simply dummy text of the printing and typesetting industry"],["name":"Daisy Austin","desc":"Lorem Ipsum is simply dummy text of the printing and typesetting industry"],["name":"Cameron","desc":"Lorem Ipsum is simply dummy text of the printing and typesetting industry"],["name":"Daisy Austin","desc":"Lorem Ipsum is simply dummy text of the printing and typesetting industry"],["name":"Cameron","desc":"Lorem Ipsum is simply dummy text of the printing and typesetting industry"],["name":"Daisy Austin","desc":"Lorem Ipsum is simply dummy text of the printing and typesetting industry"]]
     
@@ -135,7 +135,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
         //print("detail item in channnel page:\(detailItem)")
         hideViews();
         //bottom first object should show
-        viewInfo.isHidden = false;
+        viewComments.isHidden = false;
         viewLiveStream.isHidden = true;
         lblNoDataComments.text = "No results found"
         lblNoDataDonations.text = "No results found"
@@ -255,17 +255,17 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
                 print("key: \(key)")
                 print("value: \(value)")
                 if (value == "Started"){
-                    let name = buttonNames[0]
-                    if (name != "Comments"){
-                        buttonNames.insert("Comments", at: 0)
-                        buttonCVC.reloadData()
-                    }
+//                    let name = buttonNames[0]
+//                    if (name != "Comments"){
+//                        buttonNames.insert("Comments", at: 0)
+//                        buttonCVC.reloadData()
+//                    }
                 }else{
-                    let name = buttonNames[0]
-                    if (name == "Comments"){
-                        buttonNames.remove(at: 0)
-                        buttonCVC.reloadData()
-                    }
+//                    let name = buttonNames[0]
+//                    if (name == "Comments"){
+//                        buttonNames.remove(at: 0)
+//                        buttonCVC.reloadData()
+//                    }
                 }
                 
             }
@@ -846,6 +846,8 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
         
         AF.request(url, method: .post,  parameters: params, encoding: JSONEncoding.default,headers:headers)
             .responseJSON { response in
+                self.viewActivity.isHidden = true
+
                 switch response.result {
                 case .success(let value):
                     if let json = value as? [String: Any] {
@@ -853,17 +855,14 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
                         if (json["statusCode"]as? String == "200"){
                             let signed_url = json["signed_url"] as? String ?? ""
                             self.showVideo(strURL: signed_url);
-                            self.viewActivity.isHidden = true
                         }else{
                             let strError = json["message"] as? String
                             //print(strError ?? "")
                             self.showAlert(strMsg: strError ?? "")
-                            self.viewActivity.isHidden = true
                         }
                     }
                 case .failure(let error):
                     //print(error)
-                    self.viewActivity.isHidden = true
                     self.showAlert(strMsg: error.localizedDescription)
                 }
         }
@@ -939,7 +938,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
     }
     @IBAction func payTip(_ sender: Any) {
         let user_id = UserDefaults.standard.string(forKey: "user_id");
-        let params = ["paymentType": "performer_tip", "user_id": user_id ?? "1", "performer_id":self.performerId] as [String : Any]
+        let params = ["paymentType": "performer_tip", "user_id": user_id ?? "1", "performer_id":self.performerId,"stream_id": streamId] as [String : Any]
         proceedToPayment(params: params)
 
 
@@ -963,11 +962,11 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
            viewActivity.isHidden = false
            AF.request(url, method: .post,  parameters: params,encoding: JSONEncoding.default, headers: headers)
                .responseJSON { response in
+                self.viewActivity.isHidden = true
                    switch response.result {
                    case .success(let value):
                        if let json = value as? [String: Any] {
                         //print("proceedToPayment json:",json)
-                        self.viewActivity.isHidden = true
                         
                            if (json["token"]as? String != nil){
                             let token = json["token"]as? String ?? ""
@@ -978,13 +977,11 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
                                let strError = json["message"] as? String
                                ////print(strError ?? "")
                                self.showAlert(strMsg: strError ?? "")
-                               self.viewActivity.isHidden = true
                            }
                        }
                    case .failure(let error):
                        ////print(error)
                        self.showAlert(strMsg: error.localizedDescription)
-                      self.viewActivity.isHidden = true
                    }
            }
        }
@@ -1092,14 +1089,12 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
             do {
                 let resultObj = try JSONSerialization.jsonObject(with: data, options : .allowFragments)
                 DispatchQueue.main.async {
-                    
-                    //print(resultObj)
+                    self.viewActivity.isHidden = true
                     if let json = resultObj as? [String: Any] {
                        // print("liveEvents json:",json);
                         self.btnViewStream.isHidden = true;
                         if (json["statusCode"]as? String == "200"){
                             //print(json["message"] as? String ?? "")
-                            self.viewActivity.isHidden = true
                             let data = json["Data"] as? [String:Any]
                             let stream_info = data?["stream_info"] != nil
                             if(stream_info){
@@ -1184,7 +1179,6 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
                             let strError = json["message"] as? String
                             print("strError1:",strError ?? "")
                             self.showAlert(strMsg: strError ?? "")
-                            self.viewActivity.isHidden = true
                             self.viewVOD.isHidden = false
                             self.viewLiveStream.isHidden = true;
                         }
@@ -1236,7 +1230,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
             do {
                 let resultObj = try JSONSerialization.jsonObject(with: data, options : .allowFragments)
                 DispatchQueue.main.async {
-                    
+                    self.viewActivity.isHidden = true
                     // print(resultObj)
                     if let json = resultObj as? [String: Any] {
                         //print("performerEvents json:",json);
@@ -1245,12 +1239,10 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
                             self.aryUpcoming = json["Data"] as? [Any] ?? [Any]() ;
                             print("upcoming count:",self.aryUpcoming.count);
                             self.tblUpcoming.reloadData();
-                            self.viewActivity.isHidden = true
                         }else{
                             let strError = json["message"] as? String
                             print("strError2:",strError ?? "")
                             self.showAlert(strMsg: strError ?? "")
-                            self.viewActivity.isHidden = true
                         }
                     }
                 }
@@ -1300,21 +1292,22 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
             do {
                 let resultObj = try JSONSerialization.jsonObject(with: data, options : .allowFragments)
                 DispatchQueue.main.async {
-                    
+                    self.viewActivity.isHidden = true
+
                     //print(resultObj)
                     if let json = resultObj as? [String: Any] {
                         // print("performerVideos json:",json);
+                        print("videos count:",self.aryVideos.count);
+
                         if (json["statusCode"]as? String == "200"){
                             //print(json["message"] as? String ?? "")
                             self.aryVideos = json["Data"] as? [Any] ?? [Any]() ;
                             //print("videos:",self.aryVideos)
                             self.tblVideos.reloadData();
-                            self.viewActivity.isHidden = true
                         }else{
                             let strError = json["message"] as? String
                             print("strError:",strError ?? "")
                             self.showAlert(strMsg: strError ?? "")
-                            self.viewActivity.isHidden = true
                         }
                         
                         
@@ -1366,6 +1359,8 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
                 let resultObj = try JSONSerialization.jsonObject(with: data, options : .allowFragments)
                 DispatchQueue.main.async {
                     //print(resultObj)
+                    self.viewActivity.isHidden = true
+
                     if let json = resultObj as? [String: Any] {
                         //print("performerAudios json:",json);
                         if (json["statusCode"]as? String == "200"){
@@ -1373,12 +1368,10 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
                             self.aryAudios = json["Data"] as? [Any] ?? [Any]() ;
                             print("audios count:",self.aryVideos.count)
                             self.tblAudios.reloadData();
-                            self.viewActivity.isHidden = true
                         }else{
                             let strError = json["message"] as? String
                             print("strError:",strError ?? "")
                             self.showAlert(strMsg: strError ?? "")
-                            self.viewActivity.isHidden = true
                         }
                        
                         

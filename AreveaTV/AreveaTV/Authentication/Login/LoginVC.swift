@@ -50,8 +50,8 @@
         override func viewWillAppear(_ animated: Bool) {
             txtUserName.text = "";
             txtPassword.text = "";
-            txtUserName.text = "grajitha2009@gmail.com";
-            txtPassword.text = "V@rshitha12345";
+//            txtUserName.text = "grajitha2009@gmail.com";
+//            txtPassword.text = "V@rshitha12345";
         }
         
         @IBAction func resignKB(_ sender: Any) {
@@ -265,54 +265,7 @@
                 }
             }
         }
-        // MARK: Handler for getCategoryOrganisations API
-        func getUser2(){
-            let url: String = appDelegate.baseURL +  "/getUser"
-            viewActivity.isHidden = false
-            //print("getCategoryOrganisations input:",inputData)
-            let headers: HTTPHeaders
-            headers = [appDelegate.securityKey: appDelegate.securityValue]
-            let username = UserDefaults.standard.string(forKey: "user_email");
-            let params: [String: Any] = ["email":username ?? ""]
-            AF.request(url, method: .post,  parameters: params,encoding: JSONEncoding.default, headers:headers)
-                .responseJSON { response in
-                    switch response.result {
-                    case .success(let value):
-                        if let json = value as? [String: Any] {
-                            //print("json:",json)
-                            if (json["statusCode"]as? Int == 0){
-                                //print(json["message"] ?? "")
-                                let user = json["user"] as? [String:Any];
-                                // print("user:",user ?? "")
-                                UserDefaults.standard.set(user?["id"], forKey: "user_id")
-                                UserDefaults.standard.set(user?["user_type"], forKey: "user_type")
-                                UserDefaults.standard.set(user?["session_token"], forKey: "session_token")
-                                let fn = user?["user_first_name"] as? String
-                                let ln = user?["user_last_name"]as? String
-                                let strName = String((fn?.first ?? "A")) + String((ln?.first ?? "B"))
-                                UserDefaults.standard.set(user?["session_token"], forKey: "session_token")
-                                self.appDelegate.USER_NAME = strName;
-                                self.appDelegate.USER_NAME_FULL = (fn ?? "") + " " + (ln ?? "")
-                                UserDefaults.standard.set(self.appDelegate.USER_NAME, forKey: "USER_NAME")
-                                UserDefaults.standard.set(self.appDelegate.USER_NAME_FULL, forKey: "USER_NAME_FULL")
-                                self.viewActivity.isHidden = true
-                                self.sendBirdConnect()
-                            }else{
-                                let strError = json["message"] as? String
-                                //print(strError ?? "")
-                                self.showAlert(strMsg: strError ?? "")
-                                self.viewActivity.isHidden = true
-                                self.logout()
-                            }
-                            
-                        }
-                    case .failure(let error):
-                        //print(error)
-                        self.viewActivity.isHidden = true
-                        self.showAlert(strMsg: error.localizedDescription)
-                    }
-            }
-        }
+       
         // MARK: Handler for getUser API, using for filters
         func getUser() {
             let netAvailable = appDelegate.isConnectedToInternet()
@@ -352,7 +305,7 @@
                 do {
                     let resultObj = try JSONSerialization.jsonObject(with: data, options : .allowFragments)
                     DispatchQueue.main.async {
-                        print(resultObj)
+                        self.viewActivity.isHidden = true
                         if let json = resultObj as? [String: Any] {
                             if (json["status"]as? Int == 0){
                                 //print(json["message"] ?? "")
@@ -364,18 +317,15 @@
                                 let fn = user?["user_first_name"] as? String
                                 let ln = user?["user_last_name"]as? String
                                 let strName = String((fn?.first ?? "A")) + String((ln?.first ?? "B"))
-                                UserDefaults.standard.set(user?["session_token"], forKey: "session_token")
                                 self.appDelegate.USER_NAME = strName;
                                 self.appDelegate.USER_NAME_FULL = (fn ?? "") + " " + (ln ?? "")
                                 UserDefaults.standard.set(self.appDelegate.USER_NAME, forKey: "USER_NAME")
                                 UserDefaults.standard.set(self.appDelegate.USER_NAME_FULL, forKey: "USER_NAME_FULL")
-                                self.viewActivity.isHidden = true
                                 self.sendBirdConnect()
                             }else{
                                 let strError = json["message"] as? String
                                 //print(strError ?? "")
                                 self.showAlert(strMsg: strError ?? "")
-                                self.viewActivity.isHidden = true
                                 self.logout()
                             }
                         }

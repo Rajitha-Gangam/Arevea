@@ -99,6 +99,12 @@ class SignUpVC: UIViewController ,UITextFieldDelegate{
         }
         if let error = error as? AWSMobileClientError {
             switch(error) {
+            case .invalidPassword(message: let message):
+                print("==invalidPassword:",message)
+                showAlert(strMsg: message);
+            case .invalidParameter(message: let message):
+                print("==invalidState:",message)
+                showAlert(strMsg: message);
             case .usernameExists(let message):
                 showAlert(strMsg: message);
                 
@@ -206,7 +212,7 @@ class SignUpVC: UIViewController ,UITextFieldDelegate{
         }else if(pwd != cfrmPwd){
             showAlert(strMsg: "password and confirm password did not match");
         }else if(dob.count == 0){
-            showAlert(strMsg: "Please enter date of birth");
+            showAlert(strMsg: "Please select date of birth");
         }else{
             viewActivity.isHidden = false
             //username value shoulb be like email

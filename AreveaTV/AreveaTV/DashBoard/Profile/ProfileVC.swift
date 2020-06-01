@@ -11,33 +11,61 @@ import AWSMobileClient
 import Alamofire
 
 class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDelegate,UINavigationControllerDelegate {
-     // MARK: - Variables Declaration
+    // MARK: - Variables Declaration
     @IBOutlet weak var txtFirstName: UITextField!
     @IBOutlet weak var txtLastName: UITextField!
     @IBOutlet weak var txtPhone: UITextField!
     @IBOutlet weak var txtEmail: UITextField!
+    @IBOutlet weak var txtDisplayName: UITextField!
+    @IBOutlet weak var txtDOB: UITextField!
+    
     let appDelegate = UIApplication.shared.delegate as! AppDelegate
     
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
-    @IBOutlet var btnProfilePic: UIButton!
-    @IBOutlet var btnUpload: UIButton!
+    @IBOutlet weak var btnProfilePic: UIButton!
+    @IBOutlet weak var btnUpload: UIButton!
     // var choosenImage = UIImage?.self
-    @IBOutlet var imgProfilePic: UIImageView!
+    @IBOutlet weak var imgProfilePic: UIImageView!
     var imagePickerController = UIImagePickerController()
     @IBOutlet weak var viewActivity: UIView!
+    @IBOutlet weak var scrollView: UIScrollView!
     
+    let datePickerView = UIDatePicker()
+    var strProfilePicURL = ""
+    @IBOutlet weak var btnDelete: UIButton!
+
     // MARK: - View Life cycle
     override func viewDidLoad() {
         super.viewDidLoad()
         viewActivity.isHidden = true
-        // Do any additional setup after loading the view.
+       //Do any additional setup after loading the view.
         addDoneButton();
         getProfile();
         btnUpload.isHidden = true
         imagePickerController.delegate = self
         imgProfilePic.contentMode = .scaleAspectFill
+        datePickerView.datePickerMode = .date
+        datePickerView.addTarget(self, action: #selector(selectDate(sender:)), for: .valueChanged)
+        datePickerView.maximumDate = Date()
+        txtDOB.inputView = datePickerView
+        scrollView.contentSize = CGSize(width: self.view.frame.size.width,height: 1000); //sets ScrollView content size
+        btnDelete.isHidden = true;
+        
     }
-    
+    override func viewDidAppear(_ animated: Bool) {
+//        scrollView.contentSize = CGSize(width: 320,height: 1000);
+//        scrollView.contentInset = UIEdgeInsets(top: 64.0,left: 0.0,bottom: 44.0,right: 0.0);
+        
+    }
+    override func viewWillLayoutSubviews(){
+        super.viewWillLayoutSubviews()
+        //scrollView.contentSize = CGSize(width: 375, height: 1500)
+    }
+    @objc func selectDate(sender: UIDatePicker){
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "YYYY-MM-dd"
+        txtDOB.text = dateFormatter.string(from: sender.date)
+    }
     @IBAction func back(_ sender: Any) {
         self.navigationController?.popViewController(animated: true)
     }
@@ -64,14 +92,21 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
         let firstName = txtFirstName.text!.trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
         let lastName = txtLastName.text!.trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
         let phone = txtPhone.text!.trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
+        let displayName = txtDisplayName.text!.trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
+        let dob = txtDOB.text!
+        
         if (firstName.count == 0){
             showAlert(strMsg: "Please enter first name");
         }else if (lastName.count == 0){
             showAlert(strMsg: "Please enter last name");
         }else if (phone.count == 0){
             showAlert(strMsg: "Please enter phone number");
-        }else if (phone.count != 13){
+        }else if (phone.count != 12 && phone.count != 13){
             showAlert(strMsg: "Please enter valid phone number");
+        }else if (displayName.count == 0){
+            showAlert(strMsg: "Please enter display name");
+        }else if (dob.count == 0){
+            showAlert(strMsg: "Please select date of birth");
         }else{
             setProfile()
         }
@@ -81,6 +116,8 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
         txtLastName.resignFirstResponder();
         txtEmail.resignFirstResponder();
         txtPhone.resignFirstResponder();
+        txtDOB.resignFirstResponder();
+        txtDisplayName.resignFirstResponder();
     }
     func addDoneButton() {
         let toolbar =  UIToolbar(frame: CGRect(x: 0, y: 0, width: view.frame.size.width, height: 35))
@@ -94,6 +131,8 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
         txtLastName.inputAccessoryView = toolbar;
         txtPhone.inputAccessoryView = toolbar;
         txtEmail.inputAccessoryView = toolbar;
+        txtDOB.inputAccessoryView = toolbar;
+        txtDisplayName.inputAccessoryView = toolbar;
     }
     func showAlert(strMsg: String){
         let alert = UIAlertController(title: "Alert", message: strMsg, preferredStyle: .alert)
@@ -165,21 +204,29 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
                         if (json["status"]as? Int == 0){
                             //print(json["message"] ?? "")
                             let profile_data = json["profile_data"] as? [String:Any] ?? [:]
-                                self.txtEmail.text = UserDefaults.standard.string(forKey: "user_email");
-                                
+                            self.txtEmail.text = UserDefaults.standard.string(forKey: "user_email");
+                            
                             self.txtFirstName.text = profile_data["user_first_name"] as? String
                             self.txtLastName.text = profile_data["user_last_name"]as? String
                             self.txtPhone.text = profile_data["user_phone_number"]as? String
-                                
-                            let strURL = profile_data["profie_pic"]as? String ?? ""
-                                if let url = URL(string: strURL){
-                                      self.downloadImage(from: url as URL, imageView: self.imgProfilePic)
-                                }else{
-                                    self.viewActivity.isHidden = true
-                                }
-                                
                             
-
+                            let dob = profile_data["date_of_birth"]as? String ?? ""
+                            self.txtDOB.text = dob;
+                            self.txtDisplayName.text = profile_data["user_display_name"]as? String
+                            
+                            let dateFormatter = DateFormatter()
+                            dateFormatter.dateFormat = "YYYY-MM-dd"
+                            let date = dateFormatter.date(from: dob)
+                            self.datePickerView.date = date ?? Date()
+                            let strURL = profile_data["profile_pic"]as? String ?? ""
+                            self.strProfilePicURL = strURL
+                            self.btnDelete.isHidden = true;
+                            if let url = URL(string: strURL){
+                                self.downloadImage(from: url as URL, imageView: self.imgProfilePic)
+                                self.btnDelete.isHidden = false;
+                            }else{
+                                self.viewActivity.isHidden = true
+                            }
                         }else{
                             let strError = json["message"] as? String
                             //print(strError ?? "")
@@ -193,6 +240,7 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
             } catch let error as NSError {
                 //print(error)
                 self.showAlert(strMsg: error.localizedDescription)
+                self.viewActivity.isHidden = true
             }
             return nil
         }
@@ -204,17 +252,19 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
             showAlert(strMsg: "Please check your internet connection!")
             return
         }
-       viewActivity.isHidden = false
+        viewActivity.isHidden = false
         let firstName = txtFirstName.text!.trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
         let lastName = txtLastName.text!.trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
         let phone = txtPhone.text!.trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
+        let displayName = txtDisplayName.text!.trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
+        let dob = txtDOB.text!
         
         let httpMethodName = "POST"
         let URLString: String = "/setProfile"
         let user_id = UserDefaults.standard.string(forKey: "user_id");
         let user_email = UserDefaults.standard.string(forKey: "user_email");
         
-        let params: [String: Any] = ["user_id":user_id ?? "","user_first_name":firstName,"user_last_name":lastName,"user_phone_number":phone,"user_email":user_email!]
+        let params: [String: Any] = ["user_id":user_id ?? "","user_first_name":firstName,"user_last_name":lastName,"user_phone_number":phone,"user_email":user_email!,"user_display_name":displayName,"date_of_birth":dob]
         print("params:",params)
         let headerParameters = [
             "Content-Type": "application/json",
@@ -246,10 +296,11 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
                     //print(resultObj)
                     if let json = resultObj as? [String: Any] {
                         print(json)
+                        self.viewActivity.isHidden = true
+
                         if (json["status"]as? Int == 0){
                             //print(json["message"] ?? "")
                             self.showAlert(strMsg:"Profile updated successfully")
-                            self.viewActivity.isHidden = true
                             self.navigationController?.popViewController(animated: true);
                             let fn = self.txtFirstName.text!
                             let ln = self.txtLastName.text!
@@ -262,7 +313,6 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
                             let strError = json["message"] as? String
                             //print(strError ?? "")
                             self.showAlert(strMsg: strError ?? "")
-                            self.viewActivity.isHidden = true
                         }
                         
                     }
@@ -354,24 +404,24 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
         return true;
     }
     func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
-          if (textField == txtPhone){
-              let maxLength = 13
-              let currentString: NSString = textField.text! as NSString
-              let newString: NSString =
-                  currentString.replacingCharacters(in: range, with: string) as NSString
-              if range.length>0  && range.location == 0 {
-                      return false
-                  }
-              
-              return newString.length <= maxLength
-          }
-          return true;
-      }
+        if (textField == txtPhone){
+            let maxLength = 13
+            let currentString: NSString = textField.text! as NSString
+            let newString: NSString =
+                currentString.replacingCharacters(in: range, with: string) as NSString
+            if range.length>0  && range.location == 0 {
+                return false
+            }
+            
+            return newString.length <= maxLength
+        }
+        return true;
+    }
     // MARK: Keyboard  Delegate Methods
     
     func animateTextField(textField: UITextField, up: Bool)
     {
-        let movementDistance:CGFloat = -130
+        let movementDistance:CGFloat = -150
         var movement:CGFloat = 0
         if up
         {
@@ -428,11 +478,14 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
             return
         }
         viewActivity.isHidden = false
-        let url = "https://qa.arevea.tv/api/user/v1/uploadFile" /* your API url */
+        let url = appDelegate.qaURL + "/uploadFile" /* your API url */
         //  let url = "https://eku2g4rzxl.execute-api.us-west-2.amazonaws.com/dev/uploadProfilePic" /* your API url */
-        let headers: HTTPHeaders = [
-            "Content-type": "multipart/form-data",
-            appDelegate.securityKey: appDelegate.securityValue]
+        let session_token = UserDefaults.standard.string(forKey: "session_token") ?? ""
+
+        //let headers: HTTPHeaders
+        //headers = [appDelegate.securityKey: appDelegate.securityValue]
+        let headers: HTTPHeaders = ["Content-type": "multipart/form-data","access_token": session_token]
+
         let user_id = UserDefaults.standard.string(forKey: "user_id");
         
         let params: [String: Any] = ["user_id":user_id ?? "","image_for":"profile"]
@@ -451,7 +504,7 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
             multipartFormData.append(imageData!, withName: "image", fileName: "profile_pic.png", mimeType: "image/png")
         }, to: url, usingThreshold: UInt64.init(),
            method: .post,headers: headers).responseJSON{ response in
-            print(response)
+            self.viewActivity.isHidden = true
             switch response.result {
             case .success(let value):
                 if let json = value as? [String: Any] {
@@ -459,22 +512,81 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
                     if (json["status"]as? Int == 0){
                         //print(json["message"] ?? "")
                         self.showAlert(strMsg:"Profile picture updated successfully")
-                        self.viewActivity.isHidden = true
+                        let strURL = json["path"]as? String ?? ""
+                        self.strProfilePicURL = strURL
                         UserDefaults.standard.set("false", forKey: "is_profile_pic_loaded_left_menu")
-                        
+                        self.btnUpload.isHidden = true;
+                        self.btnDelete.isHidden = false;
                     }else{
                         let strError = json["message"] as? String
                         //print(strError ?? "")
                         self.showAlert(strMsg: strError ?? "")
-                        self.viewActivity.isHidden = true
                     }
                 }
             case .failure(let error):
                 //print(error)
-                self.viewActivity.isHidden = true
                 self.showAlert(strMsg: error.localizedDescription)
-                
             }
+        }
+    }
+    func showConfirmation(strMsg: String){
+        let alert = UIAlertController(title: "Alert", message: strMsg, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "No", style: .cancel, handler: nil))
+        
+        alert.addAction(UIAlertAction(title: "Yes", style: .default, handler: { action in
+            self.deleteProfilePic()
+            //self.showAlert(strMsg: "API is in progress, Please try again later.")
+        }))
+        DispatchQueue.main.async {
+            self.present(alert, animated: true)
+        }
+    }
+    @IBAction func deleteProfilePicTapped(_ sender: Any){
+        showConfirmation(strMsg: "Are you sure you want delete profile picture?")
+    }
+    // MARK: Handler for deleteSelectedFile API
+    func deleteProfilePic(){
+        
+        let url: String = appDelegate.qaURL +  "/deleteSelectedFile"
+        viewActivity.isHidden = false
+        //print("getCategoryOrganisations input:",inputData)
+        let session_token = UserDefaults.standard.string(forKey: "session_token") ?? ""
+
+       //let headers: HTTPHeaders = ["access_token": session_token]
+        let user_id = UserDefaults.standard.string(forKey: "user_id");
+        //appDelegate.qaUploadURL/profile/1590754622840_profile_pic.png
+        let profile_pic_name = self.strProfilePicURL.replacingOccurrences(of:appDelegate.qaUploadURL, with: "")//profile/1590754622840_profile_pic.png
+        print("profile_pic_name:",profile_pic_name)
+        let params: [String: Any] = ["delete_for":"profile_pic","image_name":profile_pic_name,"user_id":user_id ?? ""]
+        let headers: HTTPHeaders
+        headers = ["access_token": session_token]
+        AF.request(url, method: .post,  parameters: params,encoding: JSONEncoding.default, headers:headers)
+            .responseJSON { response in
+                self.viewActivity.isHidden = true
+
+                switch response.result {
+                case .success(let value):
+                    if let json = value as? [String: Any] {
+                        //print("deleteSelectedFile json:",json)
+                        if (json["status"]as? Int == 0){
+                            self.showAlert(strMsg: "Profile picture deleted successfully")
+                            self.imgProfilePic.image = UIImage.init(named:"default.png")
+                            self.btnDelete.isHidden = true;
+                            self.btnUpload.isHidden = true;
+                            UserDefaults.standard.set("false", forKey: "is_profile_pic_loaded_left_menu")
+                        }else{
+                            //this one should hide later once API works
+                             UserDefaults.standard.set("false", forKey: "is_profile_pic_loaded_left_menu")
+                            
+                            let strError = json["message"] as? String
+                            //print(strError ?? "")
+                            self.showAlert(strMsg: strError ?? "")
+                        }
+                    }
+                case .failure(let error):
+                    //print(error)
+                    self.showAlert(strMsg: error.localizedDescription)
+                }
         }
     }
 }
