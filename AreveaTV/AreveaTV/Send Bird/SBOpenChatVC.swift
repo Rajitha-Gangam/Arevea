@@ -276,7 +276,6 @@ class SBOpenChatVC: UIViewController,UITableViewDelegate,UITableViewDataSource,O
                 DispatchQueue.main.async {
                     guard let updateCell = tableView.cellForRow(at: indexPath) else { return }
                     guard let updateUserMessageCell = updateCell as? OpenChannelUserMessageTableViewCell else { return }
-                    
                     //updateUserMessageCell.profileImageView.setProfileImageView(for: sender)
                 }
                 

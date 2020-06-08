@@ -22,23 +22,92 @@ class SubscribeTest: BaseTest {
     var publisherIsInBackground = false
     var publisherIsDisconnected = false
     var serverAddress = ""
+    
+    
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         // Do any additional setup after loading the view.
+
     }
-    func findStream(){
+    func showAlert(strMsg: String){
+        let alert = UIAlertController(title: "Alert", message: strMsg, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
         
-        let port = String(Testbed.getParameter(param:"port") as! Int);
+        DispatchQueue.main.async {
+            self.present(alert, animated: true)
+        }
+    }
+    func metaLive(){
+        let netAvailable = appDelegate.isConnectedToInternet()
+        if(!netAvailable){
+            showAlert(strMsg: "Please check your internet connection!")
+            return
+        }
+        let host = Testbed.getParameter(param:"host") as! String;
+        let version = Testbed.getParameter(param:"sm_version") as! String;
+        let stream1 = Testbed.getParameter(param:"stream1") as! String;
+        let accessToken = "YEOkGmERp08V"
+
+       // https://livestream.arevea.tv/streammanager/api/4.0/admin/event/meta/live/<stream_video_code>/?accessToken=YEOkGmERp08V
+        let url = "https://" + host  + "/streammanager/api/" + version + "/admin/event/meta/live/" + stream1 + "?accessToken=" + accessToken
+        print("url",url)
+        //let stream = "1588832196500_taylorswiftevent"
+        
+        AF.request(url,method: .get, encoding: JSONEncoding.default)
+            .responseJSON { response in
+                switch response.result {
+                case .success(let value):
+                    DispatchQueue.main.async {
+                        print("metaLive Response:",value)
+                        if let json = value as? [String: Any] {
+                            if json["errorMessage"] != nil{
+                                // ALToastView.toast(in: self.view, withText:errorMsg as? String ?? "")
+                                //let error = "Unable to locate stream. Broadcast has probably not started for this stream: " + stream1
+                                   // ALToastView.toast(in: self.view, withText: error)
+                                    let streamInfo = ["Stream": "not_available"]
+                                                              NotificationCenter.default.post(name: .didReceiveStreamData, object: self, userInfo: streamInfo)
+                            }else{
+                                let data = json["data"] as? [String:Any]
+                                let meta = data?["meta"] as? [String:Any]
+                                let stream = meta?["stream"] as? [Any] ?? [Any]()
+                                if (stream.count > 0){
+                                    let lastStreamObj = stream[stream.count - 1] as? [String:Any]
+                                    let strName = lastStreamObj?["name"] as? String ?? ""
+                                    print("lastStreamObj name:",strName)
+                                    self.findStream(streamName: strName)
+                                    
+                                }else{
+                                    let streamInfo = ["Stream": "not_available"]
+                                    NotificationCenter.default.post(name: .didReceiveStreamData, object: self, userInfo: streamInfo)
+                                }
+                            }
+                        }
+                    }
+                    
+                
+                case .failure(let error):
+                    print("error occured in metaLive:",error)
+                }
+        }
+        
+    }
+    func findStream(streamName: String){
+        let netAvailable = appDelegate.isConnectedToInternet()
+        if(!netAvailable){
+            showAlert(strMsg: "Please check your internet connection!")
+            return
+        }
+        _ = String(Testbed.getParameter(param:"port") as! Int);
         let host = Testbed.getParameter(param:"host") as! String;
         let version = Testbed.getParameter(param:"sm_version") as! String;
         let context = Testbed.getParameter(param:"context") as! String;
         let stream1 = Testbed.getParameter(param:"stream1") as! String;
         
         let url = "https://" + host  + "/streammanager/api/" + version + "/event/" +
-            context + "/" + stream1 + "?action=subscribe&region=" + appDelegate.strRegionCode;
+            context + "/" + streamName + "?action=subscribe&region=" + appDelegate.strRegionCode;
         //let url = "https://livestream.arevea.tv/streammanager/api/4.0/event/live/1588788669277_somethingnew?action=subscribe"
-        print("url",url)
+        print("findStream url:",url)
         //let stream = "1588832196500_taylorswiftevent"
         
         AF.request(url,method: .get, encoding: JSONEncoding.default)
@@ -51,13 +120,15 @@ class SubscribeTest: BaseTest {
                     if let json = value as? [String: Any] {
                         if json["errorMessage"] != nil{
                             // ALToastView.toast(in: self.view, withText:errorMsg as? String ?? "")
-                            let error = "Unable to locate stream. Broadcast has probably not started for this stream: " + stream1
+                            //let error = "Unable to locate stream. Broadcast has probably not started for this stream: " + stream1
                             DispatchQueue.main.async {
-                                ALToastView.toast(in: self.view, withText: error)
+                               // ALToastView.toast(in: self.view, withText: error)
+                                let streamInfo = ["Stream": "not_available"]
+                                                          NotificationCenter.default.post(name: .didReceiveStreamData, object: self, userInfo: streamInfo)
                             }
                         }else{
                             self.serverAddress = json["serverAddress"] as? String ?? ""
-                            self.config(url: self.serverAddress,stream:stream1)
+                            self.config(url: self.serverAddress,stream:streamName)
                         }
                     }
                 
@@ -67,7 +138,7 @@ class SubscribeTest: BaseTest {
         }
     }
     func config(url:String,stream:String){
-        let streamInfo = ["Stream": "Started"]
+        let streamInfo = ["Stream": "started"]
         NotificationCenter.default.post(name: .didReceiveStreamData, object: self, userInfo: streamInfo)
 
         let config = getConfig(url: url)
@@ -88,7 +159,7 @@ class SubscribeTest: BaseTest {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         
-        findStream()
+        metaLive()
         setupDefaultR5VideoViewController()
         
         
@@ -231,7 +302,7 @@ class SubscribeTest: BaseTest {
                     self.subscribeStream!.stop()
                     ALToastView.toast(in: self.view, withText:"publisher has unpublished. possibly from background/interrupt")
                     
-                    let streamInfo = ["Stream": "Stopped"]
+                    let streamInfo = ["Stream": "stopped"]
                            NotificationCenter.default.post(name: .didReceiveStreamData, object: self, userInfo: streamInfo)
                 }
                 self.reconnect()
@@ -320,7 +391,7 @@ class SubscribeTest: BaseTest {
                 return
             }
         }
-        findStream()
+        metaLive()
     }
     
     override func viewWillDisappear(_ animated: Bool) {

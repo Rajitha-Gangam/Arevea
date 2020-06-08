@@ -16,7 +16,6 @@ class PaymentHistoryVC: UIViewController, UITableViewDelegate,UITableViewDataSou
     @IBOutlet weak var viewActivity: UIView!
     let appDelegate = UIApplication.shared.delegate as! AppDelegate
     var aryPaymentInfo = [Any]()
-    @IBOutlet weak var btnUserName: UIButton!
     @IBOutlet weak var lblNoData: UILabel!
 
     // MARK: View Life Cycle
@@ -26,7 +25,6 @@ class PaymentHistoryVC: UIViewController, UITableViewDelegate,UITableViewDataSou
         // Do any additional setup after loading the view.
         tblView.register(UINib(nibName: "PaymentHistoryCell", bundle: nil), forCellReuseIdentifier: "PaymentHistoryCell")
         userDonations()
-        self.btnUserName.setTitle(appDelegate.USER_NAME, for: .normal)
 
     }
     
@@ -76,7 +74,7 @@ class PaymentHistoryVC: UIViewController, UITableViewDelegate,UITableViewDataSou
             
         }
         let dateCreated = charity?["created_on"] as? String ?? ""
-        cell.lblAmount.text = "$" + String(charity?["amount"] as? Int ?? 0)
+        cell.lblAmount.text = "$" + String(charity?["amount"] as? Double ?? 0.0)
         
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
@@ -147,20 +145,19 @@ class PaymentHistoryVC: UIViewController, UITableViewDelegate,UITableViewDataSou
                 let resultObj = try JSONSerialization.jsonObject(with: data, options : .allowFragments)
                 DispatchQueue.main.async {
                     if let json = resultObj as? [String: Any] {
-                        print("json:",json)
+                        //print("json:",json)
+                        self.viewActivity.isHidden = true
                         if (json["statusCode"]as? String == "200"){
                             ////print(json["message"] ?? "")
                             var paymentData = [Any]()
                             paymentData = json["Data"] as? [Any] ?? [Any]()
                             self.aryPaymentInfo = paymentData;
                             self.tblView.reloadData()
-                            self.viewActivity.isHidden = true
                         }
                         else{
                             let strError = json["message"] as? String
                             ////print(strError ?? "")
                             self.showAlert(strMsg: strError ?? "")
-                            self.viewActivity.isHidden = true
                         }
                     }
                 }
@@ -168,6 +165,8 @@ class PaymentHistoryVC: UIViewController, UITableViewDelegate,UITableViewDataSou
             catch let error as NSError {
                 ////print(error)
                 self.showAlert(strMsg: error.localizedDescription)
+                self.viewActivity.isHidden = true
+
             }
             return nil
         }

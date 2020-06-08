@@ -57,7 +57,7 @@ class DashBoardCell: UITableViewCell, UICollectionViewDataSource, UICollectionVi
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return self.rowWithItems.count ?? 0
+        return self.rowWithItems.count
     }
     
     func numberOfSections(in collectionView: UICollectionView) -> Int {
@@ -75,6 +75,8 @@ class DashBoardCell: UITableViewCell, UICollectionViewDataSource, UICollectionVi
             else if (strController == "dashboard"){
                 cell.nameLabel.text = arySub["organization_name"]as? String;
                 
+            }else if(strController == "dashboard_search"){
+                cell.nameLabel.text = arySub["name"]as? String;
             }else if (strController == "channels"){
                // print("arySub:",arySub)
                 if (arySub["performer_display_name"] as? String) != nil

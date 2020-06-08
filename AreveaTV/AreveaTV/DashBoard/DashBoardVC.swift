@@ -48,7 +48,6 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
     
     let appDelegate = UIApplication.shared.delegate as! AppDelegate
     
-    var pickerView :UIPickerView!
     var aryData = [Any]();
     var arySubCategories = [Any]();
     var aryChannelData = [Any]();
@@ -71,19 +70,10 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
     
     var arySideMenu : [[String: String]] = [["name":"Home","icon":"home.png"],["name":"My Profile","icon":"user.png"],["name":"Payment History","icon":"donation-icon.png"],["name":"Help","icon":"help-icon.png"],["name":"Logout","icon":"logout-icon.png"]];
     
-    var aryMainMenu :[[String: String]] = [["name":"House","icon":"channel1.png"],["name":"Bass","icon":"channel1.png"],["name":"Artists","icon":"channel1.png"],["name":"Faq","icon":"channel1.png"],["name":"Logout","icon":"channel1.png"]];
-    
-    var arySections = [["name":"Live Events"],["name":"Artist   s"],["name":"Channels"],["name":"Continue Watching"]];
-    
-    
-    //var aryFilterSections = ["Categories","Sub Categories","Genres"];
-    var buttonNames = ["Comments", "Info", "Tip", "Share","Profile","Upcoming", "Videos", "Audios", "Followers"]
-    
     var sectionFilters = ["Categories","Sub Categories","Genres"]
     var genreId = 0;
     var isSelectedGenre = false;
     //MARK:View Life Cycle Methods
-    var chips = ["Section 0","test","hi","how r u","ghfyjgujhikn","bcuyjhbkjhuyfdtxesdfyt"]
     var searchActive : Bool = false
     var searchToggle : Bool = false
     @IBOutlet weak var searchBar: UISearchBar!
@@ -320,6 +310,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
                                     self.downloadImage(from: url as URL, imageView: self.imgProfilePic)
                                 }else{
                                     self.viewActivity.isHidden = true
+                                    self.imgProfilePic.image = UIImage.init(named: "default.png")
                                 }
                                 
                         }else{
@@ -842,7 +833,10 @@ extension DashBoardVC: UICollectionViewDataSource , UICollectionViewDelegateFlow
     
     //MARK: UISearchbar delegate
     @IBAction func searchTapped(_ sender: UIButton){
-        searchToggle = !searchToggle
+        let storyboard = UIStoryboard(name: "Main", bundle: nil);
+        let vc = storyboard.instantiateViewController(withIdentifier: "SearchViewController") as! SearchViewController
+        self.navigationController?.pushViewController(vc, animated: true)
+        /*searchToggle = !searchToggle
         searchBar.text = "";
         if(!mdChipCard.isHidden){
             mdChipCard.isHidden = true;
@@ -859,7 +853,7 @@ extension DashBoardVC: UICollectionViewDataSource , UICollectionViewDelegateFlow
                 searchActive = false;
                 tblMain.reloadData()
             }
-        }
+        }*/
         
     }
     func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {

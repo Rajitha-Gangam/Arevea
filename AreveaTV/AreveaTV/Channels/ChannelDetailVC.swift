@@ -91,7 +91,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
     @IBOutlet weak var lblNoDataAudios: UILabel!
     @IBOutlet weak var lblNoDataFollowers: UILabel!
     @IBOutlet weak var lblTitle: UILabel!
-    
+
     
     // MARK: - Live Chat Inputs
     var channel: SBDOpenChannel?
@@ -125,6 +125,13 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
     @IBOutlet weak var btnViewStream: UIButton!
     var superPerformerID = 0;
     var superOrgID = 0;
+    @IBOutlet weak var imgStreamThumbNail: UIImageView!
+    @IBOutlet weak var btnPlayStream: UIButton!
+    @IBOutlet weak var lblStreamUnavailable: UILabel!
+    var isStream = true;
+    var isChannelAvailable = false;
+    var isUpcoming = false;
+
     // MARK: - View Life cycle
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -137,7 +144,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
         //bottom first object should show
         viewComments.isHidden = false;
         viewLiveStream.isHidden = true;
-        lblNoDataComments.text = "No results found"
+        lblNoDataComments.text = ""
         lblNoDataDonations.text = "No results found"
         lblNoDataUpcoming.text = "No results found"
         lblNoDataVideos.text = "No results found"
@@ -149,14 +156,16 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
         
         superOrgID = orgId;
         superPerformerID = performerId;
+       // inputMessageTextField.textInputMode?.primaryLanguage = "emoji"
     }
     //Handler for View Live Stream Button Action
-    @IBAction func showLiveStream(){
+    @IBAction func viewLiveStreamTapped(){
         stopVideo()
         self.btnViewStream.isHidden = true;
         self.viewVOD.isHidden = true
         self.viewLiveStream.isHidden = false;
         isVOD = false;
+        isUpcoming = false;
         performerId = superPerformerID
         orgId = superOrgID
         streamId = 0;
@@ -209,11 +218,15 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
     
     func sendBirdChatConfig(){
         channelName = streamVideoCode
+        print("channelName in sendBirdChatConfig:",channelName)
         SBDOpenChannel.getWithUrl(channelName, completionHandler: { (openChannel, error) in
             guard error == nil else {   // Error.
+                self.messages.removeAll()
+                self.channel = nil
+                self.isChannelAvailable = false
+                self.tblComments.reloadData()
                 return
             }
-            
             self.channel = openChannel
             self.title = self.channel?.name
             self.loadPreviousMessages(initial: true)
@@ -254,20 +267,22 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
                 //value Stopped/Started
                 print("key: \(key)")
                 print("value: \(value)")
-                if (value == "Started"){
-//                    let name = buttonNames[0]
-//                    if (name != "Comments"){
-//                        buttonNames.insert("Comments", at: 0)
-//                        buttonCVC.reloadData()
-//                    }
-                }else{
-//                    let name = buttonNames[0]
-//                    if (name == "Comments"){
-//                        buttonNames.remove(at: 0)
-//                        buttonCVC.reloadData()
-//                    }
-                }
                 
+                if (value == "started"){
+                    btnPlayStream.isHidden = true;
+                    isChannelAvailable = true
+                    tblComments.reloadData()
+                }else if(value == "stopped"){
+                    //lblStreamUnavailable.text = "publisher has unpublished. possibly from background/interrupt"
+                    isChannelAvailable = false;
+                    btnPlayStream.isHidden = true;
+                    tblComments.reloadData()
+                }else if(value == "not_available"){
+                    lblStreamUnavailable.text = "Video streaming is currently unavailable. Please try again later"
+                    btnPlayStream.setImage(UIImage.init(named: "refresh-icon.png"), for: .normal)
+                    btnPlayStream.isHidden = false;
+                    isChannelAvailable = false
+                }
             }
         }
     }
@@ -345,6 +360,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
             
             MUXSDKStats.monitorAVPlayerViewController(controller, withPlayerName: "Player Name", playerData: playerData!, videoData: videoData)
         }else{
+            btnViewStream.isHidden = false;
             print("Invalid URL")
             showAlert(strMsg: "Unable to play video due to invalid URL.")
         }
@@ -560,10 +576,18 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
             return aryCharityInfo.count;
         }
         else if(tableView == tblComments){
-            if (self.messages.count > 0){
-                lblNoDataComments.isHidden = true
+//            if (self.messages.count > 0){
+//                lblNoDataComments.isHidden = true
+//            }else{
+//                lblNoDataComments.isHidden = false
+//            }
+            if (isChannelAvailable){
+                tblComments.isHidden = false
+                lblNoDataComments.text = ""
             }else{
-                lblNoDataComments.isHidden = false
+                tblComments.isHidden = true
+                lblNoDataComments.text = "Channel is unavailable"
+
             }
             return self.messages.count;
         }
@@ -693,8 +717,8 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
                     DispatchQueue.main.async {
                         guard let updateCell = tableView.cellForRow(at: indexPath) else { return }
                         guard updateCell is OpenChannelUserMessageTableViewCell else { return }
-                        
-                        //updateUserMessageCell.profileImageView.setProfileImageView(for: sender)
+
+                       // updateUserMessageCell.profileImageView.setProfileImageView(for: sender)
                     }
                     
                     cell = userMessageCell
@@ -733,16 +757,20 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
         //           let storyboard = UIStoryboard(name: "Main", bundle: nil);
         //           let vc = storyboard.instantiateViewController(withIdentifier: "ChannelDetailVC") as! ChannelDetailVC
         //           self.navigationController?.pushViewController(vc, animated: true)
+        tableView.deselectRow(at: indexPath, animated: true)
         if (tableView == tblUpcoming){
             closeStream()
             stopVideo()
-
+            lblStreamUnavailable.text = "";
+            btnPlayStream.isHidden = true;
+            
             let upcoming = self.aryUpcoming[indexPath.row] as? [String : Any];
             self.performerId = upcoming?["performer_id"]as? Int ?? 0
             self.streamId = upcoming?["videoId"] as? Int ?? 0
             self.streamVideoCode = upcoming?["streamCode"] as? String ?? ""
             print("self.streamVideoCode:",self.streamVideoCode)
             isVOD = false;
+            isUpcoming = true;
             liveEvents()
             /*let streamVideoTitle = upcoming?["streamTitle"] as? String ?? ""
             let streamVideoDesc = upcoming?["streamDescription"] as? String ?? ""
@@ -784,6 +812,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
         let url = upcoming?["videoUrl"] as? String ?? ""
         videoUrl = url
         isVOD = true;
+        btnViewStream.isHidden = false;
         liveEvents()
         /*let streamVideoTitle = upcoming?["videoTitle"] as? String ?? ""
         let streamVideoDesc = upcoming?["videoDescription"] as? String ?? ""
@@ -912,7 +941,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
     
     func animateTextField(textField: UITextField, up: Bool)
     {
-        let movementDistance:CGFloat = -400
+        let movementDistance:CGFloat = -300
         var movement:CGFloat = 0
         if up
         {
@@ -1091,7 +1120,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
                 DispatchQueue.main.async {
                     self.viewActivity.isHidden = true
                     if let json = resultObj as? [String: Any] {
-                       // print("liveEvents json:",json);
+                        print("liveEvents json:",json);
                         self.btnViewStream.isHidden = true;
                         if (json["statusCode"]as? String == "200"){
                             //print(json["message"] as? String ?? "")
@@ -1100,13 +1129,21 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
                             if(stream_info){
                                 self.aryStreamInfo = data?["stream_info"] as? [Any] ?? [Any]()
                                 if (self.aryStreamInfo.count > 0){
+                                    self.viewLiveStream.isHidden = false;
+                                    self.btnPlayStream.setImage(UIImage.init(named: "play-vod.png"), for: .normal)
+                                    self.btnPlayStream.isHidden = true;
                                     let streamObj = self.aryStreamInfo[0] as? [String:Any]
                                     self.streamId = streamObj?["id"] as? Int ?? 0
                                     
                                     self.streamVideoCode = streamObj?["stream_video_code"] as? String ?? ""
                                     let streamVideoTitle = streamObj?["stream_video_title"] as? String ?? ""
                                     let streamVideoDesc = streamObj?["stream_video_description"] as? String ?? ""
-                                    
+                                    let streamBannerURL = streamObj?["video_thumbnail_image"] as? String ?? ""
+                                    if let urlBanner = URL(string: streamBannerURL){
+                                        self.downloadImage(from: urlBanner as URL, imageView: self.imgStreamThumbNail)
+                                    }else{
+                                        self.imgStreamThumbNail.image = UIImage.init(named: "default-vod.png")
+                                    }
                                     self.sendBirdChatConfig()
                                     self.paymentAmount = streamObj?["stream_payment_amount"]as? Int ?? 0
                                     self.lblVideoTitle.text = streamVideoTitle
@@ -1131,10 +1168,11 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
                                 self.aryUserSubscriptionInfo = data?["user_subscription_info"] as? [Any] ?? [Any]()
                             }
                             if (self.streamPaymentMode == "paid" && self.aryUserSubscriptionInfo.count == 0){
+                                //if user does not pay amount
                                 self.btnPayPerView.isHidden = false
                                 self.viewVOD.isHidden = false
-                                ALToastView.toast(in: self.viewVOD, withText:"Please pay the amount to view Video/Stream")
-                                ALToastView.toast(in: self.viewLiveStream, withText:"Please pay the amount to view Video/Stream")
+                                self.isChannelAvailable = false;
+                                self.tblComments.reloadData()
                             }else{
                                 self.btnPayPerView.isHidden = true
                                 if (self.aryStreamInfo.count > 0){
@@ -1142,17 +1180,54 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
                                     if (streamObj?["stream_vod"]as? String == "stream" && self.isVOD == false){
                                         self.viewVOD.isHidden = true
                                         self.viewLiveStream.isHidden = false;
-                                        self.setLiveStreamConfig();
-                                        
+                                        self.isStream = true;
+                                        self.btnPlayStream.isHidden = false;
+                                        self.lblStreamUnavailable.text = "";
+                                        self.isChannelAvailable = false;
+                                        if(self.isUpcoming){
+                                            self.btnViewStream.isHidden = false;
+                                        }else{
+                                            self.btnViewStream.isHidden = true;
+                                        }
                                     }else{
                                         self.viewVOD.isHidden = false
                                         self.viewLiveStream.isHidden = true;
-                                        var url = streamObj?["video_url"] as? String ?? ""
-                                        if (self.isVOD){
-                                            url = self.videoUrl
+                                        self.btnPlayStream.isHidden = true;
+                                        self.isStream = false;
+                                        let vod_urls = streamObj?["vod_urls"] as? String ?? ""
+                                        var strURL = "";
+                                        if (vod_urls != ""){
+                                            let vod_urls = self.convertToDictionary(text: vod_urls)
+                                            let strHigh = vod_urls?["1080p"] as? String ?? ""
+                                            if (strHigh != ""){
+                                                strURL = strHigh;
+                                            }else{
+                                                let strMedium = vod_urls?["720p"] as? String ?? ""
+                                                if (strMedium != ""){
+                                                    strURL = strMedium;
+                                                }else{
+                                                    let strLow = vod_urls?["540p"] as? String ?? ""
+                                                    if (strLow != ""){
+                                                        strURL = strLow;
+                                                    }else{
+                                                        let strLowest = vod_urls?["270p"] as? String ?? ""
+                                                        if (strLowest != ""){
+                                                            strURL = strLowest;
+                                                        }else{
+                                                            let video_url = streamObj?["video_url"] as? String ?? ""
+                                                            strURL = video_url
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }else{
+                                            let video_url = streamObj?["video_url"] as? String ?? ""
+                                            strURL = video_url
                                         }
-                                        print("--vod url:",url)
-                                        self.showVideo(strURL: url);
+                                        
+                                        self.isChannelAvailable = true;
+                                        self.tblComments.reloadData()
+                                        self.showVideo(strURL: strURL);
                                     }
                                 }
                             }
@@ -1475,6 +1550,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
         NotificationCenter.default.removeObserver(self)
     }
     func closeStream(){
+        self.viewLiveStream.isHidden = true;
         if( r5ViewController != nil ){
             r5ViewController!.closeTest()
             r5ViewController = nil
@@ -1598,8 +1674,11 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
         })
     }
     @IBAction func clickSendUserMessageButton(_ sender: Any) {
-        
         inputMessageTextField.resignFirstResponder()
+        if (!isChannelAvailable){
+            showAlert(strMsg: "Channel is not available, Please try again later.")
+            return
+        }
         let messageText = inputMessageTextField.text!.trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
         if (messageText.count == 0){
             showAlert(strMsg: "Please enter message")
@@ -1607,9 +1686,10 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
         }
         print("channelName:",channelName)
         guard let channel = self.channel else {
-            showAlert(strMsg: "Channel does not exist on send bird server to send message")
+            showAlert(strMsg: "Channel is not available, Please try again later.")
             return
         }
+        print("channelName2:",self.channel?.name);
         self.inputMessageTextField.text = ""
         //self.sendUserMessageButton.isEnabled = false
         var preSendMessage: SBDUserMessage?
@@ -1672,8 +1752,10 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
             }
         }
     }
-    // MARK: Send Bird Methods
-   
+    @IBAction func playStream(_ sender: Any){
+        print("playStream called")
+        self.setLiveStreamConfig();
+    }
     
     
     

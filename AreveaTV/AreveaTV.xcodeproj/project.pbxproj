@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		180A78C82464243A0013AB0B /* ConnectionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 180A78C72464243A0013AB0B /* ConnectionManager.swift */; };
+		182740F62487EFB3001BC6B3 /* img_default_profile_image_1.png in Resources */ = {isa = PBXBuildFile; fileRef = 182740F52487EFB3001BC6B3 /* img_default_profile_image_1.png */; };
 		182A5EF2245C59C700FF6147 /* SectionHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 182A5EEF245C59C700FF6147 /* SectionHeader.swift */; };
 		182A5EF3245C59C700FF6147 /* StickyHeadersCollectionViewFlowLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 182A5EF0245C59C700FF6147 /* StickyHeadersCollectionViewFlowLayout.swift */; };
 		182A5EF4245C59C700FF6147 /* SectionHeader.xib in Resources */ = {isa = PBXBuildFile; fileRef = 182A5EF1245C59C700FF6147 /* SectionHeader.xib */; };
@@ -21,12 +22,12 @@
 		182A5F0C24616B4B00FF6147 /* charity-img.png in Resources */ = {isa = PBXBuildFile; fileRef = 182A5F0B24616B4A00FF6147 /* charity-img.png */; };
 		183AB4A5247E988500E0197C /* default-vod.png in Resources */ = {isa = PBXBuildFile; fileRef = 183AB4A3247E988000E0197C /* default-vod.png */; };
 		183AB4A6247E988500E0197C /* play-vod.png in Resources */ = {isa = PBXBuildFile; fileRef = 183AB4A4247E988500E0197C /* play-vod.png */; };
+		18404764248A79AC000573A2 /* SearchViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18404763248A79AC000573A2 /* SearchViewController.swift */; };
 		184A0B4F2472CA9E006EDDA3 /* PaymentHistoryVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 184A0B4E2472CA9E006EDDA3 /* PaymentHistoryVC.swift */; };
 		184A0B532472CC20006EDDA3 /* PaymentHistoryCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 184A0B512472CC20006EDDA3 /* PaymentHistoryCell.swift */; };
 		184A0B542472CC20006EDDA3 /* PaymentHistoryCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 184A0B522472CC20006EDDA3 /* PaymentHistoryCell.xib */; };
 		184A0B562473AF8C006EDDA3 /* donation-icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 184A0B552473AF8C006EDDA3 /* donation-icon.png */; };
 		184A0B5A24741F8A006EDDA3 /* default-img1.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 184A0B5924741F8A006EDDA3 /* default-img1.jpg */; };
-		1858EAD02482AC8900A69D10 /* delete-icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 1858EACF2482AC8800A69D10 /* delete-icon.png */; };
 		1858EAD22484F51C00A69D10 /* HelpVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1858EAD12484F51C00A69D10 /* HelpVC.swift */; };
 		1858EAD42485113A00A69D10 /* help-icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 1858EAD32485113900A69D10 /* help-icon.png */; };
 		1864AFCD2454A999004F3AED /* ChannelDetailVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1864AFCC2454A999004F3AED /* ChannelDetailVC.swift */; };
@@ -51,6 +52,9 @@
 		187D7B0C246B100F0041D5AA /* mute.png in Resources */ = {isa = PBXBuildFile; fileRef = 187D7B05246B100F0041D5AA /* mute.png */; };
 		187D7B0E246C225A0041D5AA /* camera-icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 187D7B0D246C225A0041D5AA /* camera-icon.png */; };
 		187D7B14246D615C0041D5AA /* AreveaAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 187D7B13246D615C0041D5AA /* AreveaAPIClient.swift */; };
+		188B0E80248E29B10062EB1D /* delete-icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 188B0E7E248E29AD0062EB1D /* delete-icon.png */; };
+		188B0E81248E29B10062EB1D /* upload-icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 188B0E7F248E29B00062EB1D /* upload-icon.png */; };
+		188B0E83248E563B0062EB1D /* edit-icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 188B0E82248E563A0062EB1D /* edit-icon.png */; };
 		1891CA63244AC82B00EE1E45 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1891CA62244AC82B00EE1E45 /* AppDelegate.swift */; };
 		1891CA6A244AC82B00EE1E45 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1891CA68244AC82B00EE1E45 /* Main.storyboard */; };
 		1891CA6D244AC82B00EE1E45 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1891CA6B244AC82B00EE1E45 /* LaunchScreen.storyboard */; };
@@ -76,6 +80,7 @@
 		189EBF7F245C086400C52B0E /* Icon-Small@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 189EBF75245C086400C52B0E /* Icon-Small@3x.png */; };
 		189EBF80245C086400C52B0E /* Icon-Small-40.png in Resources */ = {isa = PBXBuildFile; fileRef = 189EBF76245C086400C52B0E /* Icon-Small-40.png */; };
 		189EBF81245C086400C52B0E /* Icon-Small@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 189EBF77245C086400C52B0E /* Icon-Small@2x.png */; };
+		18C98D1F2486BFEE00959A40 /* refresh-icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 18C98D1E2486BFEE00959A40 /* refresh-icon.png */; };
 		18D48042244E8F2B00640C1A /* libc++.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 18D48041244E8F2B00640C1A /* libc++.tbd */; };
 		18D48044244E8F4500640C1A /* libz.1.2.11.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 18D48043244E8F4500640C1A /* libz.1.2.11.tbd */; };
 		18D48046244E8F4E00640C1A /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 18D48045244E8F4E00640C1A /* libz.tbd */; };
@@ -136,6 +141,7 @@
 
 /* Begin PBXFileReference section */
 		180A78C72464243A0013AB0B /* ConnectionManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConnectionManager.swift; sourceTree = "<group>"; };
+		182740F52487EFB3001BC6B3 /* img_default_profile_image_1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = img_default_profile_image_1.png; sourceTree = "<group>"; };
 		182A5EEF245C59C700FF6147 /* SectionHeader.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SectionHeader.swift; sourceTree = "<group>"; };
 		182A5EF0245C59C700FF6147 /* StickyHeadersCollectionViewFlowLayout.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StickyHeadersCollectionViewFlowLayout.swift; sourceTree = "<group>"; };
 		182A5EF1245C59C700FF6147 /* SectionHeader.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = SectionHeader.xib; sourceTree = "<group>"; };
@@ -150,12 +156,12 @@
 		182A5F0B24616B4A00FF6147 /* charity-img.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "charity-img.png"; sourceTree = "<group>"; };
 		183AB4A3247E988000E0197C /* default-vod.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "default-vod.png"; sourceTree = "<group>"; };
 		183AB4A4247E988500E0197C /* play-vod.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "play-vod.png"; sourceTree = "<group>"; };
+		18404763248A79AC000573A2 /* SearchViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchViewController.swift; sourceTree = "<group>"; };
 		184A0B4E2472CA9E006EDDA3 /* PaymentHistoryVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PaymentHistoryVC.swift; path = AreveaTV/Payment/PaymentHistoryVC.swift; sourceTree = SOURCE_ROOT; };
 		184A0B512472CC20006EDDA3 /* PaymentHistoryCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaymentHistoryCell.swift; sourceTree = "<group>"; };
 		184A0B522472CC20006EDDA3 /* PaymentHistoryCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = PaymentHistoryCell.xib; sourceTree = "<group>"; };
 		184A0B552473AF8C006EDDA3 /* donation-icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "donation-icon.png"; sourceTree = "<group>"; };
 		184A0B5924741F8A006EDDA3 /* default-img1.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "default-img1.jpg"; sourceTree = "<group>"; };
-		1858EACF2482AC8800A69D10 /* delete-icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "delete-icon.png"; sourceTree = "<group>"; };
 		1858EAD12484F51C00A69D10 /* HelpVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelpVC.swift; sourceTree = "<group>"; };
 		1858EAD32485113900A69D10 /* help-icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "help-icon.png"; sourceTree = "<group>"; };
 		1864AFCC2454A999004F3AED /* ChannelDetailVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChannelDetailVC.swift; sourceTree = "<group>"; };
@@ -181,6 +187,9 @@
 		187D7B0D246C225A0041D5AA /* camera-icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "camera-icon.png"; sourceTree = "<group>"; };
 		187D7B0F246D59F80041D5AA /* AWSApiGatewayBridge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AWSApiGatewayBridge.h; sourceTree = "<group>"; };
 		187D7B13246D615C0041D5AA /* AreveaAPIClient.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AreveaAPIClient.swift; sourceTree = "<group>"; };
+		188B0E7E248E29AD0062EB1D /* delete-icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "delete-icon.png"; sourceTree = "<group>"; };
+		188B0E7F248E29B00062EB1D /* upload-icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "upload-icon.png"; sourceTree = "<group>"; };
+		188B0E82248E563A0062EB1D /* edit-icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "edit-icon.png"; sourceTree = "<group>"; };
 		1891CA5F244AC82B00EE1E45 /* AreveaTV.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AreveaTV.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1891CA62244AC82B00EE1E45 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		1891CA69244AC82B00EE1E45 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -207,6 +216,7 @@
 		189EBF75245C086400C52B0E /* Icon-Small@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon-Small@3x.png"; sourceTree = "<group>"; };
 		189EBF76245C086400C52B0E /* Icon-Small-40.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon-Small-40.png"; sourceTree = "<group>"; };
 		189EBF77245C086400C52B0E /* Icon-Small@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon-Small@2x.png"; sourceTree = "<group>"; };
+		18C98D1E2486BFEE00959A40 /* refresh-icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "refresh-icon.png"; sourceTree = "<group>"; };
 		18D48041244E8F2B00640C1A /* libc++.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libc++.tbd"; path = "usr/lib/libc++.tbd"; sourceTree = SDKROOT; };
 		18D48043244E8F4500640C1A /* libz.1.2.11.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.1.2.11.tbd; path = usr/lib/libz.1.2.11.tbd; sourceTree = SDKROOT; };
 		18D48045244E8F4E00640C1A /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
@@ -534,8 +544,8 @@
 				18D48068244EDF9800640C1A /* Testbed.swift */,
 				1869F51A24698254003153B1 /* SubscribeTelephonyInterruptTest.swift */,
 				18D480AC24519DA300640C1A /* R5options.plist */,
-				18D480A924519D1100640C1A /* SubscribeTest.swift */,
 				18D4805E244EDDA200640C1A /* BaseTest.swift */,
+				18D480A924519D1100640C1A /* SubscribeTest.swift */,
 			);
 			path = "Stream Classes";
 			sourceTree = "<group>";
@@ -654,6 +664,7 @@
 			children = (
 				18D480C42454550100640C1A /* Profile */,
 				18EB81CD244ACC86008EB09A /* DashBoardVC.swift */,
+				18404763248A79AC000573A2 /* SearchViewController.swift */,
 				1858EAD12484F51C00A69D10 /* HelpVC.swift */,
 			);
 			path = DashBoard;
@@ -685,7 +696,6 @@
 				18EB81D5244AD3D2008EB09A /* logo.png */,
 				18D48051244E90B100640C1A /* side_menu.png */,
 				1858EAD32485113900A69D10 /* help-icon.png */,
-				1858EACF2482AC8800A69D10 /* delete-icon.png */,
 				18EB81D6244AD3D2008EB09A /* splash.png */,
 				18EB81D1244AD3D1008EB09A /* icon_twitter.png */,
 				189EBEE424588A1900C52B0E /* back-icon.png */,
@@ -699,8 +709,13 @@
 				183AB4A3247E988000E0197C /* default-vod.png */,
 				183AB4A4247E988500E0197C /* play-vod.png */,
 				187D7B0D246C225A0041D5AA /* camera-icon.png */,
+				18C98D1E2486BFEE00959A40 /* refresh-icon.png */,
 				187D7AFF246B100E0041D5AA /* unmute.png */,
 				187D7B03246B100E0041D5AA /* user.png */,
+				182740F52487EFB3001BC6B3 /* img_default_profile_image_1.png */,
+				188B0E7E248E29AD0062EB1D /* delete-icon.png */,
+				188B0E7F248E29B00062EB1D /* upload-icon.png */,
+				188B0E82248E563A0062EB1D /* edit-icon.png */,
 				184A0B5924741F8A006EDDA3 /* default-img1.jpg */,
 				18D4808724509A5500640C1A /* Side Menu Icons */,
 			);
@@ -785,6 +800,7 @@
 				18D480BA2451AA0B00640C1A /* channel2.png in Resources */,
 				186A2EAF24559E68007128E6 /* CommentsCell.xib in Resources */,
 				187D7B0C246B100F0041D5AA /* mute.png in Resources */,
+				182740F62487EFB3001BC6B3 /* img_default_profile_image_1.png in Resources */,
 				189EBF3A2459D25700C52B0E /* UpcomingCell.xib in Resources */,
 				18D480B82451AA0B00640C1A /* channel3.png in Resources */,
 				183AB4A6247E988500E0197C /* play-vod.png in Resources */,
@@ -807,13 +823,15 @@
 				18D4809C24509A5600640C1A /* menu.png in Resources */,
 				18D4809A24509A5600640C1A /* twitter-icon.png in Resources */,
 				182A5F012460837C00FF6147 /* GoogleService-Info.plist in Resources */,
+				18C98D1F2486BFEE00959A40 /* refresh-icon.png in Resources */,
 				18DA10D12455F8D400E5C9EB /* DBCollectionViewCell.xib in Resources */,
-				1858EAD02482AC8900A69D10 /* delete-icon.png in Resources */,
 				18EB81DB244AD3D2008EB09A /* logo.png in Resources */,
+				188B0E80248E29B10062EB1D /* delete-icon.png in Resources */,
 				18D4809824509A5600640C1A /* sidemenu-bg.png in Resources */,
 				189EBF7E245C086400C52B0E /* Icon-60@2x.png in Resources */,
 				187D7B0B246B100F0041D5AA /* send.png in Resources */,
 				1891CA6A244AC82B00EE1E45 /* Main.storyboard in Resources */,
+				188B0E81248E29B10062EB1D /* upload-icon.png in Resources */,
 				189EBF7B245C086400C52B0E /* Icon-60@3x.png in Resources */,
 				18D480B92451AA0B00640C1A /* channel4.png in Resources */,
 				18D480A324509B0D00640C1A /* DashBoardCell.xib in Resources */,
@@ -827,6 +845,7 @@
 				184A0B5A24741F8A006EDDA3 /* default-img1.jpg in Resources */,
 				182A5EF4245C59C700FF6147 /* SectionHeader.xib in Resources */,
 				189EBF7D245C086400C52B0E /* Icon-Small-40@3x.png in Resources */,
+				188B0E83248E563B0062EB1D /* edit-icon.png in Resources */,
 				189EBF78245C086400C52B0E /* Icon-76@2x.png in Resources */,
 				18D4809D24509A5600640C1A /* category-icon.png in Resources */,
 				18D4809524509A5600640C1A /* linkden-icon.png in Resources */,
@@ -917,6 +936,7 @@
 				187C58042480EA35008C5E89 /* OpenChannelMessageTableViewCell.swift in Sources */,
 				189EBF392459D25700C52B0E /* UpcomingCell.swift in Sources */,
 				187C57FF2480EA35008C5E89 /* OpenChanannelChatDelegate.swift in Sources */,
+				18404764248A79AC000573A2 /* SearchViewController.swift in Sources */,
 				1858EAD22484F51C00A69D10 /* HelpVC.swift in Sources */,
 				18D480C02452E00500640C1A /* PaymentVC.swift in Sources */,
 				182A5EF7245F057800FF6147 /* FilterCVCell.swift in Sources */,
@@ -1092,7 +1112,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 1.7;
+				CURRENT_PROJECT_VERSION = 1.9;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = M6U48XKJMW;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -1122,7 +1142,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 1.7;
+				CURRENT_PROJECT_VERSION = 1.9;
 				DEVELOPMENT_TEAM = M6U48XKJMW;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",

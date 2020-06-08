@@ -10,7 +10,7 @@ import UIKit
 import AWSMobileClient
 import Alamofire
 
-class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDelegate,UINavigationControllerDelegate {
+class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDelegate,UINavigationControllerDelegate,UIPickerViewDelegate, UIPickerViewDataSource {
     // MARK: - Variables Declaration
     @IBOutlet weak var txtFirstName: UITextField!
     @IBOutlet weak var txtLastName: UITextField!
@@ -30,42 +30,37 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
     @IBOutlet weak var viewActivity: UIView!
     @IBOutlet weak var scrollView: UIScrollView!
     
-    let datePickerView = UIDatePicker()
     var strProfilePicURL = ""
     @IBOutlet weak var btnDelete: UIButton!
-
+    let pickerView = UIPickerView()
+    var pickerData =  ["Below 18", "18+"];
+    
     // MARK: - View Life cycle
     override func viewDidLoad() {
         super.viewDidLoad()
         viewActivity.isHidden = true
-       //Do any additional setup after loading the view.
+        //Do any additional setup after loading the view.
         addDoneButton();
         getProfile();
         btnUpload.isHidden = true
+        btnDelete.isHidden = true
         imagePickerController.delegate = self
         imgProfilePic.contentMode = .scaleAspectFill
-        datePickerView.datePickerMode = .date
-        datePickerView.addTarget(self, action: #selector(selectDate(sender:)), for: .valueChanged)
-        datePickerView.maximumDate = Date()
-        txtDOB.inputView = datePickerView
+        
         scrollView.contentSize = CGSize(width: self.view.frame.size.width,height: 1000); //sets ScrollView content size
-        btnDelete.isHidden = true;
+        pickerView.delegate = self
         
     }
     override func viewDidAppear(_ animated: Bool) {
-//        scrollView.contentSize = CGSize(width: 320,height: 1000);
-//        scrollView.contentInset = UIEdgeInsets(top: 64.0,left: 0.0,bottom: 44.0,right: 0.0);
+        //        scrollView.contentSize = CGSize(width: 320,height: 1000);
+        //        scrollView.contentInset = UIEdgeInsets(top: 64.0,left: 0.0,bottom: 44.0,right: 0.0);
         
     }
     override func viewWillLayoutSubviews(){
         super.viewWillLayoutSubviews()
         //scrollView.contentSize = CGSize(width: 375, height: 1500)
     }
-    @objc func selectDate(sender: UIDatePicker){
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "YYYY-MM-dd"
-        txtDOB.text = dateFormatter.string(from: sender.date)
-    }
+    
     @IBAction func back(_ sender: Any) {
         self.navigationController?.popViewController(animated: true)
     }
@@ -106,7 +101,7 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
         }else if (displayName.count == 0){
             showAlert(strMsg: "Please enter display name");
         }else if (dob.count == 0){
-            showAlert(strMsg: "Please select date of birth");
+            showAlert(strMsg: "Please select age");
         }else{
             setProfile()
         }
@@ -133,6 +128,8 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
         txtEmail.inputAccessoryView = toolbar;
         txtDOB.inputAccessoryView = toolbar;
         txtDisplayName.inputAccessoryView = toolbar;
+        txtDOB.inputView = pickerView
+        
     }
     func showAlert(strMsg: String){
         let alert = UIAlertController(title: "Alert", message: strMsg, preferredStyle: .alert)
@@ -211,13 +208,36 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
                             self.txtPhone.text = profile_data["user_phone_number"]as? String
                             
                             let dob = profile_data["date_of_birth"]as? String ?? ""
-                            self.txtDOB.text = dob;
-                            self.txtDisplayName.text = profile_data["user_display_name"]as? String
+                            //self.txtDOB.text = dob;
                             
                             let dateFormatter = DateFormatter()
                             dateFormatter.dateFormat = "YYYY-MM-dd"
                             let date = dateFormatter.date(from: dob)
-                            self.datePickerView.date = date ?? Date()
+                            
+                            let dateFormatterYear = DateFormatter()
+                            dateFormatterYear.dateFormat = "YYYY"
+                            let pastdate = dateFormatterYear.string(from: date ?? Date());
+                            
+                            let todaysDate = Date()
+                            let currentDate = dateFormatterYear.string(from: todaysDate);
+                            print("currentDate:",currentDate)
+                            print("pastdate:",pastdate)
+                            guard let currentYear = Int(currentDate), let pastYear = Int(pastdate) else {
+                                print("Some value is nil")
+                                return
+                            }
+                            let diff = currentYear - pastYear
+                            print("first:",self.pickerData[0])
+                            self.txtDOB.text = self.pickerData[0]
+                            self.pickerView.selectRow(0, inComponent: 0, animated: true)
+                            if (diff >= 18){
+                                self.txtDOB.text = self.pickerData[1]
+                                print("second:",self.pickerData[1])
+                                self.pickerView.selectRow(1, inComponent: 0, animated: true)
+                            }
+                            //let diff = Int(currentDate) - Int(pastdate)
+                            self.txtDisplayName.text = profile_data["user_display_name"]as? String
+                            
                             let strURL = profile_data["profile_pic"]as? String ?? ""
                             self.strProfilePicURL = strURL
                             self.btnDelete.isHidden = true;
@@ -258,13 +278,26 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
         let phone = txtPhone.text!.trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
         let displayName = txtDisplayName.text!.trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
         let dob = txtDOB.text!
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "YYYY-MM-dd"
         
+        let currentDate = Date()
+        var dateComponent = DateComponents()
+        if (dob == "Below 18"){
+            dateComponent.year = -17 // currentdate -17 years
+        }else{
+            dateComponent.year = -18 // currentdate -18 years
+        }
+        let pastDate = Calendar.current.date(byAdding: dateComponent, to: currentDate)
+        print("currentDate:",currentDate)
+        print("pastDate:",pastDate!)
+        let dobPast = dateFormatter.string(from:pastDate!)
         let httpMethodName = "POST"
         let URLString: String = "/setProfile"
         let user_id = UserDefaults.standard.string(forKey: "user_id");
         let user_email = UserDefaults.standard.string(forKey: "user_email");
         
-        let params: [String: Any] = ["user_id":user_id ?? "","user_first_name":firstName,"user_last_name":lastName,"user_phone_number":phone,"user_email":user_email!,"user_display_name":displayName,"date_of_birth":dob]
+        let params: [String: Any] = ["user_id":user_id ?? "","user_first_name":firstName,"user_last_name":lastName,"user_phone_number":phone,"user_email":user_email!,"user_display_name":displayName,"date_of_birth":dobPast]
         print("params:",params)
         let headerParameters = [
             "Content-Type": "application/json",
@@ -297,7 +330,7 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
                     if let json = resultObj as? [String: Any] {
                         print(json)
                         self.viewActivity.isHidden = true
-
+                        
                         if (json["status"]as? Int == 0){
                             //print(json["message"] ?? "")
                             self.showAlert(strMsg:"Profile updated successfully")
@@ -465,6 +498,7 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
         if let pickedImage = info[UIImagePickerController.InfoKey.originalImage] as? UIImage {
             print("didFinishPickingImage")
             self.btnUpload.isHidden = false
+            self.btnDelete.isHidden = true
             imgProfilePic.contentMode = .scaleAspectFill
             imgProfilePic.image = pickedImage
         }
@@ -481,11 +515,11 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
         let url = appDelegate.qaURL + "/uploadFile" /* your API url */
         //  let url = "https://eku2g4rzxl.execute-api.us-west-2.amazonaws.com/dev/uploadProfilePic" /* your API url */
         let session_token = UserDefaults.standard.string(forKey: "session_token") ?? ""
-
+        
         //let headers: HTTPHeaders
         //headers = [appDelegate.securityKey: appDelegate.securityValue]
         let headers: HTTPHeaders = ["Content-type": "multipart/form-data","access_token": session_token]
-
+        
         let user_id = UserDefaults.standard.string(forKey: "user_id");
         
         let params: [String: Any] = ["user_id":user_id ?? "","image_for":"profile"]
@@ -551,8 +585,8 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
         viewActivity.isHidden = false
         //print("getCategoryOrganisations input:",inputData)
         let session_token = UserDefaults.standard.string(forKey: "session_token") ?? ""
-
-       //let headers: HTTPHeaders = ["access_token": session_token]
+        
+        //let headers: HTTPHeaders = ["access_token": session_token]
         let user_id = UserDefaults.standard.string(forKey: "user_id");
         //appDelegate.qaUploadURL/profile/1590754622840_profile_pic.png
         let profile_pic_name = self.strProfilePicURL.replacingOccurrences(of:appDelegate.qaUploadURL, with: "")//profile/1590754622840_profile_pic.png
@@ -563,7 +597,7 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
         AF.request(url, method: .post,  parameters: params,encoding: JSONEncoding.default, headers:headers)
             .responseJSON { response in
                 self.viewActivity.isHidden = true
-
+                
                 switch response.result {
                 case .success(let value):
                     if let json = value as? [String: Any] {
@@ -576,7 +610,7 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
                             UserDefaults.standard.set("false", forKey: "is_profile_pic_loaded_left_menu")
                         }else{
                             //this one should hide later once API works
-                             UserDefaults.standard.set("false", forKey: "is_profile_pic_loaded_left_menu")
+                            UserDefaults.standard.set("false", forKey: "is_profile_pic_loaded_left_menu")
                             
                             let strError = json["message"] as? String
                             //print(strError ?? "")
@@ -588,5 +622,24 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
                     self.showAlert(strMsg: error.localizedDescription)
                 }
         }
+    }
+    // MARK: Picker DataSource & Delegate Methods
+    
+    func numberOfComponents(in pickerView: UIPickerView) -> Int {
+        return 1
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
+        return pickerData.count
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
+        return pickerData[row]
+        
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
+        let selectedItem = pickerData[row]
+        txtDOB.text = selectedItem
     }
 }

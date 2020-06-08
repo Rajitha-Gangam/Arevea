@@ -44,19 +44,20 @@
             addDoneButton()
             pickerData = ["dev", "qa", "pre-prod", "prod"]
             createPickerView()
-            dismissPickerView()
+           // dismissPickerView()
             
         }
         override func viewWillAppear(_ animated: Bool) {
             txtUserName.text = "";
             txtPassword.text = "";
-//            txtUserName.text = "grajitha2009@gmail.com";
-//            txtPassword.text = "V@rshitha12345";
+            //txtUserName.text = "grajitha2009@gmail.com";
+            //txtPassword.text = "V@rshitha12345";
         }
         
         @IBAction func resignKB(_ sender: Any) {
             txtUserName.resignFirstResponder();
             txtPassword.resignFirstResponder();
+            txtEnv.resignFirstResponder()
         }
         func addDoneButton() {
             let toolbar =  UIToolbar(frame: CGRect(x: 0, y: 0, width: view.frame.size.width, height: 35))
@@ -66,6 +67,7 @@
             toolbar.sizeToFit()
             txtUserName.inputAccessoryView = toolbar;
             txtPassword.inputAccessoryView = toolbar;
+            txtEnv.inputAccessoryView = toolbar;
         }
         
         func assignbackground(){
@@ -310,7 +312,7 @@
                             if (json["status"]as? Int == 0){
                                 //print(json["message"] ?? "")
                                 let user = json["user"] as? [String:Any];
-                                // print("user:",user ?? "")
+                                 //print("user:",user ?? "")
                                 UserDefaults.standard.set(user?["id"], forKey: "user_id")
                                 UserDefaults.standard.set(user?["user_type"], forKey: "user_type")
                                 UserDefaults.standard.set(user?["session_token"], forKey: "session_token")
@@ -355,8 +357,6 @@
             toolbar.setItems([flexButton, button], animated: true)
             toolbar.isUserInteractionEnabled = true
             txtEnv.inputAccessoryView = toolbar
-            
-            
         }
         
         @objc func action() {

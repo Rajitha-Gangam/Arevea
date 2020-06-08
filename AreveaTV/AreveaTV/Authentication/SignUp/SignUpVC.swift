@@ -9,7 +9,8 @@
 import UIKit
 import AWSMobileClient
 
-class SignUpVC: UIViewController ,UITextFieldDelegate{
+class SignUpVC: UIViewController ,UITextFieldDelegate,UIPickerViewDelegate, UIPickerViewDataSource{
+    
     // MARK: - Variables Declaration
     @IBOutlet weak var txtFirstName: UITextField!
     @IBOutlet weak var txtLastName: UITextField!
@@ -23,9 +24,13 @@ class SignUpVC: UIViewController ,UITextFieldDelegate{
     @IBOutlet private weak var scrollView: UIScrollView!
     var planID = "0";
     let appDelegate = UIApplication.shared.delegate as! AppDelegate
+    let pickerView = UIPickerView()
     
     // MARK: - View Life cycle
     @IBOutlet weak var viewActivity: UIView!
+    var pickerData =  ["Below 18", "18+"];
+
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         viewActivity.isHidden = true
@@ -37,24 +42,9 @@ class SignUpVC: UIViewController ,UITextFieldDelegate{
         //        txtCfrmPassword.text =  "V@rshitha12345";
         //        txtPhone.text = "+918096823214";
         addDoneButton()
-        let datePickerView = UIDatePicker()
-        datePickerView.datePickerMode = .date
-        datePickerView.addTarget(self, action: #selector(selectDate(sender:)), for: .valueChanged)
-        datePickerView.maximumDate = Date()
-        txtDOB.inputView = datePickerView
-        
-        
-        //               if #available(iOS 11.0, *) {
-        //                   self.textField.withDefaultPickerUI = true
-        //               } else {
-        //                   // Fallback on earlier versions
-        //               }
+        pickerView.delegate = self
     }
-    @objc func selectDate(sender: UIDatePicker){
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "YYYY-MM-dd"
-        txtDOB.text = dateFormatter.string(from: sender.date)
-    }
+    
     func addDoneButton() {
         let toolbar =  UIToolbar(frame: CGRect(x: 0, y: 0, width: view.frame.size.width, height: 35))
         
@@ -69,7 +59,8 @@ class SignUpVC: UIViewController ,UITextFieldDelegate{
         txtPassword.inputAccessoryView = toolbar;
         txtCfrmPassword.inputAccessoryView = toolbar;
         txtDOB.inputAccessoryView = toolbar
-        
+        txtDOB.inputView = pickerView
+
     }
     @IBAction func resignKB(_ sender: Any) {
         txtFirstName.resignFirstResponder();
@@ -205,20 +196,35 @@ class SignUpVC: UIViewController ,UITextFieldDelegate{
             showAlert(strMsg: "Please enter phone number");
         }else if (phone.count != 12 && phone.count != 13){
             showAlert(strMsg: "Please enter valid phone number");
+        }else if(dob.count == 0){
+            showAlert(strMsg: "Please select age");
         }else if (pwd.count == 0){
             showAlert(strMsg: "Please enter password");
         }else if (cfrmPwd.count == 0){
             showAlert(strMsg: "Please enter confirm password");
         }else if(pwd != cfrmPwd){
             showAlert(strMsg: "password and confirm password did not match");
-        }else if(dob.count == 0){
-            showAlert(strMsg: "Please select date of birth");
         }else{
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = "YYYY-MM-dd"
+            
+            let currentDate = Date()
+            var dateComponent = DateComponents()
+            if (dob == "Below 18"){
+                dateComponent.year = -17 // currentdate -17 years
+            }else{
+                dateComponent.year = -18 // currentdate -18 years
+            }
+            let pastDate = Calendar.current.date(byAdding: dateComponent, to: currentDate)
+            print("currentDate:",currentDate)
+            print("pastDate:",pastDate!)
+            let dobPast = dateFormatter.string(from:pastDate!)
+            
             viewActivity.isHidden = false
             //username value shoulb be like email
             AWSMobileClient.default().signUp(username: email,
                                              password: pwd,
-                                             userAttributes: ["email" : email, "name":firstName,"phone_number":phone,"family_name":lastName,"birthdate":dob,"custom:plan":planID],
+                                             userAttributes: ["email" : email, "name":firstName,"phone_number":phone,"family_name":lastName,"birthdate":dobPast,"custom:plan":planID],
                                              completionHandler: signUpHandler);
         }
     }
@@ -247,8 +253,8 @@ class SignUpVC: UIViewController ,UITextFieldDelegate{
             let newString: NSString =
                 currentString.replacingCharacters(in: range, with: string) as NSString
             if range.length>0  && range.location == 0 {
-                    return false
-                }
+                return false
+            }
             
             return newString.length <= maxLength
         }
@@ -278,5 +284,24 @@ class SignUpVC: UIViewController ,UITextFieldDelegate{
     }
     override var preferredStatusBarStyle: UIStatusBarStyle {
         return .lightContent // .default
+    }
+    // MARK: Picker DataSource & Delegate Methods
+    
+    func numberOfComponents(in pickerView: UIPickerView) -> Int {
+        return 1
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
+        return pickerData.count
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
+        return pickerData[row]
+        
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
+        let selectedItem = pickerData[row]
+        txtDOB.text = selectedItem
     }
 }

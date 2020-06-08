@@ -7,48 +7,32 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "6EAE0D15-C286-449F-93AF-DEAE3E837633"
+            uuid = "002EF1D1-563C-418D-84A7-C63AB84CB918"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "AreveaTV/Channels/ChannelDetailVC.swift"
+            filePath = "AreveaTV/Stream Classes/SubscribeTest.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1148"
-            endingLineNumber = "1148"
-            landmarkName = "liveEvents()"
+            startingLineNumber = "72"
+            endingLineNumber = "72"
+            landmarkName = "metaLive()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "EB4F9362-723B-4F7D-B2F1-8467680C567B"
+            uuid = "2DA972CA-3882-41FF-B3A6-59C3E2BBDCF5"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "AreveaTV/Channels/ChannelDetailVC.swift"
+            filePath = "AreveaTV/Stream Classes/SubscribeTest.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1154"
-            endingLineNumber = "1154"
-            landmarkName = "liveEvents()"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "F4B407D8-8D91-434F-89EE-C46A32F71763"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "AreveaTV/Channels/ChannelDetailVC.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1141"
-            endingLineNumber = "1141"
-            landmarkName = "liveEvents()"
+            startingLineNumber = "62"
+            endingLineNumber = "62"
+            landmarkName = "metaLive()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
