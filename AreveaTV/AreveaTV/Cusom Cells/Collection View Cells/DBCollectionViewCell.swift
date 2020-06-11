@@ -11,7 +11,6 @@ import UIKit
 class DBCollectionViewCell: UICollectionViewCell {
     @IBOutlet var nameLabel: UILabel!
     @IBOutlet var imgCategory: UIImageView!
-    @IBOutlet var lblNoData : UILabel!
     override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code

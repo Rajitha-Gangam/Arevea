@@ -133,13 +133,24 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
         self.viewSideMenu.backgroundColor = UIColor(patternImage:background!)
     }
     override func viewWillDisappear(_ animated: Bool) {
+        appDelegate.strCategory = "";
+        appDelegate.genreId = 0;
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated);
         self.lblUserName.text = self.appDelegate.USER_NAME_FULL
         self.btnUserName.setTitle(appDelegate.USER_NAME, for: .normal)
-        getCategoryOrganisations(inputData: ["":""]);
+        
+        //if user comes from search by selecting  type "genre"
+        if (appDelegate.genreId != 0){
+            genreId = appDelegate.genreId;
+            self.isSelectedGenre = true;
+        }
+        //if user comes from search by selecting  type "subCategory"
+        //default empty, by search value will be there
+        getCategoryOrganisations(inputData: ["category":appDelegate.strCategory]);
+        
         let is_profile_pic_loaded_left_menu = UserDefaults.standard.string(forKey: "is_profile_pic_loaded_left_menu");
         if(is_profile_pic_loaded_left_menu == "false"){
             getProfile()

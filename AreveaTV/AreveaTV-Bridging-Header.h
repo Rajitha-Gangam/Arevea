@@ -12,5 +12,6 @@
 #import <R5Streaming/R5Streaming.h>
 #import "AWSApiGatewayBridge.h"
 #import "ALToastView.h"
+#import <AGEmojiKeyboard/AGEmojiKeyBoardView.h>
 
 #endif /* AreveaTV_Bridging_Header_h */

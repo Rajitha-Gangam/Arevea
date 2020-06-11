@@ -80,7 +80,7 @@ class PaymentHistoryVC: UIViewController, UITableViewDelegate,UITableViewDataSou
         formatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
         if let date = formatter.date(from: dateCreated) {
             let formatter1 = DateFormatter()
-            formatter1.dateFormat = "dd MMM yyyy ,hh:mm a"
+            formatter1.dateFormat = "dd MMM yyyy, hh:mm a"
             cell.lblDate.text = formatter1.string(from: date)
         }else{
             //print ("invalid date");

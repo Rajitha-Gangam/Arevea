@@ -1,4 +1,5 @@
 ${PODS_ROOT}/Target Support Files/Pods-AreveaTV/Pods-AreveaTV-frameworks.sh
+${BUILT_PRODUCTS_DIR}/AGEmojiKeyboard/AGEmojiKeyboard.framework
 ${BUILT_PRODUCTS_DIR}/AWSAPIGateway/AWSAPIGateway.framework
 ${BUILT_PRODUCTS_DIR}/AWSAuthCore/AWSAuthCore.framework
 ${BUILT_PRODUCTS_DIR}/AWSAuthUI/AWSAuthUI.framework

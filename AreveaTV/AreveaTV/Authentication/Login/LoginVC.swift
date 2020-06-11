@@ -50,8 +50,8 @@
         override func viewWillAppear(_ animated: Bool) {
             txtUserName.text = "";
             txtPassword.text = "";
-            //txtUserName.text = "grajitha2009@gmail.com";
-            //txtPassword.text = "V@rshitha12345";
+            txtUserName.text = "grajitha2009@gmail.com";
+            txtPassword.text = "V@rshitha12345";
         }
         
         @IBAction func resignKB(_ sender: Any) {

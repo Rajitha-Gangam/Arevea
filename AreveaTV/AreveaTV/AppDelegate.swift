@@ -30,7 +30,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate,CLLocationManagerDelegate 
     var securityKey = "x-api-key"
     var securityValue = "gq78SwjuLY539BLW5G3dN88IXjVtWPLB1YHL1omd"
     var AWSCognitoIdentityPoolId = "us-west-2:00b71663-b151-44a1-9164-246be7970493"
-    
+    var strCategory = "";
+    var genreId = 0;
    var aryCountries = [["region_code":"blr1","countries":["india","sri lanka","bangaldesh","pakistan","china"]],["region_code":"tor1","countries":["canada"]],["region_code":"fra1","countries":["germany"]],["region_code":"lon1","countries":["england"]],["region_code":"sgp1","countries":["singapore"]],["region_code":"sfo1","countries":["United States"]],["region_code":"sfo2","countries":["United States"]],["region_code":"ams2","countries":["netherlands"]],["region_code":"ams3","countries":["netherlands"]],["region_code":"nyc1","countries":["United States"]],["region_code":"nyc2","countries":["United States"]],["region_code":"nyc3","countries":["United States"]]]
     var strCountry = "United States"
     var strRegionCode = "sfo1"
@@ -47,7 +48,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate,CLLocationManagerDelegate 
         // Use Firebase library to configure APIs
         FirebaseApp.configure()
         //SBDMain.initWithApplicationId("9308C3B1-A36D-47E2-BA3C-8F6F362C35AF")
-        SBDMain.initWithApplicationId("A72CAA14-FAF5-4B33-A951-78E5267F655F")
+        SBDMain.initWithApplicationId("EFE090F2-3965-4D94-AB5A-77F0565DDD4F")
         locationManager = CLLocationManager()
         locationManager.delegate = self
         locationManager.desiredAccuracy = kCLLocationAccuracyBest

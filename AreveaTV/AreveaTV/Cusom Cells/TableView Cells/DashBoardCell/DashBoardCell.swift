@@ -47,6 +47,7 @@ class DashBoardCell: UITableViewCell, UICollectionViewDataSource, UICollectionVi
         self.rowWithItems = row
         self.strController = controller;
         self.collectionView.reloadData()
+        
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
@@ -69,53 +70,45 @@ class DashBoardCell: UITableViewCell, UICollectionViewDataSource, UICollectionVi
         if let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "DBCollectionViewCell", for: indexPath) as? DBCollectionViewCell {
             // cell.colorView.backgroundColor = self.rowWithItems?[indexPath.item].color ?? UIColor.black
             let arySub = rowWithItems[indexPath.row] as! [String: Any]
-            if (strController == "dashboard_live"){
-                cell.nameLabel.text = arySub["stream_video_title"]as? String;
-            }
-            else if (strController == "dashboard"){
-                cell.nameLabel.text = arySub["organization_name"]as? String;
-                
-            }else if(strController == "dashboard_search"){
-                cell.nameLabel.text = arySub["name"]as? String;
-            }else if (strController == "channels"){
-               // print("arySub:",arySub)
-                if (arySub["performer_display_name"] as? String) != nil
-                {
-                    cell.nameLabel.text = arySub["performer_display_name"]as? String;
-                }else{
-                    cell.nameLabel.text = "";
-                }
-            }else if (strController == "channel_detail"){
-                cell.imgCategory.layer.cornerRadius = 80;
-                cell.nameLabel.text = arySub["name"]as? String;
-                cell.nameLabel.textAlignment = .center;
-
-            }
+            
             let thumbNail = UIImage.init(named: "default-img1.jpg")
             cell.imgCategory.image = thumbNail
             cell.imgCategory.contentMode = .scaleAspectFill
-
+            
             if (strController == "dashboard_live"){
+                cell.nameLabel.text = arySub["stream_video_title"]as? String;
                 let strURL = arySub["video_thumbnail_image"]as? String ?? "";
                 if (strURL != "" && strURL != "NO LOGO" && strURL.range(of:"null") == nil ){
-                if let url = URL(string: strURL){
-                    downloadImage(from:url, imageView: cell.imgCategory)
+                    if let url = URL(string: strURL){
+                        downloadImage(from:url, imageView: cell.imgCategory)
+                    }
                 }
-                }
-            }else if (strController == "dashboard"){
+            }
+            else if (strController == "dashboard"){
+                cell.nameLabel.text = arySub["organization_name"]as? String;
                 let strURL = arySub["organization_logo"]as? String ?? "";
                 if (strURL != "" && strURL != "NO LOGO" && strURL.range(of:"null") == nil ){
                     if let url = URL(string: strURL){
                         downloadImage(from:url, imageView: cell.imgCategory)
                     }
                 }
+            }else if(strController == "dashboard_search"){
+                
+                cell.nameLabel.text = arySub["name"]as? String;
+                
             }else if (strController == "channels"){
+                // print("arySub:",arySub)
+                cell.nameLabel.text = arySub["performer_display_name"]as? String ?? "";
                 let strURL = arySub["performer_profile_pic"]as? String ?? "";
                 if (strURL != "" && strURL != "NO LOGO" && strURL.range(of:"null") == nil ){
                     if let url = URL(string: strURL){
                         downloadImage(from:url, imageView: cell.imgCategory)
                     }
                 }
+            }else if (strController == "channel_detail"){
+//                cell.imgCategory.layer.cornerRadius = 80;
+//                cell.nameLabel.text = arySub["name"]as? String;
+//                cell.nameLabel.textAlignment = .center;
             }
             return cell
         }
@@ -136,7 +129,7 @@ class DashBoardCell: UITableViewCell, UICollectionViewDataSource, UICollectionVi
                 return
             }
             //print(response?.suggestedFilename ?? url.lastPathComponent)
-           // print("Download Finished")
+            // print("Download Finished")
             DispatchQueue.main.async() { [weak self] in
                 imageView.image = UIImage(data: data)
             }

@@ -102,7 +102,7 @@ class SubscribeTest: BaseTest {
         let host = Testbed.getParameter(param:"host") as! String;
         let version = Testbed.getParameter(param:"sm_version") as! String;
         let context = Testbed.getParameter(param:"context") as! String;
-        let stream1 = Testbed.getParameter(param:"stream1") as! String;
+        //let stream1 = Testbed.getParameter(param:"stream1") as! String;
         
         let url = "https://" + host  + "/streammanager/api/" + version + "/event/" +
             context + "/" + streamName + "?action=subscribe&region=" + appDelegate.strRegionCode;
