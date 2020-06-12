@@ -146,7 +146,7 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
     func downloadImage(from url: URL, imageView: UIImageView) {
         getData(from: url) { data, response, error in
             guard let data = data, error == nil else { return }
-            print(response?.suggestedFilename ?? url.lastPathComponent)
+            //print(response?.suggestedFilename ?? url.lastPathComponent)
             DispatchQueue.main.async() { [weak self] in
                 imageView.contentMode = .scaleAspectFill
                 imageView.image = UIImage(data: data)
@@ -167,7 +167,7 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
         let user_id = UserDefaults.standard.string(forKey: "user_id");
         let user_type = UserDefaults.standard.string(forKey: "user_type");
         let params: [String: Any] = ["user_id":user_id ?? "","user_type":user_type ?? ""]
-        print("params:",params)
+        //print("params:",params)
         let headerParameters = [
             "Content-Type": "application/json",
             "Accept": "application/json"
@@ -182,7 +182,7 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
         let invocationClient = AreveaAPIClient.client(forKey:appDelegate.AWSCognitoIdentityPoolId)
         invocationClient.invoke(apiRequest).continueWith { (task: AWSTask) -> Any? in
             if let error = task.error {
-                print("Error occurred: \(error)")
+                //print("Error occurred: \(error)")
                 self.showAlert(strMsg: error as? String ?? error.localizedDescription)
                 // Handle error here
                 return nil
@@ -197,7 +197,7 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
                     
                     //print(resultObj)
                     if let json = resultObj as? [String: Any] {
-                        print(json)
+                        //print(json)
                         if (json["status"]as? Int == 0){
                             //print(json["message"] ?? "")
                             let profile_data = json["profile_data"] as? [String:Any] ?? [:]
@@ -220,19 +220,19 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
                             
                             let todaysDate = Date()
                             let currentDate = dateFormatterYear.string(from: todaysDate);
-                            print("currentDate:",currentDate)
-                            print("pastdate:",pastdate)
+                            //print("currentDate:",currentDate)
+                            //print("pastdate:",pastdate)
                             guard let currentYear = Int(currentDate), let pastYear = Int(pastdate) else {
-                                print("Some value is nil")
+                                //print("Some value is nil")
                                 return
                             }
                             let diff = currentYear - pastYear
-                            print("first:",self.pickerData[0])
+                            //print("first:",self.pickerData[0])
                             self.txtDOB.text = self.pickerData[0]
                             self.pickerView.selectRow(0, inComponent: 0, animated: true)
                             if (diff >= 18){
                                 self.txtDOB.text = self.pickerData[1]
-                                print("second:",self.pickerData[1])
+                                //print("second:",self.pickerData[1])
                                 self.pickerView.selectRow(1, inComponent: 0, animated: true)
                             }
                             //let diff = Int(currentDate) - Int(pastdate)
@@ -289,8 +289,8 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
             dateComponent.year = -18 // currentdate -18 years
         }
         let pastDate = Calendar.current.date(byAdding: dateComponent, to: currentDate)
-        print("currentDate:",currentDate)
-        print("pastDate:",pastDate!)
+        //print("currentDate:",currentDate)
+        //print("pastDate:",pastDate!)
         let dobPast = dateFormatter.string(from:pastDate!)
         let httpMethodName = "POST"
         let URLString: String = "/setProfile"
@@ -298,7 +298,7 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
         let user_email = UserDefaults.standard.string(forKey: "user_email");
         
         let params: [String: Any] = ["user_id":user_id ?? "","user_first_name":firstName,"user_last_name":lastName,"user_phone_number":phone,"user_email":user_email!,"user_display_name":displayName,"date_of_birth":dobPast]
-        print("params:",params)
+        //print("params:",params)
         let headerParameters = [
             "Content-Type": "application/json",
             "Accept": "application/json"
@@ -313,7 +313,7 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
         let invocationClient = AreveaAPIClient.client(forKey:appDelegate.AWSCognitoIdentityPoolId)
         invocationClient.invoke(apiRequest).continueWith { (task: AWSTask) -> Any? in
             if let error = task.error {
-                print("Error occurred: \(error)")
+                //print("Error occurred: \(error)")
                 self.showAlert(strMsg: error as? String ?? error.localizedDescription)
                 // Handle error here
                 return nil
@@ -328,7 +328,7 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
                     
                     //print(resultObj)
                     if let json = resultObj as? [String: Any] {
-                        print(json)
+                        //print(json)
                         self.viewActivity.isHidden = true
                         
                         if (json["status"]as? Int == 0){
@@ -371,7 +371,7 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
             }
             if let error = error {
                 self.showAlert(strMsg: "\(error)");
-                print("\(error)")
+                //print("\(error)")
                 return
             }
             if let forgotPasswordResult = forgotPasswordResult {
@@ -399,7 +399,7 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
                     }
                     
                 default:
-                    print("Error: Invalid case.")
+                    break
                 }
             } else if let error = error {
                 print("Error occurred: \(error.localizedDescription)")
@@ -479,7 +479,7 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
                 self.present(self.imagePickerController, animated: true, completion: nil)
             }else
             {
-                print("Camera is Not Available")
+                //print("Camera is Not Available")
             }
         }))
         actionsheet.addAction(UIAlertAction(title: "Photo Library", style: .default, handler: { (action:UIAlertAction)in
@@ -496,7 +496,7 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
     
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         if let pickedImage = info[UIImagePickerController.InfoKey.originalImage] as? UIImage {
-            print("didFinishPickingImage")
+            //print("didFinishPickingImage")
             self.btnUpload.isHidden = false
             self.btnDelete.isHidden = true
             imgProfilePic.contentMode = .scaleAspectFill
@@ -542,7 +542,7 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
             switch response.result {
             case .success(let value):
                 if let json = value as? [String: Any] {
-                    print(json)
+                    //print(json)
                     if (json["status"]as? Int == 0){
                         //print(json["message"] ?? "")
                         self.showAlert(strMsg:"Profile picture updated successfully")
@@ -590,7 +590,7 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
         let user_id = UserDefaults.standard.string(forKey: "user_id");
         //appDelegate.qaUploadURL/profile/1590754622840_profile_pic.png
         let profile_pic_name = self.strProfilePicURL.replacingOccurrences(of:appDelegate.qaUploadURL, with: "")//profile/1590754622840_profile_pic.png
-        print("profile_pic_name:",profile_pic_name)
+        //print("profile_pic_name:",profile_pic_name)
         let params: [String: Any] = ["delete_for":"profile_pic","image_name":profile_pic_name,"user_id":user_id ?? ""]
         let headers: HTTPHeaders
         headers = ["access_token": session_token]

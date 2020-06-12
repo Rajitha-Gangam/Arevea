@@ -115,15 +115,15 @@ class ConnectionManager: NSObject, SBDConnectionDelegate {
             if let pushToken: Data = SBDMain.getPendingPushToken() {
                 SBDMain.registerDevicePushToken(pushToken, unique: true, completionHandler: { (status, error) in
                     guard let _: SBDError = error else {
-                        print("APNS registration failed.")
+                        //print("APNS registration failed.")
                         return
                     }
                     
                     if status == .pending {
-                        print("Push registration is pending.")
+                        //print("Push registration is pending.")
                     }
                     else {
-                        print("APNS Token is registered.")
+                        //print("APNS Token is registered.")
                     }
                 })
             }

@@ -61,7 +61,7 @@ class SplashVC: UIViewController {
 
         AWSMobileClient.default().initialize { (userState, error) in
             if let error = error {
-                print("error: \(error.localizedDescription)")
+                //print("error: \(error.localizedDescription)")
                 return
             }
             
@@ -70,7 +70,7 @@ class SplashVC: UIViewController {
             }
             //self.viewActivity.isHidden = true
 
-            print("The user is \(userState.rawValue).")
+            //print("The user is \(userState.rawValue).")
             
             
             // Check if user availability
@@ -121,7 +121,7 @@ class SplashVC: UIViewController {
                 //                }
                 self.sendBirdConnect()
             }
-            print("sendBirdConnect disconnect")
+            //print("sendBirdConnect disconnect")
         }
         else {
           // viewActivity.isHidden = false
@@ -148,7 +148,7 @@ class SplashVC: UIViewController {
                 
                 DispatchQueue.main.async {
                     // self.setUIsForDefault()
-                    print("Logged In With SendBird Successfully")
+                    //print("Logged In With SendBird Successfully")
                     let storyboard = UIStoryboard(name: "Main", bundle: nil);
                     let vc = storyboard.instantiateViewController(withIdentifier: "DashBoardVC") as! DashBoardVC
                     self.navigationController?.pushViewController(vc, animated: true)

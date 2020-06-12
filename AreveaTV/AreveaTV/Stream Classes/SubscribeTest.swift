@@ -51,7 +51,7 @@ class SubscribeTest: BaseTest {
 
        // https://livestream.arevea.tv/streammanager/api/4.0/admin/event/meta/live/<stream_video_code>/?accessToken=YEOkGmERp08V
         let url = "https://" + host  + "/streammanager/api/" + version + "/admin/event/meta/live/" + stream1 + "?accessToken=" + accessToken
-        print("url",url)
+        //print("url",url)
         //let stream = "1588832196500_taylorswiftevent"
         
         AF.request(url,method: .get, encoding: JSONEncoding.default)
@@ -59,7 +59,7 @@ class SubscribeTest: BaseTest {
                 switch response.result {
                 case .success(let value):
                     DispatchQueue.main.async {
-                        print("metaLive Response:",value)
+                        //print("metaLive Response:",value)
                         if let json = value as? [String: Any] {
                             if json["errorMessage"] != nil{
                                 // ALToastView.toast(in: self.view, withText:errorMsg as? String ?? "")
@@ -74,7 +74,7 @@ class SubscribeTest: BaseTest {
                                 if (stream.count > 0){
                                     let lastStreamObj = stream[stream.count - 1] as? [String:Any]
                                     let strName = lastStreamObj?["name"] as? String ?? ""
-                                    print("lastStreamObj name:",strName)
+                                    //print("lastStreamObj name:",strName)
                                     self.findStream(streamName: strName)
                                     
                                 }else{
@@ -107,7 +107,7 @@ class SubscribeTest: BaseTest {
         let url = "https://" + host  + "/streammanager/api/" + version + "/event/" +
             context + "/" + streamName + "?action=subscribe&region=" + appDelegate.strRegionCode;
         //let url = "https://livestream.arevea.tv/streammanager/api/4.0/event/live/1588788669277_somethingnew?action=subscribe"
-        print("findStream url:",url)
+        //print("findStream url:",url)
         //let stream = "1588832196500_taylorswiftevent"
         
         AF.request(url,method: .get, encoding: JSONEncoding.default)
@@ -115,7 +115,7 @@ class SubscribeTest: BaseTest {
                 switch response.result {
                 case .success(let value):
                     DispatchQueue.main.async {
-                        print(value)
+                        //print(value)
                     }
                     if let json = value as? [String: Any] {
                         if json["errorMessage"] != nil{
@@ -310,12 +310,12 @@ class SubscribeTest: BaseTest {
             // }
             
         } else if ((Int(statusCode) == Int(r5_status_netstatus.rawValue) && msg == "NetStream.Play.SufficientBW")) {
-            print("=======sufficient band Width")
+            //print("=======sufficient band Width")
         }else if ((Int(statusCode) == Int(r5_status_netstatus.rawValue) && msg == "NetStream.Play.InSufficientBW")) {
             ALToastView.toast(in: self.view, withText:"Poor internet connection")
         }else if (Int(statusCode) == Int(r5_status_audio_mute.rawValue))
         {
-            print("=======r5_status_audio_mute")
+            //print("=======r5_status_audio_mute")
             let hasAudio = !(self.subscribeStream?.pauseAudio)!;
             if (hasAudio) {
                 self.subscribeStream?.pauseAudio = true
@@ -323,7 +323,7 @@ class SubscribeTest: BaseTest {
         }
         else if (Int(statusCode) == Int(r5_status_audio_unmute.rawValue))
         {
-            print("=======r5_status_audio_unmute")
+            //print("=======r5_status_audio_unmute")
             let hasAudio = !(self.subscribeStream?.pauseAudio)!;
             if (hasAudio) {
                 self.subscribeStream?.pauseAudio = false
@@ -331,7 +331,7 @@ class SubscribeTest: BaseTest {
             
         }else if (Int(statusCode) == Int(r5_status_video_mute.rawValue))
         {
-            print("=======r5_status_video_mute")
+            //print("=======r5_status_video_mute")
             let hasAudio = !(self.subscribeStream?.pauseAudio)!;
             if (hasAudio) {
                 self.subscribeStream?.pauseAudio = true
@@ -339,7 +339,7 @@ class SubscribeTest: BaseTest {
         }
         else if (Int(statusCode) == Int(r5_status_video_unmute.rawValue))
         {
-            print("=======r5_status_video_unmute")
+            //print("=======r5_status_video_unmute")
             let hasAudio = !(self.subscribeStream?.pauseAudio)!;
             if (hasAudio) {
                 self.subscribeStream?.pauseAudio = false
@@ -348,12 +348,12 @@ class SubscribeTest: BaseTest {
         }
         else if (Int(statusCode) == Int(r5_status_disconnected.rawValue))
         {
-            print("=======r5_status_disconnected")
+            //print("=======r5_status_disconnected")
             
         }
         else if (Int(statusCode) == Int(r5_status_stop_streaming.rawValue))
         {
-            print("=======r5_status_stop_streaming")
+            //print("=======r5_status_stop_streaming")
         }
     }
     func publisherBackground(msg: String) {

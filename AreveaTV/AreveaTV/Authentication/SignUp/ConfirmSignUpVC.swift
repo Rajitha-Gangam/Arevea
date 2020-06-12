@@ -67,7 +67,7 @@ class ConfirmSignUpVC: UIViewController,UITextFieldDelegate {
         }
         if let error = error {
             showAlert(strMsg: "\(error)");
-            print("\(error)")
+            //print("\(error)")
             return
         }
         
@@ -96,7 +96,7 @@ class ConfirmSignUpVC: UIViewController,UITextFieldDelegate {
                }
         
         guard let username = self.username else {
-            print("No username")
+            //print("No username")
             return
         }
         viewActivity.isHidden = false
@@ -119,8 +119,8 @@ class ConfirmSignUpVC: UIViewController,UITextFieldDelegate {
             default: break
                 //showAlert(strMsg: "\(error)");
             }
-            print("There's an error : \(error.localizedDescription)")
-            print(error)
+            //print("There's an error : \(error.localizedDescription)")
+            //print(error)
            
         }
         
@@ -130,7 +130,7 @@ class ConfirmSignUpVC: UIViewController,UITextFieldDelegate {
         
         switch(signUpResult.signUpConfirmationState) {
         case .confirmed:
-            print("User is signed up and confirmed.")
+            //print("User is signed up and confirmed.")
             DispatchQueue.main.async {
                 self.viewActivity.isHidden = false
                 self.dismissModal()
@@ -140,7 +140,7 @@ class ConfirmSignUpVC: UIViewController,UITextFieldDelegate {
             let username = self.username!;
             let strError = "User is not confirmed and needs verification via email sent at " + username;
             showAlert(strMsg: strError)
-            print("User is not confirmed and needs verification via \(signUpResult.codeDeliveryDetails!.deliveryMedium) sent at \(signUpResult.codeDeliveryDetails!.destination!)")
+            //print("User is not confirmed and needs verification via \(signUpResult.codeDeliveryDetails!.deliveryMedium) sent at \(signUpResult.codeDeliveryDetails!.destination!)")
         case .unknown:
             print("Unexpected case")
         }
@@ -159,7 +159,7 @@ class ConfirmSignUpVC: UIViewController,UITextFieldDelegate {
         }else{
             guard let verificationCode = txtCode.text,
                 let username = self.username else {
-                    print("No username")
+                    //print("No username")
                     return
             }
             viewActivity.isHidden = false

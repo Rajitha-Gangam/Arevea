@@ -92,7 +92,7 @@ class NewPasswordVC: UIViewController ,UITextFieldDelegate{
                                                                     
                                                                     if let error = error {
                                                                         self.showAlert(strMsg: "\(error)");
-                                                                        print("\(error)")
+                                                                        //print("\(error)")
                                                                         return
                                                                     }
                                                                     
@@ -104,7 +104,7 @@ class NewPasswordVC: UIViewController ,UITextFieldDelegate{
                                                                             print("Error: Could not change password.")
                                                                         }
                                                                     } else if let error = error {
-                                                                        print("Error occurred: \(error.localizedDescription)")
+                                                                        //print("Error occurred: \(error.localizedDescription)")
                                                                     }
                                                                 }
             }

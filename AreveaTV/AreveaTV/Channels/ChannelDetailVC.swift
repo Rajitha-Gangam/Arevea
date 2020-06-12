@@ -62,7 +62,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
     var streamId = 0;
     var buttonNames = ["Comments","Info", "Donate", "Share","Profile","Upcoming", "Videos", "Audios"]
     
-    var aryComments = [["name":"Cameron","desc":"Lorem Ipsum is simply dummy text of the printing and typesetting industry"],["name":"Daisy Austin","desc":"Lorem Ipsum is simply dummy text of the printing and typesetting industry"],["name":"Cameron","desc":"Lorem Ipsum is simply dummy text of the printing and typesetting industry"],["name":"Daisy Austin","desc":"Lorem Ipsum is simply dummy text of the printing and typesetting industry"],["name":"Cameron","desc":"Lorem Ipsum is simply dummy text of the printing and typesetting industry"],["name":"Daisy Austin","desc":"Lorem Ipsum is simply dummy text of the printing and typesetting industry"]]
+    var aryComments = [["name":"Cameron","desc":"Lorem Ipsum is simply dummy text of the //printing and typesetting industry"],["name":"Daisy Austin","desc":"Lorem Ipsum is simply dummy text of the //printing and typesetting industry"],["name":"Cameron","desc":"Lorem Ipsum is simply dummy text of the //printing and typesetting industry"],["name":"Daisy Austin","desc":"Lorem Ipsum is simply dummy text of the //printing and typesetting industry"],["name":"Cameron","desc":"Lorem Ipsum is simply dummy text of the //printing and typesetting industry"],["name":"Daisy Austin","desc":"Lorem Ipsum is simply dummy text of the //printing and typesetting industry"]]
     
     var detailItem = [String:Any]();
     var playerItem:AVPlayerItem?
@@ -95,14 +95,19 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
     
     // MARK: - Live Chat Inputs
     var channel: SBDOpenChannel?
+    var channel_emoji: SBDOpenChannel?
     var hasPrevious: Bool?
     var minMessageTimestamp: Int64 = Int64.max
     var isLoading: Bool = false
     var messages: [SBDBaseMessage] = []
+    var emojis: [SBDBaseMessage] = []
+    
     var initialLoading: Bool = true
     var scrollLock: Bool = false
     var resendableMessages: [String:SBDBaseMessage] = [:]
     var preSendMessages: [String:SBDBaseMessage] = [:]
+    var resendableMessage_emojis: [String:SBDBaseMessage] = [:]
+    var preSendMessage_emojis: [String:SBDBaseMessage] = [:]
     var stopMeasuringVelocity: Bool = false
     var lastOffsetCapture: TimeInterval = 0
     var isScrollingFast: Bool = false
@@ -119,6 +124,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
     let coverImageData: Data? = nil
     weak var delegate: OpenChanannelChatDelegate?
     var channelName = ""
+    var channelName_Emoji = ""
     var paymentAmount = 0
     var streamPaymentMode = ""
     var strTitle = ""
@@ -134,13 +140,18 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
     
     var isStream = true;
     var isChannelAvailable = false;
+    var isChannelAvailable_emoji = false;
     var isUpcoming = false;
     private let editor = VideoEditor()
     private var pickedURL: URL?
     var sendBirdErrorCode = 0;
+    var sendBirdErrorCode_Emoji = 0;
     var sbdError = SBDError()
+    var sbdError_emoji = SBDError()
+    
     @IBOutlet weak var imgEmoji: UIImageView!
-
+    @IBOutlet weak var imgEmoji1: UIImageView!
+    
     // MARK: - View Life cycle
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -166,13 +177,26 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
         superOrgID = orgId;
         superPerformerID = performerId;
         // txtComment.textInputMode?.primaryLanguage = "emoji"
+        //imgEmoji.isHidden = true
         let emojiKeyboardView = AGEmojiKeyboardView(frame: CGRect(x: 0, y: 0, width: view.frame.size.width, height: 216), dataSource: self)
         emojiKeyboardView?.autoresizingMask = UIView.AutoresizingMask.flexibleHeight
         emojiKeyboardView?.delegate = self
         //self.textView.inputView = emojiKeyboardView;
+        imgEmoji1.image = UIImage.init(named: "addemoji.png")
         txtEmoji.inputView = emojiKeyboardView
+        txtEmoji.tintColor = UIColor.clear
+        txtEmoji.addTarget(self, action: #selector(txtEmojiTap), for: .touchDown)
         
-        
+    }
+    @objc func txtEmojiTap(textField: UITextField) {
+        if ((imgEmoji1.image?.isEqual(UIImage.init(named: "addemoji.png")))!)
+        {
+            imgEmoji1.image = UIImage.init(named: "closeemoji.png")
+        }
+        else{
+            txtEmoji.resignFirstResponder()
+            imgEmoji1.image = UIImage.init(named: "addemoji.png")
+        }
     }
     //Handler for View Live Stream Button Action
     @IBAction func viewLiveStreamTapped(){
@@ -201,10 +225,10 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
                 //                    }
                 self.sendBirdConnect()
             }
-            print("sendBirdConnect disconnect")
+            //print("sendBirdConnect disconnect")
         }
         else {
-            print("sendBirdConnect")
+            //print("sendBirdConnect")
             
             viewActivity.isHidden = false
             let userId = UserDefaults.standard.string(forKey: "user_id");
@@ -228,7 +252,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
                 
                 DispatchQueue.main.async {
                     // self.setUIsForDefault()
-                    print("Logged In With SendBird Successfully")
+                    //print("Logged In With SendBird Successfully")
                     
                 }
             }
@@ -237,12 +261,12 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
     
     func sendBirdChatConfig(){
         channelName = streamVideoCode
-        print("channelName in sendBirdChatConfig:",channelName)
+        //print("channelName in sendBirdChatConfig:",channelName)
         SBDOpenChannel.getWithUrl(channelName, completionHandler: { (openChannel, error) in
             guard error == nil else {   // Error.
                 let errorDesc = "Chat Error:" + error!.localizedDescription
-                print("Send Bird Error:\(error!)")
-                print(errorDesc)
+                //print("Send Bird Error:\(error!)")
+                //print(errorDesc)
                 self.sbdError = error!
                 self.sendBirdErrorCode = error?.code ?? 0
                 //self.showAlert(strMsg:errorDesc )
@@ -254,7 +278,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
             }
             self.channel = openChannel
             self.title = self.channel?.name
-            self.loadPreviousMessages(initial: true)
+            //self.loadPreviousMessages(initial: true)
             openChannel?.enter(completionHandler: { (error) in
                 guard error == nil else {   // Error.
                     return
@@ -273,6 +297,33 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
             }
         })
     }
+    func sendBirdEmojiConfig(){
+        channelName_Emoji = streamVideoCode + "_emoji"
+        //print("channelName_Emoji in sendBirdChatConfig:",channelName_Emoji)
+        SBDOpenChannel.getWithUrl(channelName_Emoji, completionHandler: { (openChannel, error) in
+            guard error == nil else {   // Error.
+                let errorDesc = "Chat Error:" + error!.localizedDescription
+                //print("Send Bird Error:\(error!)")
+                //print(errorDesc)
+                self.isChannelAvailable_emoji = false
+                return
+            }
+            self.isChannelAvailable_emoji = true
+            self.channel_emoji = openChannel
+            self.title = self.channel_emoji?.name
+            self.loadPreviousEmojis(initial: true)
+            openChannel?.enter(completionHandler: { (error) in
+                guard error == nil else {   // Error.
+                    return
+                }
+            })
+        })
+        channel_emoji?.getMyMutedInfo(completionHandler: { (isMuted, description, startAt, endAt, duration, error) in
+            if isMuted {
+                //                ALToastView.toast(in: self.viewVOD, withText:"You are muted")
+            }
+        })
+    }
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated);
         self.btnUserName.setTitle(appDelegate.USER_NAME, for: .normal)
@@ -283,15 +334,15 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
     }
     @objc func StreamNotificationHandler(_ notification:Notification) {
         // Do something now
-        print("====StreamNotificationHandler")
+        //print("====StreamNotificationHandler")
         if let data = notification.userInfo as? [String: String]
         {
             for (key,value) in data
             {
                 //key Stream
                 //value Stopped/Started
-                print("key: \(key)")
-                print("value: \(value)")
+                //print("key: \(key)")
+                //print("value: \(value)")
                 
                 if (value == "started"){
                     btnPlayStream.isHidden = true;
@@ -352,39 +403,45 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
         }
         let commentsLine = self.buttonCVC.viewWithTag(10) as? UILabel
         commentsLine?.backgroundColor = .red;
-        
-
-        
     }
-    func animateEmojis() {
-      let loadingImages = (1...4).map { UIImage(named: "emoji\($0)")! }
-
-      self.imgEmoji.animationImages = loadingImages
-      self.imgEmoji.animationDuration = 2.0
-      self.imgEmoji.animationRepeatCount = 2
-      self.imgEmoji.startAnimating()
-      
-     // return
-      let number = Int.random(in: 0 ... 200)
-         let number1 = Int.random(in: 0 ... 300)
-         var frameBug = self.imgEmoji.frame
-         print("bug fr:",self.imgEmoji.frame)
-      frameBug.origin.x = CGFloat(number)
-      frameBug.origin.y = CGFloat(number1)
-      let xConst = frameBug.origin.x;
-      let yConst = frameBug.origin.y;
-      
-      //self.bug.frame = frameBug
-      UIView.animate(withDuration: 2.0, delay: 0, options: .curveLinear, animations: {
-            self.imgEmoji.transform = CGAffineTransform(translationX: -xConst, y: -yConst)
-            //self.bug.transform = CGAffineTransform(rotationAngle: .pi)
-
-        }) { (success: Bool) in
-            self.imgEmoji.transform = CGAffineTransform.identity
-         
-          self.animateEmojis()
+    func delay(_ delay:Double, closure:@escaping ()->()) {
+        DispatchQueue.main.asyncAfter(
+            deadline: DispatchTime.now() + Double(Int64(delay * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC), execute: closure)
+    }
+    func animateEmojisLoop(_ iteration: Int = 0) {
+        let i = iteration
+        if (iteration < self.emojis.count){
+            let userMessage = self.emojis[i] as! SBDUserMessage
+            self.delay(2.0){
+                let strEmojiText = userMessage.message
+                self.imgEmoji.image = strEmojiText!.image()
+                self.animateEmoji()
+                return self.animateEmojisLoop(i + 1)
+            }
         }
     }
+    
+    func animateEmoji() {
+        self.imgEmoji.isHidden = false;
+        var frameBug = self.imgEmoji.frame
+        // //print("bug fr:",self.imgEmoji.frame)
+        frameBug.origin.x = 200
+        frameBug.origin.y = 200
+        let xConst = frameBug.origin.x;
+        let yConst = frameBug.origin.y;
+        
+        //self.bug.frame = frameBug
+        UIView.animate(withDuration: 2.0, delay: 0, options: .curveLinear, animations: {
+            self.imgEmoji.transform = CGAffineTransform(translationX: -xConst, y: -yConst)
+            //self.bug.transform = CGAffineTransform(rotationAngle: .pi)
+            
+        }) { (success: Bool) in
+            self.imgEmoji.transform = CGAffineTransform.identity
+            self.imgEmoji.isHidden = true;
+            //self.animateEmojis()
+        }
+    }
+    
     func showVideo1(url : URL){
         videoPlayer = AVPlayer(url: url)
         let controller = AVPlayerViewController()
@@ -431,7 +488,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
             MUXSDKStats.monitorAVPlayerViewController(controller, withPlayerName: "Player Name", playerData: playerData!, videoData: videoData)
         }else{
             btnViewStream.isHidden = false;
-            print("Invalid URL")
+            //print("Invalid URL")
             showAlert(strMsg: "Unable to play video due to invalid URL.")
         }
     }
@@ -486,6 +543,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
         viewFollowers.isHidden = true;
     }
     @objc func btnPress(_ sender: UIButton) {
+        txtEmoji.resignFirstResponder()
         hideViews();
         let title = sender.titleLabel?.text!
         for (index,_) in buttonNames.enumerated() {
@@ -518,7 +576,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
         case "Followers":
             viewFollowers.isHidden = false;
         default:
-            print("default")
+            break
         }
     }
     
@@ -691,7 +749,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
             cell.btnVideo1.tag = indexPath.section
             let upcoming = self.aryVideos[indexPath.section] as? [String : Any];
             let strURL = upcoming?["videoThumbImage"] as? String ?? "";
-            // print("strURL:",strURL);
+            // //print("strURL:",strURL);
             //            if let urlVideoThumbImage = URL(string: strURL){
             //                self.videoThumbNail(from: urlVideoThumbImage, button: cell.btnVideo1)
             //            }
@@ -831,7 +889,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
             self.performerId = upcoming?["performer_id"]as? Int ?? 0
             self.streamId = upcoming?["videoId"] as? Int ?? 0
             self.streamVideoCode = upcoming?["streamCode"] as? String ?? ""
-            print("self.streamVideoCode:",self.streamVideoCode)
+            //print("self.streamVideoCode:",self.streamVideoCode)
             isVOD = false;
             isUpcoming = true;
             liveEvents()
@@ -860,6 +918,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
     }
     @objc func playVideoBtnTapped(_ sender: UIButton)
     {
+        txtEmoji.resignFirstResponder()
         playVideoFromList(section: sender.tag)
     }
     @objc func playVideoFromList(section:Int){
@@ -871,7 +930,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
         self.performerId = upcoming?["performer_id"]as? Int ?? 0
         self.streamId = upcoming?["videoId"] as? Int ?? 0
         self.streamVideoCode = upcoming?["videoCode"] as? String ?? ""
-        print("self.streamVideoCode:",self.streamVideoCode)
+        //print("self.streamVideoCode:",self.streamVideoCode)
         let url = upcoming?["videoUrl"] as? String ?? ""
         videoUrl = url
         isVOD = true;
@@ -893,7 +952,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
          self.viewVOD.isHidden = false
          let url = upcoming?["videoUrl"] as? String ?? ""
          videoUrl = url
-         print("videoUrl:",videoUrl)
+         //print("videoUrl:",videoUrl)
          self.showVideo(strURL: videoUrl);
          */
         /*let vod_urls = upcoming?["vod_urls"] as? String ?? ""
@@ -919,7 +978,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
             do {
                 return try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
             } catch {
-                print(error.localizedDescription)
+                //print(error.localizedDescription)
             }
         }
         return nil
@@ -988,11 +1047,17 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
     func textFieldDidBeginEditing(_ textField: UITextField) {
         if (txtComment == textField){
             self.animateTextField(textField: textField, up:true)
+        }else if(txtEmoji == textField){
+            
         }
+        
     }
     func textFieldDidEndEditing(_ textField: UITextField) {
         if (txtComment == textField){
             self.animateTextField(textField: textField, up:false)
+        }
+        else if(txtEmoji == textField){
+            
         }
         textField.resignFirstResponder();
     }
@@ -1024,6 +1089,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
     // MARK: Tip Methods
     
     @objc func payDonation(_ sender: UIButton) {
+        txtEmoji.resignFirstResponder()
         let user_id = UserDefaults.standard.string(forKey: "user_id");
         let charity = self.aryCharityInfo[sender.tag] as? [String:Any]
         let charityId = charity?["id"] as? Int ?? 0
@@ -1118,7 +1184,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
         //print("Download Started")
         getDataPerformer(from: url) { data, response, error in
             guard let data = data, error == nil else { return }
-            print(response?.suggestedFilename ?? url.lastPathComponent)
+            //print(response?.suggestedFilename ?? url.lastPathComponent)
             //print("Download Finished")
             DispatchQueue.main.async() { [weak self] in
                 imageView.image = UIImage(data: data)
@@ -1130,7 +1196,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
     func videoThumbNail(from url: URL, button: UIButton) {
         getDataPerformer(from: url) { data, response, error in
             guard let data = data, error == nil else { return }
-            print(response?.suggestedFilename ?? url.lastPathComponent)
+            //print(response?.suggestedFilename ?? url.lastPathComponent)
             DispatchQueue.main.async() { [weak self] in
                 button.setImage(UIImage(data: data), for: .normal)
                 button.imageView?.contentMode = .scaleAspectFill
@@ -1154,7 +1220,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
             streamIdLocal = String(streamId)
         }
         let params: [String: Any] = ["userid":user_id ?? "","performer_id":performerId,"stream_id": streamIdLocal]
-        print("liveEvents params:",params)
+        //print("liveEvents params:",params)
         // let params: [String: Any] = ["userid":user_id ?? "","performer_id":"101","stream_id": "0"]
         
         let headerParameters = [
@@ -1171,7 +1237,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
         let invocationClient = AreveaAPIClient.client(forKey:appDelegate.AWSCognitoIdentityPoolId)
         invocationClient.invoke(apiRequest).continueWith { (task: AWSTask) -> Any? in
             if let error = task.error {
-                print("Error occurred: \(error)")
+                //print("Error occurred: \(error)")
                 self.showAlert(strMsg: error as? String ?? error.localizedDescription)
                 // Handle error here
                 return nil
@@ -1185,7 +1251,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
                 DispatchQueue.main.async {
                     self.viewActivity.isHidden = true
                     if let json = resultObj as? [String: Any] {
-                        print("liveEvents json:",json);
+                        //print("liveEvents json:",json);
                         self.btnViewStream.isHidden = true;
                         if (json["statusCode"]as? String == "200"){
                             //print(json["message"] as? String ?? "")
@@ -1208,6 +1274,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
                                     self.imgStreamThumbNail.image = UIImage.init(named: "default-vod.png")
                                 }
                                 self.sendBirdChatConfig()
+                                self.sendBirdEmojiConfig()
                                 self.paymentAmount = streamObj?["stream_payment_amount"]as? Int ?? 0
                                 self.lblVideoTitle.text = streamVideoTitle
                                 self.lblVideoTitle_Info.text = streamVideoTitle
@@ -1316,7 +1383,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
                             
                         }else{
                             let strError = json["message"] as? String
-                            print("strError1:",strError ?? "")
+                            //print("strError1:",strError ?? "")
                             self.showAlert(strMsg: strError ?? "")
                             self.viewVOD.isHidden = false
                             self.viewLiveStream.isHidden = true;
@@ -1358,7 +1425,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
         let invocationClient = AreveaAPIClient.client(forKey:appDelegate.AWSCognitoIdentityPoolId)
         invocationClient.invoke(apiRequest).continueWith { (task: AWSTask) -> Any? in
             if let error = task.error {
-                print("Error occurred: \(error)")
+                //print("Error occurred: \(error)")
                 self.showAlert(strMsg: error as? String ?? error.localizedDescription)
                 // Handle error here
                 return nil
@@ -1371,17 +1438,17 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
                 let resultObj = try JSONSerialization.jsonObject(with: data, options : .allowFragments)
                 DispatchQueue.main.async {
                     self.viewActivity.isHidden = true
-                    // print(resultObj)
+                    // //print(resultObj)
                     if let json = resultObj as? [String: Any] {
                         //print("performerEvents json:",json);
                         if (json["statusCode"]as? String == "200"){
                             //print(json["message"] as? String ?? "")
                             self.aryUpcoming = json["Data"] as? [Any] ?? [Any]() ;
-                            print("upcoming count:",self.aryUpcoming.count);
+                            //print("upcoming count:",self.aryUpcoming.count);
                             self.tblUpcoming.reloadData();
                         }else{
                             let strError = json["message"] as? String
-                            print("strError2:",strError ?? "")
+                            //print("strError2:",strError ?? "")
                             self.showAlert(strMsg: strError ?? "")
                         }
                     }
@@ -1404,7 +1471,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
         let httpMethodName = "POST"
         let URLString: String = "/performerVideos"
         let params: [String: Any] = ["performerId":performerId,"orgId": orgId,"type": "video"]
-        print("params:",params)
+        //print("performerVideos params:",params)
         //let params: [String: Any] = ["performerId":"23","orgId": "11","type": "video"]
         
         let headerParameters = [
@@ -1421,7 +1488,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
         let invocationClient = AreveaAPIClient.client(forKey:appDelegate.AWSCognitoIdentityPoolId)
         invocationClient.invoke(apiRequest).continueWith { (task: AWSTask) -> Any? in
             if let error = task.error {
-                print("Error occurred: \(error)")
+                //print("Error occurred: \(error)")
                 self.showAlert(strMsg: error as? String ?? error.localizedDescription)
                 // Handle error here
                 return nil
@@ -1437,8 +1504,8 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
                     
                     //print(resultObj)
                     if let json = resultObj as? [String: Any] {
-                        // print("performerVideos json:",json);
-                        print("videos count:",self.aryVideos.count);
+                        // //print("performerVideos json:",json);
+                        //print("videos count:",self.aryVideos.count);
                         
                         if (json["statusCode"]as? String == "200"){
                             //print(json["message"] as? String ?? "")
@@ -1447,7 +1514,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
                             self.tblVideos.reloadData();
                         }else{
                             let strError = json["message"] as? String
-                            print("strError:",strError ?? "")
+                            //print("performerVideos strError:",strError ?? "")
                             self.showAlert(strMsg: strError ?? "")
                         }
                         
@@ -1473,6 +1540,8 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
         let httpMethodName = "POST"
         let URLString: String = "/performerVideos"
         let params: [String: Any] = ["performerId": performerId,"orgId": orgId,"type": "audio"]
+        //print("performerAudios params:",params)
+        
         let headerParameters = [
             "Content-Type": "application/json",
             "Accept": "application/json"
@@ -1487,7 +1556,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
         let invocationClient = AreveaAPIClient.client(forKey:appDelegate.AWSCognitoIdentityPoolId)
         invocationClient.invoke(apiRequest).continueWith { (task: AWSTask) -> Any? in
             if let error = task.error {
-                print("Error occurred: \(error)")
+                //print("Error occurred: \(error)")
                 self.showAlert(strMsg: error as? String ?? error.localizedDescription)
                 // Handle error here
                 return nil
@@ -1507,11 +1576,11 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
                         if (json["statusCode"]as? String == "200"){
                             //print(json["message"] as? String ?? "")
                             self.aryAudios = json["Data"] as? [Any] ?? [Any]() ;
-                            print("audios count:",self.aryVideos.count)
+                            //print("audios count:",self.aryVideos.count)
                             self.tblAudios.reloadData();
                         }else{
                             let strError = json["message"] as? String
-                            print("strError:",strError ?? "")
+                            //print("performerAudios strError:",strError ?? "")
                             self.showAlert(strMsg: strError ?? "")
                         }
                         
@@ -1550,7 +1619,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
         let invocationClient = AreveaAPIClient.client(forKey:appDelegate.AWSCognitoIdentityPoolId)
         invocationClient.invoke(apiRequest).continueWith { (task: AWSTask) -> Any? in
             if let error = task.error {
-                print("Error occurred: \(error)")
+                //print("Error occurred: \(error)")
                 self.showAlert(strMsg: error as? String ?? error.localizedDescription)
                 // Handle error here
                 return nil
@@ -1566,12 +1635,12 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
                     self.viewActivity.isHidden = true
                     
                     if let json = resultObj as? [String: Any] {
-                        print("getPerformerOrgInfo json:",json);
+                        //print("getPerformerOrgInfo json:",json);
                         if (json["statusCode"]as? String == "200"){
                             
                         }else{
                             let strError = json["message"] as? String
-                            print("strError:",strError ?? "")
+                            //print("strError:",strError ?? "")
                             self.showAlert(strMsg: strError ?? "")
                         }
                         
@@ -1646,7 +1715,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
         _ = Testbed.sharedInstance
         self.detailStreamItem = Testbed.testAtIndex(index: 0)
         if(self.detailStreamItem != nil){
-            print("props:",self.detailStreamItem!["LocalProperties"] as? NSMutableDictionary)
+            //print("props:",self.detailStreamItem!["LocalProperties"] as? NSMutableDictionary)
             
             Testbed.setLocalOverrides(params: self.detailStreamItem!["LocalProperties"] as? NSMutableDictionary)
             let className = self.detailStreamItem!["class"] as! String
@@ -1797,6 +1866,87 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
             }
         })
     }
+    func loadPreviousEmojis(initial: Bool) {
+        guard let channel_emoji = self.channel_emoji else { return }
+        
+        if self.isLoading {
+            return
+        }
+        
+        self.isLoading = true
+        
+        var timestamp: Int64 = 0
+        
+        if initial {
+            self.hasPrevious = true
+            timestamp = Int64.max
+        }
+        else {
+            timestamp = self.minMessageTimestamp
+        }
+        
+        if self.hasPrevious == false {
+            return
+        }
+        
+        channel_emoji.getPreviousMessages(byTimestamp: timestamp, limit: 30, reverse: !initial, messageType: .all, customType: nil, completionHandler: { (msgs, error) in
+            if error != nil {
+                self.isLoading = false
+                
+                return
+            }
+            
+            guard let emojis = msgs else { return }
+            
+            if emojis.count == 0 {
+                self.hasPrevious = false
+            }
+            
+            if initial {
+                if emojis.count > 0 {
+                    DispatchQueue.main.async {
+                        self.emojis.removeAll()
+                        
+                        for message in emojis {
+                            self.emojis.append(message)
+                            //print("self.emojis:",self.emojis)
+                            if self.minMessageTimestamp > message.createdAt {
+                                self.minMessageTimestamp = message.createdAt
+                            }
+                        }
+                        
+                        self.initialLoading = true
+                        self.animateEmojisLoop()
+                        //self.tblComments.reloadData()
+                        self.initialLoading = false
+                        self.isLoading = false
+                    }
+                }
+            }
+            else {
+                if emojis.count > 0 {
+                    DispatchQueue.main.async {
+                        var messageIndexPaths: [IndexPath] = []
+                        var row: Int = 0
+                        for message in emojis {
+                            self.emojis.insert(message, at: 0)
+                            
+                            if self.minMessageTimestamp > message.createdAt {
+                                self.minMessageTimestamp = message.createdAt
+                            }
+                            
+                            messageIndexPaths.append(IndexPath(row: row, section: 0))
+                            row += 1
+                        }
+                        
+                        //  self.tblComments.reloadData()
+                        
+                        self.isLoading = false
+                    }
+                }
+            }
+        })
+    }
     @IBAction func sendChatMessage(_ sender: Any) {
         txtComment.resignFirstResponder()
         let messageText = txtComment.text!.trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
@@ -1806,7 +1956,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
         }
         
         if (!isChannelAvailable){
-            print("sendBirdErrorCode:",sendBirdErrorCode)
+            //print("sendBirdErrorCode:",sendBirdErrorCode)
             switch sendBirdErrorCode {
             case 403100:
                 showAlert(strMsg: "Application id disabled/expired, Please contact admin.")
@@ -1830,12 +1980,12 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
             return
         }
         
-        print("channelName:",channelName)
+        //print("channelName:",channelName)
         guard let channel = self.channel else {
             showAlert(strMsg: "Channel is not available, Please try again later.")
             return
         }
-        print("channelName2:",self.channel?.name);
+        //print("channelName2:",self.channel?.name);
         self.txtComment.text = ""
         //self.sendUserMessageButton.isEnabled = false
         var preSendMessage: SBDUserMessage?
@@ -1883,6 +2033,88 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
             }
         }
     }
+    @IBAction func sendEmoji(strEmoji: String) {
+        
+        if (!isChannelAvailable_emoji){
+            //print("sendBirdErrorCode:",sendBirdErrorCode_Emoji)
+            switch sendBirdErrorCode_Emoji {
+            case 403100:
+                showAlert(strMsg: "Application id disabled/expired, Please contact admin.")
+            case 400300:
+                showAlert(strMsg: "Deactivated user not accessible, Please contact admin.")
+            case 400301:
+                showAlert(strMsg: "User not found, Please contact admin.")
+            case 400304:
+                showAlert(strMsg: "Application id not found, Please contact admin.")
+            case 400306:
+                showAlert(strMsg: "Paid quota exceeded, Please contact admin.")
+            case 400700:
+                showAlert(strMsg: "Blocked user send not allowed, Please contact admin.")
+            case 500910:
+                showAlert(strMsg: "Rate limit exceeded, Please contact admin.")
+                /* case 400201:
+                 showAlert(strMsg: "Channel is not available, Please try again later.")*/
+            default:
+                showAlert(strMsg: "\(self.sbdError_emoji)")
+            }
+            return
+        }
+        
+        //print("channelName:",channelName_Emoji)
+        guard let channel_emoji = self.channel_emoji else {
+            showAlert(strMsg: "Channel is not available, Please try again later.")
+            return
+        }
+        //print("channel_emoji name:",self.channel_emoji?.name ?? "");
+        //self.sendUserMessageButton.isEnabled = false
+        var preSendMessage: SBDUserMessage?
+        preSendMessage = channel_emoji.sendUserMessage(strEmoji) { (userMessage, error) in
+            if error != nil {
+                DispatchQueue.main.async {
+                    guard let preSendMsg = preSendMessage else { return }
+                    guard let requestId = preSendMsg.requestId else { return }
+                    
+                    self.preSendMessage_emojis.removeValue(forKey: requestId)
+                    self.resendableMessage_emojis[requestId] = preSendMsg
+                    // self.tblComments.reloadData()
+                }
+                return
+            }
+            
+            guard let message = userMessage else {
+                return
+                
+            }
+            guard let requestId = message.requestId else {
+                return
+                
+            }
+            
+            DispatchQueue.main.async {
+                self.determineScrollLock()
+                
+                if let preSendMessage = self.preSendMessage_emojis[requestId] {
+                    if let index = self.emojis.firstIndex(of: preSendMessage) {
+                        self.emojis[index] = message
+                        self.preSendMessage_emojis.removeValue(forKey: requestId)
+                        //  self.tblComments.reloadRows(at: [IndexPath(row: index, section: 0)], with: .none)
+                    }
+                }
+            }
+        }
+        
+        DispatchQueue.main.async {
+            self.determineScrollLock()
+            if let preSendMsg = preSendMessage {
+                if let requestId = preSendMsg.requestId {
+                    self.preSendMessage_emojis[requestId] = preSendMsg
+                    self.emojis.append(preSendMsg)
+                    //                    self.tblComments.reloadData()
+                    //                    self.scrollToBottom(force: false)
+                }
+            }
+        }
+    }
     // MARK: - Scroll
     func scrollToBottom(force: Bool) {
         if self.messages.count == 0 {
@@ -1914,15 +2146,19 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
         }
     }
     @IBAction func playStream(_ sender: Any){
-        print("playStream called")
+        //print("playStream called")
         self.setLiveStreamConfig();
     }
     // MARK: - Emoji Delegates
     
     //  Converted to Swift 5.2 by Swiftify v5.2.28138 - https://swiftify.com/
+    
     func emojiKeyBoardView(_ emojiKeyBoardView: AGEmojiKeyboardView?, didUseEmoji emoji: String?) {
-        animateEmojis()
-        txtEmoji?.text = "\(emoji ?? "")"
+        self.imgEmoji.isHidden = false;
+        imgEmoji.image = emoji?.image()
+        sendEmoji(strEmoji: emoji ?? "")
+        animateEmoji()
+        //txtEmoji?.text = "\(emoji ?? "")"
     }
     
     func emojiKeyBoardViewDidPressBackSpace(_ emojiKeyBoardView: AGEmojiKeyboardView?) {
@@ -1980,4 +2216,18 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
     }
     
     
+}
+
+extension String {
+    func image() -> UIImage? {
+        let size = CGSize(width: 45, height: 45)
+        UIGraphicsBeginImageContextWithOptions(size, false, 0)
+        UIColor.clear.set()
+        let rect = CGRect(origin: .zero, size: size)
+        UIRectFill(CGRect(origin: .zero, size: size))
+        (self as AnyObject).draw(in: rect, withAttributes: [.font: UIFont.systemFont(ofSize: 40)])
+        let image = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        return image
+    }
 }

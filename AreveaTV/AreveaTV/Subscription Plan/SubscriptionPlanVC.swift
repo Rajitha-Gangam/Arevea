@@ -71,7 +71,7 @@ class SubscriptionPlanVC: UIViewController {
                 switch response.result {
                 case .success(let value):
                     if let json = value as? [String: Any] {
-                        print("json:",json)
+                        //print("json:",json)
                         if (json["status"]as? Int == 0){
                                     self.viewActivity.isHidden = true
 

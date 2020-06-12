@@ -91,10 +91,10 @@ class SignUpVC: UIViewController ,UITextFieldDelegate,UIPickerViewDelegate, UIPi
         if let error = error as? AWSMobileClientError {
             switch(error) {
             case .invalidPassword(message: let message):
-                print("==invalidPassword:",message)
+                //print("==invalidPassword:",message)
                 showAlert(strMsg: message);
             case .invalidParameter(message: let message):
-                print("==invalidState:",message)
+                //print("==invalidState:",message)
                 showAlert(strMsg: message);
             case .usernameExists(let message):
                 showAlert(strMsg: message);
@@ -104,17 +104,17 @@ class SignUpVC: UIViewController ,UITextFieldDelegate,UIPickerViewDelegate, UIPi
                 break
             }
             
-            print("There's an error on signup: \(error.localizedDescription), \(error)")
+            //print("There's an error on signup: \(error.localizedDescription), \(error)")
             
         }
         
         guard let signUpResult = signUpResult else {
             return
         }
-        print("signUpConfirmationState: \(signUpResult.signUpConfirmationState)");
+        //print("signUpConfirmationState: \(signUpResult.signUpConfirmationState)");
         switch(signUpResult.signUpConfirmationState) {
         case .confirmed:
-            print("User is signed up and confirmed.")
+            //print("User is signed up and confirmed.")
             
             DispatchQueue.main.async {
                 let storyboard = UIStoryboard(name: "Main", bundle: nil);
@@ -216,8 +216,8 @@ class SignUpVC: UIViewController ,UITextFieldDelegate,UIPickerViewDelegate, UIPi
                 dateComponent.year = -18 // currentdate -18 years
             }
             let pastDate = Calendar.current.date(byAdding: dateComponent, to: currentDate)
-            print("currentDate:",currentDate)
-            print("pastDate:",pastDate!)
+            //print("currentDate:",currentDate)
+            //print("pastDate:",pastDate!)
             let dobPast = dateFormatter.string(from:pastDate!)
             
             viewActivity.isHidden = false

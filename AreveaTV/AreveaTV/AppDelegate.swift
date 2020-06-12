@@ -33,8 +33,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate,CLLocationManagerDelegate 
     var strCategory = "";
     var genreId = 0;
    var aryCountries = [["region_code":"blr1","countries":["india","sri lanka","bangaldesh","pakistan","china"]],["region_code":"tor1","countries":["canada"]],["region_code":"fra1","countries":["germany"]],["region_code":"lon1","countries":["england"]],["region_code":"sgp1","countries":["singapore"]],["region_code":"sfo1","countries":["United States"]],["region_code":"sfo2","countries":["United States"]],["region_code":"ams2","countries":["netherlands"]],["region_code":"ams3","countries":["netherlands"]],["region_code":"nyc1","countries":["United States"]],["region_code":"nyc2","countries":["United States"]],["region_code":"nyc3","countries":["United States"]]]
-    var strCountry = "United States"
-    var strRegionCode = "sfo1"
+    var strCountry = "India"//United States
+    var strRegionCode = "blr1"//sfo1
+    var detailToShow = "Stream" //for details screen to show stream/audio/video,,,etc based on serach selected item
     // MARK: - Application Life cycle
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         
@@ -49,14 +50,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate,CLLocationManagerDelegate 
         FirebaseApp.configure()
         //SBDMain.initWithApplicationId("9308C3B1-A36D-47E2-BA3C-8F6F362C35AF")
         SBDMain.initWithApplicationId("EFE090F2-3965-4D94-AB5A-77F0565DDD4F")
-        locationManager = CLLocationManager()
+        /*locationManager = CLLocationManager()
         locationManager.delegate = self
         locationManager.desiredAccuracy = kCLLocationAccuracyBest
         locationManager.requestAlwaysAuthorization()
         
         if CLLocationManager.locationServicesEnabled(){
             locationManager.startUpdatingLocation()
-        }
+        }*/
        
         return true
     }
@@ -99,7 +100,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate,CLLocationManagerDelegate 
     
     
     //MARK: - location delegate methods
-       func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+     /*  func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
            let netAvailable = self.isConnectedToInternet()
            if(!netAvailable){
                return
@@ -108,12 +109,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate,CLLocationManagerDelegate 
            let geocoder = CLGeocoder()
            geocoder.reverseGeocodeLocation(userLocation) { (placemarks, error) in
                if (error != nil){
-                   print("error in reverseGeocode")
+                   //print("error in reverseGeocode")
                }
                let placemark = placemarks! as [CLPlacemark]
                if placemark.count>0{
                    let placemark = placemarks![0]
-                   print("country:",placemark.country!)
+                   //print("country:",placemark.country!)
                 self.strCountry = placemark.country!
                 self.getRegion()
                }
@@ -127,7 +128,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate,CLLocationManagerDelegate 
             for (j,_) in countryNames.enumerated() {
                 let country = countryNames[j] as! String
                 if(country.lowercased() == strCountry.lowercased()){
-                    print("equal:",country)
+                    //print("equal:",country)
                     strRegionCode = element["region_code"]as! String
                     return
                 }
@@ -135,9 +136,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate,CLLocationManagerDelegate 
         }
     }
        func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
-           print("Error \(error)")
+           //print("Error \(error)")
        }
-    
+    */
     
 }
 

@@ -64,9 +64,9 @@ class SubscribeTelephonyInterruptTest: BaseTest {
             }
             
         } else if ((Int(statusCode) == Int(r5_status_netstatus.rawValue) && msg == "NetStream.Play.SufficientBW")) {
-            print("sufficient band Width")
+            //print("sufficient band Width")
         }else if ((Int(statusCode) == Int(r5_status_netstatus.rawValue) && msg == "NetStream.Play.InSufficientBW")) {
-            print("Insufficient Band Width")
+            //print("Insufficient Band Width")
         }else if (Int(statusCode) == Int(r5_status_audio_mute.rawValue))
         {
                 
@@ -153,7 +153,7 @@ class SubscribeTelephonyInterruptTest: BaseTest {
                    .responseJSON { response in
                        switch response.result {
                        case .success(let value):
-                           print(value)
+                           //print(value)
                            if let json = value as? [String: Any] {
                                if let errorMsg = json["errorMessage"]{
                                    ALToastView.toast(in: self.view, withText:errorMsg as? String ?? "")

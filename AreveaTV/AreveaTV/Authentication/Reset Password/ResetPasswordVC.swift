@@ -78,7 +78,7 @@ class ResetPasswordVC: UIViewController ,UITextFieldDelegate{
             showAlert(strMsg: "Please enter valid email");
         }else{
             guard let username = txtEmail.text else {
-                print("No username")
+                //print("No username")
                 return
             }
             self.viewActivity.isHidden = false
@@ -90,7 +90,7 @@ class ResetPasswordVC: UIViewController ,UITextFieldDelegate{
                 }
                 if let error = error {
                     self.showAlert(strMsg: "\(error)");
-                           print("\(error)")
+                           //print("\(error)")
                            return
                        }
                 if let forgotPasswordResult = forgotPasswordResult {
@@ -118,10 +118,10 @@ class ResetPasswordVC: UIViewController ,UITextFieldDelegate{
                         }
                         
                     default:
-                        print("Error: Invalid case.")
+                        break
                     }
                 } else if let error = error {
-                    print("Error occurred: \(error.localizedDescription)")
+                    //print("Error occurred: \(error.localizedDescription)")
                 }
             }
         }

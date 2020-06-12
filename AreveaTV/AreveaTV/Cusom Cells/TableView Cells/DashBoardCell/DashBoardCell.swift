@@ -97,7 +97,7 @@ class DashBoardCell: UITableViewCell, UICollectionViewDataSource, UICollectionVi
                 cell.nameLabel.text = arySub["name"]as? String;
                 
             }else if (strController == "channels"){
-                // print("arySub:",arySub)
+                // //print("arySub:",arySub)
                 cell.nameLabel.text = arySub["performer_display_name"]as? String ?? "";
                 let strURL = arySub["performer_profile_pic"]as? String ?? "";
                 if (strURL != "" && strURL != "NO LOGO" && strURL.range(of:"null") == nil ){
@@ -129,7 +129,7 @@ class DashBoardCell: UITableViewCell, UICollectionViewDataSource, UICollectionVi
                 return
             }
             //print(response?.suggestedFilename ?? url.lastPathComponent)
-            // print("Download Finished")
+            // //print("Download Finished")
             DispatchQueue.main.async() { [weak self] in
                 imageView.image = UIImage(data: data)
             }

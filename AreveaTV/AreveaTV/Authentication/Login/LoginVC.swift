@@ -100,7 +100,7 @@
             viewActivity.isHidden = false
             AWSMobileClient.default().signIn(username: username, password: password) {
                 (signInResult, error) in
-                print("signInResult:\(String(describing: signInResult))");
+                //print("signInResult:\(String(describing: signInResult))");
                 
                 DispatchQueue.main.async {
                     self.viewActivity.isHidden = true
@@ -112,7 +112,7 @@
                     case .userNotFound(let message):
                         self.showAlert(strMsg: message);
                     case .userNotConfirmed(let message):
-                        print("userNotConfirmed:",message)
+                        //print("userNotConfirmed:",message)
                         DispatchQueue.main.async {
                             UserDefaults.standard.set(username, forKey: "user_email")
                             let storyboard = UIStoryboard(name: "Main", bundle: nil);
@@ -124,8 +124,8 @@
                         self.showAlert(strMsg: "\(error)");
                         break
                     }
-                    print("There's an error : \(error.localizedDescription)")
-                    print(error)
+                    //print("There's an error : \(error.localizedDescription)")
+                    //print(error)
                     return
                 }
                 guard let signInResult = signInResult else {
@@ -133,17 +133,17 @@
                 }
                 switch (signInResult.signInState) {
                 case .signedIn:
-                    print("User is signed in.")
+                    //print("User is signed in.")
                     UserDefaults.standard.set(username, forKey: "user_email")
                     self.delayWithSeconds(2.0){
                         self.viewActivity.isHidden = false
                         self.getUser();
                     }
                 case .newPasswordRequired:
-                    print("User needs a new password.")
+                    //print("User needs a new password.")
                     self.showAlert(strMsg: "User needs a new password")
                 default:
-                    print("Sign In needs info which is not et supported.")
+                    //print("Sign In needs info which is not et supported.")
                     self.showAlert(strMsg: "Sign In needs info which is not et supported")
                     
                 }
@@ -199,10 +199,10 @@
             AWSMobileClient.default().federatedSignIn(providerName: "Facebook",
                                                       token: "230469618276761") { (userState, error) in
                                                         if let error = error as? AWSMobileClientError {
-                                                            print(error.localizedDescription)
+                                                            //print(error.localizedDescription)
                                                         }
                                                         if let userState = userState {
-                                                            print("Status: \(userState.rawValue)")
+                                                            //print("Status: \(userState.rawValue)")
                                                         }
             }
             // awsSignInFacebook(fbAuthToken: "230469618276761")
@@ -221,12 +221,12 @@
             credentialsProvider.getIdentityId().continueWith { (task: AWSTask!) -> AnyObject? in
                 
                 if (task.error != nil) {
-                    print("Error: " + (task.error?.localizedDescription)!)
+                    //print("Error: " + (task.error?.localizedDescription)!)
                     
                 } else {
                     // the task result will contain the identity id
                     let cognitoId = task.result
-                    print("Cognito ID : \(String(describing: cognitoId))")
+                    //print("Cognito ID : \(String(describing: cognitoId))")
                 }
                 return nil
             }
@@ -294,7 +294,7 @@
             let invocationClient = AreveaAPIClient.client(forKey:appDelegate.AWSCognitoIdentityPoolId)
             invocationClient.invoke(apiRequest).continueWith { (task: AWSTask) -> Any? in
                 if let error = task.error {
-                    print("Error occurred: \(error)")
+                    //print("Error occurred: \(error)")
                     self.showAlert(strMsg: "\(error)")
                     self.logout()
                     // Handle error here
@@ -392,7 +392,7 @@
                     //                    }
                     self.sendBirdConnect()
                 }
-                print("sendBirdConnect disconnect")
+                //print("sendBirdConnect disconnect")
             }
             else {
                 viewActivity.isHidden = false
@@ -417,7 +417,7 @@
                     
                     DispatchQueue.main.async {
                         // self.setUIsForDefault()
-                        print("Logged In With SendBird Successfully")
+                        //print("Logged In With SendBird Successfully")
                         let storyboard = UIStoryboard(name: "Main", bundle: nil);
                         let vc = storyboard.instantiateViewController(withIdentifier: "DashBoardVC") as! DashBoardVC
                         self.navigationController?.pushViewController(vc, animated: true)

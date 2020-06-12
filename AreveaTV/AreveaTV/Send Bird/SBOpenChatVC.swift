@@ -49,7 +49,7 @@ class SBOpenChatVC: UIViewController,UITableViewDelegate,UITableViewDataSource,O
         //self.channel = channel!.name("1588782608325_chat_event_3")
 //        if let channel = self.channel {
 //            self.title = channel.name
-//            print("channel.name:",channel.name);
+//            //print("channel.name:",channel.name);
 //        }
         SBDOpenChannel.getWithUrl(channelName, completionHandler: { (openChannel, error) in
             guard error == nil else {   // Error.

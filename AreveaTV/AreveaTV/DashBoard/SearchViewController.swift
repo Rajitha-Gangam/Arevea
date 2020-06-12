@@ -70,7 +70,7 @@
         //MARK:Tableview Delegates and Datasource Methods
         
         func numberOfSections(in tableView: UITableView) ->  Int {
-            return 2;
+            return 3;
         }
         func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
             if (tableView == tblFilter){
@@ -87,6 +87,8 @@
                 label.font = UIFont.boldSystemFont(ofSize: 18)
                 label.textColor = UIColor.orange
                 if (section == 0){
+                    label.text = "Categories :"
+                }else if (section == 1){
                     label.text = "Sub Categories :"
                 }else{
                     label.text = "Genre :"
@@ -112,24 +114,28 @@
         func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
             // let cell = myTableView.dequeueReusableCell(withIdentifier: "DashBoardCell", for: indexPath) as! DashBoardCell
             let cell:CheckMarkCell = self.tblFilter.dequeueReusableCell(withIdentifier: "CheckMarkCell") as! CheckMarkCell
-            if (indexPath.section == 0){
+             if (indexPath.section == 0){
                 let selectedItem = self.aryFilterSubCategoriesData[indexPath.row]
                     cell.lblTitle.text = selectedItem
             }else{
                 let selectedItem = self.aryFilterGenresData[indexPath.row]
                     cell.lblTitle.text = selectedItem
-                
             }
-            cell.imgCheck.tag = (50 * indexPath.section) + (indexPath.row)
+            cell.imgCheck.tag = (50 * indexPath.section) + (indexPath.row + 1)
             //cell.myImage?.image = UIImage(named:self.imageData[indexPath.row])
             return cell
             
         }
+        
+
         func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
             tableView.deselectRow(at: indexPath, animated: true)
-            let tag = (50 * indexPath.section) + (indexPath.row)
+            guard indexPath.section != 0 else { return }
+
+                       // If it is in the second section, indicate that no item is selected now
+            let tag = (50 * indexPath.section) + (indexPath.row + 1)
             let checkImg = tblFilter.viewWithTag(tag) as? UIImageView
-            print("tag:",tag)
+            //print("tag:",tag)
             if ((checkImg?.image?.isEqual(UIImage.init(named: "check-icon.png")))!)
             {
                 checkImg?.image = UIImage.init(named: "uncheck-icon.png")
@@ -137,22 +143,63 @@
             else{
                 checkImg?.image = UIImage.init(named: "check-icon.png")
             }
-            //        let cell:CheckMarkCell = tblFilter.cellForRow(at: indexPath) as! CheckMarkCell
-            //
-            //        let checkImg = cell.imgCheck.image
-            //        if ((checkImg?.isEqual(UIImage.init(named: "check-icon.png")))!)
-            //        {
-            //            cell.imgCheck?.image = UIImage.init(named: "uncheck-icon.png")
-            //        }
-            //        else{
-            //            cell.imgCheck?.image = UIImage.init(named: "check-icon.png")
-            //        }
+           // prepareQueryForCloudSearch(subcategory: "Comedy", selectedgenre: "")
+             if (indexPath.section == 0){
+                let selectedItem = self.aryFilterSubCategoriesData[indexPath.row]
+                let subCategory = selectedItem
+                prepareQueryForCloudSearch(subcategory: subCategory, selectedgenre: "")
+            }else{
+                let selectedItem = self.aryFilterSubCategoriesData[indexPath.row]
+                let genre = selectedItem
+                prepareQueryForCloudSearch(subcategory: "", selectedgenre: genre)
+            }
+        }
+        func prepareQueryForCloudSearch(subcategory: String,selectedgenre: String) {
+            let sub_category = subcategory;
+            let selected_genre = selectedgenre;
+            var prepareORQuery = "";
+            var query = "";
+            let searchText = searchBar.text!.trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
+
+            //print("filter_query",sub_category);
+            //print("filter_query",selected_genre);
+            let fields = ["name", "searchkeywords", "streamvideodesc"];
+            for i in 0...fields.count-1{
+                prepareORQuery += "(prefix field=" + fields[i] + " " + "'" + searchText + "'" + ")";
+                prepareORQuery += "(term field=" + fields[i] + " " + "'" + searchText + "'" + ")";
+            }
+            let  category_name = "''";
+//            if(selected_category =="All"){
+//                        category_name="''";
+//                    }
+//                    else{
+//                        category_name = "'"+selected_category+"'";
+//                    }
+            // query = "(and (and category:'"+selected_category+"')(or "+prepareORQuery+"))";
+            //`(and (and category:'${categoryName}')(and subcategories: ${subCategories}) (and genres: ${genre}) (and (or ${prepareORQuery})))`
+            //print("selected_sub_category",sub_category);
+            //print("selected_genre",""+"hi");
+            query = "(and (and category:" + category_name + ")(and subcategories: " + sub_category + ") (and genres: " + selected_genre + ") (and (or " + prepareORQuery + ")))";
+            let encodedQuery = query.addingPercentEncoding(withAllowedCharacters:NSCharacterSet.urlQueryAllowed)
+
+            query = "?q=" + encodedQuery!;
+            //query = query.replacingOccurrences(of: "'", with: "%27")
+            query += "&q.parser=structured";
+            query += "&size=500";
+            //print("query_category:",query);
+            getSearchResults(searchString: query, isQuery: true)
             
+
         }
         // MARK: Handler for getCategoryOrganisations API
-        func getSearchResults(searchString:String){
-            
-            let url: String = "https://3ptsrb2obj.execute-api.us-east-1.amazonaws.com/dev/?q=" + searchString + "*"
+        func getSearchResults(searchString:String,isQuery:Bool){
+            let baseURL = "https://3ptsrb2obj.execute-api.us-east-1.amazonaws.com/dev/"
+            var url = ""
+            if (isQuery){
+                url = baseURL + searchString
+            }else{
+                url = baseURL + "?q=" + searchString + "*"
+            }
             let encodedURL = url.addingPercentEncoding(withAllowedCharacters:NSCharacterSet.urlQueryAllowed)
             //print("encodedURL:",encodedURL)
             viewActivity.isHidden = false
@@ -165,13 +212,11 @@
                     switch response.result {
                     case .success(let value):
                         if let json = value as? [String: Any] {
-                            print("getSearchResults json:",json)
+                            //print("getSearchResults json:",json)
                             let resultObj = json["hits"] as? [String: Any]
                             let hitArray = resultObj?["hit"] as? [Any] ?? [Any]();
-                            print("--count:",self.searchList.count )
-                            
+                            //print("--count:",self.searchList.count )
                             self.searchList = []
-                           
                             self.aryFilterCategoriesData = []
                             self.aryFilterSubCategoriesData = []
                             self.aryFilterGenresData = []
@@ -223,6 +268,7 @@
                     }
             }
         }
+        
         @IBAction func back(_ sender: Any) {
             self.navigationController?.popViewController(animated: true);
         }
@@ -262,7 +308,7 @@
             searchBar.text = "";
             searchBar.resignFirstResponder()
             searchActive = false;
-            getSearchResults(searchString: "")
+
             
             //self.tblMain.reloadData()
         }
@@ -278,16 +324,13 @@
         }
         func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
             searchBar.resignFirstResponder()
-            let searchString = searchBar.text!
+            let searchString = searchBar.text!.trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
             if (searchString.count > 0){
                 searchActive = true;
-                getSearchResults(searchString: searchString)
+                getSearchResults(searchString: searchString, isQuery: false)
                 //print("--count:",aryFilteredSubCategories.count)
                 // tblMain.reloadData()
-                
             }
-            
-            
         }
         override var preferredStatusBarStyle: UIStatusBarStyle {
             return .lightContent // .default
@@ -300,11 +343,11 @@
         //MARK: collectionView Data Source and Delegates
 
         func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-            let cell = collectionView.cellForItem(at: indexPath) as? DBCollectionViewCell
+            _ = collectionView.cellForItem(at: indexPath) as? DBCollectionViewCell
             let searchItem = searchList[indexPath.item] as! [String: Any]
             let type = searchItem["type"]as? String;
-            print("searchItem:",searchItem)
-            print("type:",type)
+            //print("searchItem:",searchItem)
+            //print("type:",type ?? "")
             switch type {
             case "stream":
                 let storyboard = UIStoryboard(name: "Main", bundle: nil);
@@ -312,16 +355,44 @@
                 let streamId = searchItem["id"] as? String ?? "0"
                 vc.streamId = Int(streamId) ?? 0
                 appDelegate.isLiveLoad = "1"
+                appDelegate.detailToShow = "stream"
                 let performerId = searchItem["performerid"] as? String ?? "0"
                 vc.performerId = Int(performerId) ?? 0
                 vc.strTitle = searchItem["performer"] as? String ?? "Channel Details"
                 self.navigationController?.pushViewController(vc, animated: true)
-            /*case "performer":
-                cell.imgType.image = UIImage.init(named: "sr_performer.png")
+            case "performer":
+                let storyboard = UIStoryboard(name: "Main", bundle: nil);
+                let vc = storyboard.instantiateViewController(withIdentifier: "ChannelDetailVC") as! ChannelDetailVC
+                let streamId = searchItem["id"] as? String ?? "0"
+                vc.streamId = Int(streamId) ?? 0
+                appDelegate.isLiveLoad = "1"
+                appDelegate.detailToShow = "performer"
+                let performerId = searchItem["performerid"] as? String ?? "0"
+                vc.performerId = Int(performerId) ?? 0
+                vc.strTitle = searchItem["performer"] as? String ?? "Channel Details"
+                self.navigationController?.pushViewController(vc, animated: true)
             case "video":
-                cell.imgType.image = UIImage.init(named: "sr_video.png")
+               let storyboard = UIStoryboard(name: "Main", bundle: nil);
+                let vc = storyboard.instantiateViewController(withIdentifier: "ChannelDetailVC") as! ChannelDetailVC
+                let streamId = searchItem["id"] as? String ?? "0"
+                vc.streamId = Int(streamId) ?? 0
+                appDelegate.isLiveLoad = "1"
+               appDelegate.detailToShow = "video"
+                let performerId = searchItem["performerid"] as? String ?? "0"
+                vc.performerId = Int(performerId) ?? 0
+                vc.strTitle = searchItem["performer"] as? String ?? "Channel Details"
+                self.navigationController?.pushViewController(vc, animated: true)
             case "audio":
-                cell.imgType.image = UIImage.init(named: "sr_audio.png")*/
+               let storyboard = UIStoryboard(name: "Main", bundle: nil);
+                let vc = storyboard.instantiateViewController(withIdentifier: "ChannelDetailVC") as! ChannelDetailVC
+                let streamId = searchItem["id"] as? String ?? "0"
+                vc.streamId = Int(streamId) ?? 0
+                appDelegate.isLiveLoad = "1"
+               appDelegate.detailToShow = "audio"
+                let performerId = searchItem["performerid"] as? String ?? "0"
+                vc.performerId = Int(performerId) ?? 0
+                vc.strTitle = searchItem["performer"] as? String ?? "Channel Details"
+                self.navigationController?.pushViewController(vc, animated: true)
             case "organization":
                  let storyboard = UIStoryboard(name: "Main", bundle: nil);
                            let vc = storyboard.instantiateViewController(withIdentifier: "ChannelsVC") as! ChannelsVC
@@ -348,7 +419,7 @@
             case "genre":
                 let genreId = searchItem["id"] as? String ?? "0"
                 appDelegate.genreId = Int(genreId) ?? 0
-                print("genreId:",appDelegate.genreId)
+                //print("genreId:",appDelegate.genreId)
                 for controller in self.navigationController!.viewControllers as Array {
                     if controller.isKind(of: DashBoardVC.self) {
                         self.navigationController!.popToViewController(controller, animated: true)
@@ -378,7 +449,7 @@
                 cell.imgCategory.contentMode = .scaleAspectFill
                 cell.nameLabel.text = searchItem["name"]as? String;
                 let type = searchItem["type"]as? String;
-                print("type:",type)
+                //print("type:",type)
                 switch type {
                 case "stream":
                     cell.imgType.image = UIImage.init(named: "sr_stream.png")

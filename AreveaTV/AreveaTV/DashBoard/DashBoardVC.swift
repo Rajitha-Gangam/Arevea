@@ -178,7 +178,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
                     if let json = value as? [String: Any] {
                         //print("ongoingEvents JSON:",json)
                         self.aryLiveChannelsData  = json["Data"] as? [Any] ?? [Any]();
-                        print("ongoingEvents count:",self.aryLiveChannelsData.count)
+                        //print("ongoingEvents count:",self.aryLiveChannelsData.count)
                         self.tblMain.reloadData()
                     }
                 case .failure(let error):
@@ -287,7 +287,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
         let invocationClient = AreveaAPIClient.client(forKey:appDelegate.AWSCognitoIdentityPoolId)
         invocationClient.invoke(apiRequest).continueWith { (task: AWSTask) -> Any? in
             if let error = task.error {
-                print("Error occurred: \(error)")
+                //print("Error occurred: \(error)")
                 self.showAlert(strMsg: error as? String ?? error.localizedDescription)
                 // Handle error here
                 return nil
@@ -302,7 +302,6 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
                     
                     //print(resultObj)
                     if let json = resultObj as? [String: Any] {
-                        print("getProfile:",json)
                         if (json["status"]as? Int == 0){
                             // //print(json["message"] ?? "")
                             let profile_data = json["profile_data"] as? [String:Any] ?? [:]
@@ -558,7 +557,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
                 self.navigationController?.pushViewController(vc, animated: true)
             default:
                 hideSideMenu()
-                print ("default")
+                //print ("default")
             }
         }
     }
@@ -597,7 +596,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
     func downloadImage(from url: URL, imageView: UIImageView) {
         getData(from: url) { data, response, error in
             guard let data = data, error == nil else { return }
-            print(response?.suggestedFilename ?? url.lastPathComponent)
+            //print(response?.suggestedFilename ?? url.lastPathComponent)
             DispatchQueue.main.async() { [weak self] in
                 imageView.contentMode = .scaleAspectFill
                 imageView.image = UIImage(data: data)
@@ -620,7 +619,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
         
         let orgsList = didTappedInTableViewCell.rowWithItems
         let selectedOrg = orgsList[index] as? [String: Any]
-        print("item:\(String(describing: selectedOrg))")
+        //print("item:\(String(describing: selectedOrg))")
         
         if (selectedOrg?["parent_category_id"]as? Int != nil){
             let storyboard = UIStoryboard(name: "Main", bundle: nil);
@@ -628,7 +627,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
             vc.orgId = selectedOrg?["organization_id"] as? Int ?? 0
             vc.delegate = self
             appDelegate.isLiveLoad = "1"
-            //        print("userId:",selectedOrg?["user_id"] as Any)
+            //        //print("userId:",selectedOrg?["user_id"] as Any)
             if (selectedOrg?["performer_id"] as? Int) != nil {
                 vc.performerId = selectedOrg?["performer_id"] as! Int
             }
@@ -766,7 +765,7 @@ extension DashBoardVC: UICollectionViewDataSource , UICollectionViewDelegateFlow
             return self.aryFilterGenresData.count
             
         default:
-            print("")
+            break
         }
         return 0;
     }
@@ -789,7 +788,7 @@ extension DashBoardVC: UICollectionViewDataSource , UICollectionViewDelegateFlow
             cell.chipView.titleLabel.text = selectedItem["genres"] as? String
             
         default:
-            print("")
+            break
         }
         
         //        cell.chipView.titleLabel.font = UIFont.boldSystemFont(ofSize: 15)
@@ -805,12 +804,12 @@ extension DashBoardVC: UICollectionViewDataSource , UICollectionViewDelegateFlow
         return cell
     }
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        print("section:",indexPath.section)
-        print("row:",indexPath.row)
+        //print("section:",indexPath.section)
+        //print("row:",indexPath.row)
         if (indexPath.section == 0){
             let selectedItem = self.aryFilterCategoriesData[indexPath.row] as? [String : Any];
             let strValue = selectedItem?["category"] as? String;
-            print("strValue cat:",strValue ?? "")
+            //print("strValue cat:",strValue ?? "")
             self.strSelectedCategory = strValue ?? ""
             self.aryFilterSubCategoriesData = selectedItem?["subcategory"] as? [Any] ?? [Any]();
             self.aryFilterGenresData = selectedItem?["genre"] as? [Any] ?? [Any]();
@@ -819,22 +818,22 @@ extension DashBoardVC: UICollectionViewDataSource , UICollectionViewDelegateFlow
         }else if (indexPath.section == 1){
             let selectedItem = aryFilterSubCategoriesData[indexPath.row] as? [String : Any];
             let strValue = selectedItem?["subCategory"] as? String;
-            print("strValue sub:",strValue ?? "")
+            //print("strValue sub:",strValue ?? "")
             self.strSelectedCategory = strValue ?? ""
         }else if (indexPath.section == 2){
             let selectedItem = aryFilterGenresData[indexPath.row] as? [String : Any];
             let strValue = selectedItem?["genres"] as? String;
-            print("strValue genre:",strValue ?? "")
+            //print("strValue genre:",strValue ?? "")
             let selectedGenreId = selectedItem?["id"] as? Int;
             self.genreId = selectedGenreId ?? 0
-            print("selectedGenreId:",selectedGenreId)
+            //print("selectedGenreId:",selectedGenreId)
             isSelectedGenre = true;
         }
     }
     
     
     @objc func categoryPress(_ sender: UIButton) {
-        print("tag:",sender.tag)
+        //print("tag:",sender.tag)
         //        if (self.aryFilterCategoriesData.count > sender.tag){
         //            let selectedItem = self.aryFilterCategoriesData[sender.tag] as? [String : Any];
         //            self.aryFilterSubCategoriesData = selectedItem?["subcategory"] as? [Any] ?? [Any]();
