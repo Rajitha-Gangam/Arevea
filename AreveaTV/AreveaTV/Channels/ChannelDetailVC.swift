@@ -60,9 +60,8 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
     var streamVideoCode = ""
     
     var streamId = 0;
-    var buttonNames = ["Comments","Info", "Donate", "Share","Profile","Upcoming", "Videos", "Audios"]
+    var buttonNames = ["Comments","Info", "Donate", "Share","Profile","Upcoming", "Audios","Videos"]
     
-    var aryComments = [["name":"Cameron","desc":"Lorem Ipsum is simply dummy text of the //printing and typesetting industry"],["name":"Daisy Austin","desc":"Lorem Ipsum is simply dummy text of the //printing and typesetting industry"],["name":"Cameron","desc":"Lorem Ipsum is simply dummy text of the //printing and typesetting industry"],["name":"Daisy Austin","desc":"Lorem Ipsum is simply dummy text of the //printing and typesetting industry"],["name":"Cameron","desc":"Lorem Ipsum is simply dummy text of the //printing and typesetting industry"],["name":"Daisy Austin","desc":"Lorem Ipsum is simply dummy text of the //printing and typesetting industry"]]
     
     var detailItem = [String:Any]();
     var playerItem:AVPlayerItem?
@@ -160,9 +159,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
         registerNibs();
         addDoneButton()
         //print("detail item in channnel page:\(detailItem)")
-        hideViews();
-        //bottom first object should show
-        viewComments.isHidden = false;
+       
         viewLiveStream.isHidden = true;
         lblNoDataComments.text = ""
         lblNoDataDonations.text = "No results found"
@@ -186,6 +183,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
         txtEmoji.inputView = emojiKeyboardView
         txtEmoji.tintColor = UIColor.clear
         txtEmoji.addTarget(self, action: #selector(txtEmojiTap), for: .touchDown)
+        hideViews();
         
     }
     @objc func txtEmojiTap(textField: UITextField) {
@@ -331,6 +329,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
         NotificationCenter.default.addObserver(self, selector: #selector(applicationDidBecomeActive), name: UIApplication.didBecomeActiveNotification, object: nil)
         
         NotificationCenter.default.addObserver(self, selector: #selector(StreamNotificationHandler(_:)), name: .didReceiveStreamData, object: nil)
+       
     }
     @objc func StreamNotificationHandler(_ notification:Notification) {
         // Do something now
@@ -401,8 +400,25 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
             performerEvents();
             //getPerformerOrgInfo();
         }
-        let commentsLine = self.buttonCVC.viewWithTag(10) as? UILabel
-        commentsLine?.backgroundColor = .red;
+        //bottom first object should show
+               if(appDelegate.detailToShow == "performer"){
+                   viewProfile.isHidden = false;
+                   let profileLine = self.buttonCVC.viewWithTag(14) as? UILabel
+                   profileLine?.backgroundColor = .red;
+               }else if(appDelegate.detailToShow == "video"){
+                   viewVideos.isHidden = false;
+                   let videoLine = self.buttonCVC.viewWithTag(17) as? UILabel
+                   videoLine?.backgroundColor = .red;
+               }else if(appDelegate.detailToShow == "audio"){
+                   viewAudios.isHidden = false;
+                   let audioLine = self.buttonCVC.viewWithTag(16) as? UILabel
+                   audioLine?.backgroundColor = .red;
+               }else{
+                   viewComments.isHidden = false;
+                   let commentsLine = self.buttonCVC.viewWithTag(10) as? UILabel
+                   commentsLine?.backgroundColor = .red;
+               }
+        
     }
     func delay(_ delay:Double, closure:@escaping ()->()) {
         DispatchQueue.main.asyncAfter(
@@ -550,12 +566,16 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
             let name = buttonNames[index]
             let btnTag = 10 + index;
             let tmpLbl = self.buttonCVC.viewWithTag(btnTag) as? UILabel
+            
             if (name == title){
+                print("btnTag:",btnTag)
                 tmpLbl?.backgroundColor = .red;
             }else{
                 tmpLbl?.backgroundColor = .white;
             }
         }
+        let tmpLbl1 = self.buttonCVC.viewWithTag(16) as? UILabel
+        tmpLbl1?.backgroundColor = .green
         switch title {
         case "Comments":
             viewComments.isHidden = false;
@@ -1048,7 +1068,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
         if (txtComment == textField){
             self.animateTextField(textField: textField, up:true)
         }else if(txtEmoji == textField){
-            
+            imgEmoji.isHidden = true
         }
         
     }

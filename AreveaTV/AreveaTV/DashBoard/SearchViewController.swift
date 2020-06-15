@@ -19,9 +19,6 @@
         @IBOutlet weak var viewActivity: UIView!
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         var searchList = [Any]()
-//        var aryCategories : Array<String> = Array()
-//        var arySubCategories : Array<String> = Array()
-//        var aryGenres : Array<String> = Array()
         @IBOutlet weak var lblNoData: UILabel!
         var aryFilterCategoriesData : Array<String> = Array()
         var aryFilterSubCategoriesData : Array<String> = Array()
@@ -32,6 +29,8 @@
         var selectedCells = NSMutableIndexSet()
         @IBOutlet var collectionView: UICollectionView!
         @IBOutlet weak var btnFilter: UIButton!
+        var selectedSubCategories = [[String:Any]]();
+        var selectedGenres = [[String:Any]]();
 
         
         // MARK: - View LifeCycle
@@ -47,7 +46,6 @@
             let nib = UINib(nibName: "DBSearchCVC", bundle: nil)
             collectionView?.register(nib, forCellWithReuseIdentifier:"DBSearchCVC")
             tblFilter.isHidden = true
-            btnFilter.isHidden = true
             lblNoData.isHidden = false
             lblNoData.text = "Search with any keyword to get data"
             //let searchBar = UISearchBar(frame: CGRect(x: 0, y: 45, width: UIScreen.main.bounds.width, height: 44))
@@ -70,7 +68,7 @@
         //MARK:Tableview Delegates and Datasource Methods
         
         func numberOfSections(in tableView: UITableView) ->  Int {
-            return 3;
+            return 2;
         }
         func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
             if (tableView == tblFilter){
@@ -87,8 +85,6 @@
                 label.font = UIFont.boldSystemFont(ofSize: 18)
                 label.textColor = UIColor.orange
                 if (section == 0){
-                    label.text = "Categories :"
-                }else if (section == 1){
                     label.text = "Sub Categories :"
                 }else{
                     label.text = "Genre :"
@@ -130,7 +126,6 @@
 
         func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
             tableView.deselectRow(at: indexPath, animated: true)
-            guard indexPath.section != 0 else { return }
 
                        // If it is in the second section, indicate that no item is selected now
             let tag = (50 * indexPath.section) + (indexPath.row + 1)
@@ -139,57 +134,85 @@
             if ((checkImg?.image?.isEqual(UIImage.init(named: "check-icon.png")))!)
             {
                 checkImg?.image = UIImage.init(named: "uncheck-icon.png")
+                if (indexPath.section == 0){
+                    for (i,item) in self.selectedSubCategories.enumerated(){
+                        if (item["index"] as! Int == indexPath.row){
+                            self.selectedSubCategories.remove(at: i)
+                            break
+                        }
+                    }
+                }else if (indexPath.section == 1){
+                    for (i,item) in self.selectedGenres.enumerated(){
+                        if (item["index"] as! Int == indexPath.row){
+                            self.selectedGenres.remove(at: i)
+                            break
+                        }
+                    }
+                }
             }
             else{
                 checkImg?.image = UIImage.init(named: "check-icon.png")
+                if (indexPath.section == 0){
+                    let selectedItem = self.aryFilterSubCategoriesData[indexPath.row]
+                    let subCategory = selectedItem
+                    let strItem = ["index":indexPath.row,"sub_category":subCategory] as [String : Any]
+                    selectedSubCategories.append(strItem)
+                }else if (indexPath.section == 1){
+                    let selectedItem = self.aryFilterGenresData[indexPath.row]
+                     let subCategory = selectedItem
+                     let strItem = ["index":indexPath.row,"genre":subCategory] as [String : Any]
+                     selectedGenres.append(strItem)
+                }
             }
-           // prepareQueryForCloudSearch(subcategory: "Comedy", selectedgenre: "")
-             if (indexPath.section == 0){
-                let selectedItem = self.aryFilterSubCategoriesData[indexPath.row]
-                let subCategory = selectedItem
-                prepareQueryForCloudSearch(subcategory: subCategory, selectedgenre: "")
-            }else{
-                let selectedItem = self.aryFilterSubCategoriesData[indexPath.row]
-                let genre = selectedItem
-                prepareQueryForCloudSearch(subcategory: "", selectedgenre: genre)
-            }
+            print("selectedSubCategories:",selectedSubCategories)
+            print("selectedGenres:",selectedGenres)
+            prepareQueryForCloudSearch()
+
         }
-        func prepareQueryForCloudSearch(subcategory: String,selectedgenre: String) {
-            let sub_category = subcategory;
-            let selected_genre = selectedgenre;
+        func prepareQueryForCloudSearch() {
             var prepareORQuery = "";
             var query = "";
-            let searchText = searchBar.text!.trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
+            var subCategories = ""
+            var genres = ""
 
-            //print("filter_query",sub_category);
-            //print("filter_query",selected_genre);
+            for (_,item) in self.selectedSubCategories.enumerated(){
+                let str = item["sub_category"] as! String
+                subCategories += "'" + str + "'";
+            }
+            for (_,item) in self.selectedGenres.enumerated(){
+                let str = item["genre"] as! String
+                genres += "'" + str + "'";
+            }
+//            subCategories =  subCategories.replacingOccurrences(of: " ", with: "")
+//            genres =  genres.replacingOccurrences(of: " ", with: "")
+            if (subCategories == ""){
+                subCategories = "''"
+            }
+            if (genres == ""){
+                genres = "''"
+            }
+            let searchText = (searchBar.text!).lowercased().trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
+
+            
             let fields = ["name", "searchkeywords", "streamvideodesc"];
             for i in 0...fields.count-1{
                 prepareORQuery += "(prefix field=" + fields[i] + " " + "'" + searchText + "'" + ")";
                 prepareORQuery += "(term field=" + fields[i] + " " + "'" + searchText + "'" + ")";
             }
             let  category_name = "''";
-//            if(selected_category =="All"){
-//                        category_name="''";
-//                    }
-//                    else{
-//                        category_name = "'"+selected_category+"'";
-//                    }
-            // query = "(and (and category:'"+selected_category+"')(or "+prepareORQuery+"))";
-            //`(and (and category:'${categoryName}')(and subcategories: ${subCategories}) (and genres: ${genre}) (and (or ${prepareORQuery})))`
-            //print("selected_sub_category",sub_category);
-            //print("selected_genre",""+"hi");
-            query = "(and (and category:" + category_name + ")(and subcategories: " + sub_category + ") (and genres: " + selected_genre + ") (and (or " + prepareORQuery + ")))";
+            query = "(and (and category:" + category_name + ")(and subcategories: " + subCategories + ") (and genres: " + genres + ") (and (or " + prepareORQuery + ")))";
             let encodedQuery = query.addingPercentEncoding(withAllowedCharacters:NSCharacterSet.urlQueryAllowed)
 
-            query = "?q=" + encodedQuery!;
-            //query = query.replacingOccurrences(of: "'", with: "%27")
+            query = encodedQuery!;
+            query = query.replacingOccurrences(of: "'", with: "%27")
+            query = query.replacingOccurrences(of: ":", with: "%3A")
+            query = query.replacingOccurrences(of: "=", with: "%3D")
+            query = "?q=" + query
             query += "&q.parser=structured";
             query += "&size=500";
-            //print("query_category:",query);
-            getSearchResults(searchString: query, isQuery: true)
             
-
+            print("query_category:",query);
+            getSearchResults(searchString: query, isQuery: true)
         }
         // MARK: Handler for getCategoryOrganisations API
         func getSearchResults(searchString:String,isQuery:Bool){
@@ -200,65 +223,69 @@
             }else{
                 url = baseURL + "?q=" + searchString + "*"
             }
-            let encodedURL = url.addingPercentEncoding(withAllowedCharacters:NSCharacterSet.urlQueryAllowed)
-            //print("encodedURL:",encodedURL)
+//            let encodedURL = url.addingPercentEncoding(withAllowedCharacters:NSCharacterSet.urlQueryAllowed)
+//            print("encodedURL:",encodedURL)
+            print("url:",url)
             viewActivity.isHidden = false
             //print("getCategoryOrganisations input:",inputData)
             let headers: HTTPHeaders
             headers = [appDelegate.securityKey: appDelegate.securityValue]
-            AF.request(encodedURL!, method: .get,encoding: JSONEncoding.default,headers:headers)
+            AF.request(url, method: .get,encoding: JSONEncoding.default,headers:headers)
                 .responseJSON { response in
                     self.viewActivity.isHidden = true
                     switch response.result {
                     case .success(let value):
                         if let json = value as? [String: Any] {
-                            //print("getSearchResults json:",json)
+                            print("getSearchResults json:",json)
                             let resultObj = json["hits"] as? [String: Any]
                             let hitArray = resultObj?["hit"] as? [Any] ?? [Any]();
                             //print("--count:",self.searchList.count )
                             self.searchList = []
-                            self.aryFilterCategoriesData = []
-                            self.aryFilterSubCategoriesData = []
-                            self.aryFilterGenresData = []
                             for (index,_) in hitArray.enumerated(){
                                 let element = hitArray[index] as? [String: Any]
                                 let fields = element?["fields"]
                                 self.searchList.append(fields ?? [Any]())
                             }
-                            for (index,_) in self.searchList.enumerated(){
-                                let element = self.searchList[index] as? [String: Any]
-                                let category = element?["category"] as? [Any] ?? [Any]()
-                                let subCategory = element?["subcategories"]as? [Any] ?? [Any]()
-                                let genre = element?["genres"]as? [Any] ?? [Any]()
-                                for (i,_) in category.enumerated(){
-                                    let categoryObj = category[i] as? String ?? ""
-                                    self.aryFilterCategoriesData.append(categoryObj)
+                            if (!isQuery){
+                                self.aryFilterCategoriesData = []
+                                self.aryFilterSubCategoriesData = []
+                                self.aryFilterGenresData = []
+                                for (index,_) in self.searchList.enumerated(){
+                                    let element = self.searchList[index] as? [String: Any]
+                                    let category = element?["category"] as? [Any] ?? [Any]()
+                                    let subCategory = element?["subcategories"]as? [Any] ?? [Any]()
+                                    let genre = element?["genres"]as? [Any] ?? [Any]()
+                                    for (i,_) in category.enumerated(){
+                                        let categoryObj = category[i] as? String ?? ""
+                                        self.aryFilterCategoriesData.append(categoryObj)
+                                    }
+                                    for (j,_) in subCategory.enumerated(){
+                                        let subCategoryObj = subCategory[j] as? String ?? ""
+                                        self.aryFilterSubCategoriesData.append(subCategoryObj)
+                                    }
+                                    for (k,_) in genre.enumerated(){
+                                        let genreObj = genre[k] as? String ?? ""
+                                        self.aryFilterGenresData.append(genreObj)
+                                    }
                                 }
-                                for (j,_) in subCategory.enumerated(){
-                                    let subCategoryObj = subCategory[j] as? String ?? ""
-                                    self.aryFilterSubCategoriesData.append(subCategoryObj)
-                                }
-                                for (k,_) in genre.enumerated(){
-                                    let genreObj = genre[k] as? String ?? ""
-                                    self.aryFilterGenresData.append(genreObj)
-                                }
+                                //for get Unique values from Array
+                                self.aryFilterCategoriesData = Array(Set(self.aryFilterCategoriesData))
+                                self.aryFilterSubCategoriesData = Array(Set(self.aryFilterSubCategoriesData))
+                                self.aryFilterGenresData = Array(Set(self.aryFilterGenresData))
+                                self.lblNoData.text = "Your search did not match with any documents.\n\n1. Make sure that all words spelled correctly.\n2. Try with different key words."
+                                self.tblFilter.isHidden = true
+                                self.lblNoData.textAlignment = .left
+                                self.tblFilter.reloadData()
+                            }else{
+                                self.lblNoData.textAlignment = .center
+                                self.lblNoData.text = "No Results found with selected filter"
                             }
-                            //for get Unique values from Array
-                            self.aryFilterCategoriesData = Array(Set(self.aryFilterCategoriesData))
-                            self.aryFilterSubCategoriesData = Array(Set(self.aryFilterSubCategoriesData))
-                            self.aryFilterGenresData = Array(Set(self.aryFilterGenresData))
-                            self.lblNoData.text = "Your search did not match with any documents.\n\n1. Make sure that all words spelled correctly.\n2. Try with different key words."
-                            self.lblNoData.textAlignment = .left
-                            self.tblFilter.isHidden = true;
-
+                            
                             if (self.searchList.count > 0){
                                 self.lblNoData.isHidden = true;
-                                self.btnFilter.isHidden = false;
                             }else{
                                 self.lblNoData.isHidden = false;
-                                self.btnFilter.isHidden = true;
                             }
-                            self.tblFilter.reloadData()
                             self.collectionView.reloadData()
                         }
                     //searchList
@@ -480,89 +507,4 @@
         }
         
     }
-    extension UISearchBar {
-
-        func getTextField() -> UITextField? { return value(forKey: "searchField") as? UITextField }
-        func set(textColor: UIColor) { if let textField = getTextField() { textField.textColor = textColor } }
-        func setPlaceholder(textColor: UIColor) { getTextField()?.setPlaceholder(textColor: textColor) }
-        func setClearButton(color: UIColor) { getTextField()?.setClearButton(color: color) }
-
-        func setTextField(color: UIColor) {
-            guard let textField = getTextField() else { return }
-            switch searchBarStyle {
-            case .minimal:
-                textField.layer.backgroundColor = color.cgColor
-                textField.layer.cornerRadius = 6
-            case .prominent, .default: textField.backgroundColor = color
-            @unknown default: break
-            }
-        }
-
-        func setSearchImage(color: UIColor) {
-            guard let imageView = getTextField()?.leftView as? UIImageView else { return }
-            imageView.tintColor = color
-            imageView.image = imageView.image?.withRenderingMode(.alwaysTemplate)
-        }
-    }
-
-    private extension UITextField {
-
-        private class Label: UILabel {
-            private var _textColor = UIColor.lightGray
-            override var textColor: UIColor! {
-                set { super.textColor = _textColor }
-                get { return _textColor }
-            }
-
-            init(label: UILabel, textColor: UIColor = .lightGray) {
-                _textColor = textColor
-                super.init(frame: label.frame)
-                self.text = label.text
-                self.font = label.font
-            }
-
-            required init?(coder: NSCoder) { super.init(coder: coder) }
-        }
-
-
-        private class ClearButtonImage {
-            static private var _image: UIImage?
-            static private var semaphore = DispatchSemaphore(value: 1)
-            static func getImage(closure: @escaping (UIImage?)->()) {
-                DispatchQueue.global(qos: .userInteractive).async {
-                    semaphore.wait()
-                    DispatchQueue.main.async {
-                        if let image = _image { closure(image); semaphore.signal(); return }
-                        guard let window = UIApplication.shared.windows.first else { semaphore.signal(); return }
-                        let searchBar = UISearchBar(frame: CGRect(x: 0, y: -200, width: UIScreen.main.bounds.width, height: 44))
-                        window.rootViewController?.view.addSubview(searchBar)
-                        searchBar.text = "txt"
-                        searchBar.layoutIfNeeded()
-                        _image = searchBar.getTextField()?.getClearButton()?.image(for: .normal)
-                        closure(_image)
-                        searchBar.removeFromSuperview()
-                        semaphore.signal()
-                    }
-                }
-            }
-        }
-
-        func setClearButton(color: UIColor) {
-            ClearButtonImage.getImage { [weak self] image in
-                guard   let image = image,
-                    let button = self?.getClearButton() else { return }
-                button.imageView?.tintColor = color
-                button.setImage(image.withRenderingMode(.alwaysTemplate), for: .normal)
-            }
-        }
-
-        var placeholderLabel: UILabel? { return value(forKey: "placeholderLabel") as? UILabel }
-
-        func setPlaceholder(textColor: UIColor) {
-            guard let placeholderLabel = placeholderLabel else { return }
-            let label = Label(label: placeholderLabel, textColor: textColor)
-            setValue(label, forKey: "placeholderLabel")
-        }
-
-        func getClearButton() -> UIButton? { return value(forKey: "clearButton") as? UIButton }
-    }
+    

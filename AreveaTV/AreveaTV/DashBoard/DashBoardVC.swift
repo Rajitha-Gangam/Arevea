@@ -150,7 +150,8 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
         //if user comes from search by selecting  type "subCategory"
         //default empty, by search value will be there
         getCategoryOrganisations(inputData: ["category":appDelegate.strCategory]);
-        
+        ongoingEvents()
+        appDelegate.detailToShow = "stream"
         let is_profile_pic_loaded_left_menu = UserDefaults.standard.string(forKey: "is_profile_pic_loaded_left_menu");
         if(is_profile_pic_loaded_left_menu == "false"){
             getProfile()

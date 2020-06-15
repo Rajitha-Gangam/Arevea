@@ -67,6 +67,14 @@ class ChannelsVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Col
         mdChipCard.isHidden = true;
         topConstaintTblMain?.constant = 1;
         tblMain.layoutIfNeeded()
+        
+        searchBar.placeholder = "Search"
+        searchBar.set(textColor: .white)
+        searchBar.setTextField(color: UIColor.white.withAlphaComponent(0.3))
+        searchBar.setPlaceholder(textColor: .white)
+        searchBar.setSearchImage(color: .white)
+        searchBar.setClearButton(color: .white)
+        
         if(!netAvailable){
             showAlert(strMsg: "Please check your internet connection!")
             return
