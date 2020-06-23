@@ -40,7 +40,6 @@
 		1864AFCD2454A999004F3AED /* ChannelDetailVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1864AFCC2454A999004F3AED /* ChannelDetailVC.swift */; };
 		1864AFCF2454ACEE004F3AED /* sample_detail.png in Resources */ = {isa = PBXBuildFile; fileRef = 1864AFCE2454ACEE004F3AED /* sample_detail.png */; };
 		1869F51924659D5F003153B1 /* SBOpenChatVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1869F51824659D5F003153B1 /* SBOpenChatVC.swift */; };
-		1869F51B24698254003153B1 /* SubscribeTelephonyInterruptTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1869F51A24698254003153B1 /* SubscribeTelephonyInterruptTest.swift */; };
 		186A2EA2245566BE007128E6 /* three-dots.png in Resources */ = {isa = PBXBuildFile; fileRef = 186A2EA1245566BE007128E6 /* three-dots.png */; };
 		186A2EAE24559E68007128E6 /* CommentsCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 186A2EAC24559E68007128E6 /* CommentsCell.swift */; };
 		186A2EAF24559E68007128E6 /* CommentsCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 186A2EAD24559E68007128E6 /* CommentsCell.xib */; };
@@ -61,7 +60,6 @@
 		187D7B14246D615C0041D5AA /* AreveaAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 187D7B13246D615C0041D5AA /* AreveaAPIClient.swift */; };
 		188B0E80248E29B10062EB1D /* delete-icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 188B0E7E248E29AD0062EB1D /* delete-icon.png */; };
 		188B0E81248E29B10062EB1D /* upload-icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 188B0E7F248E29B00062EB1D /* upload-icon.png */; };
-		188B0E83248E563B0062EB1D /* edit-icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 188B0E82248E563A0062EB1D /* edit-icon.png */; };
 		188B0EA5248E8F7A0062EB1D /* VideoEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 188B0EA4248E8F7A0062EB1D /* VideoEditor.swift */; };
 		188B0EA8248E93470062EB1D /* icon_comment.png in Resources */ = {isa = PBXBuildFile; fileRef = 188B0EA6248E93440062EB1D /* icon_comment.png */; };
 		188B0EA9248E93470062EB1D /* icon_like.png in Resources */ = {isa = PBXBuildFile; fileRef = 188B0EA7248E93470062EB1D /* icon_like.png */; };
@@ -164,6 +162,8 @@
 		18EB81DB244AD3D2008EB09A /* logo.png in Resources */ = {isa = PBXBuildFile; fileRef = 18EB81D5244AD3D2008EB09A /* logo.png */; };
 		18EB81DC244AD3D2008EB09A /* splash.png in Resources */ = {isa = PBXBuildFile; fileRef = 18EB81D6244AD3D2008EB09A /* splash.png */; };
 		18EB81DE244B4341008EB09A /* awsconfiguration.json in Resources */ = {isa = PBXBuildFile; fileRef = 18EB81DD244B4340008EB09A /* awsconfiguration.json */; };
+		18EE49812499F73F002163B5 /* eye-cross.png in Resources */ = {isa = PBXBuildFile; fileRef = 18EE49802499F73F002163B5 /* eye-cross.png */; };
+		18EE4985249A406C002163B5 /* edit-icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 18EE4984249A406A002163B5 /* edit-icon.png */; };
 		C8D0A372F8CE8663D84930A1 /* Pods_AreveaTV.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9290EFE9F47E13554D29A225 /* Pods_AreveaTV.framework */; };
 /* End PBXBuildFile section */
 
@@ -202,7 +202,6 @@
 		1864AFCC2454A999004F3AED /* ChannelDetailVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChannelDetailVC.swift; sourceTree = "<group>"; };
 		1864AFCE2454ACEE004F3AED /* sample_detail.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = sample_detail.png; sourceTree = "<group>"; };
 		1869F51824659D5F003153B1 /* SBOpenChatVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SBOpenChatVC.swift; sourceTree = "<group>"; };
-		1869F51A24698254003153B1 /* SubscribeTelephonyInterruptTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscribeTelephonyInterruptTest.swift; sourceTree = "<group>"; };
 		186A2EA1245566BE007128E6 /* three-dots.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "three-dots.png"; sourceTree = "<group>"; };
 		186A2EAC24559E68007128E6 /* CommentsCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentsCell.swift; sourceTree = "<group>"; };
 		186A2EAD24559E68007128E6 /* CommentsCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = CommentsCell.xib; sourceTree = "<group>"; };
@@ -224,7 +223,6 @@
 		187D7B13246D615C0041D5AA /* AreveaAPIClient.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AreveaAPIClient.swift; sourceTree = "<group>"; };
 		188B0E7E248E29AD0062EB1D /* delete-icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "delete-icon.png"; sourceTree = "<group>"; };
 		188B0E7F248E29B00062EB1D /* upload-icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "upload-icon.png"; sourceTree = "<group>"; };
-		188B0E82248E563A0062EB1D /* edit-icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "edit-icon.png"; sourceTree = "<group>"; };
 		188B0EA4248E8F7A0062EB1D /* VideoEditor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VideoEditor.swift; sourceTree = "<group>"; };
 		188B0EA6248E93440062EB1D /* icon_comment.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icon_comment.png; sourceTree = "<group>"; };
 		188B0EA7248E93470062EB1D /* icon_like.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icon_like.png; sourceTree = "<group>"; };
@@ -330,6 +328,8 @@
 		18EB81D5244AD3D2008EB09A /* logo.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = logo.png; sourceTree = "<group>"; };
 		18EB81D6244AD3D2008EB09A /* splash.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = splash.png; sourceTree = "<group>"; };
 		18EB81DD244B4340008EB09A /* awsconfiguration.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = awsconfiguration.json; sourceTree = "<group>"; };
+		18EE49802499F73F002163B5 /* eye-cross.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "eye-cross.png"; sourceTree = "<group>"; };
+		18EE4984249A406A002163B5 /* edit-icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "edit-icon.png"; sourceTree = "<group>"; };
 		783C47A52DE81D11826FBA5C /* Pods-AreveaTV.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AreveaTV.release.xcconfig"; path = "Target Support Files/Pods-AreveaTV/Pods-AreveaTV.release.xcconfig"; sourceTree = "<group>"; };
 		9290EFE9F47E13554D29A225 /* Pods_AreveaTV.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_AreveaTV.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		A548ED8DA0ABEB1FF1BF009E /* Pods-AreveaTV.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AreveaTV.debug.xcconfig"; path = "Target Support Files/Pods-AreveaTV/Pods-AreveaTV.debug.xcconfig"; sourceTree = "<group>"; };
@@ -602,7 +602,6 @@
 				18D48064244EDE4000640C1A /* ALToastView.h */,
 				18D48065244EDE4000640C1A /* ALToastView.m */,
 				18D48068244EDF9800640C1A /* Testbed.swift */,
-				1869F51A24698254003153B1 /* SubscribeTelephonyInterruptTest.swift */,
 				18D480AC24519DA300640C1A /* R5options.plist */,
 				18D4805E244EDDA200640C1A /* BaseTest.swift */,
 				18D480A924519D1100640C1A /* SubscribeTest.swift */,
@@ -798,14 +797,15 @@
 				187D7B04246B100F0041D5AA /* send.png */,
 				183AB4A3247E988000E0197C /* default-vod.png */,
 				183AB4A4247E988500E0197C /* play-vod.png */,
+				18EE4984249A406A002163B5 /* edit-icon.png */,
 				187D7B0D246C225A0041D5AA /* camera-icon.png */,
 				18C98D1E2486BFEE00959A40 /* refresh-icon.png */,
 				187D7AFF246B100E0041D5AA /* unmute.png */,
 				187D7B03246B100E0041D5AA /* user.png */,
 				182740F52487EFB3001BC6B3 /* img_default_profile_image_1.png */,
 				188B0E7E248E29AD0062EB1D /* delete-icon.png */,
+				18EE49802499F73F002163B5 /* eye-cross.png */,
 				188B0E7F248E29B00062EB1D /* upload-icon.png */,
-				188B0E82248E563A0062EB1D /* edit-icon.png */,
 				184A0B5924741F8A006EDDA3 /* default-img1.jpg */,
 				188B0EA6248E93440062EB1D /* icon_comment.png */,
 				188B0EA7248E93470062EB1D /* icon_like.png */,
@@ -911,6 +911,7 @@
 				18DAF9A5248FDE8300A6693A /* DBSearchCVC.xib in Resources */,
 				182A5EFB2460163100FF6147 /* ButtonsCVC.xib in Resources */,
 				187D7B0E246C225A0041D5AA /* camera-icon.png in Resources */,
+				18EE4985249A406C002163B5 /* edit-icon.png in Resources */,
 				182A5F0C24616B4B00FF6147 /* charity-img.png in Resources */,
 				18EB81DA244AD3D2008EB09A /* icon_insta.png in Resources */,
 				189EBF332459CEE500C52B0E /* VideoCell.xib in Resources */,
@@ -955,8 +956,8 @@
 				188B0EA8248E93470062EB1D /* icon_comment.png in Resources */,
 				182A5EF4245C59C700FF6147 /* SectionHeader.xib in Resources */,
 				189EBF7D245C086400C52B0E /* Icon-Small-40@3x.png in Resources */,
-				188B0E83248E563B0062EB1D /* edit-icon.png in Resources */,
 				189EBF78245C086400C52B0E /* Icon-76@2x.png in Resources */,
+				18EE49812499F73F002163B5 /* eye-cross.png in Resources */,
 				18DAF994248FBA1D00A6693A /* sr_video.png in Resources */,
 				18D4809D24509A5600640C1A /* category-icon.png in Resources */,
 				18D4809524509A5600640C1A /* linkden-icon.png in Resources */,
@@ -1065,7 +1066,6 @@
 				1869F51924659D5F003153B1 /* SBOpenChatVC.swift in Sources */,
 				189EBED6245752B800C52B0E /* AudioCell.swift in Sources */,
 				18EB81CB244ACC5B008EB09A /* ResetPasswordVC.swift in Sources */,
-				1869F51B24698254003153B1 /* SubscribeTelephonyInterruptTest.swift in Sources */,
 				188B0EA5248E8F7A0062EB1D /* VideoEditor.swift in Sources */,
 				18D48060244EDDA300640C1A /* BaseTest.swift in Sources */,
 				1864AFCD2454A999004F3AED /* ChannelDetailVC.swift in Sources */,
@@ -1232,7 +1232,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 1.9;
+				CURRENT_PROJECT_VERSION = 1.12;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = M6U48XKJMW;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -1262,7 +1262,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 1.9;
+				CURRENT_PROJECT_VERSION = 1.12;
 				DEVELOPMENT_TEAM = M6U48XKJMW;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",

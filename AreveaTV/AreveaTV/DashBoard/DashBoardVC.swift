@@ -29,7 +29,7 @@ extension UIColor {
         )
     }
 }
-class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,CollectionViewCellDelegate,UITextFieldDelegate,OpenChanannelChatDelegate,UISearchBarDelegate{
+class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,CollectionViewCellDelegate,UITextFieldDelegate,OpenChanannelChatDelegate{
     
     //MARK: Variables Declaration
     private let chipIdentifier = "Chip"
@@ -50,8 +50,9 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
     
     var aryData = [Any]();
     var arySubCategories = [Any]();
-    var aryChannelData = [Any]();
+    
     var aryLiveChannelsData = [Any]();
+    var aryUpcomingData = [Any]();
     
     var aryFilterCategoriesData = [Any]();
     var aryFilterSubCategoriesData = [Any]();
@@ -68,15 +69,12 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
     var aryFilteredLiveEvents = [Any]();
     var aryFilteredSubCategories = [Any]();
     
-    var arySideMenu : [[String: String]] = [["name":"Home","icon":"home.png"],["name":"My Profile","icon":"user.png"],["name":"Payment History","icon":"donation-icon.png"],["name":"Help","icon":"help-icon.png"],["name":"Logout","icon":"logout-icon.png"]];
+    var arySideMenu : [[String: String]] = [["name":"Home","icon":"home.png"],["name":"My Profile","icon":"user.png"],["name":"Donations","icon":"donation-icon.png"],["name":"Help","icon":"help-icon.png"],["name":"Logout","icon":"logout-icon.png"]];
     
     var sectionFilters = ["Categories","Sub Categories","Genres"]
     var genreId = 0;
     var isSelectedGenre = false;
     //MARK:View Life Cycle Methods
-    var searchActive : Bool = false
-    var searchToggle : Bool = false
-    @IBOutlet weak var searchBar: UISearchBar!
     
     @IBOutlet weak var viewActivity: UIView!
     
@@ -89,22 +87,17 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
         
         tblMain.register(UINib(nibName: "DashBoardCell", bundle: nil), forCellReuseIdentifier: "DashBoardCell")
         tblSide.register(UINib(nibName: "SideMenuCell", bundle: nil), forCellReuseIdentifier: "SideMenuCell")
-        self.searchBar.delegate = self
         self.viewSideMenu.isHidden = true
-        assignbackground();
         _ = Testbed.sharedInstance
         _ = Testbed.dictionary
         _ = Testbed.testAtIndex(index: 0)
         
         filterAPI();
-        ongoingEvents()
-        
         
         //organizationChannels();
         filterCVSetup()
         lblNoData.isHidden = true;
         mdChipCard.isHidden = true;
-        searchBar.isHidden = true;
         topConstaintTblMain?.constant = 1;
         tblMain.layoutIfNeeded()
         UserDefaults.standard.set("false", forKey: "is_profile_pic_loaded_left_menu")
@@ -117,6 +110,15 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
         
     }
     
+    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+        super.viewWillTransition(to: size, with: coordinator)
+        self.viewSideMenu.isHidden = true
+        if UIDevice.current.orientation.isLandscape {
+            print("Landscape")
+        } else {
+            print("Portrait")
+        }
+    }
     func filterCVSetup(){
         self.collectionViewFilter.dataSource = self
         self.collectionViewFilter.delegate = self
@@ -128,10 +130,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
         let XIB = UINib.init(nibName: "SectionHeader", bundle: nil)
         collectionViewFilter.register(XIB, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: HeaderIdentifier)
     }
-    func assignbackground(){
-        let background = UIImage(named: "sidemenu-bg")
-        self.viewSideMenu.backgroundColor = UIColor(patternImage:background!)
-    }
+    
     override func viewWillDisappear(_ animated: Bool) {
         appDelegate.strCategory = "";
         appDelegate.genreId = 0;
@@ -150,7 +149,11 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
         //if user comes from search by selecting  type "subCategory"
         //default empty, by search value will be there
         getCategoryOrganisations(inputData: ["category":appDelegate.strCategory]);
-        ongoingEvents()
+        if (appDelegate.strCategory != ""){
+            getEvents(inputData: ["category_name":appDelegate.strCategory]);
+        }else{
+            onGoingEvents()
+        }
         appDelegate.detailToShow = "stream"
         let is_profile_pic_loaded_left_menu = UserDefaults.standard.string(forKey: "is_profile_pic_loaded_left_menu");
         if(is_profile_pic_loaded_left_menu == "false"){
@@ -163,8 +166,8 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
         alert.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
         self.present(alert, animated: true)
     }
-    // MARK: Handler for ongoingEvents(Live Events) API
-    func ongoingEvents(){
+    // MARK: Handler for onGoingEvents(Live Events) API
+    func onGoingEvents(){
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         let url: String = appDelegate.baseURL +  "/ongoingEvents"
         viewActivity.isHidden = false
@@ -177,10 +180,38 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
                 switch response.result {
                 case .success(let value):
                     if let json = value as? [String: Any] {
-                        //print("ongoingEvents JSON:",json)
+                        //print("onGoingEvents JSON:",json)
                         self.aryLiveChannelsData  = json["Data"] as? [Any] ?? [Any]();
-                        //print("ongoingEvents count:",self.aryLiveChannelsData.count)
-                        self.tblMain.reloadData()
+                        print("live count:",self.aryLiveChannelsData.count)
+                        self.tblMain.reloadSections([0], with: .none)
+                    }
+                case .failure(let error):
+                    //print(error)
+                    self.showAlert(strMsg: error.localizedDescription)
+                }
+        }
+    }
+    // MARK: Handler for events(events) API
+    func getEvents(inputData:[String: Any]){
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        let url: String = appDelegate.baseURL +  "/events"
+        viewActivity.isHidden = false
+        let headers: HTTPHeaders
+        headers = [appDelegate.securityKey: appDelegate.securityValue]
+        AF.request(url, method: .post,parameters: inputData, encoding: JSONEncoding.default,headers:headers)
+            .responseJSON { response in
+                self.viewActivity.isHidden = true
+                switch response.result {
+                case .success(let value):
+                    if let json = value as? [String: Any] {
+                        print("getEvents JSON:",json)
+                        let data  = json["Data"] as? [String:Any];
+                        self.aryLiveChannelsData = data?["live_events"] as? [Any] ?? [Any]();
+                        self.aryUpcomingData = data?["upcoming_events"] as? [Any] ?? [Any]();
+                        print("live count:",self.aryLiveChannelsData.count)
+                        print("upcoming count:",self.aryUpcomingData.count)
+                        self.tblMain.reloadSections([0,1], with: .none)
+                        // self.tblMain.reloadData()
                     }
                 case .failure(let error):
                     //print(error)
@@ -198,7 +229,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
         AF.request(url, method: .post,  parameters: inputData,encoding: JSONEncoding.default, headers:headers)
             .responseJSON { response in
                 self.viewActivity.isHidden = true
-
+                
                 switch response.result {
                 case .success(let value):
                     if let json = value as? [String: Any] {
@@ -215,7 +246,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
                                 self.lblNoData.isHidden = true;
                             }else{
                                 self.arySubCategories = [Any]()
-                               // self.lblNoData.isHidden = false;
+                                // self.lblNoData.isHidden = false;
                             }
                             if (self.isSelectedGenre){
                                 self.reloadFilterGenreData()
@@ -236,12 +267,12 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
         }
     }
     func reloadFilterGenreData()
-       {
+    {
         var aryFilterOrgs = [Any]()
         var dicSubCategory = [String:Any]()
-          for (index,_) in self.arySubCategories.enumerated(){
-              let arySub = arySubCategories[index] as? [String: Any]
-              let organizations = arySub?["organizations"] as? [Any] ?? [Any]()
+        for (index,_) in self.arySubCategories.enumerated(){
+            let arySub = arySubCategories[index] as? [String: Any]
+            let organizations = arySub?["organizations"] as? [Any] ?? [Any]()
             for (j,_)in organizations.enumerated(){
                 let org = organizations[j] as? [String: Any] ?? [:]
                 let genreIds = org["genres"] as? [Any] ?? [Any]()
@@ -253,13 +284,18 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
                 }
             }
             dicSubCategory =  ["organizations":aryFilterOrgs,"parent_category_name":arySub?["parent_category_name"] as? String ?? "",
-            "subCategory":arySub?["subCategory"] as? String ?? ""] as [String : Any]
-          }
+                               "subCategory":arySub?["subCategory"] as? String ?? ""] as [String : Any]
+        }
+        print("self.arySubCategories:",self.arySubCategories)
+        print("--b4:",self.arySubCategories.count)
         self.arySubCategories = [Any]()
+        print("--b/w:",self.arySubCategories.count)
         self.arySubCategories.append(dicSubCategory);
-        self.tblMain.reloadData()
+        print("--a4:",self.arySubCategories.count)
 
-       }
+        self.tblMain.reloadData()
+        
+    }
     // MARK: Handler for performerEvents API, using for upcoming schedules
     func getProfile(){
         let netAvailable = appDelegate.isConnectedToInternet()
@@ -309,6 +345,29 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
                             let fn = profile_data["user_first_name"] as? String
                             let ln = profile_data["user_last_name"]as? String
                             let strName = String((fn?.first ?? "A")) + String((ln?.first ?? "B"))
+                            
+                            let dob = profile_data["date_of_birth"]as? String ?? ""
+                            //self.txtDOB.text = dob;
+                            
+                            let dateFormatter = DateFormatter()
+                            dateFormatter.dateFormat = "YYYY-MM-dd"
+                            let date = dateFormatter.date(from: dob)
+                            
+                            let dateFormatterYear = DateFormatter()
+                            dateFormatterYear.dateFormat = "YYYY"
+                            let pastdate = dateFormatterYear.string(from: date ?? Date());
+                            
+                            let todaysDate = Date()
+                            let currentDate = dateFormatterYear.string(from: todaysDate);
+                            //print("currentDate:",currentDate)
+                            //print("pastdate:",pastdate)
+                            guard let currentYear = Int(currentDate), let pastYear = Int(pastdate) else {
+                                //print("Some value is nil")
+                                return
+                            }
+                            let user_age_limit = currentYear - pastYear
+                            UserDefaults.standard.set(user_age_limit, forKey: "user_age_limit")
+
                             self.appDelegate.USER_NAME = strName;
                             self.appDelegate.USER_NAME_FULL = (fn ?? "") + " " + (ln ?? "")
                             UserDefaults.standard.set(self.appDelegate.USER_NAME, forKey: "USER_NAME")
@@ -317,13 +376,13 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
                             self.btnUserName.setTitle(self.appDelegate.USER_NAME, for: .normal)
                             
                             let strURL = profile_data["profile_pic"]as? String ?? ""
-                                if let url = URL(string: strURL){
-                                    self.downloadImage(from: url as URL, imageView: self.imgProfilePic)
-                                }else{
-                                    self.viewActivity.isHidden = true
-                                    self.imgProfilePic.image = UIImage.init(named: "default.png")
-                                }
-                                
+                            if let url = URL(string: strURL){
+                                self.downloadImage(from: url as URL, imageView: self.imgProfilePic)
+                            }else{
+                                self.viewActivity.isHidden = true
+                                self.imgProfilePic.image = UIImage.init(named: "default.png")
+                            }
+                            
                         }else{
                             let strError = json["message"] as? String
                             //print(strError ?? "")
@@ -338,7 +397,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
                 //print(error)
                 self.showAlert(strMsg: error.localizedDescription)
                 self.viewActivity.isHidden = true
-
+                
             }
             return nil
         }
@@ -396,20 +455,20 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
     
     func numberOfSections(in tableView: UITableView) ->  Int {
         if (tableView == tblMain){
-            if (searchActive){
-                return aryFilteredSubCategories.count + 1;
-            }
-            else{
-                return arySubCategories.count + 1;
-            }
+            return arySubCategories.count + 2;
         }
         return 1;
     }
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
         if (tableView == tblMain){
             var height = 44;
-            if(searchActive && aryFilteredLiveEvents.count == 0 && section == 0){
-                height = 90
+            if(UIDevice.current.userInterfaceIdiom == .pad){
+                height = 60;
+            }
+            if(aryLiveChannelsData.count == 0 && section == 0){
+                height = 0
+            }else if(aryUpcomingData.count == 0 && section == 1){
+                height = 0
             }
             return CGFloat(height)
         }
@@ -419,38 +478,29 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         if (tableView == tblMain){
             var height = 44;
-            if(searchActive && aryFilteredLiveEvents.count == 0 && section == 0){
-                height = 90
+            if(UIDevice.current.userInterfaceIdiom == .pad){
+                height = 60;
             }
             let view = UIView(frame: CGRect(x: 0, y: 0, width: Int(tableView.bounds.width), height: height))
             let darkGreen = UIColor(red: 1, green: 29, blue: 39);
             view.backgroundColor = darkGreen;
-            let label = UILabel(frame: CGRect(x: 15, y: 0, width: tableView.bounds.width - 30, height: 44))
-            label.font = UIFont.boldSystemFont(ofSize: 15)
-            label.textColor = UIColor.white
-            if (height == 90 && section == 0){
-                let lightGreen = UIColor(red: 10, green: 72, blue: 88);
-                let labelNoData = UILabel(frame: CGRect(x: 0, y: 45, width: tableView.bounds.width, height: 44))
-                labelNoData.font = UIFont.boldSystemFont(ofSize: 15)
-                labelNoData.textColor = UIColor.white
-                labelNoData.text = "No results found";
-                labelNoData.textAlignment = .center
-                labelNoData.backgroundColor = lightGreen
-                view.addSubview(labelNoData)
+            let label = UILabel(frame: CGRect(x: 15, y: 0, width: Int(tableView.bounds.width) - 30, height: height))
+            if(UIDevice.current.userInterfaceIdiom == .pad){
+            label.font = UIFont.boldSystemFont(ofSize: 30)
+            }else{
+                label.font = UIFont.boldSystemFont(ofSize: 17)
             }
+            label.textColor = UIColor.white
+            
             if(tableView == tblMain){
                 if (section == 0){
                     label.text = "Live Events";
+                }else if (section == 1){
+                    label.text = "Upcoming Events";
                 }else{
                     var sectionObj = [String:Any]()
-                    if (searchActive){
-                        if (self.aryFilteredSubCategories.count > 0){
-                            sectionObj = self.aryFilteredSubCategories[section-1] as! [String : Any]
-                        }
-                    }else{
-                        if (self.arySubCategories.count > 0){
-                            sectionObj = self.arySubCategories[section-1] as! [String : Any]
-                        }
+                    if (self.arySubCategories.count > 0){
+                        sectionObj = self.arySubCategories[section-2] as! [String : Any]
                     }
                     let categoryName = sectionObj["parent_category_name"] as? String;
                     let name = sectionObj["subCategory"] as? String;
@@ -464,6 +514,11 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
         return view
     }
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        if (aryLiveChannelsData.count == 0 && aryUpcomingData.count == 0 && arySubCategories.count == 0){
+            lblNoData.isHidden = false
+        }else{
+            lblNoData.isHidden = true
+        }
         if (tableView == tblMain){
             return 1;
         }
@@ -473,13 +528,19 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) ->  CGFloat {
         if (tableView == tblMain){
             if (indexPath.section == 0){
-                if(searchActive && aryFilteredLiveEvents.count == 0){
+                if(aryLiveChannelsData.count == 0){
                     return 0;
-                }else if(!searchActive && aryLiveChannelsData.count == 0){
+                }
+            }else if (indexPath.section == 1){
+                if(aryUpcomingData.count == 0){
                     return 0;
                 }
             }
-            return 180;
+            if(UIDevice.current.userInterfaceIdiom == .pad){
+                return 250;
+            }else{
+                return 180;
+            }
         }
         return 44;
         
@@ -490,33 +551,24 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
         if (tableView == tblMain){
             if (indexPath.section == 0){
                 let cell = tblMain.dequeueReusableCell(withIdentifier: "DashBoardCell", for: indexPath) as! DashBoardCell
-                if(searchActive){
-                    cell.updateCellWith(row: aryFilteredLiveEvents,controller: "dashboard_live")
-                }
-                else{
-                    cell.updateCellWith(row: aryLiveChannelsData,controller: "dashboard_live")
-                }
+                cell.updateCellWith(row: aryLiveChannelsData,controller: "dashboard_live")
                 cell.cellDelegate = self
-                
                 return cell
                 
-            }else{
+            }else  if (indexPath.section == 1){
                 let cell = tblMain.dequeueReusableCell(withIdentifier: "DashBoardCell", for: indexPath) as! DashBoardCell
-                if (searchActive){
-                    let arySub = aryFilteredSubCategories[indexPath.section-1] as? [String: Any]
-                    let organizations = arySub?["organizations"] as? [Any]
-                    _ = indexPath.row;
-                    guard let rowArray = organizations else { return cell };
-                    cell.updateCellWith(row: rowArray,controller: "dashboard")
-                }else{
-                    let arySub = arySubCategories[indexPath.section-1] as? [String: Any]
-                    let organizations = arySub?["organizations"] as? [Any]
-                    _ = indexPath.row;
-                    guard let rowArray = organizations else { return cell };
-                    cell.updateCellWith(row: rowArray,controller: "dashboard")
-                }
+                cell.updateCellWith(row: aryUpcomingData,controller: "dashboard_live")
                 cell.cellDelegate = self
-                
+                return cell
+            }
+            else{
+                let cell = tblMain.dequeueReusableCell(withIdentifier: "DashBoardCell", for: indexPath) as! DashBoardCell
+                let arySub = arySubCategories[indexPath.section-2] as? [String: Any]
+                let organizations = arySub?["organizations"] as? [Any]
+                _ = indexPath.row;
+                guard let rowArray = organizations else { return cell };
+                cell.updateCellWith(row: rowArray,controller: "dashboard")
+                cell.cellDelegate = self
                 return cell
             }
         }
@@ -547,7 +599,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
                 let storyboard = UIStoryboard(name: "Main", bundle: nil);
                 let vc = storyboard.instantiateViewController(withIdentifier: "ProfileVC") as! ProfileVC
                 self.navigationController?.pushViewController(vc, animated: true)
-            case "Payment History":
+            case "Donations":
                 hideSideMenu()
                 let storyboard = UIStoryboard(name: "Main", bundle: nil);
                 let vc = storyboard.instantiateViewController(withIdentifier: "PaymentHistoryVC") as! PaymentHistoryVC
@@ -655,9 +707,6 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
     // MARK: Filter Events
     @IBAction func openFilter(_ sender: Any) {
         isSelectedGenre = false;
-        searchBar.isHidden = true;
-        searchToggle = false;
-        searchActive = false;
         if (mdChipCard.isHidden){
             strSelectedCategory = "";
             aryFilterGenresData = [Any]()
@@ -679,11 +728,12 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
             showAlert(strMsg: "Please check your internet connection!")
             return
         }
-        
         mdChipCard.isHidden = true;
         topConstaintTblMain?.constant = 1;
         tblMain.layoutIfNeeded()
+        aryUpcomingData = []
         getCategoryOrganisations(inputData: ["category":""]);
+        onGoingEvents()
     }
     @IBAction func applyFilter(_ sender: Any) {
         let netAvailable = appDelegate.isConnectedToInternet()
@@ -696,7 +746,9 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
         topConstaintTblMain?.constant = 1;
         tblMain.layoutIfNeeded()
         if (strSelectedCategory != ""){
+            appDelegate.strCategory = strSelectedCategory
             getCategoryOrganisations(inputData: ["category":self.strSelectedCategory]);
+            getEvents(inputData: ["category_name":self.strSelectedCategory]);
         }
     }
     
@@ -801,7 +853,11 @@ extension DashBoardVC: UICollectionViewDataSource , UICollectionViewDelegateFlow
         cell.chipView.setBorderColor(.white, for: .normal)
         cell.chipView.setBorderWidth(0.5, for: .normal)
         cell.chipView.setTitleColor(.white, for: .normal)
-        cell.chipView.titleFont = UIFont.boldSystemFont(ofSize: 15)
+        if(UIDevice.current.userInterfaceIdiom == .pad){
+            cell.chipView.titleFont = UIFont.boldSystemFont(ofSize: 25)
+        }else{
+            cell.chipView.titleFont = UIFont.boldSystemFont(ofSize: 15)
+        }
         return cell
     }
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
@@ -823,7 +879,7 @@ extension DashBoardVC: UICollectionViewDataSource , UICollectionViewDelegateFlow
             self.strSelectedCategory = strValue ?? ""
         }else if (indexPath.section == 2){
             let selectedItem = aryFilterGenresData[indexPath.row] as? [String : Any];
-            let strValue = selectedItem?["genres"] as? String;
+            _ = selectedItem?["genres"] as? String;
             //print("strValue genre:",strValue ?? "")
             let selectedGenreId = selectedItem?["id"] as? Int;
             self.genreId = selectedGenreId ?? 0
@@ -832,103 +888,16 @@ extension DashBoardVC: UICollectionViewDataSource , UICollectionViewDelegateFlow
         }
     }
     
-    
-    @objc func categoryPress(_ sender: UIButton) {
-        //print("tag:",sender.tag)
-        //        if (self.aryFilterCategoriesData.count > sender.tag){
-        //            let selectedItem = self.aryFilterCategoriesData[sender.tag] as? [String : Any];
-        //            self.aryFilterSubCategoriesData = selectedItem?["subcategory"] as? [Any] ?? [Any]();
-        //            self.aryFilterGenresData = selectedItem?["genre"] as? [Any] ?? [Any]();
-        //        }
-    }
-    
     //MARK: UISearchbar delegate
     @IBAction func searchTapped(_ sender: UIButton){
         let storyboard = UIStoryboard(name: "Main", bundle: nil);
         let vc = storyboard.instantiateViewController(withIdentifier: "SearchViewController") as! SearchViewController
         self.navigationController?.pushViewController(vc, animated: true)
-        /*searchToggle = !searchToggle
-        searchBar.text = "";
-        if(!mdChipCard.isHidden){
-            mdChipCard.isHidden = true;
-        }
-        if (searchToggle){
-            searchBar.isHidden = false;
-            topConstaintTblMain?.constant = 60;
-            tblMain.layoutIfNeeded()
-        }else{
-            searchBar.isHidden = true;
-            topConstaintTblMain?.constant = 1;
-            tblMain.layoutIfNeeded()
-            if (searchActive){
-                searchActive = false;
-                tblMain.reloadData()
-            }
-        }*/
-        
-    }
-    func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
-        searchActive = false;
     }
     
-    func searchBarTextDidEndEditing(_ searchBar: UISearchBar) {
-        searchBar.resignFirstResponder()
-        searchActive = false;
-    }
-    
-    func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
-        searchBar.text = "";
-        searchBar.resignFirstResponder()
-        searchActive = false;
-        self.tblMain.reloadData()
-    }
-    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-        if searchText.isEmpty {
-            //when user press X icon
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                searchBar.resignFirstResponder()
-            }
-            searchActive = false;
-            self.tblMain.reloadData()
-        }
-    }
-    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
-        searchBar.resignFirstResponder()
-        let searchString = searchBar.text!
-        if (searchString.count > 0){
-            searchActive = true;
-            let namePredicate = NSPredicate(format: "stream_video_title contains[c] %@",searchString);
-            
-            aryFilteredLiveEvents = aryLiveChannelsData.filter { namePredicate.evaluate(with: $0) };
-            aryFilteredSubCategories = []
-            
-            for (index,_) in self.arySubCategories.enumerated(){
-                let arySub = arySubCategories[index] as? [String: Any]
-                let organizations = arySub?["organizations"] as? [Any]
-                searchActive = true;
-                let namePredicate = NSPredicate(format: "organization_name contains[c] %@",searchString);
-                
-                let arySubCategories1 = organizations?.filter { namePredicate.evaluate(with: $0) };
-                if (arySubCategories1!.count > 0){
-                    let dict =
-                        ["organizations": arySubCategories1 ?? [Any](),
-                         "parent_category_name":arySub?["parent_category_name"] as? String ?? "",
-                         "subCategory":arySub?["subCategory"] as? String ?? ""] as [String : Any]
-                    aryFilteredSubCategories.append(dict)
-                    //print("arySub:",dict)
-                    
-                }
-            }
-            //print("--count:",aryFilteredSubCategories.count)
-            tblMain.reloadData()
-            
-        }
-        
-        
-    }
     @IBAction func helpPressed(_ sender: Any){
         let storyboard = UIStoryboard(name: "Main", bundle: nil);
-                   let vc = storyboard.instantiateViewController(withIdentifier: "HelpVC") as! HelpVC
+        let vc = storyboard.instantiateViewController(withIdentifier: "HelpVC") as! HelpVC
         self.navigationController?.pushViewController(vc, animated: true)
     }
     

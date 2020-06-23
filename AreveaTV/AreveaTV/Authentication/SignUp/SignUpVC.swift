@@ -29,12 +29,13 @@ class SignUpVC: UIViewController ,UITextFieldDelegate,UIPickerViewDelegate, UIPi
     // MARK: - View Life cycle
     @IBOutlet weak var viewActivity: UIView!
     var pickerData =  ["Below 18", "18+"];
-
+    var keyboardHeight: CGFloat = 0
+    var viewUp = false;
     
     override func viewDidLoad() {
         super.viewDidLoad()
         viewActivity.isHidden = true
-        self.assignbackground();
+        //self.assignbackground();
         self.navigationController?.isNavigationBarHidden = true
         //        txtEmail.text = "grajitha2009@gmail.com"
         //        txtFirstName.text = "Rajitha Gangam";
@@ -43,8 +44,27 @@ class SignUpVC: UIViewController ,UITextFieldDelegate,UIPickerViewDelegate, UIPi
         //        txtPhone.text = "+918096823214";
         addDoneButton()
         pickerView.delegate = self
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
+
+
     }
-    
+    @objc func keyboardWillShow(notification: NSNotification) {
+        if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
+            keyboardHeight = keyboardSize.height
+            if (viewUp && self.view.frame.origin.y == 0){
+                self.view.frame.origin.y -= keyboardSize.height
+            }
+        }
+    }
+    @objc func keyboardWillHide(notification: Notification) {
+        if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameBeginUserInfoKey] as? NSValue)?.cgRectValue {
+             if (viewUp && self.view.frame.origin.y != 0) {
+                self.view.frame.origin.y = 0;
+            }
+        }
+    }
     func addDoneButton() {
         let toolbar =  UIToolbar(frame: CGRect(x: 0, y: 0, width: view.frame.size.width, height: 35))
         
@@ -235,13 +255,17 @@ class SignUpVC: UIViewController ,UITextFieldDelegate,UIPickerViewDelegate, UIPi
     // MARK: Text Field Delegate Methods
     
     func textFieldDidBeginEditing(_ textField: UITextField) {
+        viewUp = false;
         if (textField==txtPassword || textField==txtCfrmPassword || textField==txtDOB){
-            self.animateTextField(textField: textField, up:true)
+           // self.animateTextField(textField: textField, up:true)
+            viewUp = true;
         }
     }
     func textFieldDidEndEditing(_ textField: UITextField) {
+        viewUp = false;
         if (textField==txtPassword || textField==txtCfrmPassword || textField==txtDOB){
-            self.animateTextField(textField: textField, up:false)
+            //self.animateTextField( up:false)
+            viewUp = true;
         }
         textField.resignFirstResponder();
     }
@@ -266,21 +290,21 @@ class SignUpVC: UIViewController ,UITextFieldDelegate,UIPickerViewDelegate, UIPi
     }
     // MARK: Keyboard  Delegate Methods
     
-    func animateTextField(textField: UITextField, up: Bool)
+    func animateTextField(up: Bool)
     {
-        let movementDistance:CGFloat = -130
-        var movement:CGFloat = 0
+        let movementDistance:CGFloat = -keyboardHeight
+        //var movement:CGFloat = 0
         if up
         {
-            movement = movementDistance
+            //movement = movementDistance
+            if self.view.frame.origin.y == 0{
+                self.view.frame.origin.y -= movementDistance
+            }
+        }else{
+            if self.view.frame.origin.y != 0 {
+                self.view.frame.origin.y = 0;
+            }
         }
-        else
-        {
-            movement = -movementDistance
-        }
-        UIView.animate(withDuration: 0.3, animations: {
-            self.view.frame = self.view.frame.offsetBy(dx: 0, dy: movement)
-        })
     }
     override var preferredStatusBarStyle: UIStatusBarStyle {
         return .lightContent // .default
@@ -297,11 +321,14 @@ class SignUpVC: UIViewController ,UITextFieldDelegate,UIPickerViewDelegate, UIPi
     
     func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
         return pickerData[row]
-        
     }
     
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
         let selectedItem = pickerData[row]
         txtDOB.text = selectedItem
+    }
+    deinit {
+        print("Remove NotificationCenter Deinit")
+        NotificationCenter.default.removeObserver(self)
     }
 }

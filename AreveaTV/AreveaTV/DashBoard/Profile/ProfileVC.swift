@@ -33,7 +33,7 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
     var strProfilePicURL = ""
     @IBOutlet weak var btnDelete: UIButton!
     let pickerView = UIPickerView()
-    var pickerData =  ["Below 18", "18+"];
+    var pickerData =  ["Under 16", "16+","18+"];
     
     // MARK: - View Life cycle
     override func viewDidLoad() {
@@ -227,13 +227,18 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
                                 return
                             }
                             let diff = currentYear - pastYear
-                            //print("first:",self.pickerData[0])
+                            print("first:",diff)
                             self.txtDOB.text = self.pickerData[0]
                             self.pickerView.selectRow(0, inComponent: 0, animated: true)
-                            if (diff >= 18){
+                            if (diff > 16 && diff <= 18){
                                 self.txtDOB.text = self.pickerData[1]
                                 //print("second:",self.pickerData[1])
                                 self.pickerView.selectRow(1, inComponent: 0, animated: true)
+                            }
+                            if (diff > 18){
+                                self.txtDOB.text = self.pickerData[2]
+                                //print("second:",self.pickerData[1])
+                                self.pickerView.selectRow(2, inComponent: 0, animated: true)
                             }
                             //let diff = Int(currentDate) - Int(pastdate)
                             self.txtDisplayName.text = profile_data["user_display_name"]as? String
@@ -283,7 +288,10 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
         
         let currentDate = Date()
         var dateComponent = DateComponents()
-        if (dob == "Below 18"){
+        
+        if (dob == "Under 16"){
+            dateComponent.year = -16 // currentdate -17 years
+        }else if (dob == "16+"){
             dateComponent.year = -17 // currentdate -17 years
         }else{
             dateComponent.year = -18 // currentdate -18 years
@@ -292,6 +300,7 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
         //print("currentDate:",currentDate)
         //print("pastDate:",pastDate!)
         let dobPast = dateFormatter.string(from:pastDate!)
+        
         let httpMethodName = "POST"
         let URLString: String = "/setProfile"
         let user_id = UserDefaults.standard.string(forKey: "user_id");

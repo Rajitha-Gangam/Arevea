@@ -58,6 +58,8 @@
             searchBar.setPlaceholder(textColor: .white)
             searchBar.setSearchImage(color: .white)
             searchBar.setClearButton(color: .white)
+            appDelegate.strCategory = ""
+            btnFilter.isHidden = true;
         }
         
         func showAlert(strMsg: String){
@@ -194,19 +196,22 @@
             let searchText = (searchBar.text!).lowercased().trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
 
             
-            let fields = ["name", "searchkeywords", "streamvideodesc"];
+            let fields = ["name", "searchkeywords", "streamvideodesc","performer","organizationname","subcategories","category","genres"];
+
             for i in 0...fields.count-1{
                 prepareORQuery += "(prefix field=" + fields[i] + " " + "'" + searchText + "'" + ")";
                 prepareORQuery += "(term field=" + fields[i] + " " + "'" + searchText + "'" + ")";
             }
             let  category_name = "''";
             query = "(and (and category:" + category_name + ")(and subcategories: " + subCategories + ") (and genres: " + genres + ") (and (or " + prepareORQuery + ")))";
+            
             let encodedQuery = query.addingPercentEncoding(withAllowedCharacters:NSCharacterSet.urlQueryAllowed)
-
             query = encodedQuery!;
+            
             query = query.replacingOccurrences(of: "'", with: "%27")
             query = query.replacingOccurrences(of: ":", with: "%3A")
             query = query.replacingOccurrences(of: "=", with: "%3D")
+            query = query.replacingOccurrences(of: "/", with: "%252F")
             query = "?q=" + query
             query += "&q.parser=structured";
             query += "&size=500";
@@ -218,13 +223,18 @@
         func getSearchResults(searchString:String,isQuery:Bool){
             let baseURL = "https://3ptsrb2obj.execute-api.us-east-1.amazonaws.com/dev/"
             var url = ""
-            if (isQuery){
+           if (isQuery){
                 url = baseURL + searchString
             }else{
-                url = baseURL + "?q=" + searchString + "*"
+                //url = url.addingPercentEncoding(withAllowedCharacters:NSCharacterSet.urlQueryAllowed)!
+                let customAllowedSet =  NSCharacterSet(charactersIn:"=\"#%/<>?@\\^`{|} ").inverted
+                let encodedSearch = searchString.lowercased().addingPercentEncoding(withAllowedCharacters: customAllowedSet) ?? ""
+                url = baseURL + "?q=" + encodedSearch + "*"
+            url = url.addingPercentEncoding(withAllowedCharacters:NSCharacterSet.urlQueryAllowed)!
+
             }
-//            let encodedURL = url.addingPercentEncoding(withAllowedCharacters:NSCharacterSet.urlQueryAllowed)
-//            print("encodedURL:",encodedURL)
+            
+
             print("url:",url)
             viewActivity.isHidden = false
             //print("getCategoryOrganisations input:",inputData)
@@ -233,6 +243,12 @@
             AF.request(url, method: .get,encoding: JSONEncoding.default,headers:headers)
                 .responseJSON { response in
                     self.viewActivity.isHidden = true
+                    self.tblFilter.isHidden = true
+                    self.btnFilter.isHidden = false;
+                    if (!isQuery){
+                        self.selectedSubCategories = [[String:Any]]();
+                        self.selectedGenres = [[String:Any]]();
+                    }
                     switch response.result {
                     case .success(let value):
                         if let json = value as? [String: Any] {
@@ -273,25 +289,27 @@
                                 self.aryFilterSubCategoriesData = Array(Set(self.aryFilterSubCategoriesData))
                                 self.aryFilterGenresData = Array(Set(self.aryFilterGenresData))
                                 self.lblNoData.text = "Your search did not match with any documents.\n\n1. Make sure that all words spelled correctly.\n2. Try with different key words."
-                                self.tblFilter.isHidden = true
                                 self.lblNoData.textAlignment = .left
                                 self.tblFilter.reloadData()
                             }else{
                                 self.lblNoData.textAlignment = .center
-                                self.lblNoData.text = "No Results found with selected filter"
+                                self.lblNoData.text = "No results found with selected filter"
                             }
                             
                             if (self.searchList.count > 0){
                                 self.lblNoData.isHidden = true;
                             }else{
                                 self.lblNoData.isHidden = false;
+                                if(!isQuery){
+                                    self.btnFilter.isHidden = true;
+                                }
                             }
                             self.collectionView.reloadData()
                         }
                     //searchList
                     case .failure(let error):
-                        //print(error)
-                        self.showAlert(strMsg: error.localizedDescription)
+                        print(error.localizedDescription)
+                        self.showAlert(strMsg: "Error occured. Please try again later")
                     }
             }
         }
@@ -357,6 +375,8 @@
                 getSearchResults(searchString: searchString, isQuery: false)
                 //print("--count:",aryFilteredSubCategories.count)
                 // tblMain.reloadData()
+            }else{
+                showAlert(strMsg: "Please enter search keyword")
             }
         }
         override var preferredStatusBarStyle: UIStatusBarStyle {
@@ -373,8 +393,8 @@
             _ = collectionView.cellForItem(at: indexPath) as? DBCollectionViewCell
             let searchItem = searchList[indexPath.item] as! [String: Any]
             let type = searchItem["type"]as? String;
-            //print("searchItem:",searchItem)
-            //print("type:",type ?? "")
+            print("searchItem:",searchItem)
+            print("type:",type ?? "")
             switch type {
             case "stream":
                 let storyboard = UIStoryboard(name: "Main", bundle: nil);
@@ -446,6 +466,10 @@
             case "genre":
                 let genreId = searchItem["id"] as? String ?? "0"
                 appDelegate.genreId = Int(genreId) ?? 0
+                let subcategories = searchItem["subcategories"] as? [Any] ?? [Any]()
+                if (subcategories.count > 0){
+                    appDelegate.strCategory = subcategories[0] as? String ?? ""
+                }
                 //print("genreId:",appDelegate.genreId)
                 for controller in self.navigationController!.viewControllers as Array {
                     if controller.isKind(of: DashBoardVC.self) {
@@ -456,9 +480,6 @@
             default:
                 break
             }
-            
-            
-            
         }
         func numberOfSections(in collectionView: UICollectionView) -> Int {
             return 1
@@ -503,7 +524,11 @@
         func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
             let width = self.view.frame.size.width/2 - 10
             //print("width:",width)
-            return CGSize(width: width, height: 180.0)
+            if(UIDevice.current.userInterfaceIdiom == .pad){
+                return CGSize(width: width, height: 230.0)
+            }else{
+                return CGSize(width: width, height: 180.0)
+            }
         }
         
     }

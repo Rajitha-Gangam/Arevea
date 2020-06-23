@@ -119,6 +119,17 @@ class DashBoardCell: UITableViewCell, UICollectionViewDataSource, UICollectionVi
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
         return UIEdgeInsets(top: 0, left: 5, bottom: 0, right: 5)
     }
+    // Add spaces at the beginning and the end of the collection view
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        //print("width:",width)
+        if(UIDevice.current.userInterfaceIdiom == .pad){
+            return CGSize(width: 250.0, height: 250.0)
+        }else{
+            return CGSize(width: 180.0, height: 180.0)
+        }
+    }
+    
     func getData(from url: URL, completion: @escaping (Data?, URLResponse?, Error?) -> ()) {
         URLSession.shared.dataTask(with: url, completionHandler: completion).resume()
     }

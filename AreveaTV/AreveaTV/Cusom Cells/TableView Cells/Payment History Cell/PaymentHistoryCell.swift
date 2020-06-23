@@ -13,10 +13,17 @@ class PaymentHistoryCell: UITableViewCell {
        @IBOutlet weak var lblTypeOfDonation:UILabel!
        @IBOutlet weak var lblDate:UILabel!
        @IBOutlet weak var lblAmount:UILabel!
-    
+    @IBOutlet weak var widthFirstView: NSLayoutConstraint!
+
     override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code
+        if(UIDevice.current.userInterfaceIdiom == .pad){
+            widthFirstView.constant = 300.0
+        }else{
+            widthFirstView.constant = 160.0
+        }
+        self.layoutIfNeeded()
     }
 
     override func setSelected(_ selected: Bool, animated: Bool) {

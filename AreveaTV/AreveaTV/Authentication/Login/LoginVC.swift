@@ -35,7 +35,7 @@
         // MARK: View Life Cycle Methods
         override func viewDidLoad() {
             super.viewDidLoad()
-            self.assignbackground();
+            
             txtUserName.delegate = self;
             txtPassword.delegate = self;
             self.navigationController?.isNavigationBarHidden = true
@@ -45,8 +45,13 @@
             pickerData = ["dev", "qa", "pre-prod", "prod"]
             createPickerView()
            // dismissPickerView()
+            //self.assignbackground();
+            
+
             
         }
+
+     
         override func viewWillAppear(_ animated: Bool) {
             txtUserName.text = "";
             txtPassword.text = "";

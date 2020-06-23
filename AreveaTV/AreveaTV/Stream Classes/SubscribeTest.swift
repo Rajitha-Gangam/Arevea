@@ -145,6 +145,9 @@ class SubscribeTest: BaseTest {
         // Set up the connection and stream
         let connection = R5Connection(config: config)
         self.subscribeStream = R5Stream(connection: connection)
+        
+        let stats = self.subscribeStream?.getDebugStats()
+        print("---stats:",stats as Any)
         self.subscribeStream!.delegate = self
         self.subscribeStream?.client = self;
         // self.subscribeStream.subscribeToAudio = YES;
@@ -201,17 +204,19 @@ class SubscribeTest: BaseTest {
         self.subscribeStream?.audioController.volume = slider!.value / 100
     }
     @objc func pauseAudio() {
-        let hasAudio = !(self.subscribeStream?.pauseAudio)!;
-        self.subscribeStream?.pauseAudio = hasAudio;
+        //let hasAudio = !(self.subscribeStream?.pauseAudio)!;
+       // self.subscribeStream?.pauseAudio = hasAudio;
         let imgBtn = audioBtn?.image(for: .normal)
         if ((imgBtn?.isEqual(UIImage.init(named: "unmute.png")))!)
         {
             audioBtn?.setImage(UIImage.init(named: "mute.png"), for: .normal);
-            ALToastView.toast(in: self.view, withText:"Pausing Audio")
+            //ALToastView.toast(in: self.view, withText:"Pausing Audio")
+            self.subscribeStream?.audioController.volume = 0
         }
         else{
             audioBtn?.setImage(UIImage.init(named: "unmute.png"), for: .normal);
-            ALToastView.toast(in: self.view, withText:"Playing Audio")
+            //ALToastView.toast(in: self.view, withText:"Playing Audio")
+            self.subscribeStream?.audioController.volume = slider!.value / 100
         }
     }
     @objc func pauseVideo() {
@@ -305,7 +310,7 @@ class SubscribeTest: BaseTest {
                     let streamInfo = ["Stream": "stopped"]
                            NotificationCenter.default.post(name: .didReceiveStreamData, object: self, userInfo: streamInfo)
                 }
-                self.reconnect()
+               // self.reconnect()
             }
             // }
             

@@ -12,6 +12,7 @@ import SendBirdSDK
 import CoreLocation
 
 @UIApplicationMain
+
 class AppDelegate: UIResponder, UIApplicationDelegate,CLLocationManagerDelegate {
     // MARK: - Variables Declaration
     var window: UIWindow? // <-- Here
@@ -36,6 +37,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate,CLLocationManagerDelegate 
     var strCountry = "India"//United States
     var strRegionCode = "blr1"//sfo1
     var detailToShow = "Stream" //for details screen to show stream/audio/video,,,etc based on serach selected item
+    enum UIUserInterfaceIdiom : Int {
+        case unspecified
+        case phone // iPhone and iPod touch style UI
+        case pad   // iPad style UI (also includes macOS Catalyst)
+    }
     // MARK: - Application Life cycle
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         

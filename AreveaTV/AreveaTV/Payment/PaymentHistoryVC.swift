@@ -78,6 +78,8 @@ class PaymentHistoryVC: UIViewController, UITableViewDelegate,UITableViewDataSou
         
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
+        formatter.timeZone = NSTimeZone(abbreviation: "UTC") as TimeZone?
+
         if let date = formatter.date(from: dateCreated) {
             let formatter1 = DateFormatter()
             formatter1.dateFormat = "dd MMM yyyy, hh:mm a"

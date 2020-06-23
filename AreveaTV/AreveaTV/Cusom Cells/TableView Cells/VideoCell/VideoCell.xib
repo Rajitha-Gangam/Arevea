@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="15705" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="16097" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15706"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="16087"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -19,6 +19,10 @@
                 <subviews>
                     <button opaque="NO" contentMode="scaleAspectFit" contentHorizontalAlignment="fill" contentVerticalAlignment="fill" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="W8l-wF-6RA">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="150"/>
+                        <constraints>
+                            <constraint firstAttribute="width" constant="375" id="HAh-1M-SoU"/>
+                            <constraint firstAttribute="height" constant="150" id="p3q-8C-GJj"/>
+                        </constraints>
                         <state key="normal" image="default-vod.png"/>
                     </button>
                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="4h2-rc-PtT">
@@ -34,10 +38,8 @@
                 <constraints>
                     <constraint firstItem="4h2-rc-PtT" firstAttribute="centerX" secondItem="erj-CU-gAe" secondAttribute="centerX" id="1aI-Xl-wX5"/>
                     <constraint firstItem="4h2-rc-PtT" firstAttribute="centerY" secondItem="erj-CU-gAe" secondAttribute="centerY" id="EYR-ql-xk7"/>
-                    <constraint firstAttribute="trailing" secondItem="W8l-wF-6RA" secondAttribute="trailing" id="IMn-BR-hgO"/>
-                    <constraint firstAttribute="bottom" secondItem="W8l-wF-6RA" secondAttribute="bottom" id="V9Z-3t-7Vb"/>
-                    <constraint firstItem="W8l-wF-6RA" firstAttribute="leading" secondItem="erj-CU-gAe" secondAttribute="leading" id="bB4-bj-aQS"/>
-                    <constraint firstItem="W8l-wF-6RA" firstAttribute="top" secondItem="erj-CU-gAe" secondAttribute="top" id="hBq-PX-BWb"/>
+                    <constraint firstItem="W8l-wF-6RA" firstAttribute="centerY" secondItem="erj-CU-gAe" secondAttribute="centerY" id="ONZ-WZ-4yg"/>
+                    <constraint firstItem="W8l-wF-6RA" firstAttribute="centerX" secondItem="erj-CU-gAe" secondAttribute="centerX" id="p9X-nz-w4E"/>
                 </constraints>
             </tableViewCellContentView>
             <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>

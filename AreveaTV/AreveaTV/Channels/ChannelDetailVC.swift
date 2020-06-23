@@ -15,7 +15,7 @@ import MUXSDKStats;
 extension Notification.Name {
     static let didReceiveStreamData = Notification.Name("didReceiveStreamData")
 }
-class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDataSource,UITableViewDelegate,UITextFieldDelegate,CollectionViewCellDelegate,OpenChanannelChatDelegate,OpenChannelMessageTableViewCellDelegate,AGEmojiKeyboardViewDelegate, AGEmojiKeyboardViewDataSource{
+class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDataSource,UITableViewDelegate,UITextFieldDelegate,CollectionViewCellDelegate,OpenChanannelChatDelegate,OpenChannelMessageTableViewCellDelegate,AGEmojiKeyboardViewDelegate, AGEmojiKeyboardViewDataSource,UIWebViewDelegate,UICollectionViewDelegateFlowLayout{
     // MARK: - Variables Declaration
     
     @IBOutlet weak var scrollButtons: UIScrollView!
@@ -43,6 +43,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
     let appDelegate = UIApplication.shared.delegate as! AppDelegate
     @IBOutlet weak var btnUserName: UIButton!
     @IBOutlet weak var btnPayPerView: UIButton!
+    @IBOutlet weak var webView: UIWebView!
     
     var r5ViewController : BaseTest? = nil
     @IBOutlet weak var viewLiveStream: UIView!
@@ -78,6 +79,8 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
     var backPressed = false
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     @IBOutlet weak var imgPerformer :UIImageView!
+    @IBOutlet weak var imgPerformerProfile :UIImageView!
+    
     @IBOutlet weak var lblVideoDesc: UILabel!
     @IBOutlet weak var lblVideoTitle: UILabel!
     @IBOutlet weak var lblVideoDesc_Info: UILabel!
@@ -114,6 +117,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
     var keyboardShown: Bool = false
     var keyboardHeight: CGFloat = 0
     var firstKeyboardShown: Bool = true
+    var age_limit = 0;
     @IBOutlet weak var txtComment: UITextField!
     @IBOutlet weak var txtEmoji: UITextField!
     
@@ -150,6 +154,8 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
     
     @IBOutlet weak var imgEmoji: UIImageView!
     @IBOutlet weak var imgEmoji1: UIImageView!
+    var app_id_for_adds = ""
+    var viewUp = false;
     
     // MARK: - View Life cycle
     override func viewDidLoad() {
@@ -159,7 +165,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
         registerNibs();
         addDoneButton()
         //print("detail item in channnel page:\(detailItem)")
-       
+        
         viewLiveStream.isHidden = true;
         lblNoDataComments.text = ""
         lblNoDataDonations.text = "No results found"
@@ -183,7 +189,26 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
         txtEmoji.inputView = emojiKeyboardView
         txtEmoji.tintColor = UIColor.clear
         txtEmoji.addTarget(self, action: #selector(txtEmojiTap), for: .touchDown)
+        webView.isHidden = true
         hideViews();
+        //bottom first object should show
+        if(appDelegate.detailToShow == "performer"){
+            viewProfile.isHidden = false;
+            let profileLine = self.buttonCVC.viewWithTag(14) as? UILabel
+            profileLine?.backgroundColor = .red;
+        }else if(appDelegate.detailToShow == "video"){
+            viewVideos.isHidden = false;
+            let videoLine = self.buttonCVC.viewWithTag(17) as? UILabel
+            videoLine?.backgroundColor = .red;
+        }else if(appDelegate.detailToShow == "audio"){
+            viewAudios.isHidden = false;
+            let audioLine = self.buttonCVC.viewWithTag(16) as? UILabel
+            audioLine?.backgroundColor = .red;
+        }else{
+            viewInfo.isHidden = false;
+            let commentsLine = self.buttonCVC.viewWithTag(11) as? UILabel
+            commentsLine?.backgroundColor = .red;
+        }
         
     }
     @objc func txtEmojiTap(textField: UITextField) {
@@ -263,9 +288,9 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
         SBDOpenChannel.getWithUrl(channelName, completionHandler: { (openChannel, error) in
             guard error == nil else {   // Error.
                 let errorDesc = "Chat Error:" + error!.localizedDescription
-                //print("Send Bird Error:\(error!)")
-                //print(errorDesc)
-                self.sbdError = error!
+                //print("Send Bird Error:\(String(describing: error))")
+                print(errorDesc)
+                //self.sbdError = error ?? error?.localizedDescription as! SBDError
                 self.sendBirdErrorCode = error?.code ?? 0
                 //self.showAlert(strMsg:errorDesc )
                 self.messages.removeAll()
@@ -329,7 +354,16 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
         NotificationCenter.default.addObserver(self, selector: #selector(applicationDidBecomeActive), name: UIApplication.didBecomeActiveNotification, object: nil)
         
         NotificationCenter.default.addObserver(self, selector: #selector(StreamNotificationHandler(_:)), name: .didReceiveStreamData, object: nil)
-       
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
+    }
+    @objc func keyboardWillShow(notification: NSNotification) {
+        
+        if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
+            keyboardHeight = keyboardSize.height
+            if (viewUp){
+                self.animateTextField(textField: txtComment, up:true)
+            }
+        }
     }
     @objc func StreamNotificationHandler(_ notification:Notification) {
         // Do something now
@@ -353,10 +387,12 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
                     btnPlayStream.isHidden = true;
                     tblComments.reloadData()
                 }else if(value == "not_available"){
-                    lblStreamUnavailable.text = "Video streaming is currently unavailable. Please try again later"
-                    btnPlayStream.setImage(UIImage.init(named: "refresh-icon.png"), for: .normal)
-                    btnPlayStream.isHidden = false;
-                    isChannelAvailable = false
+                    if (viewLiveStream.isHidden == false){
+                        lblStreamUnavailable.text = "Video streaming is currently unavailable. Please try again later"
+                        btnPlayStream.setImage(UIImage.init(named: "refresh-icon.png"), for: .normal)
+                        btnPlayStream.isHidden = false;
+                        isChannelAvailable = false
+                    }
                 }
             }
         }
@@ -385,6 +421,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(true);
         backPressed = false
+        self.btnPlayStream.isHidden = true
         if(isLoaded == 0 || appDelegate.isLiveLoad == "1"){
             let netAvailable = appDelegate.isConnectedToInternet()
             if(!netAvailable){
@@ -399,25 +436,11 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
             performerAudios();
             performerEvents();
             //getPerformerOrgInfo();
+            
+            let infoLine = self.buttonCVC.viewWithTag(11) as? UILabel
+            infoLine?.backgroundColor = .red;
         }
-        //bottom first object should show
-               if(appDelegate.detailToShow == "performer"){
-                   viewProfile.isHidden = false;
-                   let profileLine = self.buttonCVC.viewWithTag(14) as? UILabel
-                   profileLine?.backgroundColor = .red;
-               }else if(appDelegate.detailToShow == "video"){
-                   viewVideos.isHidden = false;
-                   let videoLine = self.buttonCVC.viewWithTag(17) as? UILabel
-                   videoLine?.backgroundColor = .red;
-               }else if(appDelegate.detailToShow == "audio"){
-                   viewAudios.isHidden = false;
-                   let audioLine = self.buttonCVC.viewWithTag(16) as? UILabel
-                   audioLine?.backgroundColor = .red;
-               }else{
-                   viewComments.isHidden = false;
-                   let commentsLine = self.buttonCVC.viewWithTag(10) as? UILabel
-                   commentsLine?.backgroundColor = .red;
-               }
+        
         
     }
     func delay(_ delay:Double, closure:@escaping ()->()) {
@@ -458,19 +481,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
         }
     }
     
-    func showVideo1(url : URL){
-        videoPlayer = AVPlayer(url: url)
-        let controller = AVPlayerViewController()
-        controller.player = videoPlayer
-        controller.view.frame = self.viewVOD.bounds
-        self.viewVOD.addSubview(controller.view)
-        self.addChild(controller)
-        
-        viewLiveStream.isHidden = true;
-        viewVOD.isHidden = false;
-        btnViewStream.isHidden = false;
-        videoPlayer.play()
-    }
+    
     func showVideo(strURL : String){
         if let url = URL(string: strURL){
             videoPlayer = AVPlayer(url: url)
@@ -479,12 +490,27 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
             controller.view.frame = self.viewVOD.bounds
             self.viewVOD.addSubview(controller.view)
             self.addChild(controller)
-            
+            btnPlayStream.isHidden = true;
             viewLiveStream.isHidden = true;
             viewVOD.isHidden = false;
             btnViewStream.isHidden = false;
             videoPlayer.play()
             
+            //            let player = AVPlayer(url: url)
+            //            let controller=AVPlayerViewController()
+            //            controller.player=player
+            //            controller.view.frame = self.viewVideo.frame
+            //            self.viewVideo.addSubview(controller.view)
+            //            self.addChild(controller)
+            //            player.play()
+            
+            //388266
+            /*
+             let htmlString = "<iframe src='https://app.singular.live/appinstances/" + self.app_id_for_adds + "/outputs/Output/onair'allowfullscreen='true' allowtransparency='true' scrolling='no' style='position: absolute;width: 100%;height: 95%;border: none;z-index: 1;'></iframe>"
+             webView.loadHTMLString(htmlString, baseURL: nil)
+             webView.delegate = self
+             viewActivity.isHidden = false
+             self.viewVOD.bringSubviewToFront(webView)*/
             // Environment and player data that persists until the player is destroyed
             let playerData = MUXSDKCustomerPlayerData(environmentKey:"dev")
             playerData?.viewerUserId = "1234"
@@ -516,6 +542,8 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
     @IBAction func back(_ sender: Any) {
         if (!backPressed){
             backPressed = true
+            closeStream()
+            stopVideo()
             self.navigationController?.popViewController(animated: true)
         }
     }
@@ -547,6 +575,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
         }
         return UICollectionViewCell()
     }
+    
     //MARK: Main function, handling bottom views logic based on selection here
     func hideViews(){
         viewComments.isHidden = true;
@@ -574,8 +603,6 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
                 tmpLbl?.backgroundColor = .white;
             }
         }
-        let tmpLbl1 = self.buttonCVC.viewWithTag(16) as? UILabel
-        tmpLbl1?.backgroundColor = .green
         switch title {
         case "Comments":
             viewComments.isHidden = false;
@@ -769,10 +796,13 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
             cell.btnVideo1.tag = indexPath.section
             let upcoming = self.aryVideos[indexPath.section] as? [String : Any];
             let strURL = upcoming?["videoThumbImage"] as? String ?? "";
-            // //print("strURL:",strURL);
-            //            if let urlVideoThumbImage = URL(string: strURL){
-            //                self.videoThumbNail(from: urlVideoThumbImage, button: cell.btnVideo1)
-            //            }
+            print("--vod strURL:",strURL);
+            if let urlVideoThumbImage = URL(string: strURL){
+                self.videoThumbNail(from: urlVideoThumbImage, button: cell.btnVideo)
+            }else{
+                cell.btnVideo.setImage((UIImage.init(named: "default-vod.png")), for: .normal)
+            }
+            
             return cell
             
         }else if (tableView == tblDonations){
@@ -794,18 +824,16 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
             let cell = tableView.dequeueReusableCell(withIdentifier: "UpcomingCell") as! UpcomingCell
             //2020-04-26T19:28:49.000Z
             let item = self.aryUpcoming[indexPath.row] as? [String : Any];
+            print("--upcoming:",item)
             cell.lblTitle.text = item?["streamTitle"] as? String;
-            var isoDate = "";
-            if ((item?["publishedOn"] as? String) != nil)
-            {
-                isoDate = item?["publishedOn"] as? String ?? ""
-            }
+            let isoDate = item?["publishedOn"] as? String ?? ""
             let formatter = DateFormatter()
-            formatter.locale = Locale(identifier: "en_US_POSIX")
-            formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.000Z"
+            formatter.timeZone = NSTimeZone(abbreviation: "UTC") as TimeZone?
+            //formatter.locale = Locale(identifier: "en_US_POSIX")
+            formatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
             if let date = formatter.date(from: isoDate) {
                 let formatter1 = DateFormatter()
-                formatter1.dateFormat = "dd MMM yyyy ,hh:mm a"
+                formatter1.dateFormat = "dd MMM yyyy, hh:mm a"
                 cell.lblDate.text = formatter1.string(from: date)
             }else{
                 //print ("invalid date");
@@ -814,7 +842,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
             
             cell.lblPayment.text = item?["streamPaymentMode"] as? String;
             //cell.lblPayment.text = String(item["streamPayment"]as! Int) + " USD"
-            cell.lblSession.text = item?["streamType"]as? String;
+            cell.lblSession.text = item?["sessionType"]as? String;
             return cell
             
         }else if (tableView == tblComments){
@@ -1065,8 +1093,10 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
     // MARK: Text Field Delegate Methods
     
     func textFieldDidBeginEditing(_ textField: UITextField) {
+        print("textFieldDidBeginEditing:",keyboardHeight)
+        viewUp = false;
         if (txtComment == textField){
-            self.animateTextField(textField: textField, up:true)
+            viewUp = true;
         }else if(txtEmoji == textField){
             imgEmoji.isHidden = true
         }
@@ -1091,7 +1121,9 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
     
     func animateTextField(textField: UITextField, up: Bool)
     {
-        let movementDistance:CGFloat = -300
+        
+        print("animateTextField:",keyboardHeight)
+        let movementDistance:CGFloat = -keyboardHeight
         var movement:CGFloat = 0
         if up
         {
@@ -1101,6 +1133,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
         {
             movement = -movementDistance
         }
+        print("movement:",movement)
         UIView.animate(withDuration: 0.3, animations: {
             self.view.frame = self.view.frame.offsetBy(dx: 0, dy: movement)
         })
@@ -1172,9 +1205,13 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
         self.navigationController?.pushViewController(vc, animated: true)
     }
     @objc func share(_ sender: Any) {
-        let strTextToShare = "Video title: " + lblVideoTitle.text! + "\n" + "Video description: " + lblVideoDesc.text! + "\n" + "Performer name: " + self.strTitle + "\n"
         
-        let textToShare = [strTextToShare]
+        let qa = "https://qa.arevea.tv/channel/";
+        let performerInfo = self.strTitle + "/" + String(self.performerId) + "/live/";
+        let vodInfo = self.streamVideoCode + "/" + String(self.streamId)
+        let url = qa + performerInfo + vodInfo
+        print(url)
+        let textToShare = [url]
         // set up activity view controller
         let activityViewController = UIActivityViewController(activityItems: textToShare, applicationActivities: nil)
         activityViewController.excludedActivityTypes = [.airDrop]
@@ -1197,12 +1234,12 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
             self.present(alert, animated: true)
         }
     }
-    func getDataPerformer(from url: URL, completion: @escaping (Data?, URLResponse?, Error?) -> ()) {
+    func getData(from url: URL, completion: @escaping (Data?, URLResponse?, Error?) -> ()) {
         URLSession.shared.dataTask(with: url, completionHandler: completion).resume()
     }
     func downloadImage(from url: URL, imageView: UIImageView) {
         //print("Download Started")
-        getDataPerformer(from: url) { data, response, error in
+        getData(from: url) { data, response, error in
             guard let data = data, error == nil else { return }
             //print(response?.suggestedFilename ?? url.lastPathComponent)
             //print("Download Finished")
@@ -1212,9 +1249,23 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
             }
         }
     }
+    func downloadImage1(from url: URL) {
+        //print("Download Started")
+        getData(from: url) { data, response, error in
+            guard let data = data, error == nil else { return }
+            //print(response?.suggestedFilename ?? url.lastPathComponent)
+            //print("Download Finished")
+            DispatchQueue.main.async() { [weak self] in
+                self?.imgPerformer.image = UIImage(data: data)
+                self?.imgPerformer.contentMode = .scaleAspectFill
+                self?.imgPerformerProfile.image = UIImage(data: data)
+                self?.imgPerformerProfile.contentMode = .scaleAspectFill
+            }
+        }
+    }
     
     func videoThumbNail(from url: URL, button: UIButton) {
-        getDataPerformer(from: url) { data, response, error in
+        getData(from: url) { data, response, error in
             guard let data = data, error == nil else { return }
             //print(response?.suggestedFilename ?? url.lastPathComponent)
             DispatchQueue.main.async() { [weak self] in
@@ -1270,8 +1321,9 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
                 let resultObj = try JSONSerialization.jsonObject(with: data, options : .allowFragments)
                 DispatchQueue.main.async {
                     self.viewActivity.isHidden = true
+                    self.btnPlayStream.isUserInteractionEnabled = true
                     if let json = resultObj as? [String: Any] {
-                        //print("liveEvents json:",json);
+                        print("liveEvents json:",json);
                         self.btnViewStream.isHidden = true;
                         if (json["statusCode"]as? String == "200"){
                             //print(json["message"] as? String ?? "")
@@ -1283,6 +1335,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
                                 self.btnPlayStream.isHidden = true;
                                 let streamObj = self.aryStreamInfo[0] as? [String:Any]
                                 self.streamId = streamObj?["id"] as? Int ?? 0
+                                self.age_limit = streamObj?["age_limit"] as? Int ?? 0
                                 
                                 self.streamVideoCode = streamObj?["stream_video_code"] as? String ?? ""
                                 let streamVideoTitle = streamObj?["stream_video_title"] as? String ?? ""
@@ -1317,70 +1370,80 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
                             if(user_subscription_info){
                                 self.aryUserSubscriptionInfo = data?["user_subscription_info"] as? [Any] ?? [Any]()
                             }
-                            if (self.streamPaymentMode == "paid" && self.aryUserSubscriptionInfo.count == 0){
-                                //if user does not pay amount
-                                self.btnPayPerView.isHidden = false
-                                self.viewVOD.isHidden = false
-                                self.isChannelAvailable = false;
-                                self.tblComments.reloadData()
-                            }else{
-                                self.btnPayPerView.isHidden = true
-                                if (self.aryStreamInfo.count > 0){
-                                    let streamObj = self.aryStreamInfo[0] as? [String:Any]
-                                    if (streamObj?["stream_vod"]as? String == "stream" && self.isVOD == false){
-                                        self.viewVOD.isHidden = true
-                                        self.viewLiveStream.isHidden = false;
-                                        self.isStream = true;
-                                        self.btnPlayStream.isHidden = false;
-                                        self.lblStreamUnavailable.text = "";
-                                        self.isChannelAvailable = false;
-                                        if(self.isUpcoming){
-                                            self.btnViewStream.isHidden = false;
-                                        }else{
-                                            self.btnViewStream.isHidden = true;
-                                        }
-                                    }else{
-                                        self.lblVODUnavailable.text = ""
-                                        self.viewVOD.isHidden = false
-                                        self.viewLiveStream.isHidden = true;
-                                        self.btnPlayStream.isHidden = true;
-                                        self.isStream = false;
-                                        let vod_urls = streamObj?["vod_urls"] as? String ?? ""
-                                        var strURL = "";
-                                        if (vod_urls != ""){
-                                            let vod_urls = self.convertToDictionary(text: vod_urls)
-                                            let strHigh = vod_urls?["1080p"] as? String ?? ""
-                                            if (strHigh != ""){
-                                                strURL = strHigh;
+                            let user_age_limit = UserDefaults.standard.integer(forKey:"user_age_limit");
+                            print("---user_age_limit:",user_age_limit)
+                            
+                            if (self.age_limit <= user_age_limit){
+                                if (self.streamPaymentMode == "paid" && self.aryUserSubscriptionInfo.count == 0){
+                                    //if user does not pay amount
+                                    self.btnPayPerView.isHidden = false
+                                    self.viewVOD.isHidden = false
+                                    self.isChannelAvailable = false;
+                                    self.tblComments.reloadData()
+                                }else{
+                                    self.btnPayPerView.isHidden = true
+                                    if (self.aryStreamInfo.count > 0){
+                                        let streamObj = self.aryStreamInfo[0] as? [String:Any]
+                                        if (streamObj?["stream_vod"]as? String == "stream" && self.isVOD == false){
+                                            self.viewVOD.isHidden = true
+                                            self.viewLiveStream.isHidden = false;
+                                            self.isStream = true;
+                                            self.btnPlayStream.isHidden = false;
+                                            self.lblStreamUnavailable.text = "";
+                                            self.isChannelAvailable = false;
+                                            if(self.isUpcoming){
+                                                self.btnViewStream.isHidden = false;
                                             }else{
-                                                let strMedium = vod_urls?["720p"] as? String ?? ""
-                                                if (strMedium != ""){
-                                                    strURL = strMedium;
+                                                self.btnViewStream.isHidden = true;
+                                            }
+                                        }else{
+                                            self.lblVODUnavailable.text = ""
+                                            self.viewVOD.isHidden = false
+                                            self.viewLiveStream.isHidden = true;
+                                            self.btnPlayStream.isHidden = true;
+                                            self.isStream = false;
+                                            let vod_urls = streamObj?["vod_urls"] as? String ?? ""
+                                            var strURL = "";
+                                            if (vod_urls != ""){
+                                                let vod_urls = self.convertToDictionary(text: vod_urls)
+                                                let strHigh = vod_urls?["1080p"] as? String ?? ""
+                                                if (strHigh != ""){
+                                                    strURL = strHigh;
                                                 }else{
-                                                    let strLow = vod_urls?["540p"] as? String ?? ""
-                                                    if (strLow != ""){
-                                                        strURL = strLow;
+                                                    let strMedium = vod_urls?["720p"] as? String ?? ""
+                                                    if (strMedium != ""){
+                                                        strURL = strMedium;
                                                     }else{
-                                                        let strLowest = vod_urls?["270p"] as? String ?? ""
-                                                        if (strLowest != ""){
-                                                            strURL = strLowest;
+                                                        let strLow = vod_urls?["540p"] as? String ?? ""
+                                                        if (strLow != ""){
+                                                            strURL = strLow;
                                                         }else{
-                                                            let video_url = streamObj?["video_url"] as? String ?? ""
-                                                            strURL = video_url
+                                                            let strLowest = vod_urls?["270p"] as? String ?? ""
+                                                            if (strLowest != ""){
+                                                                strURL = strLowest;
+                                                            }else{
+                                                                let video_url = streamObj?["video_url"] as? String ?? ""
+                                                                strURL = video_url
+                                                            }
                                                         }
                                                     }
                                                 }
+                                            }else{
+                                                let video_url = streamObj?["video_url"] as? String ?? ""
+                                                strURL = video_url
                                             }
-                                        }else{
-                                            let video_url = streamObj?["video_url"] as? String ?? ""
-                                            strURL = video_url
+                                            //print("strURL:",strURL)
+                                            self.isChannelAvailable = true;
+                                            self.tblComments.reloadData()
+                                            self.showVideo(strURL: strURL);
                                         }
-                                        //print("strURL:",strURL)
-                                        self.isChannelAvailable = true;
-                                        self.tblComments.reloadData()
-                                        self.showVideo(strURL: strURL);
                                     }
                                 }
+                            }else{
+                                self.btnPlayStream.isHidden = false;
+                                self.btnPlayStream.isUserInteractionEnabled = false
+                                self.btnPlayStream.setImage(UIImage.init(named: "eye-cross.png"), for: .normal)
+                                self.lblStreamUnavailable.text = "This vidoe may be inappropriate for some users"
                             }
                             let charities_info = data?["charities_info"] != nil
                             if(charities_info){
@@ -1390,12 +1453,16 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
                             let performer_info = data?["performer_info"] != nil
                             if(performer_info){
                                 self.dicPerformerInfo = data?["performer_info"] as? [String : Any] ?? [String:Any]()
-                                let performerName = self.dicPerformerInfo["performer_display_name"] as? String
-                                self.txtProfile.text = performerName
+                                let performerName = self.dicPerformerInfo["performer_display_name"] as? String ?? ""
+                                var performer_bio = self.dicPerformerInfo["performer_bio"] as? String ?? ""
+                                 performer_bio = performer_bio.htmlToString
                                 
+                                self.txtProfile.text = performerName + "\n" + performer_bio
+                                self.app_id_for_adds = self.dicPerformerInfo["app_id"] as? String ?? "0"
+                                //print("self.app_id_for_adds:",self.app_id_for_adds)
                                 let strURL = self.dicPerformerInfo["performer_profile_pic"]as? String ?? ""
                                 if let urlPerformer = URL(string: strURL){
-                                    self.downloadImage(from: urlPerformer as URL, imageView: self.imgPerformer)
+                                    self.downloadImage1(from: urlPerformer as URL)
                                 }
                             }else{
                                 self.txtProfile.text = ""
@@ -1525,7 +1592,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
                     //print(resultObj)
                     if let json = resultObj as? [String: Any] {
                         // //print("performerVideos json:",json);
-                        //print("videos count:",self.aryVideos.count);
+                        print("videos count:",self.aryVideos.count);
                         
                         if (json["statusCode"]as? String == "200"){
                             //print(json["message"] as? String ?? "")
@@ -1757,17 +1824,16 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
     
     
     override func viewWillDisappear(_ animated: Bool) {
-        closeStream()
-        stopVideo()
+        
         self.navigationController?.isNavigationBarHidden = true
         NotificationCenter.default.removeObserver(self)
     }
     func closeStream(){
         self.viewLiveStream.isHidden = true;
-        if( r5ViewController != nil ){
-            r5ViewController!.closeTest()
-            r5ViewController = nil
-        }
+        // if( r5ViewController != nil ){
+        r5ViewController?.closeTest()
+        //     r5ViewController = nil
+        // }
     }
     var shouldClose:Bool{
         get{
@@ -1992,20 +2058,21 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
                 showAlert(strMsg: "Blocked user send not allowed, Please contact admin.")
             case 500910:
                 showAlert(strMsg: "Rate limit exceeded, Please contact admin.")
-                /* case 400201:
-                 showAlert(strMsg: "Channel is not available, Please try again later.")*/
+            case 400201:
+                showAlert(strMsg: "Channel is not available, Please try again later.")
             default:
-                showAlert(strMsg: "\(self.sbdError)")
+                showAlert(strMsg: "Channel is not available, Please try again later.")
+                //              showAlert(strMsg: "\(self.sbdError)")
             }
             return
         }
         
-        //print("channelName:",channelName)
+        print("channelName:",channelName)
         guard let channel = self.channel else {
             showAlert(strMsg: "Channel is not available, Please try again later.")
             return
         }
-        //print("channelName2:",self.channel?.name);
+        print("channelName2:",self.channel?.name);
         self.txtComment.text = ""
         //self.sendUserMessageButton.isEnabled = false
         var preSendMessage: SBDUserMessage?
@@ -2072,10 +2139,11 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
                 showAlert(strMsg: "Blocked user send not allowed, Please contact admin.")
             case 500910:
                 showAlert(strMsg: "Rate limit exceeded, Please contact admin.")
-                /* case 400201:
-                 showAlert(strMsg: "Channel is not available, Please try again later.")*/
+            case 400201:
+                showAlert(strMsg: "Channel is not available, Please try again later.")
             default:
-                showAlert(strMsg: "\(self.sbdError_emoji)")
+                showAlert(strMsg: "Channel is not available, Please try again later.")
+                //showAlert(strMsg: "\(self.sbdError_emoji)")
             }
             return
         }
@@ -2235,7 +2303,22 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
         return img
     }
     
-    
+    // MARK: - Webview Delegates
+    func webViewDidStartLoad(_ webView: UIWebView) {
+        viewActivity.isHidden = false
+    }
+    func webView(_ webView: UIWebView, didFailLoadWithError error: Error)
+    {
+        viewActivity.isHidden = true
+        self.showAlert(strMsg:error.localizedDescription)
+    }
+    func webViewDidFinishLoad(_ webView: UIWebView) {
+        viewActivity.isHidden = true
+    }
+    deinit {
+        print("Remove NotificationCenter Deinit")
+        NotificationCenter.default.removeObserver(self)
+    }
 }
 
 extension String {
@@ -2250,4 +2333,16 @@ extension String {
         UIGraphicsEndImageContext()
         return image
     }
+    var htmlToAttributedString: NSAttributedString? {
+        guard let data = data(using: .utf8) else { return NSAttributedString() }
+        do {
+            return try NSAttributedString(data: data, options: [.documentType: NSAttributedString.DocumentType.html, .characterEncoding:String.Encoding.utf8.rawValue], documentAttributes: nil)
+        } catch {
+            return NSAttributedString()
+        }
+    }
+    var htmlToString: String {
+        return htmlToAttributedString?.string ?? ""
+    }
+    
 }
