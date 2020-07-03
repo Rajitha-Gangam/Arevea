@@ -10,7 +10,7 @@
     import Alamofire
     
     import MaterialComponents.MaterialCollections
-   
+    
     class SearchViewController: UIViewController , UISearchBarDelegate,UITableViewDelegate,UITableViewDataSource{
         // MARK: - Variables Declaration
         
@@ -31,7 +31,8 @@
         @IBOutlet weak var btnFilter: UIButton!
         var selectedSubCategories = [[String:Any]]();
         var selectedGenres = [[String:Any]]();
-
+        @IBOutlet weak var heightTopView: NSLayoutConstraint?
+        @IBOutlet weak var viewTop: UIView!
         
         // MARK: - View LifeCycle
         override func viewDidLoad() {
@@ -51,21 +52,42 @@
             //let searchBar = UISearchBar(frame: CGRect(x: 0, y: 45, width: UIScreen.main.bounds.width, height: 44))
             searchBar.searchBarStyle = .default
             view.addSubview(searchBar)
-
+            
             searchBar.placeholder = "Search with any keyword"
             searchBar.set(textColor: .white)
             searchBar.setTextField(color: UIColor.white.withAlphaComponent(0.3))
             searchBar.setPlaceholder(textColor: .white)
             searchBar.setSearchImage(color: .white)
             searchBar.setClearButton(color: .white)
+            
+            if(UIDevice.current.userInterfaceIdiom == .pad){
+                let attributes = [NSAttributedString.Key.font: UIFont.systemFont(ofSize: 25.0), NSAttributedString.Key.foregroundColor: UIColor.white]
+                UITextField.appearance(whenContainedInInstancesOf: [UISearchBar.self]).defaultTextAttributes = attributes
+                
+            }
+            
             appDelegate.strCategory = ""
             btnFilter.isHidden = true;
+            if(UIDevice.current.userInterfaceIdiom == .pad){
+                heightTopView?.constant = 60;
+                viewTop.layoutIfNeeded()
+            }
         }
         
         func showAlert(strMsg: String){
             let alert = UIAlertController(title: "Alert", message: strMsg, preferredStyle: .alert)
             alert.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
             self.present(alert, animated: true)
+        }
+        override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+            super.viewWillTransition(to: size, with: coordinator)
+            
+            if UIDevice.current.orientation.isLandscape {
+                print("Landscape")
+            } else {
+                print("Portrait")
+            }
+            collectionView.reloadData()
         }
         //MARK:Tableview Delegates and Datasource Methods
         
@@ -84,7 +106,11 @@
                 let darkGreen = UIColor(red: 5, green: 29, blue: 40);
                 view.backgroundColor = darkGreen;
                 let label = UILabel(frame: CGRect(x: 15, y: 0, width: tableView.bounds.width - 30, height: 44))
-                label.font = UIFont.boldSystemFont(ofSize: 18)
+                if(UIDevice.current.userInterfaceIdiom == .pad){
+                           label.font = UIFont.boldSystemFont(ofSize: 25)
+                           }else{
+                               label.font = UIFont.boldSystemFont(ofSize: 17)
+                           }
                 label.textColor = UIColor.orange
                 if (section == 0){
                     label.text = "Sub Categories :"
@@ -112,12 +138,12 @@
         func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
             // let cell = myTableView.dequeueReusableCell(withIdentifier: "DashBoardCell", for: indexPath) as! DashBoardCell
             let cell:CheckMarkCell = self.tblFilter.dequeueReusableCell(withIdentifier: "CheckMarkCell") as! CheckMarkCell
-             if (indexPath.section == 0){
+            if (indexPath.section == 0){
                 let selectedItem = self.aryFilterSubCategoriesData[indexPath.row]
-                    cell.lblTitle.text = selectedItem
+                cell.lblTitle.text = selectedItem
             }else{
                 let selectedItem = self.aryFilterGenresData[indexPath.row]
-                    cell.lblTitle.text = selectedItem
+                cell.lblTitle.text = selectedItem
             }
             cell.imgCheck.tag = (50 * indexPath.section) + (indexPath.row + 1)
             //cell.myImage?.image = UIImage(named:self.imageData[indexPath.row])
@@ -125,11 +151,11 @@
             
         }
         
-
+        
         func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
             tableView.deselectRow(at: indexPath, animated: true)
-
-                       // If it is in the second section, indicate that no item is selected now
+            
+            // If it is in the second section, indicate that no item is selected now
             let tag = (50 * indexPath.section) + (indexPath.row + 1)
             let checkImg = tblFilter.viewWithTag(tag) as? UIImageView
             //print("tag:",tag)
@@ -161,22 +187,22 @@
                     selectedSubCategories.append(strItem)
                 }else if (indexPath.section == 1){
                     let selectedItem = self.aryFilterGenresData[indexPath.row]
-                     let subCategory = selectedItem
-                     let strItem = ["index":indexPath.row,"genre":subCategory] as [String : Any]
-                     selectedGenres.append(strItem)
+                    let subCategory = selectedItem
+                    let strItem = ["index":indexPath.row,"genre":subCategory] as [String : Any]
+                    selectedGenres.append(strItem)
                 }
             }
             print("selectedSubCategories:",selectedSubCategories)
             print("selectedGenres:",selectedGenres)
             prepareQueryForCloudSearch()
-
+            
         }
         func prepareQueryForCloudSearch() {
             var prepareORQuery = "";
             var query = "";
             var subCategories = ""
             var genres = ""
-
+            
             for (_,item) in self.selectedSubCategories.enumerated(){
                 let str = item["sub_category"] as! String
                 subCategories += "'" + str + "'";
@@ -185,8 +211,8 @@
                 let str = item["genre"] as! String
                 genres += "'" + str + "'";
             }
-//            subCategories =  subCategories.replacingOccurrences(of: " ", with: "")
-//            genres =  genres.replacingOccurrences(of: " ", with: "")
+            //            subCategories =  subCategories.replacingOccurrences(of: " ", with: "")
+            //            genres =  genres.replacingOccurrences(of: " ", with: "")
             if (subCategories == ""){
                 subCategories = "''"
             }
@@ -194,10 +220,10 @@
                 genres = "''"
             }
             let searchText = (searchBar.text!).lowercased().trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
-
+            
             
             let fields = ["name", "searchkeywords", "streamvideodesc","performer","organizationname","subcategories","category","genres"];
-
+            
             for i in 0...fields.count-1{
                 prepareORQuery += "(prefix field=" + fields[i] + " " + "'" + searchText + "'" + ")";
                 prepareORQuery += "(term field=" + fields[i] + " " + "'" + searchText + "'" + ")";
@@ -223,18 +249,18 @@
         func getSearchResults(searchString:String,isQuery:Bool){
             let baseURL = "https://3ptsrb2obj.execute-api.us-east-1.amazonaws.com/dev/"
             var url = ""
-           if (isQuery){
+            if (isQuery){
                 url = baseURL + searchString
             }else{
                 //url = url.addingPercentEncoding(withAllowedCharacters:NSCharacterSet.urlQueryAllowed)!
                 let customAllowedSet =  NSCharacterSet(charactersIn:"=\"#%/<>?@\\^`{|} ").inverted
                 let encodedSearch = searchString.lowercased().addingPercentEncoding(withAllowedCharacters: customAllowedSet) ?? ""
                 url = baseURL + "?q=" + encodedSearch + "*"
-            url = url.addingPercentEncoding(withAllowedCharacters:NSCharacterSet.urlQueryAllowed)!
-
+                url = url.addingPercentEncoding(withAllowedCharacters:NSCharacterSet.urlQueryAllowed)!
+                
             }
             
-
+            
             print("url:",url)
             viewActivity.isHidden = false
             //print("getCategoryOrganisations input:",inputData)
@@ -337,9 +363,7 @@
          }
          */
         //MARK: UISearchbar delegate
-        @IBAction func searchTapped(_ sender: UIButton){
-            //https://3ptsrb2obj.execute-api.us-east-1.amazonaws.com/dev/?q=red*
-        }
+       
         func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
             searchActive = false;
         }
@@ -353,7 +377,7 @@
             searchBar.text = "";
             searchBar.resignFirstResponder()
             searchActive = false;
-
+            
             
             //self.tblMain.reloadData()
         }
@@ -388,7 +412,7 @@
     extension SearchViewController:UICollectionViewDataSource,UICollectionViewDelegate,UICollectionViewDelegateFlowLayout
     {
         //MARK: collectionView Data Source and Delegates
-
+        
         func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
             _ = collectionView.cellForItem(at: indexPath) as? DBCollectionViewCell
             let searchItem = searchList[indexPath.item] as! [String: Any]
@@ -419,33 +443,33 @@
                 vc.strTitle = searchItem["performer"] as? String ?? "Channel Details"
                 self.navigationController?.pushViewController(vc, animated: true)
             case "video":
-               let storyboard = UIStoryboard(name: "Main", bundle: nil);
+                let storyboard = UIStoryboard(name: "Main", bundle: nil);
                 let vc = storyboard.instantiateViewController(withIdentifier: "ChannelDetailVC") as! ChannelDetailVC
                 let streamId = searchItem["id"] as? String ?? "0"
                 vc.streamId = Int(streamId) ?? 0
                 appDelegate.isLiveLoad = "1"
-               appDelegate.detailToShow = "video"
+                appDelegate.detailToShow = "video"
                 let performerId = searchItem["performerid"] as? String ?? "0"
                 vc.performerId = Int(performerId) ?? 0
                 vc.strTitle = searchItem["performer"] as? String ?? "Channel Details"
                 self.navigationController?.pushViewController(vc, animated: true)
             case "audio":
-               let storyboard = UIStoryboard(name: "Main", bundle: nil);
+                let storyboard = UIStoryboard(name: "Main", bundle: nil);
                 let vc = storyboard.instantiateViewController(withIdentifier: "ChannelDetailVC") as! ChannelDetailVC
                 let streamId = searchItem["id"] as? String ?? "0"
                 vc.streamId = Int(streamId) ?? 0
                 appDelegate.isLiveLoad = "1"
-               appDelegate.detailToShow = "audio"
+                appDelegate.detailToShow = "audio"
                 let performerId = searchItem["performerid"] as? String ?? "0"
                 vc.performerId = Int(performerId) ?? 0
                 vc.strTitle = searchItem["performer"] as? String ?? "Channel Details"
                 self.navigationController?.pushViewController(vc, animated: true)
             case "organization":
-                 let storyboard = UIStoryboard(name: "Main", bundle: nil);
-                           let vc = storyboard.instantiateViewController(withIdentifier: "ChannelsVC") as! ChannelsVC
-                 let orgId = searchItem["id"] as? String ?? "0"
-                 vc.orgId = Int(orgId) ?? 0
-                 vc.organizationName = searchItem["organizationname"] as? String ?? ""
+                let storyboard = UIStoryboard(name: "Main", bundle: nil);
+                let vc = storyboard.instantiateViewController(withIdentifier: "ChannelsVC") as! ChannelsVC
+                let orgId = searchItem["id"] as? String ?? "0"
+                vc.orgId = Int(orgId) ?? 0
+                vc.organizationName = searchItem["organizationname"] as? String ?? ""
                 self.navigationController?.pushViewController(vc, animated: true)
             case "category":
                 appDelegate.strCategory = searchItem["name"] as? String ?? "0"

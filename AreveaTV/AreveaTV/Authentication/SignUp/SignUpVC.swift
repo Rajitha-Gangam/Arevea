@@ -28,7 +28,7 @@ class SignUpVC: UIViewController ,UITextFieldDelegate,UIPickerViewDelegate, UIPi
     
     // MARK: - View Life cycle
     @IBOutlet weak var viewActivity: UIView!
-    var pickerData =  ["Below 18", "18+"];
+    var pickerData =  ["Under 16", "16-17","18+"];
     var keyboardHeight: CGFloat = 0
     var viewUp = false;
     
@@ -230,8 +230,10 @@ class SignUpVC: UIViewController ,UITextFieldDelegate,UIPickerViewDelegate, UIPi
             
             let currentDate = Date()
             var dateComponent = DateComponents()
-            if (dob == "Below 18"){
-                dateComponent.year = -17 // currentdate -17 years
+            if (dob == "Under 16"){
+                dateComponent.year = -15 // currentdate -15 years
+            }else if (dob == "16-17"){
+                dateComponent.year = -16 // currentdate -16 years
             }else{
                 dateComponent.year = -18 // currentdate -18 years
             }
@@ -256,7 +258,7 @@ class SignUpVC: UIViewController ,UITextFieldDelegate,UIPickerViewDelegate, UIPi
     
     func textFieldDidBeginEditing(_ textField: UITextField) {
         viewUp = false;
-        if (textField==txtPassword || textField==txtCfrmPassword || textField==txtDOB){
+        if (textField==txtPassword || textField==txtCfrmPassword || textField==txtDOB || textField==txtPhone){
            // self.animateTextField(textField: textField, up:true)
             viewUp = true;
         }

@@ -88,6 +88,8 @@ class SubscribeTest: BaseTest {
                 
                 case .failure(let error):
                     print("error occured in metaLive:",error)
+                    let streamInfo = ["Stream": "not_available"]
+                    NotificationCenter.default.post(name: .didReceiveStreamData, object: self, userInfo: streamInfo)
                 }
         }
         

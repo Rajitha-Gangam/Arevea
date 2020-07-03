@@ -16,6 +16,8 @@ class PaymentHistoryVC: UIViewController, UITableViewDelegate,UITableViewDataSou
     @IBOutlet weak var viewActivity: UIView!
     let appDelegate = UIApplication.shared.delegate as! AppDelegate
     var aryPaymentInfo = [Any]()
+    @IBOutlet weak var heightTopView: NSLayoutConstraint?
+    @IBOutlet weak var viewTop: UIView!
     @IBOutlet weak var lblNoData: UILabel!
 
     // MARK: View Life Cycle
@@ -24,6 +26,10 @@ class PaymentHistoryVC: UIViewController, UITableViewDelegate,UITableViewDataSou
         viewActivity.isHidden = true
         // Do any additional setup after loading the view.
         tblView.register(UINib(nibName: "PaymentHistoryCell", bundle: nil), forCellReuseIdentifier: "PaymentHistoryCell")
+        if(UIDevice.current.userInterfaceIdiom == .pad){
+            heightTopView?.constant = 60;
+            viewTop.layoutIfNeeded()
+        }
         userDonations()
 
     }

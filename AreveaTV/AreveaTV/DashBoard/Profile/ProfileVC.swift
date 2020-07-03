@@ -33,7 +33,9 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
     var strProfilePicURL = ""
     @IBOutlet weak var btnDelete: UIButton!
     let pickerView = UIPickerView()
-    var pickerData =  ["Under 16", "16+","18+"];
+    var pickerData =  ["Under 16", "16-17","18+"];
+    @IBOutlet weak var heightTopView: NSLayoutConstraint?
+    @IBOutlet weak var viewTop: UIView!
     
     // MARK: - View Life cycle
     override func viewDidLoad() {
@@ -49,6 +51,10 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
         
         scrollView.contentSize = CGSize(width: self.view.frame.size.width,height: 1000); //sets ScrollView content size
         pickerView.delegate = self
+        if(UIDevice.current.userInterfaceIdiom == .pad){
+            heightTopView?.constant = 60;
+            viewTop.layoutIfNeeded()
+        }
         
     }
     override func viewDidAppear(_ animated: Bool) {
@@ -226,19 +232,21 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
                                 //print("Some value is nil")
                                 return
                             }
-                            let diff = currentYear - pastYear
-                            print("first:",diff)
-                            self.txtDOB.text = self.pickerData[0]
-                            self.pickerView.selectRow(0, inComponent: 0, animated: true)
-                            if (diff > 16 && diff <= 18){
-                                self.txtDOB.text = self.pickerData[1]
-                                //print("second:",self.pickerData[1])
-                                self.pickerView.selectRow(1, inComponent: 0, animated: true)
-                            }
-                            if (diff > 18){
+                            let age = currentYear - pastYear
+                            print("age:",age)
+                            
+                            if (age > 17){
                                 self.txtDOB.text = self.pickerData[2]
                                 //print("second:",self.pickerData[1])
                                 self.pickerView.selectRow(2, inComponent: 0, animated: true)
+                            }
+                            else if (age == 16 || age == 17 ){
+                                self.txtDOB.text = self.pickerData[1]
+                                //print("second:",self.pickerData[1])
+                                self.pickerView.selectRow(1, inComponent: 0, animated: true)
+                            }else{
+                                self.txtDOB.text = self.pickerData[0]
+                                self.pickerView.selectRow(0, inComponent: 0, animated: true)
                             }
                             //let diff = Int(currentDate) - Int(pastdate)
                             self.txtDisplayName.text = profile_data["user_display_name"]as? String
@@ -290,9 +298,9 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
         var dateComponent = DateComponents()
         
         if (dob == "Under 16"){
-            dateComponent.year = -16 // currentdate -17 years
-        }else if (dob == "16+"){
-            dateComponent.year = -17 // currentdate -17 years
+            dateComponent.year = -15 // currentdate -15 years
+        }else if (dob == "16-17"){
+            dateComponent.year = -16 // currentdate -16 years
         }else{
             dateComponent.year = -18 // currentdate -18 years
         }
@@ -499,8 +507,13 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
             }
         }))
         actionsheet.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+       // actionsheet.popoverPresentationController.barButtonItem = button;
+        if let popoverController = actionsheet.popoverPresentationController {
+            popoverController.sourceRect = btnProfilePic.bounds
+            popoverController.sourceView = btnProfilePic
+            popoverController.permittedArrowDirections = UIPopoverArrowDirection(rawValue: 1)
+        }
         self.present(actionsheet,animated: true, completion: nil)
-        
     }
     
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {

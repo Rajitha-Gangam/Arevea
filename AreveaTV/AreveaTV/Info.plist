@@ -54,6 +54,8 @@
 	</dict>
 	<key>NSCameraUsageDescription</key>
 	<string>Camera access required for publishing.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>We need to know your location to get country</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Microphone access required for publishing.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>

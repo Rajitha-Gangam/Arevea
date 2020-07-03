@@ -18,6 +18,9 @@ class ChannelsVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Col
     let appDelegate = UIApplication.shared.delegate as! AppDelegate
     @IBOutlet weak var btnUserName: UIButton!
     @IBOutlet weak var topConstaintTblMain: NSLayoutConstraint?
+    @IBOutlet weak var heightTopView: NSLayoutConstraint?
+    @IBOutlet weak var viewTop: UIView!
+
     @IBOutlet weak var mdChipCard:MDCCard!
     var strSelectedCategory = "";
     @IBOutlet weak var collectionViewFilter: UICollectionView!
@@ -74,7 +77,13 @@ class ChannelsVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Col
         searchBar.setPlaceholder(textColor: .white)
         searchBar.setSearchImage(color: .white)
         searchBar.setClearButton(color: .white)
-        
+        if(UIDevice.current.userInterfaceIdiom == .pad){
+            let attributes = [NSAttributedString.Key.font: UIFont.systemFont(ofSize: 25.0), NSAttributedString.Key.foregroundColor: UIColor.white]
+            UITextField.appearance(whenContainedInInstancesOf: [UISearchBar.self]).defaultTextAttributes = attributes
+            heightTopView?.constant = 60;
+            viewTop.layoutIfNeeded()
+            btnUserName.layer.cornerRadius = btnUserName.frame.size.width/2
+        }
         if(!netAvailable){
             showAlert(strMsg: "Please check your internet connection!")
             return
@@ -165,7 +174,7 @@ class ChannelsVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Col
             strSelectedCategory = "";
             collectionViewFilter.reloadData()
             mdChipCard.isHidden = false;
-            topConstaintTblMain?.constant = 236;
+            topConstaintTblMain?.constant = mdChipCard.frame.size.height + 10;
             tblMain.layoutIfNeeded()
         }else{
             mdChipCard.isHidden = true;
@@ -297,7 +306,11 @@ class ChannelsVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Col
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) ->  CGFloat {
-        return 180
+        if(UIDevice.current.userInterfaceIdiom == .pad){
+                       return 250;
+                   }else{
+                       return 180;
+                   }
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -417,7 +430,11 @@ extension ChannelsVC: UICollectionViewDataSource , UICollectionViewDelegateFlowL
         cell.chipView.setBorderColor(.white, for: .normal)
         cell.chipView.setBorderWidth(0.5, for: .normal)
         cell.chipView.setTitleColor(.white, for: .normal)
-        cell.chipView.titleFont = UIFont.boldSystemFont(ofSize: 15)
+        if(UIDevice.current.userInterfaceIdiom == .pad){
+                   cell.chipView.titleFont = UIFont.boldSystemFont(ofSize: 25)
+               }else{
+                   cell.chipView.titleFont = UIFont.boldSystemFont(ofSize: 15)
+               }
         return cell
     }
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {

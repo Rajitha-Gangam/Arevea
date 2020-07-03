@@ -25,9 +25,9 @@
                         </constraints>
                     </imageView>
                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="aiN-om-m1y">
-                        <rect key="frame" x="50" y="15" width="260" height="21"/>
+                        <rect key="frame" x="50" y="3" width="260" height="44"/>
                         <constraints>
-                            <constraint firstAttribute="height" constant="21" id="Lxg-c7-TsZ"/>
+                            <constraint firstAttribute="height" constant="44" id="Lxg-c7-TsZ"/>
                         </constraints>
                         <fontDescription key="fontDescription" type="system" pointSize="17"/>
                         <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -39,9 +39,9 @@
                 </subviews>
                 <constraints>
                     <constraint firstAttribute="bottom" secondItem="LgU-e8-7vZ" secondAttribute="bottom" constant="10" id="KSH-Se-Vd7"/>
+                    <constraint firstItem="aiN-om-m1y" firstAttribute="centerY" secondItem="H2p-sc-9uM" secondAttribute="centerY" id="Pb9-OY-ocW"/>
                     <constraint firstItem="aiN-om-m1y" firstAttribute="leading" secondItem="LgU-e8-7vZ" secondAttribute="trailing" constant="10" id="UIQ-76-AUo"/>
                     <constraint firstAttribute="trailing" secondItem="aiN-om-m1y" secondAttribute="trailing" constant="10" id="YuO-tD-LPX"/>
-                    <constraint firstItem="aiN-om-m1y" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" constant="15" id="dzf-pv-B0i"/>
                     <constraint firstItem="LgU-e8-7vZ" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" constant="10" id="gSN-cj-PEm"/>
                     <constraint firstItem="LgU-e8-7vZ" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" constant="10" id="qcd-c9-QCE"/>
                 </constraints>

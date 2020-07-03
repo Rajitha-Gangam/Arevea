@@ -13,7 +13,9 @@ class HelpVC: UIViewController,UIWebViewDelegate{
     @IBOutlet weak var webView: UIWebView!
     @IBOutlet weak var viewActivity: UIView!
     let appDelegate = UIApplication.shared.delegate as! AppDelegate
-
+    @IBOutlet weak var heightTopView: NSLayoutConstraint?
+    @IBOutlet weak var viewTop: UIView!
+    
     // MARK: - View Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -34,6 +36,10 @@ class HelpVC: UIViewController,UIWebViewDelegate{
             }else{
                 showAlert(strMsg: "Invalid URL")
             }
+        }
+        if(UIDevice.current.userInterfaceIdiom == .pad){
+            heightTopView?.constant = 60;
+            viewTop.layoutIfNeeded()
         }
         
     }

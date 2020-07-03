@@ -71,13 +71,14 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
     
     var arySideMenu : [[String: String]] = [["name":"Home","icon":"home.png"],["name":"My Profile","icon":"user.png"],["name":"Donations","icon":"donation-icon.png"],["name":"Help","icon":"help-icon.png"],["name":"Logout","icon":"logout-icon.png"]];
     
-    var sectionFilters = ["Categories","Sub Categories","Genres"]
+    var sectionFilters = ["Categories"]
     var genreId = 0;
     var isSelectedGenre = false;
     //MARK:View Life Cycle Methods
     
     @IBOutlet weak var viewActivity: UIView!
-    
+    @IBOutlet weak var heightTopView: NSLayoutConstraint?
+    @IBOutlet weak var viewTop: UIView!
     // MARK: - View Life cycle
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -98,8 +99,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
         filterCVSetup()
         lblNoData.isHidden = true;
         mdChipCard.isHidden = true;
-        topConstaintTblMain?.constant = 1;
-        tblMain.layoutIfNeeded()
+        
         UserDefaults.standard.set("false", forKey: "is_profile_pic_loaded_left_menu")
         
         let netAvailable = appDelegate.isConnectedToInternet()
@@ -107,6 +107,13 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
             showAlert(strMsg: "Please check your internet connection!")
             return
         }
+        if(UIDevice.current.userInterfaceIdiom == .pad){
+            heightTopView?.constant = 60;
+            viewTop.layoutIfNeeded()
+            btnUserName.layer.cornerRadius = btnUserName.frame.size.width/2
+        }
+        topConstaintTblMain?.constant = 1;
+        tblMain.layoutIfNeeded()
         
     }
     
@@ -137,7 +144,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
     }
     
     override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated);
+        
         self.lblUserName.text = self.appDelegate.USER_NAME_FULL
         self.btnUserName.setTitle(appDelegate.USER_NAME, for: .normal)
         
@@ -152,7 +159,8 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
         if (appDelegate.strCategory != ""){
             getEvents(inputData: ["category_name":appDelegate.strCategory]);
         }else{
-            onGoingEvents()
+           // onGoingEvents()
+            getEvents(inputData: [:]);
         }
         appDelegate.detailToShow = "stream"
         let is_profile_pic_loaded_left_menu = UserDefaults.standard.string(forKey: "is_profile_pic_loaded_left_menu");
@@ -402,6 +410,44 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
             return nil
         }
     }
+    func logoutAPI(){
+        let netAvailable = appDelegate.isConnectedToInternet()
+               if(!netAvailable){
+                   showAlert(strMsg: "Please check your internet connection!")
+                   return
+               }
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        let url: String = appDelegate.baseURL +  "/logout"
+        viewActivity.isHidden = false
+        let headers: HTTPHeaders
+        headers = [appDelegate.securityKey: appDelegate.securityValue]
+        let user_id = UserDefaults.standard.string(forKey: "user_id");
+        let params: [String: Any] = ["user_id":user_id ?? ""]
+        AF.request(url, method: .post,  parameters: params, encoding: JSONEncoding.default,headers:headers)
+            .responseJSON { response in
+                self.viewActivity.isHidden = true
+                print("--logout response:",response)
+                switch response.result {
+                case .success(let value):
+                   if let json = value as? [String: Any] {
+                        //print("json:",json)
+                        self.viewActivity.isHidden = true
+                        if (json["statusCode"]as? String == "200"){
+                            self.logout()
+                        }
+                        else{
+                            let strError = json["message"] as? String
+                            ////print(strError ?? "")
+                            self.showAlert(strMsg: strError ?? "")
+                        }
+                    }
+                    
+                case .failure(let error):
+                    //print(error)
+                    self.showAlert(strMsg: error.localizedDescription)
+                }
+        }
+    }
     func logout()
     {
         let netAvailable = appDelegate.isConnectedToInternet()
@@ -436,7 +482,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
         
         alert.addAction(UIAlertAction(title: "Yes", style: .default, handler: { action in
             self.viewSideMenu.isHidden = true
-            self.logout();
+            self.logoutAPI();
         }))
         DispatchQueue.main.async {
             self.present(alert, animated: true)
@@ -486,7 +532,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
             view.backgroundColor = darkGreen;
             let label = UILabel(frame: CGRect(x: 15, y: 0, width: Int(tableView.bounds.width) - 30, height: height))
             if(UIDevice.current.userInterfaceIdiom == .pad){
-            label.font = UIFont.boldSystemFont(ofSize: 30)
+            label.font = UIFont.boldSystemFont(ofSize: 25)
             }else{
                 label.font = UIFont.boldSystemFont(ofSize: 17)
             }
@@ -542,8 +588,11 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
                 return 180;
             }
         }
-        return 44;
-        
+        if(UIDevice.current.userInterfaceIdiom == .pad){
+            return 60;
+        }else{
+            return 50;
+        }        
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -707,13 +756,14 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
     // MARK: Filter Events
     @IBAction func openFilter(_ sender: Any) {
         isSelectedGenre = false;
+       // sectionFilters = ["Categories"]
         if (mdChipCard.isHidden){
             strSelectedCategory = "";
-            aryFilterGenresData = [Any]()
-            aryFilterSubCategoriesData = [Any]()
+//            aryFilterGenresData = [Any]()
+//            aryFilterSubCategoriesData = [Any]()
             collectionViewFilter.reloadData()
             mdChipCard.isHidden = false;
-            topConstaintTblMain?.constant = 236;
+            topConstaintTblMain?.constant = mdChipCard.frame.size.height + 1;
             tblMain.layoutIfNeeded()
         }else{
             mdChipCard.isHidden = true;
@@ -733,7 +783,8 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
         tblMain.layoutIfNeeded()
         aryUpcomingData = []
         getCategoryOrganisations(inputData: ["category":""]);
-        onGoingEvents()
+        getEvents(inputData: [:]);
+
     }
     @IBAction func applyFilter(_ sender: Any) {
         let netAvailable = appDelegate.isConnectedToInternet()
@@ -792,7 +843,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
 
 extension DashBoardVC: UICollectionViewDataSource , UICollectionViewDelegateFlowLayout{
     func numberOfSections(in collectionView: UICollectionView) -> Int {
-        return 3
+        return sectionFilters.count
     }
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
         return CGSize(width: 100, height: 50)
@@ -870,8 +921,30 @@ extension DashBoardVC: UICollectionViewDataSource , UICollectionViewDelegateFlow
             self.strSelectedCategory = strValue ?? ""
             self.aryFilterSubCategoriesData = selectedItem?["subcategory"] as? [Any] ?? [Any]();
             self.aryFilterGenresData = selectedItem?["genre"] as? [Any] ?? [Any]();
-            let indexSet = IndexSet(integersIn: 1...2)//reload 1,2 sections
-            collectionViewFilter.reloadSections(indexSet)
+            sectionFilters = ["Categories"]
+            if (self.aryFilterSubCategoriesData.count > 0){
+                sectionFilters.insert("Sub Categories", at: 1)
+            }else{
+                if (sectionFilters.count == 2)
+                {
+                    if (sectionFilters[1] == "Sub Categories"){
+                        sectionFilters.remove(at: 1)
+                    }
+                }
+            }
+            if (self.aryFilterGenresData.count > 0){
+                sectionFilters.insert("Genres", at: 2)
+            }else{
+                if (sectionFilters.count == 3)
+                {
+                    if (sectionFilters[2] == "Genres"){
+                        sectionFilters.remove(at: 2)
+                    }
+                }
+            }
+            print("sectionFilters:",sectionFilters)
+            //let indexSet = IndexSet(integersIn: 1...2)//reload 1,2 sections
+            collectionViewFilter.reloadData()
         }else if (indexPath.section == 1){
             let selectedItem = aryFilterSubCategoriesData[indexPath.row] as? [String : Any];
             let strValue = selectedItem?["subCategory"] as? String;

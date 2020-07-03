@@ -19,7 +19,7 @@
         func didFinishLogin(status: Bool)
     }
     
-    class LoginVC: UIViewController,UITextFieldDelegate, UIPickerViewDelegate, UIPickerViewDataSource {
+    class LoginVC: UIViewController,UITextFieldDelegate {
         // MARK: Variables Declarataion
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         
@@ -29,8 +29,6 @@
         @IBOutlet weak var txtPassword: UITextField!
         @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
         @IBOutlet weak var viewActivity: UIView!
-        @IBOutlet weak var txtEnv: UITextField!
-        var pickerData: [String] = [String]()
         
         // MARK: View Life Cycle Methods
         override func viewDidLoad() {
@@ -42,8 +40,6 @@
             viewActivity.isHidden = true
             
             addDoneButton()
-            pickerData = ["dev", "qa", "pre-prod", "prod"]
-            createPickerView()
            // dismissPickerView()
             //self.assignbackground();
             
@@ -55,14 +51,13 @@
         override func viewWillAppear(_ animated: Bool) {
             txtUserName.text = "";
             txtPassword.text = "";
-            txtUserName.text = "grajitha2009@gmail.com";
-            txtPassword.text = "V@rshitha12345";
+//            txtUserName.text = "grajitha2009@gmail.com";
+//            txtPassword.text = "V@rshitha12345";
         }
         
         @IBAction func resignKB(_ sender: Any) {
             txtUserName.resignFirstResponder();
             txtPassword.resignFirstResponder();
-            txtEnv.resignFirstResponder()
         }
         func addDoneButton() {
             let toolbar =  UIToolbar(frame: CGRect(x: 0, y: 0, width: view.frame.size.width, height: 35))
@@ -72,7 +67,6 @@
             toolbar.sizeToFit()
             txtUserName.inputAccessoryView = toolbar;
             txtPassword.inputAccessoryView = toolbar;
-            txtEnv.inputAccessoryView = toolbar;
         }
         
         func assignbackground(){
@@ -94,6 +88,7 @@
                 self.present(alert, animated: true)
             }
         }
+        
         func AWSsignIn(){
             let netAvailable = appDelegate.isConnectedToInternet()
             if(!netAvailable){
@@ -124,13 +119,17 @@
                             let vc = storyboard.instantiateViewController(withIdentifier: "ConfirmSignUpVC") as! ConfirmSignUpVC
                             self.navigationController?.pushViewController(vc, animated: true)
                         }
-                        
+                    case .userLambdaValidation(let message):
+                        if (message.contains("PostAuthentication failed")){
+                            self.showAlert(strMsg: "Your account is currently logged onto another device.\n\n Please log out of the other device or contact your administrator")
+                        }
                     default:
                         self.showAlert(strMsg: "\(error)");
                         break
                     }
                     //print("There's an error : \(error.localizedDescription)")
                     //print(error)
+                   
                     return
                 }
                 guard let signInResult = signInResult else {
@@ -346,46 +345,14 @@
                 return nil
             }
         }
-        // MARK: Picker  Methods
-        func createPickerView() {
-            let pickerView = UIPickerView()
-            pickerView.delegate = self
-            txtEnv.inputView = pickerView
-        }
+       
         
-        func dismissPickerView() {
-            let toolbar =  UIToolbar(frame: CGRect(x: 0, y: 0, width: view.frame.size.width, height: 35))
-            
-            toolbar.sizeToFit()
-            let flexButton = UIBarButtonItem(barButtonSystemItem: UIBarButtonItem.SystemItem.flexibleSpace, target: nil, action: nil)
-            let button = UIBarButtonItem(title: "Done", style: .plain, target: self, action: #selector(self.action))
-            toolbar.setItems([flexButton, button], animated: true)
-            toolbar.isUserInteractionEnabled = true
-            txtEnv.inputAccessoryView = toolbar
-        }
+       
         
         @objc func action() {
             view.endEditing(true)
         }
-        // MARK: Picker DataSource & Delegate Methods
         
-        func numberOfComponents(in pickerView: UIPickerView) -> Int {
-            return 1
-        }
-        
-        func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
-            return pickerData.count
-        }
-        
-        func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
-            return pickerData[row]
-            
-        }
-        
-        func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
-            let selectedItem = pickerData[row]
-            txtEnv.text = selectedItem
-        }
         // MARK: Send Bird Methods
         func sendBirdConnect() {
             

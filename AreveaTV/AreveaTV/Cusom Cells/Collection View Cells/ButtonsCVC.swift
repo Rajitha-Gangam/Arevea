@@ -11,15 +11,15 @@ import UIKit
 class ButtonsCVC: UICollectionViewCell {
     @IBOutlet weak var btn: UIButton!
     @IBOutlet weak var lblLine:UILabel!
+    @IBOutlet weak var viewBG:UIView!
+
     override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code
     }
     func configureCell(name: String) {
+        
         self.btn.setTitle(name, for: .normal)
-        let lineView = UIView(frame: CGRect(x: 0, y:btn.frame.size.height-1, width: btn.frame.size.width, height: 2))
-        lineView.backgroundColor = .red
-        //btn.addSubview(lineView)
     }
 
 }

@@ -12,10 +12,10 @@ import Alamofire
 import AVKit
 import SendBirdSDK
 import MUXSDKStats;
-extension Notification.Name {
-    static let didReceiveStreamData = Notification.Name("didReceiveStreamData")
-}
-class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDataSource,UITableViewDelegate,UITextFieldDelegate,CollectionViewCellDelegate,OpenChanannelChatDelegate,OpenChannelMessageTableViewCellDelegate,AGEmojiKeyboardViewDelegate, AGEmojiKeyboardViewDataSource,UIWebViewDelegate,UICollectionViewDelegateFlowLayout{
+import CoreLocation
+
+
+class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDataSource,UITableViewDelegate,UITextFieldDelegate,CollectionViewCellDelegate,OpenChanannelChatDelegate,OpenChannelMessageTableViewCellDelegate,AGEmojiKeyboardViewDelegate,SBDChannelDelegate, AGEmojiKeyboardViewDataSource,UIWebViewDelegate,UICollectionViewDelegateFlowLayout,CLLocationManagerDelegate{
     // MARK: - Variables Declaration
     
     @IBOutlet weak var scrollButtons: UIScrollView!
@@ -41,10 +41,9 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
     @IBOutlet weak var txtProfile: UITextView!
     
     let appDelegate = UIApplication.shared.delegate as! AppDelegate
-    @IBOutlet weak var btnUserName: UIButton!
     @IBOutlet weak var btnPayPerView: UIButton!
     @IBOutlet weak var webView: UIWebView!
-    
+    var txtTopOfToolBar : UITextField!
     var r5ViewController : BaseTest? = nil
     @IBOutlet weak var viewLiveStream: UIView!
     var dicPerformerInfo = [String: Any]()
@@ -115,7 +114,6 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
     var isScrollingFast: Bool = false
     var lastOffset: CGPoint = CGPoint(x: 0, y: 0)
     var keyboardShown: Bool = false
-    var keyboardHeight: CGFloat = 0
     var firstKeyboardShown: Bool = true
     var age_limit = 0;
     @IBOutlet weak var txtComment: UITextField!
@@ -123,6 +121,8 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
     
     @IBOutlet weak var sendUserMessageButton: UIButton!
     @IBOutlet weak var inputMessageInnerContainerViewBottomMargin: NSLayoutConstraint!
+    @IBOutlet weak var liveStreamHeight: NSLayoutConstraint!
+    @IBOutlet weak var VODHeight: NSLayoutConstraint!
     
     let coverImageData: Data? = nil
     weak var delegate: OpenChanannelChatDelegate?
@@ -155,7 +155,13 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
     @IBOutlet weak var imgEmoji: UIImageView!
     @IBOutlet weak var imgEmoji1: UIImageView!
     var app_id_for_adds = ""
-    var viewUp = false;
+    @IBOutlet weak var heightTopView: NSLayoutConstraint?
+    @IBOutlet weak var viewTop: UIView!
+    var locationManager:CLLocationManager!
+    
+    var aryCountries = [["region_code":"blr1","countries":["india","sri lanka","bangaldesh","pakistan","china"]],["region_code":"tor1","countries":["canada"]],["region_code":"fra1","countries":["germany"]],["region_code":"lon1","countries":["england"]],["region_code":"sgp1","countries":["singapore"]],["region_code":"sfo1","countries":["United States"]],["region_code":"sfo2","countries":["United States"]],["region_code":"ams2","countries":["netherlands"]],["region_code":"ams3","countries":["netherlands"]],["region_code":"nyc1","countries":["United States"]],["region_code":"nyc2","countries":["United States"]],["region_code":"nyc3","countries":["United States"]]]
+    var strCountry = "India"//United States
+    var strRegionCode = "blr1"//sfo1
     
     // MARK: - View Life cycle
     override func viewDidLoad() {
@@ -209,7 +215,22 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
             let commentsLine = self.buttonCVC.viewWithTag(11) as? UILabel
             commentsLine?.backgroundColor = .red;
         }
-        
+        if(UIDevice.current.userInterfaceIdiom == .pad){
+            heightTopView?.constant = 60;
+            viewTop.layoutIfNeeded()
+            viewLiveStream.layoutIfNeeded()
+        }
+        /*locationManager = CLLocationManager()
+         locationManager.delegate = self
+         locationManager.desiredAccuracy = kCLLocationAccuracyBest
+         locationManager.requestAlwaysAuthorization()
+         
+         if CLLocationManager.locationServicesEnabled(){
+         locationManager.startUpdatingLocation()
+         }*/
+        SBDMain.add(self, identifier: self.description)
+        self.webView.backgroundColor = .clear
+        self.webView.isOpaque = false
     }
     @objc func txtEmojiTap(textField: UITextField) {
         if ((imgEmoji1.image?.isEqual(UIImage.init(named: "addemoji.png")))!)
@@ -301,7 +322,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
             }
             self.channel = openChannel
             self.title = self.channel?.name
-            //self.loadPreviousMessages(initial: true)
+            self.loadPreviousMessages(initial: true)
             openChannel?.enter(completionHandler: { (error) in
                 guard error == nil else {   // Error.
                     return
@@ -347,24 +368,31 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
             }
         })
     }
+    private func deleteMessageFromTableView(_ messageId: Int64) {
+        if self.messages.count == 0 {
+            return
+        }
+        
+        for i in 0...self.messages.count-1 {
+            let msg = self.messages[i]
+            if msg.messageId == messageId {
+                self.determineScrollLock()
+                self.messages.removeObject(msg)
+                self.tblComments.deleteRows(at: [IndexPath(row: i, section: 0)], with: .none)
+                self.tblComments.layoutIfNeeded()
+                self.scrollToBottom(force: false)
+                break
+            }
+        }
+    }
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated);
-        self.btnUserName.setTitle(appDelegate.USER_NAME, for: .normal)
         //adding observer
         NotificationCenter.default.addObserver(self, selector: #selector(applicationDidBecomeActive), name: UIApplication.didBecomeActiveNotification, object: nil)
         
         NotificationCenter.default.addObserver(self, selector: #selector(StreamNotificationHandler(_:)), name: .didReceiveStreamData, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
     }
-    @objc func keyboardWillShow(notification: NSNotification) {
-        
-        if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
-            keyboardHeight = keyboardSize.height
-            if (viewUp){
-                self.animateTextField(textField: txtComment, up:true)
-            }
-        }
-    }
+    
     @objc func StreamNotificationHandler(_ notification:Notification) {
         // Do something now
         //print("====StreamNotificationHandler")
@@ -422,6 +450,12 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
         super.viewDidAppear(true);
         backPressed = false
         self.btnPlayStream.isHidden = true
+        self.imgPerformerProfile.layer.cornerRadius = self.imgPerformerProfile.frame.size.width/2
+        if(UIDevice.current.userInterfaceIdiom == .pad){
+            self.imgStreamThumbNail.image = UIImage.init(named: "default-vod.png")
+        }else{
+            self.imgStreamThumbNail.image = UIImage.init(named: "default-vod-square.png")
+        }
         if(isLoaded == 0 || appDelegate.isLiveLoad == "1"){
             let netAvailable = appDelegate.isConnectedToInternet()
             if(!netAvailable){
@@ -440,7 +474,11 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
             let infoLine = self.buttonCVC.viewWithTag(11) as? UILabel
             infoLine?.backgroundColor = .red;
         }
-        
+        let viewHeight = self.view.frame.size.height*0.35
+        liveStreamHeight.constant = CGFloat(viewHeight)
+        VODHeight.constant = CGFloat(viewHeight)
+        self.viewLiveStream.layoutIfNeeded()
+        self.viewVOD.layoutIfNeeded()
         
     }
     func delay(_ delay:Double, closure:@escaping ()->()) {
@@ -464,8 +502,13 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
         self.imgEmoji.isHidden = false;
         var frameBug = self.imgEmoji.frame
         // //print("bug fr:",self.imgEmoji.frame)
-        frameBug.origin.x = 200
-        frameBug.origin.y = 200
+        if(UIDevice.current.userInterfaceIdiom == .pad){
+            frameBug.origin.x = 400
+            frameBug.origin.y = 400
+        }else{
+            frameBug.origin.x = 400
+            frameBug.origin.y = 400
+        }
         let xConst = frameBug.origin.x;
         let yConst = frameBug.origin.y;
         
@@ -487,6 +530,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
             videoPlayer = AVPlayer(url: url)
             let controller = AVPlayerViewController()
             controller.player = videoPlayer
+            //controller.allowsPictureInPicturePlayback = true
             controller.view.frame = self.viewVOD.bounds
             self.viewVOD.addSubview(controller.view)
             self.addChild(controller)
@@ -505,12 +549,8 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
             //            player.play()
             
             //388266
-            /*
-             let htmlString = "<iframe src='https://app.singular.live/appinstances/" + self.app_id_for_adds + "/outputs/Output/onair'allowfullscreen='true' allowtransparency='true' scrolling='no' style='position: absolute;width: 100%;height: 95%;border: none;z-index: 1;'></iframe>"
-             webView.loadHTMLString(htmlString, baseURL: nil)
-             webView.delegate = self
-             viewActivity.isHidden = false
-             self.viewVOD.bringSubviewToFront(webView)*/
+            
+            
             // Environment and player data that persists until the player is destroyed
             let playerData = MUXSDKCustomerPlayerData(environmentKey:"dev")
             playerData?.viewerUserId = "1234"
@@ -569,12 +609,14 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
             let name = buttonNames[indexPath.row]
             cell.configureCell(name: name)
             cell.btn.addTarget(self, action: #selector(btnPress(_:)), for: .touchUpInside)
+            cell.btn.tag = 10 + (indexPath.row);
             cell.lblLine.tag = 10 + (indexPath.row);
             //cell.btn.setTitleColor(.white, for: .normal)
             return cell
         }
         return UICollectionViewCell()
     }
+    
     
     //MARK: Main function, handling bottom views logic based on selection here
     func hideViews(){
@@ -588,21 +630,27 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
         viewFollowers.isHidden = true;
     }
     @objc func btnPress(_ sender: UIButton) {
+        
         txtEmoji.resignFirstResponder()
         hideViews();
         let title = sender.titleLabel?.text!
-        for (index,_) in buttonNames.enumerated() {
+        print("tag:",sender.tag)
+        buttonCVC.reloadData()
+        let tmpLbl = self.buttonCVC.viewWithTag(sender.tag) as? UILabel
+        tmpLbl?.backgroundColor = .red;
+
+        /*for (index,_) in buttonNames.enumerated() {
             let name = buttonNames[index]
             let btnTag = 10 + index;
             let tmpLbl = self.buttonCVC.viewWithTag(btnTag) as? UILabel
-            
             if (name == title){
                 print("btnTag:",btnTag)
                 tmpLbl?.backgroundColor = .red;
             }else{
                 tmpLbl?.backgroundColor = .white;
             }
-        }
+        }*/
+        
         switch title {
         case "Comments":
             viewComments.isHidden = false;
@@ -703,7 +751,11 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
         let darkGreen = UIColor(red: 1, green: 29, blue: 39);
         view.backgroundColor = darkGreen;
         let label = UILabel(frame: CGRect(x: 15, y: 0, width: tableView.bounds.width - 30, height: 44))
-        label.font = UIFont.boldSystemFont(ofSize: 15)
+        if(UIDevice.current.userInterfaceIdiom == .pad){
+            label.font = UIFont.boldSystemFont(ofSize: 25)
+        }else{
+            label.font = UIFont.boldSystemFont(ofSize: 17)
+        }
         label.textColor = UIColor.white;
         //
         let section = self.aryVideos[section] as? [String : Any];
@@ -1078,25 +1130,56 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
     
     @objc func resignKB(_ sender: Any) {
         txtComment.resignFirstResponder();
-        
     }
     func addDoneButton() {
         let toolbar =  UIToolbar(frame: CGRect(x: 0, y: 0, width: view.frame.size.width, height: 35))
+        toolbar.backgroundColor = .white
+        txtTopOfToolBar =  UITextField(frame: CGRect(x: 0, y: 0, width: view.frame.size.width-150, height: 35))
+        // let textfield =  UITextField()
+        txtTopOfToolBar.placeholder = "Enter comments"
+        txtTopOfToolBar.backgroundColor = .clear
+        txtTopOfToolBar.isUserInteractionEnabled = false
+        let textfieldBarButton = UIBarButtonItem.init(customView: txtTopOfToolBar)
+        
+        // UIToolbar expects an array of UIBarButtonItems:
         
         let flexButton = UIBarButtonItem(barButtonSystemItem: UIBarButtonItem.SystemItem.flexibleSpace, target: nil, action: nil)
-        let doneButton = UIBarButtonItem(title: "Done", style: .plain, target: self, action:#selector(resignKB(_:)))
-        toolbar.setItems([flexButton, doneButton], animated: true)
+        
+        let cancel = UIBarButtonItem(title: "Cancel", style: .plain, target: self, action:#selector(resignKB(_:)))
+        
+        let button = UIButton.init(type: .custom)
+        //set image for button
+        button.setImage(UIImage(named: "send-icon-blue.png"), for: UIControl.State.normal)
+        //add function for button
+        button.addTarget(self, action: #selector(sendChatMessage), for: UIControl.Event.touchUpInside)
+        //set frame
+        button.frame = CGRect(x: 0, y: 0, width: 33, height: 33)
+        
+        let sendBtn = UIBarButtonItem(customView: button)
+        
+        
+        toolbar.setItems([cancel,textfieldBarButton,flexButton,sendBtn], animated: true)
         toolbar.sizeToFit()
         txtComment.inputAccessoryView = toolbar;
+        
+        
     }
     
     // MARK: Text Field Delegate Methods
     
     func textFieldDidBeginEditing(_ textField: UITextField) {
-        print("textFieldDidBeginEditing:",keyboardHeight)
-        viewUp = false;
         if (txtComment == textField){
-            viewUp = true;
+            //            if(UIDevice.current.userInterfaceIdiom == .phone){
+            //                self.viewComments.frame.origin.y -= 100
+            //            }
+            if(UIDevice.current.userInterfaceIdiom == .phone){
+                let viewHeight = self.view.frame.size.height*0.35 - 100
+                liveStreamHeight.constant = CGFloat(viewHeight)
+                VODHeight.constant = CGFloat(viewHeight)
+                self.viewLiveStream.layoutIfNeeded()
+                self.viewVOD.layoutIfNeeded()
+            }
+            
         }else if(txtEmoji == textField){
             imgEmoji.isHidden = true
         }
@@ -1104,7 +1187,16 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
     }
     func textFieldDidEndEditing(_ textField: UITextField) {
         if (txtComment == textField){
-            self.animateTextField(textField: textField, up:false)
+            //            if(UIDevice.current.userInterfaceIdiom == .phone){
+            //                        self.viewComments.frame.origin.y = 0
+            //            }
+            if(UIDevice.current.userInterfaceIdiom == .phone){
+                let viewHeight = self.view.frame.size.height*0.35
+                liveStreamHeight.constant = CGFloat(viewHeight)
+                VODHeight.constant = CGFloat(viewHeight)
+                self.viewLiveStream.layoutIfNeeded()
+                self.viewVOD.layoutIfNeeded()
+            }
         }
         else if(txtEmoji == textField){
             
@@ -1113,31 +1205,23 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
     }
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        print("---enter pressed")
+        if (textField == txtComment){
+            sendChatMessage()
+        }
         textField.resignFirstResponder();
         return true;
     }
-    
+    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+        let textFieldText: NSString = (textField.text ?? "") as NSString
+        let txtAfterUpdate = textFieldText.replacingCharacters(in: range, with: string)
+        print(txtAfterUpdate)
+        txtTopOfToolBar.text = txtAfterUpdate
+        return true
+    }
     // MARK: Keyboard  Delegate Methods
     
-    func animateTextField(textField: UITextField, up: Bool)
-    {
-        
-        print("animateTextField:",keyboardHeight)
-        let movementDistance:CGFloat = -keyboardHeight
-        var movement:CGFloat = 0
-        if up
-        {
-            movement = movementDistance
-        }
-        else
-        {
-            movement = -movementDistance
-        }
-        print("movement:",movement)
-        UIView.animate(withDuration: 0.3, animations: {
-            self.view.frame = self.view.frame.offsetBy(dx: 0, dy: movement)
-        })
-    }
+    
     
     // MARK: Tip Methods
     
@@ -1277,6 +1361,11 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
     
     // MARK: Handler for getUser API, using for filters
     func liveEvents() {
+        /* viewVOD.isHidden = false
+         viewLiveStream.isHidden = true
+         self.showVideo(strURL: "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4");
+         return*/
+        
         let netAvailable = appDelegate.isConnectedToInternet()
         if(!netAvailable){
             showAlert(strMsg: "Please check your internet connection!")
@@ -1343,27 +1432,26 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
                                 let streamBannerURL = streamObj?["video_thumbnail_image"] as? String ?? ""
                                 if let urlBanner = URL(string: streamBannerURL){
                                     self.downloadImage(from: urlBanner as URL, imageView: self.imgStreamThumbNail)
-                                }else{
-                                    self.imgStreamThumbNail.image = UIImage.init(named: "default-vod.png")
                                 }
                                 self.sendBirdChatConfig()
                                 self.sendBirdEmojiConfig()
                                 self.paymentAmount = streamObj?["stream_payment_amount"]as? Int ?? 0
                                 self.lblVideoTitle.text = streamVideoTitle
                                 self.lblVideoTitle_Info.text = streamVideoTitle
-                                
                                 self.lblVideoDesc.text = streamVideoDesc
                                 self.lblVideoDesc_Info.text = streamVideoDesc
-                                
                                 self.streamPaymentMode = streamObj?["stream_payment_mode"] as? String ?? ""
-                                
                             }else{
                                 //if we get any error default, we are showing VOD
-                                self.viewVOD.isHidden = false
-                                self.viewLiveStream.isHidden = true;
+                                self.viewVOD.isHidden = true;
+                                self.viewLiveStream.isHidden = false;
                                 self.lblVideoTitle.text = ""
                                 self.lblVideoTitle_Info.text = ""
-                                self.lblVODUnavailable.text = "Stream Info not found"
+                                //self.lblVODUnavailable.text = "Stream Info not found"
+                                self.lblStreamUnavailable.text = "Please wait for the host to start the live stream"
+                                self.btnPlayStream.isHidden = false
+                                self.btnPlayStream.setImage(UIImage.init(named: "refresh-icon.png"), for: .normal)
+                                self.btnPlayStream.isUserInteractionEnabled = false
                                 //ALToastView.toast(in: self.viewVOD, withText:"Stream Info not found")
                             }
                             let user_subscription_info = data?["user_subscription_info"] != nil
@@ -1371,9 +1459,10 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
                                 self.aryUserSubscriptionInfo = data?["user_subscription_info"] as? [Any] ?? [Any]()
                             }
                             let user_age_limit = UserDefaults.standard.integer(forKey:"user_age_limit");
-                            print("---user_age_limit:",user_age_limit)
+                            // print("---user_age_limit:",user_age_limit)
+                            //   print("---age_limit:",self.age_limit)
                             
-                            if (self.age_limit <= user_age_limit){
+                            if (self.age_limit <= user_age_limit || self.age_limit == 0){
                                 if (self.streamPaymentMode == "paid" && self.aryUserSubscriptionInfo.count == 0){
                                     //if user does not pay amount
                                     self.btnPayPerView.isHidden = false
@@ -1432,7 +1521,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
                                                 let video_url = streamObj?["video_url"] as? String ?? ""
                                                 strURL = video_url
                                             }
-                                            //print("strURL:",strURL)
+                                            print("strURL:",strURL)
                                             self.isChannelAvailable = true;
                                             self.tblComments.reloadData()
                                             self.showVideo(strURL: strURL);
@@ -1455,10 +1544,33 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
                                 self.dicPerformerInfo = data?["performer_info"] as? [String : Any] ?? [String:Any]()
                                 let performerName = self.dicPerformerInfo["performer_display_name"] as? String ?? ""
                                 var performer_bio = self.dicPerformerInfo["performer_bio"] as? String ?? ""
-                                 performer_bio = performer_bio.htmlToString
+                                performer_bio = performer_bio.htmlToString
                                 
                                 self.txtProfile.text = performerName + "\n" + performer_bio
                                 self.app_id_for_adds = self.dicPerformerInfo["app_id"] as? String ?? "0"
+                                
+                                // let htmlString = "<iframe src='https://app.singular.live/appinstances/" + self.app_id_for_adds + "/outputs/Output/onair'allowfullscreen='true' allowtransparency='true' scrolling='no' style='position: absolute;width: 100%;height: 95%;border: none;z-index: 1;'></iframe>"
+                                
+                                let htmlString = "<html>\n" +
+                                    "   <body style='margin:0;padding:0;background:transparent;'>\n" +
+                                    "     <iframe width=\"100%\" height=\"100%\" src=\"https://app.singular.live/appinstances/" + self.app_id_for_adds + "/outputs/Output/onair\" frameborder=\"0\" allow=\"accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture\" allowfullscreen>\n" +
+                                    "     </iframe>\n" +
+                                    "   </body>\n" +
+                                "</html>";
+                                if (self.aryStreamInfo.count == 0){
+                                    //performer_profile_banner
+                                    let performer_profile_banner = self.dicPerformerInfo["performer_profile_banner"] as? String ?? ""
+                                    if let urlBanner = URL(string: performer_profile_banner){
+                                        self.downloadImage(from: urlBanner as URL, imageView: self.imgStreamThumbNail)
+                                    }
+                                }
+                                print("htmlString:",htmlString)
+                                self.webView.loadHTMLString(htmlString, baseURL: nil)
+                                self.webView.delegate = self
+                                self.webView.isHidden = false
+                                
+                                self.viewLiveStream.bringSubviewToFront(self.webView)
+                                
                                 //print("self.app_id_for_adds:",self.app_id_for_adds)
                                 let strURL = self.dicPerformerInfo["performer_profile_pic"]as? String ?? ""
                                 if let urlPerformer = URL(string: strURL){
@@ -1812,6 +1924,8 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
             r5ViewController?.view.frame = self.viewLiveStream.bounds
             self.viewLiveStream.addSubview(r5ViewController!.view)
             self.addChild(r5ViewController!)
+            self.viewLiveStream.bringSubviewToFront(webView)
+            
         }
     }
     @objc func showInfo(){
@@ -2033,13 +2147,16 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
             }
         })
     }
-    @IBAction func sendChatMessage(_ sender: Any) {
+    
+    @IBAction func sendChatMessage() {
         txtComment.resignFirstResponder()
         let messageText = txtComment.text!.trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
         if (messageText.count == 0){
             showAlert(strMsg: "Please enter message")
             return
         }
+        self.txtComment.text = ""
+        self.txtTopOfToolBar.text = ""
         
         if (!isChannelAvailable){
             //print("sendBirdErrorCode:",sendBirdErrorCode)
@@ -2319,6 +2436,151 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
         print("Remove NotificationCenter Deinit")
         NotificationCenter.default.removeObserver(self)
     }
+    //MARK: - location delegate methods
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        let netAvailable = appDelegate.isConnectedToInternet()
+        if(!netAvailable){
+            return
+        }
+        let userLocation :CLLocation = locations[0] as CLLocation
+        let geocoder = CLGeocoder()
+        geocoder.reverseGeocodeLocation(userLocation) { (placemarks, error) in
+            if (error != nil){
+                //print("error in reverseGeocode")
+            }
+            let placemark = placemarks! as [CLPlacemark]
+            if placemark.count>0{
+                let placemark = placemarks![0]
+                //print("country:",placemark.country!)
+                self.strCountry = placemark.country!
+                self.getRegion()
+            }
+        }
+        
+    }
+    func getRegion(){
+        for (i,_) in aryCountries.enumerated(){
+            let element = aryCountries[i]
+            let countryNames = element["countries"] as! [Any];
+            for (j,_) in countryNames.enumerated() {
+                let country = countryNames[j] as! String
+                if(country.lowercased() == strCountry.lowercased()){
+                    //print("equal:",country)
+                    strRegionCode = element["region_code"]as! String
+                    return
+                }
+            }
+        }
+    }
+    func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
+        //print("Error \(error)")
+    }
+    // MARK: - SBDChannelDelegate
+    func channel(_ sender: SBDBaseChannel, didReceive message: SBDBaseMessage) {
+        if let channel = self.channel {
+            if sender == channel {
+                DispatchQueue.main.async {
+                    self.determineScrollLock()
+                    UIView.setAnimationsEnabled(false)
+                    self.messages.append(message)
+                    self.tblComments.insertRows(at: [IndexPath(row: self.messages.count - 1, section: 0)], with: .none)
+                    self.scrollToBottom(force: false)
+                    UIView.setAnimationsEnabled(true)
+                }
+            }
+        }
+    }
+    func channel(_ sender: SBDBaseChannel, userWasMuted user: SBDUser) {
+        guard let currentUser = SBDMain.getCurrentUser() else { return }
+        guard let channel = self.channel else { return }
+        
+        if user.userId == currentUser.userId, sender.channelUrl == channel.channelUrl {
+            let alert = UIAlertController(title: "You are muted.", message: "You are muted. You won't be able to send messages.", preferredStyle: .alert)
+            let actionConfirm = UIAlertAction(title: "Okay", style: .cancel) { (action) in
+                self.sendUserMessageButton.isEnabled = false
+                self.txtComment.isEnabled = false
+                self.txtComment.placeholder = "You are muted"
+                self.sendUserMessageButton.isEnabled = false
+            }
+            alert.addAction(actionConfirm)
+            DispatchQueue.main.async {
+                self.present(alert, animated: true, completion: nil)
+            }
+        }
+    }
+    
+    func channel(_ sender: SBDBaseChannel, userWasUnmuted user: SBDUser) {
+        guard let currentUser = SBDMain.getCurrentUser() else { return }
+        guard let channel = self.channel else { return }
+        
+        if user.userId == currentUser.userId, sender.channelUrl == channel.channelUrl {
+            self.sendUserMessageButton.isEnabled = true
+            self.txtComment.isEnabled = true
+            self.txtComment.placeholder = "Type a message.."
+            self.sendUserMessageButton.isEnabled = false
+        }
+    }
+    
+    func channel(_ sender: SBDBaseChannel, userWasBanned user: SBDUser) {
+        guard let currentUser = SBDMain.getCurrentUser() else { return }
+        guard let channel = self.channel else { return }
+        
+        if user.userId == currentUser.userId && sender.channelUrl == channel.channelUrl {
+            let alert = UIAlertController(title: "You are banned.", message: "You are banned for 10 minutes. This channel will be closed.", preferredStyle: .alert)
+            let actionCancel = UIAlertAction(title: "Close", style: .cancel) { (action) in
+                self.navigationController?.popViewController(animated: true)
+            }
+            alert.addAction(actionCancel)
+            DispatchQueue.main.async {
+                self.present(alert, animated: true, completion: nil)
+            }
+        }
+    }
+    
+    func channelWasDeleted(_ channelUrl: String, channelType: SBDChannelType) {
+        let alert = UIAlertController(title: "Channel has been deleted.", message: "This channel has been deleted. It will be closed.", preferredStyle: .alert)
+        let actionCancel = UIAlertAction(title: "Close", style: .cancel) { (action) in
+            self.navigationController?.popViewController(animated: true)
+        }
+        alert.addAction(actionCancel)
+        
+        DispatchQueue.main.async {
+            self.present(alert, animated: true, completion: nil)
+        }
+    }
+    
+    func channel(_ sender: SBDBaseChannel, messageWasDeleted messageId: Int64) {
+        DispatchQueue.main.async {
+            guard let channel = self.channel else { return }
+            
+            if sender == channel {
+                self.deleteMessageFromTableView(messageId)
+            }
+        }
+    }
+    
+    func channel(_ sender: SBDBaseChannel, didUpdate message: SBDBaseMessage) {
+        for (i, prevMessage) in messages.enumerated() {
+            if prevMessage.messageId == message.messageId {
+                messages.remove(at: i)
+                messages.insert(message, at: i)
+                DispatchQueue.main.async {
+                    self.tblComments.reloadRows(at: [IndexPath(row: i, section: 0)], with: .none)
+                }
+                break
+            }
+        }
+    }
+    
+    func channelWasChanged(_ sender: SBDBaseChannel) {
+        DispatchQueue.main.async {
+            guard let channel = self.channel else { return }
+            
+            if sender == channel {
+                self.title = channel.name
+            }
+        }
+    }
 }
 
 extension String {
@@ -2345,4 +2607,14 @@ extension String {
         return htmlToAttributedString?.string ?? ""
     }
     
+}
+extension Array where Element : Equatable  {
+    public mutating func removeObject(_ item: Element) {
+        if let index = self.firstIndex(of: item) {
+            self.remove(at: index)
+        }
+    }
+}
+extension Notification.Name {
+    static let didReceiveStreamData = Notification.Name("didReceiveStreamData")
 }

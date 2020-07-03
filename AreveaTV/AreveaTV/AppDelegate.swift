@@ -106,7 +106,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate,CLLocationManagerDelegate 
     
     
     //MARK: - location delegate methods
-     /*  func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+       func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
            let netAvailable = self.isConnectedToInternet()
            if(!netAvailable){
                return
@@ -144,8 +144,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate,CLLocationManagerDelegate 
        func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
            //print("Error \(error)")
        }
-    */
-    
 }
 extension UISearchBar {
 
