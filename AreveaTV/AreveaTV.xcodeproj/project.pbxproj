@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		180A78C82464243A0013AB0B /* ConnectionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 180A78C72464243A0013AB0B /* ConnectionManager.swift */; };
+		180A8BDB24AF74500022FFE4 /* ButtonsCVC-iPad.xib in Resources */ = {isa = PBXBuildFile; fileRef = 180A8BDA24AF74500022FFE4 /* ButtonsCVC-iPad.xib */; };
+		180A8BDD24AF92340022FFE4 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 180A8BDC24AF92340022FFE4 /* Images.xcassets */; };
 		182740F62487EFB3001BC6B3 /* img_default_profile_image_1.png in Resources */ = {isa = PBXBuildFile; fileRef = 182740F52487EFB3001BC6B3 /* img_default_profile_image_1.png */; };
 		182A5EF2245C59C700FF6147 /* SectionHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 182A5EEF245C59C700FF6147 /* SectionHeader.swift */; };
 		182A5EF3245C59C700FF6147 /* StickyHeadersCollectionViewFlowLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 182A5EF0245C59C700FF6147 /* StickyHeadersCollectionViewFlowLayout.swift */; };
@@ -41,8 +43,6 @@
 		1864AFCF2454ACEE004F3AED /* sample_detail.png in Resources */ = {isa = PBXBuildFile; fileRef = 1864AFCE2454ACEE004F3AED /* sample_detail.png */; };
 		1869F51924659D5F003153B1 /* SBOpenChatVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1869F51824659D5F003153B1 /* SBOpenChatVC.swift */; };
 		186A2EA2245566BE007128E6 /* three-dots.png in Resources */ = {isa = PBXBuildFile; fileRef = 186A2EA1245566BE007128E6 /* three-dots.png */; };
-		186A2EAE24559E68007128E6 /* CommentsCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 186A2EAC24559E68007128E6 /* CommentsCell.swift */; };
-		186A2EAF24559E68007128E6 /* CommentsCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 186A2EAD24559E68007128E6 /* CommentsCell.xib */; };
 		187C57FF2480EA35008C5E89 /* OpenChanannelChatDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 187C57F92480EA35008C5E89 /* OpenChanannelChatDelegate.swift */; };
 		187C58002480EA35008C5E89 /* OpenChannelUserMessageTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 187C57FA2480EA35008C5E89 /* OpenChannelUserMessageTableViewCell.swift */; };
 		187C58012480EA35008C5E89 /* OpenChannelUserMessageTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 187C57FB2480EA35008C5E89 /* OpenChannelUserMessageTableViewCell.xib */; };
@@ -67,6 +67,10 @@
 		188FA7BA24AB6E74008871D4 /* send-icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 188FA7B924AB6E74008871D4 /* send-icon.png */; };
 		188FA7BC24AB7134008871D4 /* send_transparent.png in Resources */ = {isa = PBXBuildFile; fileRef = 188FA7BB24AB7134008871D4 /* send_transparent.png */; };
 		188FA7C024AB8739008871D4 /* send-icon-blue.png in Resources */ = {isa = PBXBuildFile; fileRef = 188FA7BF24AB8738008871D4 /* send-icon-blue.png */; };
+		188FA7C224AF4610008871D4 /* Icon-83.5@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 188FA7C124AF460F008871D4 /* Icon-83.5@2x.png */; };
+		188FA7C424AF462B008871D4 /* Icon-60@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 188FA7C324AF462B008871D4 /* Icon-60@3x.png */; };
+		188FA7CF24AF6CF6008871D4 /* full_view.png in Resources */ = {isa = PBXBuildFile; fileRef = 188FA7CD24AF6CF2008871D4 /* full_view.png */; };
+		188FA7D024AF6CF6008871D4 /* small_view.png in Resources */ = {isa = PBXBuildFile; fileRef = 188FA7CE24AF6CF5008871D4 /* small_view.png */; };
 		1891CA63244AC82B00EE1E45 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1891CA62244AC82B00EE1E45 /* AppDelegate.swift */; };
 		1891CA6A244AC82B00EE1E45 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1891CA68244AC82B00EE1E45 /* Main.storyboard */; };
 		1891CA6D244AC82B00EE1E45 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1891CA6B244AC82B00EE1E45 /* LaunchScreen.storyboard */; };
@@ -171,6 +175,8 @@
 
 /* Begin PBXFileReference section */
 		180A78C72464243A0013AB0B /* ConnectionManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConnectionManager.swift; sourceTree = "<group>"; };
+		180A8BDA24AF74500022FFE4 /* ButtonsCVC-iPad.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = "ButtonsCVC-iPad.xib"; sourceTree = "<group>"; };
+		180A8BDC24AF92340022FFE4 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		182740F52487EFB3001BC6B3 /* img_default_profile_image_1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = img_default_profile_image_1.png; sourceTree = "<group>"; };
 		182A5EEF245C59C700FF6147 /* SectionHeader.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SectionHeader.swift; sourceTree = "<group>"; };
 		182A5EF0245C59C700FF6147 /* StickyHeadersCollectionViewFlowLayout.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StickyHeadersCollectionViewFlowLayout.swift; sourceTree = "<group>"; };
@@ -205,8 +211,6 @@
 		1864AFCE2454ACEE004F3AED /* sample_detail.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = sample_detail.png; sourceTree = "<group>"; };
 		1869F51824659D5F003153B1 /* SBOpenChatVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SBOpenChatVC.swift; sourceTree = "<group>"; };
 		186A2EA1245566BE007128E6 /* three-dots.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "three-dots.png"; sourceTree = "<group>"; };
-		186A2EAC24559E68007128E6 /* CommentsCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentsCell.swift; sourceTree = "<group>"; };
-		186A2EAD24559E68007128E6 /* CommentsCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = CommentsCell.xib; sourceTree = "<group>"; };
 		187C57F92480EA35008C5E89 /* OpenChanannelChatDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OpenChanannelChatDelegate.swift; sourceTree = "<group>"; };
 		187C57FA2480EA35008C5E89 /* OpenChannelUserMessageTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OpenChannelUserMessageTableViewCell.swift; sourceTree = "<group>"; };
 		187C57FB2480EA35008C5E89 /* OpenChannelUserMessageTableViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = OpenChannelUserMessageTableViewCell.xib; sourceTree = "<group>"; };
@@ -232,6 +236,10 @@
 		188FA7B924AB6E74008871D4 /* send-icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "send-icon.png"; sourceTree = "<group>"; };
 		188FA7BB24AB7134008871D4 /* send_transparent.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = send_transparent.png; sourceTree = "<group>"; };
 		188FA7BF24AB8738008871D4 /* send-icon-blue.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "send-icon-blue.png"; sourceTree = "<group>"; };
+		188FA7C124AF460F008871D4 /* Icon-83.5@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon-83.5@2x.png"; sourceTree = "<group>"; };
+		188FA7C324AF462B008871D4 /* Icon-60@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon-60@3x.png"; sourceTree = "<group>"; };
+		188FA7CD24AF6CF2008871D4 /* full_view.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = full_view.png; sourceTree = "<group>"; };
+		188FA7CE24AF6CF5008871D4 /* small_view.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = small_view.png; sourceTree = "<group>"; };
 		1891CA5F244AC82B00EE1E45 /* AreveaTV.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AreveaTV.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1891CA62244AC82B00EE1E45 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		1891CA69244AC82B00EE1E45 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -416,15 +424,6 @@
 			path = "../../../../../Swift/TestSandBird/TestSandBird/Open Channel Cells";
 			sourceTree = "<group>";
 		};
-		186A2EAB24559E2D007128E6 /* CommentsCell */ = {
-			isa = PBXGroup;
-			children = (
-				186A2EAC24559E68007128E6 /* CommentsCell.swift */,
-				186A2EAD24559E68007128E6 /* CommentsCell.xib */,
-			);
-			path = CommentsCell;
-			sourceTree = "<group>";
-		};
 		1891CA56244AC82B00EE1E45 = {
 			isa = PBXGroup;
 			children = (
@@ -460,6 +459,7 @@
 				18D480AF2451A2BF00640C1A /* Channels */,
 				18EB81C2244ACC2C008EB09A /* DashBoard */,
 				18EB81CF244AD305008EB09A /* Resources */,
+				180A8BDC24AF92340022FFE4 /* Images.xcassets */,
 			);
 			path = AreveaTV;
 			sourceTree = "<group>";
@@ -498,6 +498,7 @@
 				18DA10CF2455F8D400E5C9EB /* DBCollectionViewCell.xib */,
 				182A5EFA2460163100FF6147 /* ButtonsCVC.swift */,
 				182A5EF92460163100FF6147 /* ButtonsCVC.xib */,
+				180A8BDA24AF74500022FFE4 /* ButtonsCVC-iPad.xib */,
 				182A5EF5245F057800FF6147 /* FilterCVCell.swift */,
 				182A5EF6245F057800FF6147 /* FilterCVCell.xib */,
 				18DAF9A2248FDE8300A6693A /* DBSearchCVC.swift */,
@@ -523,7 +524,6 @@
 				18D48059244EA5A600640C1A /* DashBoardCell */,
 				18D480A424509F4E00640C1A /* SideMenuCell */,
 				189EBF362459D23D00C52B0E /* UpcomingCell */,
-				186A2EAB24559E2D007128E6 /* CommentsCell */,
 				189EBF342459D21C00C52B0E /* AudioCell */,
 				189EBF352459D22800C52B0E /* VideoCell */,
 				189EBF4C245B389A00C52B0E /* Filter Cell */,
@@ -548,13 +548,15 @@
 		189EBF6D245C086400C52B0E /* app_icons */ = {
 			isa = PBXGroup;
 			children = (
-				189EBF6E245C086400C52B0E /* Icon-76@2x.png */,
-				189EBF72245C086400C52B0E /* Icon-76.png */,
-				18D2717F24A4A8E500F958BC /* icon-72.png */,
-				18D2718124A4A8E500F958BC /* icon-72@2x.png */,
 				18D2718024A4A8E500F958BC /* icon.png */,
 				18D2717E24A4A8E400F958BC /* icon@2x.png */,
 				189EBF74245C086400C52B0E /* Icon-60@2x.png */,
+				188FA7C324AF462B008871D4 /* Icon-60@3x.png */,
+				18D2717F24A4A8E500F958BC /* icon-72.png */,
+				18D2718124A4A8E500F958BC /* icon-72@2x.png */,
+				189EBF72245C086400C52B0E /* Icon-76.png */,
+				189EBF6E245C086400C52B0E /* Icon-76@2x.png */,
+				188FA7C124AF460F008871D4 /* Icon-83.5@2x.png */,
 			);
 			path = app_icons;
 			sourceTree = "<group>";
@@ -811,6 +813,8 @@
 				182740F52487EFB3001BC6B3 /* img_default_profile_image_1.png */,
 				188B0E7E248E29AD0062EB1D /* delete-icon.png */,
 				18EE49802499F73F002163B5 /* eye-cross.png */,
+				188FA7CD24AF6CF2008871D4 /* full_view.png */,
+				188FA7CE24AF6CF5008871D4 /* small_view.png */,
 				188B0E7F248E29B00062EB1D /* upload-icon.png */,
 				184A0B5924741F8A006EDDA3 /* default-img1.jpg */,
 				188B0EA6248E93440062EB1D /* icon_comment.png */,
@@ -900,7 +904,8 @@
 				18D4809F24509A5600640C1A /* instagram-icon.png in Resources */,
 				18D2717D24A382A400F958BC /* search.png in Resources */,
 				18D480BA2451AA0B00640C1A /* channel2.png in Resources */,
-				186A2EAF24559E68007128E6 /* CommentsCell.xib in Resources */,
+				188FA7D024AF6CF6008871D4 /* small_view.png in Resources */,
+				180A8BDB24AF74500022FFE4 /* ButtonsCVC-iPad.xib in Resources */,
 				187D7B0C246B100F0041D5AA /* mute.png in Resources */,
 				18DAF996248FBA1D00A6693A /* sr_category.png in Resources */,
 				188FA7BC24AB7134008871D4 /* send_transparent.png in Resources */,
@@ -913,6 +918,7 @@
 				18D4809424509A5600640C1A /* logout-icon.png in Resources */,
 				18DAF997248FBA1D00A6693A /* sr_health-wellness.png in Resources */,
 				189EBEE724588A1900C52B0E /* back-icon.png in Resources */,
+				188FA7C424AF462B008871D4 /* Icon-60@3x.png in Resources */,
 				188FA7C024AB8739008871D4 /* send-icon-blue.png in Resources */,
 				18DAF9A5248FDE8300A6693A /* DBSearchCVC.xib in Resources */,
 				182A5EFB2460163100FF6147 /* ButtonsCVC.xib in Resources */,
@@ -951,6 +957,7 @@
 				189EBED7245752B800C52B0E /* AudioCell.xib in Resources */,
 				188FA7B824AB5532008871D4 /* default-vod-square.png in Resources */,
 				18DAF98E248FBA1D00A6693A /* sr_entertainment.png in Resources */,
+				180A8BDD24AF92340022FFE4 /* Images.xcassets in Resources */,
 				189EBEE624588A1900C52B0E /* filter_with_bg.png in Resources */,
 				182A5EF8245F057800FF6147 /* FilterCVCell.xib in Resources */,
 				184A0B562473AF8C006EDDA3 /* donation-icon.png in Resources */,
@@ -959,6 +966,7 @@
 				1843E25724924DCA00749A54 /* emoji4.png in Resources */,
 				182A5F06246166D700FF6147 /* CharityCell.xib in Resources */,
 				184A0B5A24741F8A006EDDA3 /* default-img1.jpg in Resources */,
+				188FA7C224AF4610008871D4 /* Icon-83.5@2x.png in Resources */,
 				18D2718324A4A8E600F958BC /* icon-72.png in Resources */,
 				188B0EA8248E93470062EB1D /* icon_comment.png in Resources */,
 				182A5EF4245C59C700FF6147 /* SectionHeader.xib in Resources */,
@@ -969,6 +977,7 @@
 				18D4809524509A5600640C1A /* linkden-icon.png in Resources */,
 				1843E25C249252C600749A54 /* addemoji.png in Resources */,
 				183AB4A5247E988500E0197C /* default-vod.png in Resources */,
+				188FA7CF24AF6CF6008871D4 /* full_view.png in Resources */,
 				189EBF45245ACD3400C52B0E /* FilterCell.xib in Resources */,
 				1843E25624924DCA00749A54 /* emoji3.png in Resources */,
 				188FA7BA24AB6E74008871D4 /* send-icon.png in Resources */,
@@ -1084,7 +1093,6 @@
 				18EB81C4244ACC40008EB09A /* LoginVC.swift in Sources */,
 				187C58032480EA35008C5E89 /* OpenChannelMessageTableViewCellDelegate.swift in Sources */,
 				18EB81BD244ACAB9008EB09A /* SplashVC.swift in Sources */,
-				186A2EAE24559E68007128E6 /* CommentsCell.swift in Sources */,
 				18D480A724509F7700640C1A /* SideMenuCell.swift in Sources */,
 				18D48069244EDF9800640C1A /* Testbed.swift in Sources */,
 				184A0B4F2472CA9E006EDDA3 /* PaymentHistoryVC.swift in Sources */,
@@ -1237,9 +1245,10 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = A548ED8DA0ABEB1FF1BF009E /* Pods-AreveaTV.debug.xcconfig */;
 			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 1.0;
+				CURRENT_PROJECT_VERSION = 1.16;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = M6U48XKJMW;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -1266,9 +1275,10 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 783C47A52DE81D11826FBA5C /* Pods-AreveaTV.release.xcconfig */;
 			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 1.0;
+				CURRENT_PROJECT_VERSION = 1.16;
 				DEVELOPMENT_TEAM = M6U48XKJMW;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",

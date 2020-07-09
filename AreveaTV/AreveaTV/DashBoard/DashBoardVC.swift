@@ -61,6 +61,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
     var isSubCategory = false;
     var isGenre = false;
     var strSelectedCategory = "";
+    var selectedCtgry = ""
     var isProfileLoaded = false;
     @IBOutlet weak var collectionViewFilter: UICollectionView!
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
@@ -114,6 +115,10 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
         }
         topConstaintTblMain?.constant = 1;
         tblMain.layoutIfNeeded()
+        
+        UIDevice.current.setValue(self.preferredInterfaceOrientationForPresentation.rawValue, forKey: "orientation")
+
+
         
     }
     
@@ -783,6 +788,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
         tblMain.layoutIfNeeded()
         aryUpcomingData = []
         getCategoryOrganisations(inputData: ["category":""]);
+        selectedCtgry = ""
         getEvents(inputData: [:]);
 
     }
@@ -877,12 +883,21 @@ extension DashBoardVC: UICollectionViewDataSource , UICollectionViewDelegateFlow
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: self.chipIdentifier, for: indexPath) as! MDCChipCollectionViewCell
+        
+        let darkGreen = UIColor(red: 1, green: 29, blue: 39);
+        cell.chipView.setBackgroundColor(darkGreen, for: .normal)
+        
         var selectedItem = [String : Any]()
         switch indexPath.section {
         case 0:
             selectedItem = self.aryFilterCategoriesData[indexPath.row] as?  [String : Any] ?? [:];
-            cell.chipView.titleLabel.text = selectedItem["category"] as? String
-            
+            let cate = selectedItem["category"] as? String
+            cell.chipView.titleLabel.text = cate
+            //for selected category diff color
+            if(self.selectedCtgry == cate){
+                let lightGreen = UIColor(red: 44, green: 100, blue: 74);
+                cell.chipView.setBackgroundColor(lightGreen, for: .normal)
+            }
         case 1:
             selectedItem = self.aryFilterSubCategoriesData[indexPath.row] as?  [String : Any] ?? [:];
             cell.chipView.titleLabel.text = selectedItem["subCategory"] as? String
@@ -897,9 +912,8 @@ extension DashBoardVC: UICollectionViewDataSource , UICollectionViewDelegateFlow
         
         //        cell.chipView.titleLabel.font = UIFont.boldSystemFont(ofSize: 15)
         //        cell.chipView.titleLabel.textColor = .white
-        let darkGreen = UIColor(red: 1, green: 29, blue: 39);
-        cell.chipView.setBackgroundColor(darkGreen, for: .normal)
-        let lightGreen = UIColor(red: 44, green: 66, blue: 74);
+       
+        let lightGreen = UIColor(red: 44, green: 100, blue: 74);
         cell.chipView.setBackgroundColor(lightGreen, for: .selected)
         cell.chipView.setBorderColor(.white, for: .normal)
         cell.chipView.setBorderWidth(0.5, for: .normal)
@@ -919,6 +933,7 @@ extension DashBoardVC: UICollectionViewDataSource , UICollectionViewDelegateFlow
             let strValue = selectedItem?["category"] as? String;
             //print("strValue cat:",strValue ?? "")
             self.strSelectedCategory = strValue ?? ""
+            self.selectedCtgry = strValue ?? ""
             self.aryFilterSubCategoriesData = selectedItem?["subcategory"] as? [Any] ?? [Any]();
             self.aryFilterGenresData = selectedItem?["genre"] as? [Any] ?? [Any]();
             sectionFilters = ["Categories"]
@@ -943,8 +958,9 @@ extension DashBoardVC: UICollectionViewDataSource , UICollectionViewDelegateFlow
                 }
             }
             print("sectionFilters:",sectionFilters)
-            //let indexSet = IndexSet(integersIn: 1...2)//reload 1,2 sections
-            collectionViewFilter.reloadData()
+//            let indexSet = IndexSet(integersIn: 1...2)//reload 1,2 sections
+//            self.collectionViewFilter.reloadSections(indexSet)
+           collectionViewFilter.reloadData()
         }else if (indexPath.section == 1){
             let selectedItem = aryFilterSubCategoriesData[indexPath.row] as? [String : Any];
             let strValue = selectedItem?["subCategory"] as? String;
@@ -973,5 +989,6 @@ extension DashBoardVC: UICollectionViewDataSource , UICollectionViewDelegateFlow
         let vc = storyboard.instantiateViewController(withIdentifier: "HelpVC") as! HelpVC
         self.navigationController?.pushViewController(vc, animated: true)
     }
+  
     
 }

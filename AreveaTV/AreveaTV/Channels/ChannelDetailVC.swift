@@ -94,6 +94,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
     @IBOutlet weak var lblTitle: UILabel!
     
     
+    
     // MARK: - Live Chat Inputs
     var channel: SBDOpenChannel?
     var channel_emoji: SBDOpenChannel?
@@ -162,6 +163,13 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
     var aryCountries = [["region_code":"blr1","countries":["india","sri lanka","bangaldesh","pakistan","china"]],["region_code":"tor1","countries":["canada"]],["region_code":"fra1","countries":["germany"]],["region_code":"lon1","countries":["england"]],["region_code":"sgp1","countries":["singapore"]],["region_code":"sfo1","countries":["United States"]],["region_code":"sfo2","countries":["United States"]],["region_code":"ams2","countries":["netherlands"]],["region_code":"ams3","countries":["netherlands"]],["region_code":"nyc1","countries":["United States"]],["region_code":"nyc2","countries":["United States"]],["region_code":"nyc3","countries":["United States"]]]
     var strCountry = "India"//United States
     var strRegionCode = "blr1"//sfo1
+    var isIpadLandScape = false
+    
+    var btnRotationStreamTap = false
+    @IBOutlet var btnRotationStream:UIButton!
+    
+    var btnRotationVODTap = false
+    @IBOutlet var btnRotationVOD:UIButton!
     
     // MARK: - View Life cycle
     override func viewDidLoad() {
@@ -231,6 +239,11 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
         SBDMain.add(self, identifier: self.description)
         self.webView.backgroundColor = .clear
         self.webView.isOpaque = false
+        //btnRotationStream.isHidden = true
+        
+        if(UIDevice.current.userInterfaceIdiom == .pad && UIDevice.current.orientation.isLandscape){
+            isIpadLandScape = true
+        }
     }
     @objc func txtEmojiTap(textField: UITextField) {
         if ((imgEmoji1.image?.isEqual(UIImage.init(named: "addemoji.png")))!)
@@ -432,8 +445,14 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
         liveEvents()
     }
     func registerNibs() {
-        let nib = UINib(nibName: "ButtonsCVC", bundle: nil)
-        buttonCVC?.register(nib, forCellWithReuseIdentifier:"ButtonsCVC")
+        if(UIDevice.current.userInterfaceIdiom == .pad){
+            let nib = UINib(nibName: "ButtonsCVC-iPad", bundle: nil)
+            buttonCVC?.register(nib, forCellWithReuseIdentifier:"ButtonsCVC")
+        }else{
+            let nib = UINib(nibName: "ButtonsCVC", bundle: nil)
+            buttonCVC?.register(nib, forCellWithReuseIdentifier:"ButtonsCVC")
+        }
+        
         if let flowLayout = self.buttonCVC?.collectionViewLayout as? UICollectionViewFlowLayout {
             flowLayout.estimatedItemSize = CGSize(width: 1, height: 1)
         }
@@ -480,6 +499,8 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
         self.viewLiveStream.layoutIfNeeded()
         self.viewVOD.layoutIfNeeded()
         
+        tblComments.rowHeight = 150
+        tblComments.estimatedRowHeight = UITableView.automaticDimension
     }
     func delay(_ delay:Double, closure:@escaping ()->()) {
         DispatchQueue.main.asyncAfter(
@@ -530,8 +551,9 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
             videoPlayer = AVPlayer(url: url)
             let controller = AVPlayerViewController()
             controller.player = videoPlayer
-            //controller.allowsPictureInPicturePlayback = true
+            controller.allowsPictureInPicturePlayback = true
             controller.view.frame = self.viewVOD.bounds
+            controller.videoGravity = AVLayerVideoGravity.resize
             self.viewVOD.addSubview(controller.view)
             self.addChild(controller)
             btnPlayStream.isHidden = true;
@@ -584,6 +606,12 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
             backPressed = true
             closeStream()
             stopVideo()
+            if(!isIpadLandScape){
+                if (btnRotationStreamTap){
+                    let value = UIInterfaceOrientation.portrait.rawValue
+                    UIDevice.current.setValue(value, forKey: "orientation")
+                }
+            }
             self.navigationController?.popViewController(animated: true)
         }
     }
@@ -609,7 +637,6 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
             let name = buttonNames[indexPath.row]
             cell.configureCell(name: name)
             cell.btn.addTarget(self, action: #selector(btnPress(_:)), for: .touchUpInside)
-            cell.btn.tag = 10 + (indexPath.row);
             cell.lblLine.tag = 10 + (indexPath.row);
             //cell.btn.setTitleColor(.white, for: .normal)
             return cell
@@ -634,12 +661,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
         txtEmoji.resignFirstResponder()
         hideViews();
         let title = sender.titleLabel?.text!
-        print("tag:",sender.tag)
-        buttonCVC.reloadData()
-        let tmpLbl = self.buttonCVC.viewWithTag(sender.tag) as? UILabel
-        tmpLbl?.backgroundColor = .red;
-
-        /*for (index,_) in buttonNames.enumerated() {
+        for (index,_) in buttonNames.enumerated() {
             let name = buttonNames[index]
             let btnTag = 10 + index;
             let tmpLbl = self.buttonCVC.viewWithTag(btnTag) as? UILabel
@@ -649,8 +671,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
             }else{
                 tmpLbl?.backgroundColor = .white;
             }
-        }*/
-        
+        }
         switch title {
         case "Comments":
             viewComments.isHidden = false;
@@ -812,8 +833,8 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
                 tblComments.isHidden = false
                 lblNoDataComments.text = ""
             }else{
-                tblComments.isHidden = true
-                lblNoDataComments.text = "Channel is unavailable"
+                tblComments.isHidden = false
+                //lblNoDataComments.text = "Channel is unavailable"
                 
             }
             return self.messages.count;
@@ -833,7 +854,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
             return 130;
         }
         else if  (tableView == tblComments){
-            return 60;
+            return UITableView.automaticDimension
         }
         return 44;
         
@@ -1205,7 +1226,6 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
     }
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        print("---enter pressed")
         if (textField == txtComment){
             sendChatMessage()
         }
@@ -1215,7 +1235,6 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
     func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
         let textFieldText: NSString = (textField.text ?? "") as NSString
         let txtAfterUpdate = textFieldText.replacingCharacters(in: range, with: string)
-        print(txtAfterUpdate)
         txtTopOfToolBar.text = txtAfterUpdate
         return true
     }
@@ -1448,10 +1467,12 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
                                 self.lblVideoTitle.text = ""
                                 self.lblVideoTitle_Info.text = ""
                                 //self.lblVODUnavailable.text = "Stream Info not found"
-                                self.lblStreamUnavailable.text = "Please wait for the host to start the live stream"
-                                self.btnPlayStream.isHidden = false
-                                self.btnPlayStream.setImage(UIImage.init(named: "refresh-icon.png"), for: .normal)
-                                self.btnPlayStream.isUserInteractionEnabled = false
+                                if (!self.isVOD){
+                                    self.lblStreamUnavailable.text = "Please wait for the host to start the live stream"
+                                    self.btnPlayStream.isHidden = false
+                                    self.btnPlayStream.setImage(UIImage.init(named: "refresh-icon.png"), for: .normal)
+                                    self.btnPlayStream.isUserInteractionEnabled = false
+                                }
                                 //ALToastView.toast(in: self.viewVOD, withText:"Stream Info not found")
                             }
                             let user_subscription_info = data?["user_subscription_info"] != nil
@@ -1565,11 +1586,11 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
                                     }
                                 }
                                 print("htmlString:",htmlString)
-                                self.webView.loadHTMLString(htmlString, baseURL: nil)
-                                self.webView.delegate = self
-                                self.webView.isHidden = false
-                                
-                                self.viewLiveStream.bringSubviewToFront(self.webView)
+                                /*self.webView.loadHTMLString(htmlString, baseURL: nil)
+                                 self.webView.delegate = self
+                                 self.webView.isHidden = false
+                                 
+                                 self.viewLiveStream.bringSubviewToFront(self.webView)*/
                                 
                                 //print("self.app_id_for_adds:",self.app_id_for_adds)
                                 let strURL = self.dicPerformerInfo["performer_profile_pic"]as? String ?? ""
@@ -1925,7 +1946,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
             self.viewLiveStream.addSubview(r5ViewController!.view)
             self.addChild(r5ViewController!)
             self.viewLiveStream.bringSubviewToFront(webView)
-            
+            self.viewLiveStream.bringSubviewToFront(btnRotationStream)
         }
     }
     @objc func showInfo(){
@@ -2181,7 +2202,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
                 showAlert(strMsg: "Channel is not available, Please try again later.")
                 //              showAlert(strMsg: "\(self.sbdError)")
             }
-            return
+           // return
         }
         
         print("channelName:",channelName)
@@ -2262,14 +2283,19 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
                 showAlert(strMsg: "Channel is not available, Please try again later.")
                 //showAlert(strMsg: "\(self.sbdError_emoji)")
             }
+            txtEmoji.resignFirstResponder()
+            imgEmoji1.image = UIImage.init(named: "addemoji.png")
             return
         }
         
         //print("channelName:",channelName_Emoji)
         guard let channel_emoji = self.channel_emoji else {
             showAlert(strMsg: "Channel is not available, Please try again later.")
+            txtEmoji.resignFirstResponder()
+            imgEmoji1.image = UIImage.init(named: "addemoji.png")
             return
         }
+        animateEmoji()
         //print("channel_emoji name:",self.channel_emoji?.name ?? "");
         //self.sendUserMessageButton.isEnabled = false
         var preSendMessage: SBDUserMessage?
@@ -2359,10 +2385,9 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
     //  Converted to Swift 5.2 by Swiftify v5.2.28138 - https://swiftify.com/
     
     func emojiKeyBoardView(_ emojiKeyBoardView: AGEmojiKeyboardView?, didUseEmoji emoji: String?) {
-        self.imgEmoji.isHidden = false;
         imgEmoji.image = emoji?.image()
         sendEmoji(strEmoji: emoji ?? "")
-        animateEmoji()
+        
         //txtEmoji?.text = "\(emoji ?? "")"
     }
     
@@ -2422,15 +2447,15 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
     
     // MARK: - Webview Delegates
     func webViewDidStartLoad(_ webView: UIWebView) {
-        viewActivity.isHidden = false
+        //viewActivity.isHidden = false
     }
     func webView(_ webView: UIWebView, didFailLoadWithError error: Error)
     {
-        viewActivity.isHidden = true
+        //viewActivity.isHidden = true
         self.showAlert(strMsg:error.localizedDescription)
     }
     func webViewDidFinishLoad(_ webView: UIWebView) {
-        viewActivity.isHidden = true
+        //viewActivity.isHidden = true
     }
     deinit {
         print("Remove NotificationCenter Deinit")
@@ -2581,6 +2606,99 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
             }
         }
     }
+    @IBAction func landscapeStream() {
+        print("lanscape:",btnRotationStreamTap)
+        btnRotationStreamTap = !btnRotationStreamTap
+        
+        if(isIpadLandScape){
+            print("iPad already landscape")
+            if (btnRotationStreamTap){
+                btnRotationStream.setImage(UIImage.init(named: "small_view.png"), for: .normal)
+                liveStreamHeight.constant = self.view.frame.size.height - 100//header height
+                print("height of view1:",self.view.frame.size.height)
+                self.viewLiveStream.layoutIfNeeded()
+            }else{
+                btnRotationStream.setImage(UIImage.init(named: "full_view.png"), for: .normal)
+                let viewHeight = self.view.frame.size.height*0.35
+                print("height of view:",self.view.frame.size.height)
+                liveStreamHeight.constant = viewHeight
+                self.viewLiveStream.layoutIfNeeded()
+            }
+        }else{
+            if (btnRotationStreamTap){
+                let value = UIInterfaceOrientation.landscapeRight.rawValue
+                UIDevice.current.setValue(value, forKey: "orientation")
+                btnRotationStream.setImage(UIImage.init(named: "small_view.png"), for: .normal)
+                if(UIDevice.current.userInterfaceIdiom == .pad){
+                    liveStreamHeight.constant = self.view.frame.size.height - 100//header height
+                }else{
+                    liveStreamHeight.constant = self.view.frame.size.height - 44//header height
+                }
+                print("height of view1:",self.view.frame.size.height)
+                self.viewLiveStream.layoutIfNeeded()
+                let orientation = ["orientation": "landscape"]
+
+                NotificationCenter.default.post(name: .StreamOrienationChange, object: self, userInfo: orientation)
+
+            }else{
+                let value = UIInterfaceOrientation.portrait.rawValue
+                UIDevice.current.setValue(value, forKey: "orientation")
+                btnRotationStream.setImage(UIImage.init(named: "full_view.png"), for: .normal)
+                let viewHeight = self.view.frame.size.height*0.35
+                print("height of view:",self.view.frame.size.height)
+                liveStreamHeight.constant = viewHeight
+                self.viewLiveStream.layoutIfNeeded()
+                let orientation = ["orientation": "portrait"]
+
+                NotificationCenter.default.post(name: .StreamOrienationChange, object: self, userInfo: orientation)
+
+            }
+        }
+        
+        
+    }
+    @IBAction func landscapeVideo() {
+        print("lanscape:",btnRotationStreamTap)
+        btnRotationStreamTap = !btnRotationStreamTap
+        
+        if(isIpadLandScape){
+            print("iPad already landscape")
+            if (btnRotationStreamTap){
+                btnRotationStream.setImage(UIImage.init(named: "small_view.png"), for: .normal)
+                liveStreamHeight.constant = self.view.frame.size.height - 100//header height
+                print("height of view1:",self.view.frame.size.height)
+                self.viewLiveStream.layoutIfNeeded()
+            }else{
+                btnRotationStream.setImage(UIImage.init(named: "full_view.png"), for: .normal)
+                let viewHeight = self.view.frame.size.height*0.35
+                print("height of view:",self.view.frame.size.height)
+                liveStreamHeight.constant = viewHeight
+                self.viewLiveStream.layoutIfNeeded()
+            }
+        }else{
+            if (btnRotationStreamTap){
+                let value = UIInterfaceOrientation.landscapeRight.rawValue
+                UIDevice.current.setValue(value, forKey: "orientation")
+                btnRotationStream.setImage(UIImage.init(named: "small_view.png"), for: .normal)
+                if(UIDevice.current.userInterfaceIdiom == .pad){
+                    liveStreamHeight.constant = self.view.frame.size.height - 100//header height
+                }else{
+                    liveStreamHeight.constant = self.view.frame.size.height - 44//header height
+                }
+                print("height of view1:",self.view.frame.size.height)
+                self.viewLiveStream.layoutIfNeeded()
+            }else{
+                let value = UIInterfaceOrientation.portrait.rawValue
+                UIDevice.current.setValue(value, forKey: "orientation")
+                btnRotationStream.setImage(UIImage.init(named: "full_view.png"), for: .normal)
+                let viewHeight = self.view.frame.size.height*0.35
+                print("height of view:",self.view.frame.size.height)
+                liveStreamHeight.constant = viewHeight
+                self.viewLiveStream.layoutIfNeeded()
+            }
+        }
+        
+    }
 }
 
 extension String {
@@ -2617,4 +2735,6 @@ extension Array where Element : Equatable  {
 }
 extension Notification.Name {
     static let didReceiveStreamData = Notification.Name("didReceiveStreamData")
+    static let StreamOrienationChange = Notification.Name("StreamOrienationChange")
+
 }

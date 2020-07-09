@@ -12,23 +12,25 @@ import Alamofire
 
 @objc(SubscribeTest)
 class SubscribeTest: BaseTest {
-    var slider: UISlider?
+    var slider = UISlider()
     let appDelegate = UIApplication.shared.delegate as! AppDelegate
-
+    
     var current_rotation = 0;
     var audioBtn: UIButton? = nil
     var videoBtn: UIButton? = nil
+    var lblLive = UILabel()
+
     var finished = false
     var publisherIsInBackground = false
     var publisherIsDisconnected = false
     var serverAddress = ""
-    
+    var viewControls = UIView()
     
     
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
-
+        
     }
     func showAlert(strMsg: String){
         let alert = UIAlertController(title: "Alert", message: strMsg, preferredStyle: .alert)
@@ -48,8 +50,8 @@ class SubscribeTest: BaseTest {
         let version = Testbed.getParameter(param:"sm_version") as! String;
         let stream1 = Testbed.getParameter(param:"stream1") as! String;
         let accessToken = "YEOkGmERp08V"
-
-       // https://livestream.arevea.tv/streammanager/api/4.0/admin/event/meta/live/<stream_video_code>/?accessToken=YEOkGmERp08V
+        
+        // https://livestream.arevea.tv/streammanager/api/4.0/admin/event/meta/live/<stream_video_code>/?accessToken=YEOkGmERp08V
         let url = "https://" + host  + "/streammanager/api/" + version + "/admin/event/meta/live/" + stream1 + "?accessToken=" + accessToken
         //print("url",url)
         //let stream = "1588832196500_taylorswiftevent"
@@ -64,9 +66,9 @@ class SubscribeTest: BaseTest {
                             if json["errorMessage"] != nil{
                                 // ALToastView.toast(in: self.view, withText:errorMsg as? String ?? "")
                                 //let error = "Unable to locate stream. Broadcast has probably not started for this stream: " + stream1
-                                   // ALToastView.toast(in: self.view, withText: error)
-                                    let streamInfo = ["Stream": "not_available"]
-                                                              NotificationCenter.default.post(name: .didReceiveStreamData, object: self, userInfo: streamInfo)
+                                // ALToastView.toast(in: self.view, withText: error)
+                                let streamInfo = ["Stream": "not_available"]
+                                NotificationCenter.default.post(name: .didReceiveStreamData, object: self, userInfo: streamInfo)
                             }else{
                                 let data = json["data"] as? [String:Any]
                                 let meta = data?["meta"] as? [String:Any]
@@ -85,7 +87,7 @@ class SubscribeTest: BaseTest {
                         }
                     }
                     
-                
+                    
                 case .failure(let error):
                     print("error occured in metaLive:",error)
                     let streamInfo = ["Stream": "not_available"]
@@ -124,16 +126,16 @@ class SubscribeTest: BaseTest {
                             // ALToastView.toast(in: self.view, withText:errorMsg as? String ?? "")
                             //let error = "Unable to locate stream. Broadcast has probably not started for this stream: " + stream1
                             DispatchQueue.main.async {
-                               // ALToastView.toast(in: self.view, withText: error)
+                                // ALToastView.toast(in: self.view, withText: error)
                                 let streamInfo = ["Stream": "not_available"]
-                                                          NotificationCenter.default.post(name: .didReceiveStreamData, object: self, userInfo: streamInfo)
+                                NotificationCenter.default.post(name: .didReceiveStreamData, object: self, userInfo: streamInfo)
                             }
                         }else{
                             self.serverAddress = json["serverAddress"] as? String ?? ""
                             self.config(url: self.serverAddress,stream:streamName)
                         }
                     }
-                
+                    
                 case .failure(let error):
                     print(error)
                 }
@@ -142,7 +144,7 @@ class SubscribeTest: BaseTest {
     func config(url:String,stream:String){
         let streamInfo = ["Stream": "started"]
         NotificationCenter.default.post(name: .didReceiveStreamData, object: self, userInfo: streamInfo)
-
+        
         let config = getConfig(url: url)
         // Set up the connection and stream
         let connection = R5Connection(config: config)
@@ -158,7 +160,6 @@ class SubscribeTest: BaseTest {
         addControls()
         
         self.subscribeStream!.play(stream, withHardwareAcceleration:false)
-        //addControls()
         
     }
     override func viewDidAppear(_ animated: Bool) {
@@ -167,74 +168,168 @@ class SubscribeTest: BaseTest {
         metaLive()
         setupDefaultR5VideoViewController()
         
-        
+        //need to comment the below line after testing
+        //addControls()
         
         //self.subscribeStream!.audioController.setPlaybackGain(0);
         //setPlaybackGain(0) means mute
         //setPlaybackGain(1.0f); means unmute
+        NotificationCenter.default.addObserver(self, selector: #selector(orientationHandler(_:)), name: .StreamOrienationChange, object: nil)
         
         
     }
+    @objc func orientationHandler(_ notification:Notification) {
+        // Do something now
+        //print("====StreamNotificationHandler")
+        if let data = notification.userInfo as? [String: String]
+        {
+            for (_,value) in data
+            {
+                //key orientation
+                //value portrait/landscape
+                //print("key: \(key)")
+                //print("value: \(value)")
+                if (value == "portrait"){
+                   // print("==portrait")
+                }else{
+                  //  print("==landscape")
+                }
+                var frameControls = viewControls.frame
+                let viewHeight = self.view.frame.size.height - 40
+                frameControls.origin.y = viewHeight
+                viewControls.frame = frameControls
+                
+                var frameSlider = slider.frame
+                let sliderWidth = self.view.frame.size.width/2
+                frameSlider.size.width = sliderWidth
+                slider.frame = frameSlider
+                
+                var frameLive = lblLive.frame
+                let liveX = self.view.frame.size.width - 100
+                frameLive.origin.x = liveX
+                lblLive.frame = frameLive
+                
+                
+                
+                
+            }
+        }
+    }
     func addControls(){
-        let screenSize = currentView?.view.bounds.size
         
-        audioBtn = UIButton(frame: CGRect(x: 20, y: (screenSize?.height ?? 0.0) - 40, width: 30, height: 30))
+        let screenSize = currentView?.view.bounds.size
+        var btnHeight = 30
+        
+        lblLive = UILabel(frame: CGRect(x: Int((screenSize?.width ?? 0.0)) - 100, y: 10, width: 80, height: btnHeight))
+        lblLive.font = UIFont.boldSystemFont(ofSize: 15)
+        if(UIDevice.current.userInterfaceIdiom == .pad){
+            lblLive.font = UIFont.boldSystemFont(ofSize: 25)
+            btnHeight = 40
+        }
+        lblLive.text = "LIVE"
+        lblLive.textAlignment = .center
+        lblLive.backgroundColor = .red
+        lblLive.textColor = .white
+        self.view.addSubview(lblLive)
+        
+        var btnWidth = 20
+        var btnY = 10
+        if(UIDevice.current.userInterfaceIdiom == .pad){
+            btnWidth = 30
+            btnY = 5
+        }
+        viewControls = UIView(frame: CGRect(x: 0, y: (screenSize?.height ?? 0.0) - 40, width: screenSize?.width ?? 0.0, height: 40))
+        
+        //viewControls.backgroundColor = .red
+        self.view.addSubview(viewControls)
+        
+        
+        
+        videoBtn = UIButton(frame: CGRect(x: 20, y: btnY, width: btnWidth, height: btnWidth))
+        videoBtn?.backgroundColor = UIColor.clear
+        videoBtn?.setTitle("", for: UIControl.State.normal)
+        videoBtn?.setImage(UIImage.init(named: "pause.png"), for: .normal);
+        videoBtn?.layer.cornerRadius = 15;
+        viewControls.addSubview(videoBtn!)
+        let tap1 = UITapGestureRecognizer(target: self, action: #selector(pauseVideo))
+        videoBtn?.addGestureRecognizer(tap1)
+        
+        audioBtn = UIButton(frame: CGRect(x: 60, y: btnY, width: btnWidth, height: btnWidth))
         audioBtn?.backgroundColor = UIColor.clear
         audioBtn?.setTitle("", for: UIControl.State.normal)
         audioBtn?.setImage(UIImage.init(named: "unmute.png"), for: .normal);
         audioBtn?.layer.cornerRadius = 15;
-        view.addSubview(audioBtn!)
-        let tap = UITapGestureRecognizer(target: self, action: #selector(pauseAudio))
-        audioBtn?.addGestureRecognizer(tap)
+        viewControls.addSubview(audioBtn!)
+        let tap2 = UITapGestureRecognizer(target: self, action: #selector(pauseAudio))
+        audioBtn?.addGestureRecognizer(tap2)
+        let width = (screenSize?.width ?? 0.0) / 2
+        slider = UISlider(frame: CGRect(x:100, y:btnY, width:Int(width), height:btnWidth))
+        slider.minimumValue = 0
+        slider.maximumValue = 100
+        slider.isContinuous = true
+        slider.tintColor = UIColor.white
+        slider.value = 50
+        slider.addTarget(self, action: #selector(sliderValueDidChange(sender:)), for: .valueChanged)
+        viewControls.addSubview(slider)
         
-        //        videoBtn = UIButton(frame: CGRect(x: (screenSize.width * 0.6) - 120, y: screenSize.height - 40, width: 50, height: 40))
-        //        videoBtn?.backgroundColor = UIColor.darkGray
-        //        videoBtn?.setTitle("video", for: UIControl.State.normal)
-        //        view.addSubview(videoBtn!)
-        //        let tap2 = UITapGestureRecognizer(target: self, action: #selector(pauseVideo))
-        //        videoBtn?.addGestureRecognizer(tap2)
-        slider = UISlider(frame: CGRect(x:70, y:(screenSize?.height ?? 0.0) - 40, width:(screenSize?.width ?? 0.0) - 90, height:20))
-        slider?.minimumValue = 0
-        slider?.maximumValue = 100
-        slider?.isContinuous = true
-        slider?.tintColor = UIColor.white
-        slider?.value = 50
-        slider?.addTarget(self, action: #selector(sliderValueDidChange(sender:)), for: .valueChanged)
-        self.view.addSubview(slider!)
     }
     @objc func sliderValueDidChange(sender:UISlider!) {
-        self.subscribeStream?.audioController.volume = slider!.value / 100
+        if((self.subscribeStream?.audioController) != nil){
+            self.subscribeStream?.audioController.volume = slider.value / 100
+        }
     }
     @objc func pauseAudio() {
         //let hasAudio = !(self.subscribeStream?.pauseAudio)!;
-       // self.subscribeStream?.pauseAudio = hasAudio;
+        // self.subscribeStream?.pauseAudio = hasAudio;
         let imgBtn = audioBtn?.image(for: .normal)
         if ((imgBtn?.isEqual(UIImage.init(named: "unmute.png")))!)
         {
             audioBtn?.setImage(UIImage.init(named: "mute.png"), for: .normal);
             //ALToastView.toast(in: self.view, withText:"Pausing Audio")
+            if((self.subscribeStream?.audioController) != nil){
             self.subscribeStream?.audioController.volume = 0
+            }
         }
         else{
             audioBtn?.setImage(UIImage.init(named: "unmute.png"), for: .normal);
             //ALToastView.toast(in: self.view, withText:"Playing Audio")
-            self.subscribeStream?.audioController.volume = slider!.value / 100
+            if((self.subscribeStream?.audioController) != nil){
+            self.subscribeStream?.audioController.volume = slider.value / 100
+            }
         }
     }
     @objc func pauseVideo() {
-        let hasVideo = !(self.subscribeStream?.pauseVideo)!;
-        self.subscribeStream?.pauseVideo = hasVideo;
-        ALToastView.toast(in: self.view, withText:"Pausing Video")
+        
+        let imgBtn = videoBtn?.image(for: .normal)
+        if ((imgBtn?.isEqual(UIImage.init(named: "pause.png")))!)
+        {
+            videoBtn?.setImage(UIImage.init(named: "play.png"), for: .normal);
+            if((self.subscribeStream?.audioController) != nil){
+                self.subscribeStream?.audioController.volume = 0
+            }
+            let hasVideo = !(self.subscribeStream?.pauseVideo)!;
+            if (hasVideo) {
+                self.subscribeStream?.pauseVideo = true
+            }
+        }
+        else{
+            videoBtn?.setImage(UIImage.init(named: "pause.png"), for: .normal);
+            if((self.subscribeStream?.audioController) != nil){
+                self.subscribeStream?.audioController.volume = slider.value / 100
+            }
+            let hasVideo = !(self.subscribeStream?.pauseVideo)!;
+            if (hasVideo) {
+                self.subscribeStream?.pauseVideo = false
+            }
+        }
     }
     
     @objc func handleSingleTap(_ recognizer : UITapGestureRecognizer) {
         let hasAudio = !(self.subscribeStream?.pauseAudio)!;
         let hasVideo = !(self.subscribeStream?.pauseVideo)!;
-        
         if (hasAudio && hasVideo) {
             self.subscribeStream?.pauseAudio = true
             self.subscribeStream?.pauseVideo = false
-            
             ALToastView.toast(in: self.view, withText:"Pausing Audio")
         }
         else if (hasVideo && !hasAudio) {
@@ -252,7 +347,6 @@ class SubscribeTest: BaseTest {
             self.subscribeStream?.pauseAudio = false
             ALToastView.toast(in: self.view, withText:"Resuming Audio/Video")
         }
-        
     }
     func updateOrientation(value: Int) {
         if current_rotation == value {
@@ -310,9 +404,9 @@ class SubscribeTest: BaseTest {
                     ALToastView.toast(in: self.view, withText:"publisher has unpublished. possibly from background/interrupt")
                     
                     let streamInfo = ["Stream": "stopped"]
-                           NotificationCenter.default.post(name: .didReceiveStreamData, object: self, userInfo: streamInfo)
+                    NotificationCenter.default.post(name: .didReceiveStreamData, object: self, userInfo: streamInfo)
                 }
-               // self.reconnect()
+                // self.reconnect()
             }
             // }
             

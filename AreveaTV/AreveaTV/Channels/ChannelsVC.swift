@@ -425,7 +425,7 @@ extension ChannelsVC: UICollectionViewDataSource , UICollectionViewDelegateFlowL
         //        cell.chipView.titleLabel.textColor = .white
         let darkGreen = UIColor(red: 1, green: 29, blue: 39);
         cell.chipView.setBackgroundColor(darkGreen, for: .normal)
-        let lightGreen = UIColor(red: 44, green: 66, blue: 74);
+        let lightGreen = UIColor(red: 44, green: 100, blue: 74);
         cell.chipView.setBackgroundColor(lightGreen, for: .selected)
         cell.chipView.setBorderColor(.white, for: .normal)
         cell.chipView.setBorderWidth(0.5, for: .normal)
