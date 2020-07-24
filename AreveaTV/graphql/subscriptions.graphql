@@ -1,0 +1,22 @@
+# this is an auto generated file. This will be overwritten
+subscription OnCreateMulticreatorshareddata($data: String, $id: String) {
+  onCreateMULTICREATORSHAREDDATA(data: $data, id: $id) {
+    data
+    id
+    version
+  }
+}
+subscription OnDeleteMulticreatorshareddata($data: String, $id: String) {
+  onDeleteMULTICREATORSHAREDDATA(data: $data, id: $id) {
+    data
+    id
+    version
+  }
+}
+subscription OnUpdateMulticreatorshareddata($data: String, $id: String) {
+  onUpdateMULTICREATORSHAREDDATA(data: $data, id: $id) {
+    data
+    id
+    version
+  }
+}

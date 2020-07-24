@@ -80,7 +80,14 @@ class PaymentHistoryVC: UIViewController, UITableViewDelegate,UITableViewDataSou
             
         }
         let dateCreated = charity?["created_on"] as? String ?? ""
-        cell.lblAmount.text = "$" + String(charity?["amount"] as? Double ?? 0.0)
+        var amount = "0.0"
+
+        if (charity?["amount"] as? Double) != nil {
+            amount = String(charity?["amount"] as? Double ?? 0.0)
+        }else if (charity?["amount"] as? String) != nil {
+            amount = String(charity?["amount"] as? String ?? "0.0")
+        }
+        cell.lblAmount.text = amount
         
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
@@ -153,7 +160,7 @@ class PaymentHistoryVC: UIViewController, UITableViewDelegate,UITableViewDataSou
                 let resultObj = try JSONSerialization.jsonObject(with: data, options : .allowFragments)
                 DispatchQueue.main.async {
                     if let json = resultObj as? [String: Any] {
-                        //print("json:",json)
+                        print("json:",json)
                         self.viewActivity.isHidden = true
                         if (json["statusCode"]as? String == "200"){
                             ////print(json["message"] ?? "")

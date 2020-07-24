@@ -208,10 +208,6 @@ class SubscribeTest: BaseTest {
                 let liveX = self.view.frame.size.width - 100
                 frameLive.origin.x = liveX
                 lblLive.frame = frameLive
-                
-                
-                
-                
             }
         }
     }

@@ -306,11 +306,9 @@ class ChannelsVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Col
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) ->  CGFloat {
-        if(UIDevice.current.userInterfaceIdiom == .pad){
-                       return 250;
-                   }else{
-                       return 180;
-                   }
+        let screenRect = UIScreen.main.bounds
+        let screenHeight = screenRect.size.height //for trending channels
+        return screenHeight
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -423,10 +421,10 @@ extension ChannelsVC: UICollectionViewDataSource , UICollectionViewDelegateFlowL
         
         //        cell.chipView.titleLabel.font = UIFont.boldSystemFont(ofSize: 15)
         //        cell.chipView.titleLabel.textColor = .white
-        let darkGreen = UIColor(red: 1, green: 29, blue: 39);
-        cell.chipView.setBackgroundColor(darkGreen, for: .normal)
-        let lightGreen = UIColor(red: 44, green: 100, blue: 74);
-        cell.chipView.setBackgroundColor(lightGreen, for: .selected)
+        //let darkGreen = UIColor(red: 1, green: 29, blue: 39);
+        cell.chipView.setBackgroundColor(.darkGray, for: .normal)
+        //let lightGreen = UIColor(red: 44, green: 100, blue: 74);
+        cell.chipView.setBackgroundColor(.lightGray, for: .selected)
         cell.chipView.setBorderColor(.white, for: .normal)
         cell.chipView.setBorderWidth(0.5, for: .normal)
         cell.chipView.setTitleColor(.white, for: .normal)

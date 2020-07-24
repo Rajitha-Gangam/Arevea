@@ -10,9 +10,25 @@ import UIKit
 import Firebase
 import SendBirdSDK
 import CoreLocation
+import AWSAppSync
 
+extension UIImageView {
+    func downloaded(from url: URL, contentMode mode: UIView.ContentMode = .scaleToFill) {  // for swift 4.2 syntax just use ===> mode: UIView.ContentMode
+        contentMode = mode
+        URLSession.shared.dataTask(with: url) { data, response, error in
+            guard
+                let httpURLResponse = response as? HTTPURLResponse, httpURLResponse.statusCode == 200,
+                let mimeType = response?.mimeType, mimeType.hasPrefix("image"),
+                let data = data, error == nil,
+                let image = UIImage(data: data)
+                else { return }
+            DispatchQueue.main.async() { [weak self] in
+                self?.image = image
+            }
+        }.resume()
+    }
+}
 @UIApplicationMain
-
 class AppDelegate: UIResponder, UIApplicationDelegate,CLLocationManagerDelegate {
     // MARK: - Variables Declaration
     var window: UIWindow? // <-- Here
@@ -42,6 +58,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate,CLLocationManagerDelegate 
         case phone // iPhone and iPod touch style UI
         case pad   // iPad style UI (also includes macOS Catalyst)
     }
+    var appSyncClient: AWSAppSyncClient?
+
     // MARK: - Application Life cycle
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         
@@ -55,7 +73,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate,CLLocationManagerDelegate 
         // Use Firebase library to configure APIs
         FirebaseApp.configure()
         //SBDMain.initWithApplicationId("9308C3B1-A36D-47E2-BA3C-8F6F362C35AF")
-        SBDMain.initWithApplicationId("EFE090F2-3965-4D94-AB5A-77F0565DDD4F")
+        SBDMain.initWithApplicationId("7AF38850-F099-4C47-BD19-F7F84DAFECF8")
         /*locationManager = CLLocationManager()
         locationManager.delegate = self
         locationManager.desiredAccuracy = kCLLocationAccuracyBest
@@ -64,7 +82,21 @@ class AppDelegate: UIResponder, UIApplicationDelegate,CLLocationManagerDelegate 
         if CLLocationManager.locationServicesEnabled(){
             locationManager.startUpdatingLocation()
         }*/
-       
+       do {
+           // initialize the AppSync client configuration configuration
+           let cacheConfiguration = try AWSAppSyncCacheConfiguration()
+           let appSyncConfig = try AWSAppSyncClientConfiguration(appSyncServiceConfig: AWSAppSyncServiceConfig(),
+                                                                 cacheConfiguration: cacheConfiguration)
+           // initialize app sync client
+           appSyncClient = try AWSAppSyncClient(appSyncConfig: appSyncConfig)
+           
+           // set id as the cache key for objects
+           appSyncClient?.apolloClient?.cacheKeyForObject = { $0["id"] }
+           
+           print("AppSyncClient initialized with cacheConfiguration: \(cacheConfiguration)")
+       } catch {
+           print("Error initializing AppSync client. \(error)")
+       }
         return true
     }
     func isConnectedToInternet() -> Bool {

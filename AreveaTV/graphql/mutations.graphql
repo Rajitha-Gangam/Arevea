@@ -1,0 +1,28 @@
+# this is an auto generated file. This will be overwritten
+mutation CreateMulticreatorshareddata(
+  $input: CreateMULTICREATORSHAREDDATAInput!
+) {
+  createMULTICREATORSHAREDDATA(input: $input) {
+    data
+    id
+    version
+  }
+}
+mutation DeleteMulticreatorshareddata(
+  $input: DeleteMULTICREATORSHAREDDATAInput!
+) {
+  deleteMULTICREATORSHAREDDATA(input: $input) {
+    data
+    id
+    version
+  }
+}
+mutation UpdateMulticreatorshareddata(
+  $input: UpdateMULTICREATORSHAREDDATAInput!
+) {
+  updateMULTICREATORSHAREDDATA(input: $input) {
+    data
+    id
+    version
+  }
+}

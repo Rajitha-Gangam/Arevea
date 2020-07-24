@@ -28,17 +28,17 @@
                                 </constraints>
                                 <fontDescription key="fontDescription" type="boldSystem" pointSize="15"/>
                                 <state key="normal" title="Button">
-                                    <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                    <color key="titleColor" red="1" green="0.45098039220000002" blue="0.35294117650000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 </state>
                                 <variation key="heightClass=regular-widthClass=regular">
-                                    <fontDescription key="fontDescription" type="boldSystem" pointSize="23"/>
+                                    <fontDescription key="fontDescription" type="boldSystem" pointSize="27"/>
                                 </variation>
                             </button>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="hfN-rE-OYA">
-                                <rect key="frame" x="0.0" y="29" width="130" height="1"/>
-                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            <label hidden="YES" opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="hfN-rE-OYA">
+                                <rect key="frame" x="0.0" y="29" width="130" height="3"/>
+                                <color key="backgroundColor" red="1" green="0.45098039220000002" blue="0.35294117650000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <constraints>
-                                    <constraint firstAttribute="height" constant="1" id="8jV-H5-QQI"/>
+                                    <constraint firstAttribute="height" constant="3" id="8jV-H5-QQI"/>
                                 </constraints>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <nil key="textColor"/>
@@ -52,7 +52,7 @@
                             <constraint firstAttribute="trailing" secondItem="Jtg-q0-NBS" secondAttribute="trailing" id="Noe-sN-Kkm"/>
                             <constraint firstItem="hfN-rE-OYA" firstAttribute="leading" secondItem="6Nx-h1-HYc" secondAttribute="leading" id="PWA-dN-ChU"/>
                             <constraint firstAttribute="trailing" secondItem="hfN-rE-OYA" secondAttribute="trailing" id="TcP-Gc-dwo"/>
-                            <constraint firstAttribute="bottom" secondItem="hfN-rE-OYA" secondAttribute="bottom" constant="2" id="aeV-Zr-78M"/>
+                            <constraint firstAttribute="bottom" secondItem="hfN-rE-OYA" secondAttribute="bottom" id="aeV-Zr-78M"/>
                             <constraint firstItem="Jtg-q0-NBS" firstAttribute="top" secondItem="6Nx-h1-HYc" secondAttribute="top" id="ouh-ME-GL9"/>
                             <constraint firstItem="hfN-rE-OYA" firstAttribute="top" secondItem="Jtg-q0-NBS" secondAttribute="bottom" id="uMV-BL-9nT"/>
                         </constraints>

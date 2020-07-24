@@ -13,7 +13,7 @@ class UpcomingCell: UITableViewCell {
     @IBOutlet weak var lblSession:UILabel!
     @IBOutlet weak var lblDate:UILabel!
     @IBOutlet weak var lblPayment:UILabel!
-
+    @IBOutlet weak var lblStreamStatus:UILabel!
     override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code

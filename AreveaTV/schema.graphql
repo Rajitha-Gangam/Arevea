@@ -1,0 +1,108 @@
+﻿﻿﻿schema {
+  query: Query
+  mutation: Mutation
+  subscription: Subscription
+}
+
+type MULTICREATORSHAREDDATA {
+  data: String
+  id: String!
+  version: Int
+}
+
+type MULTICREATORSHAREDDATAConnection {
+  items: [MULTICREATORSHAREDDATA]
+  nextToken: String
+}
+
+type Mutation {
+  createMULTICREATORSHAREDDATA(input: CreateMULTICREATORSHAREDDATAInput!): MULTICREATORSHAREDDATA
+  deleteMULTICREATORSHAREDDATA(input: DeleteMULTICREATORSHAREDDATAInput!): MULTICREATORSHAREDDATA
+  updateMULTICREATORSHAREDDATA(input: UpdateMULTICREATORSHAREDDATAInput!): MULTICREATORSHAREDDATA
+}
+
+type Query {
+  getMULTICREATORSHAREDDATA(id: String!): MULTICREATORSHAREDDATA
+  listMULTICREATORSHAREDDATAS(filter: TableMULTICREATORSHAREDDATAFilterInput, limit: Int, nextToken: String): MULTICREATORSHAREDDATAConnection
+}
+
+type Subscription {
+  onCreateMULTICREATORSHAREDDATA(data: String, id: String): MULTICREATORSHAREDDATA @aws_subscribe(mutations : ["createMULTICREATORSHAREDDATA"])
+  onDeleteMULTICREATORSHAREDDATA(data: String, id: String): MULTICREATORSHAREDDATA @aws_subscribe(mutations : ["deleteMULTICREATORSHAREDDATA"])
+  onUpdateMULTICREATORSHAREDDATA(data: String, id: String): MULTICREATORSHAREDDATA @aws_subscribe(mutations : ["updateMULTICREATORSHAREDDATA"])
+}
+
+input CreateMULTICREATORSHAREDDATAInput {
+  data: String
+  id: String!
+  version: Int
+}
+
+input DeleteMULTICREATORSHAREDDATAInput {
+  id: String!
+}
+
+input TableBooleanFilterInput {
+  eq: Boolean
+  ne: Boolean
+}
+
+input TableFloatFilterInput {
+  between: [Float]
+  contains: Float
+  eq: Float
+  ge: Float
+  gt: Float
+  le: Float
+  lt: Float
+  ne: Float
+  notContains: Float
+}
+
+input TableIDFilterInput {
+  beginsWith: ID
+  between: [ID]
+  contains: ID
+  eq: ID
+  ge: ID
+  gt: ID
+  le: ID
+  lt: ID
+  ne: ID
+  notContains: ID
+}
+
+input TableIntFilterInput {
+  between: [Int]
+  contains: Int
+  eq: Int
+  ge: Int
+  gt: Int
+  le: Int
+  lt: Int
+  ne: Int
+  notContains: Int
+}
+
+input TableMULTICREATORSHAREDDATAFilterInput {
+  id: TableStringFilterInput
+}
+
+input TableStringFilterInput {
+  beginsWith: String
+  between: [String]
+  contains: String
+  eq: String
+  ge: String
+  gt: String
+  le: String
+  lt: String
+  ne: String
+  notContains: String
+}
+
+input UpdateMULTICREATORSHAREDDATAInput {
+  data: String
+  expectedVersion: Int
+  id: String!
+}

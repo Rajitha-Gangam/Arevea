@@ -47,7 +47,18 @@ class DashBoardCell: UITableViewCell, UICollectionViewDataSource, UICollectionVi
         self.rowWithItems = row
         self.strController = controller;
         self.collectionView.reloadData()
-        
+        let indexPath = IndexPath(row: 0, section: 0)
+        collectionView.scrollToItem(at: indexPath, at: .centeredHorizontally, animated: false)
+        if(strController == "my_events" || strController == "dashboard_trending_channels" || strController == "channels"){
+            //self.collectionView.direc
+            if let layout = self.collectionView.collectionViewLayout as? UICollectionViewFlowLayout {
+                layout.scrollDirection = .vertical  // .horizontal
+            }
+        }else{
+            if let layout = self.collectionView.collectionViewLayout as? UICollectionViewFlowLayout {
+                layout.scrollDirection =  .horizontal
+            }
+        }
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
@@ -70,45 +81,68 @@ class DashBoardCell: UITableViewCell, UICollectionViewDataSource, UICollectionVi
         if let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "DBCollectionViewCell", for: indexPath) as? DBCollectionViewCell {
             // cell.colorView.backgroundColor = self.rowWithItems?[indexPath.item].color ?? UIColor.black
             let arySub = rowWithItems[indexPath.row] as! [String: Any]
-            
             let thumbNail = UIImage.init(named: "default-img1.jpg")
             cell.imgCategory.image = thumbNail
             cell.imgCategory.contentMode = .scaleAspectFill
-            
-            if (strController == "dashboard_live"){
+            if (strController == "dashboard" || strController == "dashboard_my_list" || strController == "my_events"){
                 cell.nameLabel.text = arySub["stream_video_title"]as? String;
                 let strURL = arySub["video_thumbnail_image"]as? String ?? "";
                 if (strURL != "" && strURL != "NO LOGO" && strURL.range(of:"null") == nil ){
                     if let url = URL(string: strURL){
-                        downloadImage(from:url, imageView: cell.imgCategory)
+                        cell.imgCategory.downloaded(from: url)
                     }
                 }
-            }
-            else if (strController == "dashboard"){
-                cell.nameLabel.text = arySub["organization_name"]as? String;
-                let strURL = arySub["organization_logo"]as? String ?? "";
-                if (strURL != "" && strURL != "NO LOGO" && strURL.range(of:"null") == nil ){
-                    if let url = URL(string: strURL){
-                        downloadImage(from:url, imageView: cell.imgCategory)
-                    }
-                }
-            }else if(strController == "dashboard_search"){
+                cell.btnLeft.addTarget(self, action: #selector(btnLeftPress(_:)), for: .touchUpInside)
+                cell.btnRight.addTarget(self, action: #selector(btnRightPress(_:)), for: .touchUpInside)
+
+                cell.btnLeft.tag = indexPath.row
+                cell.btnRight.tag = indexPath.row
                 
+
+            }
+           else if(strController == "dashboard_search"){
                 cell.nameLabel.text = arySub["name"]as? String;
                 
-            }else if (strController == "channels"){
+            }else if (strController == "channels" || strController == "dashboard_trending_channels"){
                 // //print("arySub:",arySub)
                 cell.nameLabel.text = arySub["performer_display_name"]as? String ?? "";
                 let strURL = arySub["performer_profile_pic"]as? String ?? "";
                 if (strURL != "" && strURL != "NO LOGO" && strURL.range(of:"null") == nil ){
                     if let url = URL(string: strURL){
-                        downloadImage(from:url, imageView: cell.imgCategory)
+                        cell.imgCategory.downloaded(from: url)
                     }
                 }
+                cell.btnLeft.addTarget(self, action: #selector(btnLeftPress(_:)), for: .touchUpInside)
+                cell.btnRight.addTarget(self, action: #selector(btnRightPress(_:)), for: .touchUpInside)
+
+                cell.btnLeft.tag = indexPath.row
+                cell.btnRight.tag = indexPath.row
+                
+                
             }else if (strController == "channel_detail"){
 //                cell.imgCategory.layer.cornerRadius = 80;
 //                cell.nameLabel.text = arySub["name"]as? String;
 //                cell.nameLabel.textAlignment = .center;
+            }
+            if(strController == "my_events" || strController == "dashboard_search" || strController == "dashboard_trending_channels" || strController == "channels" ){
+                cell.btnLeft.isHidden = true
+                cell.btnRight.isHidden = true
+            }else{
+                cell.btnLeft.isHidden = false
+                cell.btnRight.isHidden = false
+            }
+            if(strController == "dashboard"){
+                cell.lblHeader.text = "LIVE EVENTS"
+            }else if(strController == "dashboard_my_list"){
+                cell.lblHeader.text = "MY LIST"
+            }else if(strController == "dashboard_trending_channels"){
+                if(indexPath.row == 0){
+                    cell.lblHeader.text = "TRENDING CHANNELS"
+                }else{
+                    cell.lblHeader.text = ""
+                }
+            }else{
+                cell.lblHeader.text = ""
             }
             return cell
         }
@@ -117,33 +151,43 @@ class DashBoardCell: UITableViewCell, UICollectionViewDataSource, UICollectionVi
     
     // Add spaces at the beginning and the end of the collection view
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
-        return UIEdgeInsets(top: 0, left: 5, bottom: 0, right: 5)
+        return UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
     }
     // Add spaces at the beginning and the end of the collection view
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         //print("width:",width)
-        if(UIDevice.current.userInterfaceIdiom == .pad){
-            return CGSize(width: 250.0, height: 250.0)
-        }else{
-            return CGSize(width: 180.0, height: 180.0)
+        let screenRect = UIScreen.main.bounds
+        let screenWidth = screenRect.size.width
+        var screenHeight = screenRect.size.height/2 - 110
+        if (strController == "my_events"){
+             screenHeight = screenRect.size.height/2 - 44
         }
+        return CGSize(width: screenWidth, height: screenHeight)
     }
     
-    func getData(from url: URL, completion: @escaping (Data?, URLResponse?, Error?) -> ()) {
-        URLSession.shared.dataTask(with: url, completionHandler: completion).resume()
+     @objc func btnLeftPress(_ sender: UIButton) {
+        print("btnLeftPress called")
+        print("sender.tag",sender.tag)
+        if (sender.tag == 0){
+            let indexPath = IndexPath(row: rowWithItems.count - 1, section: 0)
+            collectionView.scrollToItem(at: indexPath, at: .centeredHorizontally, animated: true)
+        }else{
+            let indexPath = IndexPath(row: sender.tag - 1, section: 0)
+            collectionView.scrollToItem(at: indexPath, at: .centeredHorizontally, animated: true)
+        }
+        
     }
-    func downloadImage(from url: URL,imageView:UIImageView) {
-        //print("Download Started")
-        getData(from: url) { data, response, error in
-            guard let data = data, error == nil else {
-                return
-            }
-            //print(response?.suggestedFilename ?? url.lastPathComponent)
-            // //print("Download Finished")
-            DispatchQueue.main.async() { [weak self] in
-                imageView.image = UIImage(data: data)
-            }
+    @objc func btnRightPress(_ sender: UIButton) {
+        print("btnRightPress called")
+        print("sender.tag",sender.tag)
+        print("last index",rowWithItems.count - 1)
+        if (sender.tag < rowWithItems.count - 1){
+            let indexPath = IndexPath(row: sender.tag  + 1, section: 0)
+            collectionView.scrollToItem(at: indexPath, at: .centeredHorizontally, animated: true)
+        }else{
+            let indexPath = IndexPath(row: 0, section: 0)
+            collectionView.scrollToItem(at: indexPath, at: .centeredHorizontally, animated: true)
         }
     }
     

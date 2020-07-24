@@ -103,8 +103,8 @@
         func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
             if (tableView == tblFilter){
                 let view = UIView(frame: CGRect(x: 0, y: 0, width: Int(tableView.bounds.width), height: 44))
-                let darkGreen = UIColor(red: 5, green: 29, blue: 40);
-                view.backgroundColor = darkGreen;
+                //let darkGreen = UIColor(red: 5, green: 29, blue: 40);
+                view.backgroundColor = .darkGray;
                 let label = UILabel(frame: CGRect(x: 15, y: 0, width: tableView.bounds.width - 30, height: 44))
                 if(UIDevice.current.userInterfaceIdiom == .pad){
                            label.font = UIFont.boldSystemFont(ofSize: 25)

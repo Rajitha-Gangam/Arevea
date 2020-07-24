@@ -199,6 +199,7 @@ fi
 if [[ "$CONFIGURATION" == "Debug" ]]; then
   install_framework "${BUILT_PRODUCTS_DIR}/AGEmojiKeyboard/AGEmojiKeyboard.framework"
   install_framework "${BUILT_PRODUCTS_DIR}/AWSAPIGateway/AWSAPIGateway.framework"
+  install_framework "${BUILT_PRODUCTS_DIR}/AWSAppSync/AWSAppSync.framework"
   install_framework "${BUILT_PRODUCTS_DIR}/AWSAuthCore/AWSAuthCore.framework"
   install_framework "${BUILT_PRODUCTS_DIR}/AWSAuthUI/AWSAuthUI.framework"
   install_framework "${BUILT_PRODUCTS_DIR}/AWSCognito/AWSCognito.framework"
@@ -208,6 +209,7 @@ if [[ "$CONFIGURATION" == "Debug" ]]; then
   install_framework "${BUILT_PRODUCTS_DIR}/AWSFacebookSignIn/AWSFacebookSignIn.framework"
   install_framework "${BUILT_PRODUCTS_DIR}/AWSMobileClient/AWSMobileClient.framework"
   install_framework "${BUILT_PRODUCTS_DIR}/Alamofire/Alamofire.framework"
+  install_framework "${BUILT_PRODUCTS_DIR}/AppSyncRealTimeClient/AppSyncRealTimeClient.framework"
   install_framework "${BUILT_PRODUCTS_DIR}/FBSDKCoreKit/FBSDKCoreKit.framework"
   install_framework "${BUILT_PRODUCTS_DIR}/FBSDKLoginKit/FBSDKLoginKit.framework"
   install_framework "${BUILT_PRODUCTS_DIR}/GoogleUtilities/GoogleUtilities.framework"
@@ -224,13 +226,17 @@ if [[ "$CONFIGURATION" == "Debug" ]]; then
   install_dsym "${PODS_ROOT}/Mux-Stats-AVPlayer/Frameworks/iOS/fat/MUXSDKStats.framework.dSYM"
   install_framework "${PODS_ROOT}/Mux-Stats-Core/Frameworks/iOS/fat/MuxCore.framework"
   install_framework "${BUILT_PRODUCTS_DIR}/PromisesObjC/FBLPromises.framework"
+  install_framework "${BUILT_PRODUCTS_DIR}/ReachabilitySwift/Reachability.framework"
+  install_framework "${BUILT_PRODUCTS_DIR}/SQLite.swift/SQLite.framework"
   install_framework "${PODS_ROOT}/SendBirdSDK/SendBirdSDK.framework"
   install_dsym "${PODS_ROOT}/SendBirdSDK/SendBirdSDK.framework.dSYM"
+  install_framework "${BUILT_PRODUCTS_DIR}/Starscream/Starscream.framework"
   install_framework "${BUILT_PRODUCTS_DIR}/nanopb/nanopb.framework"
 fi
 if [[ "$CONFIGURATION" == "Release" ]]; then
   install_framework "${BUILT_PRODUCTS_DIR}/AGEmojiKeyboard/AGEmojiKeyboard.framework"
   install_framework "${BUILT_PRODUCTS_DIR}/AWSAPIGateway/AWSAPIGateway.framework"
+  install_framework "${BUILT_PRODUCTS_DIR}/AWSAppSync/AWSAppSync.framework"
   install_framework "${BUILT_PRODUCTS_DIR}/AWSAuthCore/AWSAuthCore.framework"
   install_framework "${BUILT_PRODUCTS_DIR}/AWSAuthUI/AWSAuthUI.framework"
   install_framework "${BUILT_PRODUCTS_DIR}/AWSCognito/AWSCognito.framework"
@@ -240,6 +246,7 @@ if [[ "$CONFIGURATION" == "Release" ]]; then
   install_framework "${BUILT_PRODUCTS_DIR}/AWSFacebookSignIn/AWSFacebookSignIn.framework"
   install_framework "${BUILT_PRODUCTS_DIR}/AWSMobileClient/AWSMobileClient.framework"
   install_framework "${BUILT_PRODUCTS_DIR}/Alamofire/Alamofire.framework"
+  install_framework "${BUILT_PRODUCTS_DIR}/AppSyncRealTimeClient/AppSyncRealTimeClient.framework"
   install_framework "${BUILT_PRODUCTS_DIR}/FBSDKCoreKit/FBSDKCoreKit.framework"
   install_framework "${BUILT_PRODUCTS_DIR}/FBSDKLoginKit/FBSDKLoginKit.framework"
   install_framework "${BUILT_PRODUCTS_DIR}/GoogleUtilities/GoogleUtilities.framework"
@@ -256,8 +263,11 @@ if [[ "$CONFIGURATION" == "Release" ]]; then
   install_dsym "${PODS_ROOT}/Mux-Stats-AVPlayer/Frameworks/iOS/fat/MUXSDKStats.framework.dSYM"
   install_framework "${PODS_ROOT}/Mux-Stats-Core/Frameworks/iOS/fat/MuxCore.framework"
   install_framework "${BUILT_PRODUCTS_DIR}/PromisesObjC/FBLPromises.framework"
+  install_framework "${BUILT_PRODUCTS_DIR}/ReachabilitySwift/Reachability.framework"
+  install_framework "${BUILT_PRODUCTS_DIR}/SQLite.swift/SQLite.framework"
   install_framework "${PODS_ROOT}/SendBirdSDK/SendBirdSDK.framework"
   install_dsym "${PODS_ROOT}/SendBirdSDK/SendBirdSDK.framework.dSYM"
+  install_framework "${BUILT_PRODUCTS_DIR}/Starscream/Starscream.framework"
   install_framework "${BUILT_PRODUCTS_DIR}/nanopb/nanopb.framework"
 fi
 if [ "${COCOAPODS_PARALLEL_CODE_SIGN}" == "true" ]; then
