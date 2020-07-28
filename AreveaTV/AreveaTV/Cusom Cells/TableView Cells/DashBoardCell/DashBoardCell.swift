@@ -162,7 +162,7 @@ class DashBoardCell: UITableViewCell, UICollectionViewDataSource, UICollectionVi
         let screenWidth = screenRect.size.width
         var screenHeight = screenRect.size.height/2 - 90
         if (strController == "my_events"){
-             screenHeight = screenRect.size.height/2 - 64
+             screenHeight = screenRect.size.height/2 - 34
         }
         return CGSize(width: screenWidth, height: screenHeight)
     }

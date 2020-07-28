@@ -41,7 +41,8 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
     @IBOutlet weak var leftConstraintLeftMenu: NSLayoutConstraint?
     
     @IBOutlet weak var lblNoData: UILabel!
-    
+    @IBOutlet weak var lblVersion: UILabel!
+
     let appDelegate = UIApplication.shared.delegate as! AppDelegate
     
     var aryData = [Any]();
@@ -57,7 +58,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
     
     @IBOutlet var imgProfilePic: UIImageView!
     
-    var arySideMenu : [[String: String]] = [["name":"Home","icon":"home.png"],["name":"My Profile","icon":"user.png"],["name":"My Payments","icon":"donation-icon.png"],["name":"My Purchases","icon":"purchases.png"],["name":"My Events","icon":"events-icon.png"],["name":"Help","icon":"help-icon.png"],["name":"Logout","icon":"logout-icon.png"]];
+    var arySideMenu : [[String: String]] = [["name":"Home","icon":"home.png"],["name":"My Profile","icon":"user.png"],["name":"My Events","icon":"events-icon.png"],["name":"My Payments","icon":"donation-icon.png"],["name":"My Purchases","icon":"purchases.png"],["name":"Help","icon":"help-icon.png"],["name":"Logout","icon":"logout-icon.png"]];
     var sectionTitles = ["Live Events","My List","Trending Channels"]
     //MARK:View Life Cycle Methods
     
@@ -95,10 +96,15 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
         
         UIDevice.current.setValue(self.preferredInterfaceOrientationForPresentation.rawValue, forKey: "orientation")
         
-        
+        lblVersion.text = "Version: " + getAppversion()
         
     }
-    
+    func getAppversion() -> String {
+                  let dictionary = Bundle.main.infoDictionary!
+                  let version = dictionary["CFBundleShortVersionString"] as! String
+                  let build = dictionary["CFBundleVersion"] as! String
+                  return "\(version)(\(build))"
+    }
     override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
         super.viewWillTransition(to: size, with: coordinator)
         self.viewSideMenu.isHidden = true

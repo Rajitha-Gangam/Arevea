@@ -99,7 +99,7 @@ class MyEventsVC: UIViewController,CollectionViewCellDelegate,OpenChanannelChatD
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) ->  CGFloat {
         let screenRect = UIScreen.main.bounds
-        let screenHeight = screenRect.size.height-120
+        let screenHeight = screenRect.size.height
         return screenHeight
     }
     
@@ -124,7 +124,7 @@ class MyEventsVC: UIViewController,CollectionViewCellDelegate,OpenChanannelChatD
         
         if (selectedOrg?["parent_category_id"]as? Int != nil){
             let storyboard = UIStoryboard(name: "Main", bundle: nil);
-            let vc = storyboard.instantiateViewController(withIdentifier: "ChannelDetailVC") as! ChannelDetailVC
+            let vc = storyboard.instantiateViewController(withIdentifier: "StreamDetailVC") as! StreamDetailVC
             vc.orgId = selectedOrg?["organization_id"] as? Int ?? 0
             vc.streamId = selectedOrg?["id"] as? Int ?? 0
             vc.delegate = self
@@ -136,9 +136,19 @@ class MyEventsVC: UIViewController,CollectionViewCellDelegate,OpenChanannelChatD
             else {
                 vc.performerId = 1;
             }
-            vc.strTitle = selectedOrg?["user_display_name"] as? String ?? "Channel Details"
-            
-            
+            vc.strTitle = selectedOrg?["stream_video_title"] as? String ?? "Channel Details"
+            self.navigationController?.pushViewController(vc, animated: true)
+        }else{
+            let storyboard = UIStoryboard(name: "Main", bundle: nil);
+            let vc = storyboard.instantiateViewController(withIdentifier: "ChannelDetailVC") as! ChannelDetailVC
+            vc.orgId = selectedOrg?["id"] as? Int ?? 0
+            if (selectedOrg?["user_id"] as? Int) != nil {
+                vc.performerId = selectedOrg?["user_id"] as! Int
+            }
+            else {
+                vc.performerId = 1;
+            }
+            vc.strTitle = selectedOrg?["performer_display_name"] as? String ?? "Channel Details"
             self.navigationController?.pushViewController(vc, animated: true)
         }
     }

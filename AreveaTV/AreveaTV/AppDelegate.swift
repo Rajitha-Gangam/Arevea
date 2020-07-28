@@ -12,6 +12,8 @@ import SendBirdSDK
 import CoreLocation
 import AWSAppSync
 
+
+
 extension UIImageView {
     func downloaded(from url: URL, contentMode mode: UIView.ContentMode = .scaleToFill) {  // for swift 4.2 syntax just use ===> mode: UIView.ContentMode
         contentMode = mode
