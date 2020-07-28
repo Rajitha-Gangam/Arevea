@@ -57,7 +57,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
     
     @IBOutlet var imgProfilePic: UIImageView!
     
-    var arySideMenu : [[String: String]] = [["name":"Home","icon":"home.png"],["name":"My Profile","icon":"user.png"],["name":"My Payments","icon":"donation-icon.png"],["name":"My Events","icon":"events-icon.png"],["name":"Help","icon":"help-icon.png"],["name":"Logout","icon":"logout-icon.png"]];
+    var arySideMenu : [[String: String]] = [["name":"Home","icon":"home.png"],["name":"My Profile","icon":"user.png"],["name":"My Payments","icon":"donation-icon.png"],["name":"My Purchases","icon":"purchases.png"],["name":"My Events","icon":"events-icon.png"],["name":"Help","icon":"help-icon.png"],["name":"Logout","icon":"logout-icon.png"]];
     var sectionTitles = ["Live Events","My List","Trending Channels"]
     //MARK:View Life Cycle Methods
     
@@ -502,10 +502,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) ->  CGFloat {
         if (tableView == tblMain){
             let screenRect = UIScreen.main.bounds
-            var screenHeight = screenRect.size.height/2 - 110 //for live Channels and mylist
-            if(indexPath.section == 2){
-                screenHeight = screenRect.size.height //for trending channels
-            }
+            var screenHeight = screenRect.size.height/2 - 90 //for live Channels and mylist
             return screenHeight
         }else{
             if(UIDevice.current.userInterfaceIdiom == .pad){
@@ -575,8 +572,13 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
                 let storyboard = UIStoryboard(name: "Main", bundle: nil);
                 let vc = storyboard.instantiateViewController(withIdentifier: "MyEventsVC") as! MyEventsVC
                 self.navigationController?.pushViewController(vc, animated: true)
-                
+            case "my purchases":
+                hideSideMenu()
+                let storyboard = UIStoryboard(name: "Main", bundle: nil);
+                let vc = storyboard.instantiateViewController(withIdentifier: "MyPurchasesVC") as! MyPurchasesVC
+                self.navigationController?.pushViewController(vc, animated: true)
             case "help":
+                hideSideMenu()
                 let storyboard = UIStoryboard(name: "Main", bundle: nil);
                 let vc = storyboard.instantiateViewController(withIdentifier: "HelpVC") as! HelpVC
                 self.navigationController?.pushViewController(vc, animated: true)
@@ -660,7 +662,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
             else {
                 vc.performerId = 1;
             }
-            vc.strTitle = selectedOrg?["user_display_name"] as? String ?? "Channel Details"
+            vc.strTitle = selectedOrg?["stream_video_title"] as? String ?? "Channel Details"
             
             
             self.navigationController?.pushViewController(vc, animated: true)

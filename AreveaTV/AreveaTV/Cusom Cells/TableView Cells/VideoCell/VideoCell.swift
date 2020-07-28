@@ -11,6 +11,8 @@ import UIKit
 class VideoCell: UITableViewCell {
     @IBOutlet weak var btnVideo:UIButton!
     @IBOutlet weak var btnVideo1:UIButton!
+    @IBOutlet weak var lblTitle:UILabel!
+
     override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code

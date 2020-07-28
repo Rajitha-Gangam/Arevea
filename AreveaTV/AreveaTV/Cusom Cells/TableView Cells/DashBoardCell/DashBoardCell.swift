@@ -32,6 +32,7 @@ class DashBoardCell: UITableViewCell, UICollectionViewDataSource, UICollectionVi
         self.collectionView.dataSource = self
         self.collectionView.delegate = self
         
+        
         // Register the xib for collection view cell
         let cellNib = UINib(nibName: "DBCollectionViewCell", bundle: nil)
         self.collectionView.register(cellNib, forCellWithReuseIdentifier: "DBCollectionViewCell")
@@ -49,7 +50,7 @@ class DashBoardCell: UITableViewCell, UICollectionViewDataSource, UICollectionVi
         self.collectionView.reloadData()
         let indexPath = IndexPath(row: 0, section: 0)
         collectionView.scrollToItem(at: indexPath, at: .centeredHorizontally, animated: false)
-        if(strController == "my_events" || strController == "dashboard_trending_channels" || strController == "channels"){
+        if(strController == "my_events" || strController == "channels"){
             //self.collectionView.direc
             if let layout = self.collectionView.collectionViewLayout as? UICollectionViewFlowLayout {
                 layout.scrollDirection = .vertical  // .horizontal
@@ -124,14 +125,14 @@ class DashBoardCell: UITableViewCell, UICollectionViewDataSource, UICollectionVi
 //                cell.nameLabel.text = arySub["name"]as? String;
 //                cell.nameLabel.textAlignment = .center;
             }
-            if(strController == "my_events" || strController == "dashboard_search" || strController == "dashboard_trending_channels" || strController == "channels" ){
+            if(strController == "my_events" || strController == "dashboard_search"  || strController == "channels" ){
                 cell.btnLeft.isHidden = true
                 cell.btnRight.isHidden = true
             }else{
                 cell.btnLeft.isHidden = false
                 cell.btnRight.isHidden = false
             }
-            if(strController == "dashboard"){
+           if(strController == "dashboard"){
                 cell.lblHeader.text = "LIVE EVENTS"
             }else if(strController == "dashboard_my_list"){
                 cell.lblHeader.text = "MY LIST"
@@ -159,9 +160,9 @@ class DashBoardCell: UITableViewCell, UICollectionViewDataSource, UICollectionVi
         //print("width:",width)
         let screenRect = UIScreen.main.bounds
         let screenWidth = screenRect.size.width
-        var screenHeight = screenRect.size.height/2 - 110
+        var screenHeight = screenRect.size.height/2 - 90
         if (strController == "my_events"){
-             screenHeight = screenRect.size.height/2 - 44
+             screenHeight = screenRect.size.height/2 - 64
         }
         return CGSize(width: screenWidth, height: screenHeight)
     }

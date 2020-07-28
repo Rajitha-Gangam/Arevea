@@ -53,7 +53,7 @@ class SubscribeTest: BaseTest {
         
         // https://livestream.arevea.tv/streammanager/api/4.0/admin/event/meta/live/<stream_video_code>/?accessToken=YEOkGmERp08V
         let url = "https://" + host  + "/streammanager/api/" + version + "/admin/event/meta/live/" + stream1 + "?accessToken=" + accessToken
-        //print("url",url)
+        print("metaLive url:",url)
         //let stream = "1588832196500_taylorswiftevent"
         
         AF.request(url,method: .get, encoding: JSONEncoding.default)
@@ -64,6 +64,7 @@ class SubscribeTest: BaseTest {
                         //print("metaLive Response:",value)
                         if let json = value as? [String: Any] {
                             if json["errorMessage"] != nil{
+
                                 // ALToastView.toast(in: self.view, withText:errorMsg as? String ?? "")
                                 //let error = "Unable to locate stream. Broadcast has probably not started for this stream: " + stream1
                                 // ALToastView.toast(in: self.view, withText: error)
@@ -80,6 +81,7 @@ class SubscribeTest: BaseTest {
                                     self.findStream(streamName: strName)
                                     
                                 }else{
+
                                     let streamInfo = ["Stream": "not_available"]
                                     NotificationCenter.default.post(name: .didReceiveStreamData, object: self, userInfo: streamInfo)
                                 }
@@ -110,6 +112,8 @@ class SubscribeTest: BaseTest {
         
         let url = "https://" + host  + "/streammanager/api/" + version + "/event/" +
             context + "/" + streamName + "?action=subscribe&region=" + appDelegate.strRegionCode;
+        
+        print("url:",url)
         //let url = "https://livestream.arevea.tv/streammanager/api/4.0/event/live/1588788669277_somethingnew?action=subscribe"
         //print("findStream url:",url)
         //let stream = "1588832196500_taylorswiftevent"

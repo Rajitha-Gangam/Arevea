@@ -11,6 +11,10 @@
 		180A8BDB24AF74500022FFE4 /* ButtonsCVC-iPad.xib in Resources */ = {isa = PBXBuildFile; fileRef = 180A8BDA24AF74500022FFE4 /* ButtonsCVC-iPad.xib */; };
 		180A8BDD24AF92340022FFE4 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 180A8BDC24AF92340022FFE4 /* Images.xcassets */; };
 		1810E6F624C84BCA003EAF91 /* StreamDetailVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1810E6F524C84BCA003EAF91 /* StreamDetailVC.swift */; };
+		1822F8A324CF266E009E8E1A /* MyPurchasesVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1822F8A224CF266E009E8E1A /* MyPurchasesVC.swift */; };
+		1822F8A524CF28A5009E8E1A /* purchases.png in Resources */ = {isa = PBXBuildFile; fileRef = 1822F8A424CF28A5009E8E1A /* purchases.png */; };
+		1822F8A824D03364009E8E1A /* MyEventsCVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1822F8A624D03364009E8E1A /* MyEventsCVC.swift */; };
+		1822F8A924D03364009E8E1A /* MyEventsCVC.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1822F8A724D03364009E8E1A /* MyEventsCVC.xib */; };
 		182740F62487EFB3001BC6B3 /* img_default_profile_image_1.png in Resources */ = {isa = PBXBuildFile; fileRef = 182740F52487EFB3001BC6B3 /* img_default_profile_image_1.png */; };
 		182A5EF2245C59C700FF6147 /* SectionHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 182A5EEF245C59C700FF6147 /* SectionHeader.swift */; };
 		182A5EF3245C59C700FF6147 /* StickyHeadersCollectionViewFlowLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 182A5EF0245C59C700FF6147 /* StickyHeadersCollectionViewFlowLayout.swift */; };
@@ -48,6 +52,7 @@
 		1864AFCF2454ACEE004F3AED /* sample_detail.png in Resources */ = {isa = PBXBuildFile; fileRef = 1864AFCE2454ACEE004F3AED /* sample_detail.png */; };
 		1869F51924659D5F003153B1 /* SBOpenChatVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1869F51824659D5F003153B1 /* SBOpenChatVC.swift */; };
 		186A2EA2245566BE007128E6 /* three-dots.png in Resources */ = {isa = PBXBuildFile; fileRef = 186A2EA1245566BE007128E6 /* three-dots.png */; };
+		187AF8D324CED41B0092FE27 /* tip-icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 187AF8D224CED41B0092FE27 /* tip-icon.png */; };
 		187C57FF2480EA35008C5E89 /* OpenChanannelChatDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 187C57F92480EA35008C5E89 /* OpenChanannelChatDelegate.swift */; };
 		187C58002480EA35008C5E89 /* OpenChannelUserMessageTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 187C57FA2480EA35008C5E89 /* OpenChannelUserMessageTableViewCell.swift */; };
 		187C58012480EA35008C5E89 /* OpenChannelUserMessageTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 187C57FB2480EA35008C5E89 /* OpenChannelUserMessageTableViewCell.xib */; };
@@ -192,6 +197,10 @@
 		180A8BDA24AF74500022FFE4 /* ButtonsCVC-iPad.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = "ButtonsCVC-iPad.xib"; sourceTree = "<group>"; };
 		180A8BDC24AF92340022FFE4 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		1810E6F524C84BCA003EAF91 /* StreamDetailVC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StreamDetailVC.swift; sourceTree = "<group>"; };
+		1822F8A224CF266E009E8E1A /* MyPurchasesVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyPurchasesVC.swift; sourceTree = "<group>"; };
+		1822F8A424CF28A5009E8E1A /* purchases.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = purchases.png; sourceTree = "<group>"; };
+		1822F8A624D03364009E8E1A /* MyEventsCVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyEventsCVC.swift; sourceTree = "<group>"; };
+		1822F8A724D03364009E8E1A /* MyEventsCVC.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MyEventsCVC.xib; sourceTree = "<group>"; };
 		182740F52487EFB3001BC6B3 /* img_default_profile_image_1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = img_default_profile_image_1.png; sourceTree = "<group>"; };
 		182A5EEF245C59C700FF6147 /* SectionHeader.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SectionHeader.swift; sourceTree = "<group>"; };
 		182A5EF0245C59C700FF6147 /* StickyHeadersCollectionViewFlowLayout.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StickyHeadersCollectionViewFlowLayout.swift; sourceTree = "<group>"; };
@@ -230,6 +239,7 @@
 		1864AFCE2454ACEE004F3AED /* sample_detail.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = sample_detail.png; sourceTree = "<group>"; };
 		1869F51824659D5F003153B1 /* SBOpenChatVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SBOpenChatVC.swift; sourceTree = "<group>"; };
 		186A2EA1245566BE007128E6 /* three-dots.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "three-dots.png"; sourceTree = "<group>"; };
+		187AF8D224CED41B0092FE27 /* tip-icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "tip-icon.png"; sourceTree = "<group>"; };
 		187C57F92480EA35008C5E89 /* OpenChanannelChatDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OpenChanannelChatDelegate.swift; sourceTree = "<group>"; };
 		187C57FA2480EA35008C5E89 /* OpenChannelUserMessageTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OpenChannelUserMessageTableViewCell.swift; sourceTree = "<group>"; };
 		187C57FB2480EA35008C5E89 /* OpenChannelUserMessageTableViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = OpenChannelUserMessageTableViewCell.xib; sourceTree = "<group>"; };
@@ -531,6 +541,8 @@
 				182A5EF6245F057800FF6147 /* FilterCVCell.xib */,
 				18DAF9A2248FDE8300A6693A /* DBSearchCVC.swift */,
 				18DAF9A3248FDE8300A6693A /* DBSearchCVC.xib */,
+				1822F8A624D03364009E8E1A /* MyEventsCVC.swift */,
+				1822F8A724D03364009E8E1A /* MyEventsCVC.xib */,
 			);
 			path = "Collection View Cells";
 			sourceTree = "<group>";
@@ -665,6 +677,8 @@
 		18D480B22451AA0100640C1A /* channels */ = {
 			isa = PBXGroup;
 			children = (
+				1822F8A424CF28A5009E8E1A /* purchases.png */,
+				187AF8D224CED41B0092FE27 /* tip-icon.png */,
 				18D480B32451AA0B00640C1A /* channel1.png */,
 				18D480B62451AA0B00640C1A /* channel2.png */,
 				18D480B42451AA0B00640C1A /* channel3.png */,
@@ -695,6 +709,7 @@
 			children = (
 				18D480BF2452E00500640C1A /* PaymentVC.swift */,
 				184A0B4E2472CA9E006EDDA3 /* PaymentHistoryVC.swift */,
+				1822F8A224CF266E009E8E1A /* MyPurchasesVC.swift */,
 			);
 			path = Payment;
 			sourceTree = "<group>";
@@ -948,6 +963,7 @@
 				18E77E1C24C5D6ED003BBC39 /* orange-left.png in Resources */,
 				186A2EA2245566BE007128E6 /* three-dots.png in Resources */,
 				18DAF985248FBA0400A6693A /* check-icon.png in Resources */,
+				1822F8A524CF28A5009E8E1A /* purchases.png in Resources */,
 				18E77E1824C59074003BBC39 /* list-right.png in Resources */,
 				18DAF986248FBA0400A6693A /* uncheck-icon.png in Resources */,
 				189EBEDD2458190100C52B0E /* drop_down_white.png in Resources */,
@@ -961,6 +977,7 @@
 				187D7B0C246B100F0041D5AA /* mute.png in Resources */,
 				18DAF996248FBA1D00A6693A /* sr_category.png in Resources */,
 				188FA7BC24AB7134008871D4 /* send_transparent.png in Resources */,
+				1822F8A924D03364009E8E1A /* MyEventsCVC.xib in Resources */,
 				182740F62487EFB3001BC6B3 /* img_default_profile_image_1.png in Resources */,
 				189EBF3A2459D25700C52B0E /* UpcomingCell.xib in Resources */,
 				18D2718524A4A8E600F958BC /* icon-72@2x.png in Resources */,
@@ -1061,6 +1078,7 @@
 				18D480B72451AA0B00640C1A /* channel1.png in Resources */,
 				1891CA6D244AC82B00EE1E45 /* LaunchScreen.storyboard in Resources */,
 				1858EAD42485113A00A69D10 /* help-icon.png in Resources */,
+				187AF8D324CED41B0092FE27 /* tip-icon.png in Resources */,
 				18B739B024C9CEC30094FAAC /* arevea_main_logo.png in Resources */,
 				18DAF992248FBA1D00A6693A /* sr_news.png in Resources */,
 				18D2718224A4A8E600F958BC /* icon@2x.png in Resources */,
@@ -1117,6 +1135,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				18DAF9A4248FDE8300A6693A /* DBSearchCVC.swift in Sources */,
+				1822F8A824D03364009E8E1A /* MyEventsCVC.swift in Sources */,
 				187C58022480EA35008C5E89 /* OpenChannelTableViewCell.swift in Sources */,
 				182A5F05246166D700FF6147 /* CharityCell.swift in Sources */,
 				18DDD1AE24C0618500CF0F1A /* MultiStreamVC.swift in Sources */,
@@ -1156,6 +1175,7 @@
 				187C58032480EA35008C5E89 /* OpenChannelMessageTableViewCellDelegate.swift in Sources */,
 				18EB81BD244ACAB9008EB09A /* SplashVC.swift in Sources */,
 				1810E6F624C84BCA003EAF91 /* StreamDetailVC.swift in Sources */,
+				1822F8A324CF266E009E8E1A /* MyPurchasesVC.swift in Sources */,
 				18DDD1B124C0A4BD00CF0F1A /* API.swift in Sources */,
 				18D480A724509F7700640C1A /* SideMenuCell.swift in Sources */,
 				18D48069244EDF9800640C1A /* Testbed.swift in Sources */,

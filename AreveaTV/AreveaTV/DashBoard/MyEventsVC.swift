@@ -99,7 +99,7 @@ class MyEventsVC: UIViewController,CollectionViewCellDelegate,OpenChanannelChatD
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) ->  CGFloat {
         let screenRect = UIScreen.main.bounds
-        let screenHeight = screenRect.size.height
+        let screenHeight = screenRect.size.height-120
         return screenHeight
     }
     

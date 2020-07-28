@@ -77,7 +77,7 @@
                                 </variation>
                             </label>
                         </subviews>
-                        <color key="backgroundColor" white="0.33333333333333331" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <color key="backgroundColor" red="0.039215686270000001" green="0.28235294119999998" blue="0.34509803919999998" alpha="1" colorSpace="calibratedRGB"/>
                         <constraints>
                             <constraint firstItem="lON-EE-hX2" firstAttribute="leading" secondItem="YtP-xq-Cqj" secondAttribute="trailing" constant="8" id="5K3-fU-MUb"/>
                             <constraint firstItem="rcc-bm-NpZ" firstAttribute="leading" secondItem="YtP-xq-Cqj" secondAttribute="trailing" constant="8" id="5WN-8w-fUy"/>

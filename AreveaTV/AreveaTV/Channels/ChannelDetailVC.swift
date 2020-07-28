@@ -15,7 +15,7 @@ import MUXSDKStats;
 import CoreLocation
 
 
-class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDataSource,UITableViewDelegate,CollectionViewCellDelegate,UIWebViewDelegate,UICollectionViewDelegateFlowLayout,CLLocationManagerDelegate{
+class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDataSource,UITableViewDelegate,CollectionViewCellDelegate,UIWebViewDelegate,UICollectionViewDelegateFlowLayout,CLLocationManagerDelegate, OpenChanannelChatDelegate{
     // MARK: - Variables Declaration
     
     @IBOutlet weak var scrollButtons: UIScrollView!
@@ -26,7 +26,6 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
     @IBOutlet weak var viewInfo: UIView!
     @IBOutlet weak var viewAudios: UIView!
     @IBOutlet weak var viewVideos: UIView!
-    @IBOutlet weak var viewProfile: UIView!
     @IBOutlet weak var viewUpcoming: UIView!
     
     @IBOutlet weak var tblVideos: UITableView!
@@ -52,7 +51,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
     var streamVideoCode = ""
     
     var streamId = 0;
-    var buttonNames = ["EVENTS","INFO","PROFILE","VIDEOS","AUDIOS"]
+    var buttonNames = ["EVENTS","INFO","VIDEOS","AUDIOS"]
     var detailItem = [String:Any]();
     var playerItem:AVPlayerItem?
     var player:AVPlayer?
@@ -69,7 +68,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     @IBOutlet weak var imgPerformerProfile :UIImageView!
     
-    @IBOutlet weak var lblVideoDesc_Info: UILabel!
+    @IBOutlet weak var txtVideoDesc_Info: UITextView!
     @IBOutlet weak var lblVideoTitle_Info: UILabel!
     
     @IBOutlet weak var lblNoDataUpcoming: UILabel!
@@ -271,27 +270,12 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
             performerEvents();
             //getPerformerOrgInfo();
             //bottom first object should show
-            if(appDelegate.detailToShow == "performer"){
-                viewProfile.isHidden = false;
-                let profileLine = self.buttonCVC.viewWithTag(12) as? UILabel
-                profileLine?.isHidden = false
-
-            }else if(appDelegate.detailToShow == "video"){
-                viewVideos.isHidden = false;
-                let videoLine = self.buttonCVC.viewWithTag(13) as? UILabel
-                videoLine?.isHidden = false
-
-            }else if(appDelegate.detailToShow == "audio"){
-                viewAudios.isHidden = false;
-                let audioLine = self.buttonCVC.viewWithTag(14) as? UILabel
-                audioLine?.isHidden = false
-
-            }else{
-                viewInfo.isHidden = false;
-                let commentsLine = self.buttonCVC.viewWithTag(11) as? UILabel
-                commentsLine?.isHidden = false
-
-            }
+              let infoLine = self.buttonCVC.viewWithTag(11) as? UILabel
+                let btnText = self.buttonCVC.viewWithTag(21) as? UIButton
+                let orange = UIColor(red: 255, green: 115, blue: 90);
+                infoLine?.backgroundColor = orange;
+                btnText?.setTitleColor(orange, for: .normal)
+                viewInfo.isHidden = false
         }
         let viewHeight = self.view.frame.size.height*0.35
         liveStreamHeight.constant = CGFloat(viewHeight)
@@ -391,6 +375,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
             let name = buttonNames[indexPath.row]
             cell.configureCell(name: name)
             cell.btn.addTarget(self, action: #selector(btnPress(_:)), for: .touchUpInside)
+            cell.btn.tag = 20 + (indexPath.row);
             cell.lblLine.tag = 10 + (indexPath.row);
             //cell.btn.setTitleColor(.white, for: .normal)
             return cell
@@ -405,14 +390,9 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
         viewInfo.isHidden = true;
         viewAudios.isHidden = true;
         viewVideos.isHidden = true;
-        viewProfile.isHidden = true;
         viewUpcoming.isHidden = true;
         
-        for (index,_) in buttonNames.enumerated() {
-            let btnTag = 10 + index;
-            let tmpLbl = self.buttonCVC.viewWithTag(btnTag) as? UILabel
-            tmpLbl?.isHidden = true
-        }
+      
         
     }
     @objc func btnPress(_ sender: UIButton) {
@@ -421,26 +401,27 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
         let title = sender.titleLabel?.text!
         for (index,_) in buttonNames.enumerated() {
             let name = buttonNames[index]
-            let btnTag = 10 + index;
-            let tmpLbl = self.buttonCVC.viewWithTag(btnTag) as? UILabel
+            let lineTag = 10 + index;
+            let btnTag = 20 + index;
+            let lblLine = self.buttonCVC.viewWithTag(lineTag) as? UILabel
+            let btnText = self.buttonCVC.viewWithTag(btnTag) as? UIButton
             if (name == title){
                 print("btnTag:",btnTag)
-                tmpLbl?.isHidden = false
+                let orange = UIColor(red: 255, green: 115, blue: 90);
+                lblLine?.backgroundColor = orange;
+                btnText?.setTitleColor(orange, for: .normal)
             }else{
-                tmpLbl?.isHidden = true
+                lblLine?.backgroundColor = .white;
+                btnText?.setTitleColor(.white, for: .normal)
             }
         }
         switch title?.lowercased() {
         case "info":
             viewInfo.isHidden = false;
-        case "share":
-            share(sender);
         case "audios":
             viewAudios.isHidden = false;
         case "videos":
             viewVideos.isHidden = false;
-        case "profile":
-            viewProfile.isHidden = false;
         case "events":
             viewUpcoming.isHidden = false;
         default:
@@ -508,43 +489,10 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
     //MARK:Tableview Delegates and Datasource Methods
     
     func numberOfSections(in tableView: UITableView) ->  Int {
-        if (tableView == tblVideos){
-            return aryVideos.count;
-        }
         return 1
     }
-    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        if (tableView == tblVideos){
-            return 44
-        }
-        return 0;
-    }
-    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        let view = UIView(frame: CGRect(x: 0, y: 0, width: tableView.bounds.width, height: 44))
-        
-        //let darkGreen = UIColor(red: 1, green: 29, blue: 39);
-        let orange = UIColor(red: 255, green: 115, blue: 90);
-        view.backgroundColor = orange;
-        
-        let label = UILabel(frame: CGRect(x: 15, y: 0, width: tableView.bounds.width - 30, height: 44))
-        if(UIDevice.current.userInterfaceIdiom == .pad){
-            label.font = UIFont.boldSystemFont(ofSize: 25)
-        }else{
-            label.font = UIFont.boldSystemFont(ofSize: 17)
-        }
-        label.textColor = UIColor.white;
-        //
-        let section = self.aryVideos[section] as? [String : Any];
-        let categoryName = section?["videoTitle"] as? String;
-        label.text = categoryName;
-        view.addSubview(label)
-        let button = UIButton(frame: CGRect(x: 100, y: 100, width: 100, height: 50))
-        button.backgroundColor = .clear
-        button.setTitle("", for: .normal)
-        button.setImage(UIImage(named: ""), for: .normal)
-        self.view.addSubview(button)
-        return view
-    }
+   
+   
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if (tableView == tblAudios)
         {
@@ -568,7 +516,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
             }else{
                 self.lblNoDataVideos.isHidden = false
             }
-            return 1;
+            return aryVideos.count;
         }
        
         return 0;
@@ -588,12 +536,14 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
         if (tableView == tblVideos){
             let cell = tableView.dequeueReusableCell(withIdentifier: "VideoCell") as! VideoCell
             cell.btnVideo.addTarget(self, action: #selector(playVideoBtnTapped(_:)), for: .touchUpInside)
-            cell.btnVideo.tag = indexPath.section
+            cell.btnVideo.tag = indexPath.row
             
             cell.btnVideo1.addTarget(self, action: #selector(playVideoBtnTapped(_:)), for: .touchUpInside)
-            cell.btnVideo1.tag = indexPath.section
-            let upcoming = self.aryVideos[indexPath.section] as? [String : Any];
+            cell.btnVideo1.tag = indexPath.row
+            let upcoming = self.aryVideos[indexPath.row] as? [String : Any];
             let strURL = upcoming?["videoThumbImage"] as? String ?? "";
+            let videoTitle = upcoming?["videoTitle"] as? String ?? "";
+            cell.lblTitle.text = videoTitle
             print("--vod strURL:",strURL);
             if let urlVideoThumbImage = URL(string: strURL){
                 self.videoThumbNail(from: urlVideoThumbImage, button: cell.btnVideo)
@@ -683,42 +633,32 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
             self.performerId = upcoming?["performer_id"]as? Int ?? 0
             self.streamId = upcoming?["videoId"] as? Int ?? 0
             self.streamVideoCode = upcoming?["streamCode"] as? String ?? ""
-            //print("self.streamVideoCode:",self.streamVideoCode)
             isVOD = false;
             isUpcoming = true;
-            liveEvents()
-            /*let streamVideoTitle = upcoming?["streamTitle"] as? String ?? ""
-             let streamVideoDesc = upcoming?["streamDescription"] as? String ?? ""
-             self.paymentAmount = upcoming?["streamPayment"]as? Int ?? 0
-             self.lblVideoTitle.text = streamVideoTitle
-             self.lblVideoTitle_Info.text = streamVideoTitle
-             self.lblVideoDesc.text = streamVideoDesc
-             self.lblVideoDesc_Info.text = streamVideoDesc
-             self.streamPaymentMode = upcoming?["streamPaymentMode"] as? String ?? ""
-             if (self.streamPaymentMode == "paid"){
-             self.btnPayPerView.isHidden = false
-             }else{
-             self.btnPayPerView.isHidden = true
-             }
-             self.viewVOD.isHidden = true
-             self.stopVideo()
-             self.streamId = upcoming?["videoId"] as? Int ?? 0
-             self.viewVOD.isHidden = true
-             self.viewLiveStream.isHidden = false;
-             self.setLiveStreamConfig();*/
+            
+            let storyboard = UIStoryboard(name: "Main", bundle: nil);
+            let vc = storyboard.instantiateViewController(withIdentifier: "StreamDetailVC") as! StreamDetailVC
+            vc.streamId = self.streamId
+            vc.delegate = self
+            appDelegate.isLiveLoad = "1"
+            vc.performerId = self.performerId;
+            vc.strTitle = upcoming?["streamTitle"] as? String ?? "Channel Details"
+            vc.isVOD = false;
+            vc.isUpcoming = true;
+            self.navigationController?.pushViewController(vc, animated: true)
+
         }else if  (tableView == tblVideos){
-            playVideoFromList(section: indexPath.section)
+            playVideoFromList(row: indexPath.row)
         }
     }
     @objc func playVideoBtnTapped(_ sender: UIButton)
     {
-        playVideoFromList(section: sender.tag)
+        playVideoFromList(row: sender.tag)
     }
-    @objc func playVideoFromList(section:Int){
+    @objc func playVideoFromList(row:Int){
         stopVideo()
         closeStream()
-        let upcoming = self.aryVideos[section] as? [String : Any];
-        //print("upcoming:",upcoming)
+        let upcoming = self.aryVideos[row] as? [String : Any];
         self.orgId = upcoming?["organization_id"]as? Int ?? 0
         self.performerId = upcoming?["performer_id"]as? Int ?? 0
         self.streamId = upcoming?["videoId"] as? Int ?? 0
@@ -727,43 +667,16 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
         let url = upcoming?["videoUrl"] as? String ?? ""
         videoUrl = url
         isVOD = true;
-        liveEvents()
-        /*let streamVideoTitle = upcoming?["videoTitle"] as? String ?? ""
-         let streamVideoDesc = upcoming?["videoDescription"] as? String ?? ""
-         self.paymentAmount = upcoming?["videoPayment"]as? Int ?? 0
-         self.lblVideoTitle.text = streamVideoTitle
-         self.lblVideoTitle_Info.text = streamVideoTitle
-         self.lblVideoDesc.text = streamVideoDesc
-         self.lblVideoDesc_Info.text = streamVideoDesc
-         self.streamPaymentMode = upcoming?["videoPaymentMode"] as? String ?? ""
-         if (self.streamPaymentMode == "paid"){
-         self.btnPayPerView.isHidden = false
-         }else{
-         self.btnPayPerView.isHidden = true
-         }
-         self.viewVOD.isHidden = false
-         let url = upcoming?["videoUrl"] as? String ?? ""
-         videoUrl = url
-         //print("videoUrl:",videoUrl)
-         self.showVideo(strURL: videoUrl);
-         */
-        /*let vod_urls = upcoming?["vod_urls"] as? String ?? ""
-         if (vod_urls != ""){
-         let vod_urls = convertToDictionary(text: vod_urls)
-         let strHigh = vod_urls?["1080p"] as? String ?? ""
-         if (strHigh != ""){
-         getURL(url: strHigh)
-         }else{
-         let strMedium = vod_urls?["720p"] as? String ?? ""
-         if (strMedium != ""){
-         getURL(url: strMedium)
-         }else{
-         getURL(url: videoUrl)
-         }
-         }
-         }else{
-         getURL(url: videoUrl)
-         }*/
+        let storyboard = UIStoryboard(name: "Main", bundle: nil);
+        let vc = storyboard.instantiateViewController(withIdentifier: "StreamDetailVC") as! StreamDetailVC
+        vc.streamId = self.streamId
+        vc.delegate = self
+        appDelegate.isLiveLoad = "1"
+        vc.performerId = self.performerId;
+        vc.strTitle = upcoming?["videoTitle"] as? String ?? "Channel Details"
+        vc.isVOD = true;
+        vc.isUpcoming = false;
+        self.navigationController?.pushViewController(vc, animated: true)
     }
     func convertToDictionary(text: String) -> [String: Any]? {
         if let data = text.data(using: .utf8) {
@@ -1143,7 +1056,8 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
                                
                                 self.paymentAmount = streamObj?["stream_payment_amount"]as? Int ?? 0
                                 self.lblVideoTitle_Info.text = streamVideoTitle
-                                self.lblVideoDesc_Info.text = streamVideoDesc
+                                self.lblTitle.text = streamVideoTitle
+                                self.txtVideoDesc_Info.text = streamVideoDesc
                                 self.streamPaymentMode = streamObj?["stream_payment_mode"] as? String ?? ""
                             }else{
                                 //if we get any error default, we are showing VOD
