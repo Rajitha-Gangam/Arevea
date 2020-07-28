@@ -17,14 +17,15 @@ https://developer.apple.com/documentation/xcode/running_your_app_in_the_simulato
 
 We are using the files exists on the following path for handle single stream subscribe.
 
-/AreveaTV/AreveaTV/Stream Classes
+**/AreveaTV/AreveaTV/Stream Classes**
 
 We are accessing the code from the following file.
 
-/AreveaTV/AreveaTV/Channels/StreamDetailVC.swift
+**/AreveaTV/AreveaTV/Channels/StreamDetailVC.swift**
 
-Method Names : setLiveStreamConfig(),configureStreamView()
+Method Names : **setLiveStreamConfig(),configureStreamView()**
 
 ### Additional Instructions: 
 
 https://github.com/red5pro/streaming-ios
+we got Red 5 Pro sample from the above link
