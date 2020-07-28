@@ -26,6 +26,5 @@ We are accessing the code from the following file.
 Method Names : **setLiveStreamConfig(),configureStreamView()**
 
 ### Additional Instructions: 
-
+we got Red 5 Pro sample from the above link.
 https://github.com/red5pro/streaming-ios
-we got Red 5 Pro sample from the above link
