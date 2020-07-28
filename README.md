@@ -11,7 +11,7 @@
 
 Please refre the following link to know how to install app on simulator or device using Xcode.
 
-[Download app on Simulator/Device] https://developer.apple.com/documentation/xcode/running_your_app_in_the_simulator_or_on_a_device
+https://developer.apple.com/documentation/xcode/running_your_app_in_the_simulator_or_on_a_device
 
 ### Red 5 Pro iOS Stream Classes
 
