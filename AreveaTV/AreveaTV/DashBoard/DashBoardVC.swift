@@ -656,7 +656,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
         
         if (selectedOrg?["parent_category_id"]as? Int != nil){
             let storyboard = UIStoryboard(name: "Main", bundle: nil);
-            let vc = storyboard.instantiateViewController(withIdentifier: "StreamDetailVC") as! StreamDetailVC
+            let vc = storyboard.instantiateViewController(withIdentifier: "MultiStreamVC") as! MultiStreamVC
             vc.orgId = selectedOrg?["organization_id"] as? Int ?? 0
             vc.streamId = selectedOrg?["id"] as? Int ?? 0
             vc.delegate = self

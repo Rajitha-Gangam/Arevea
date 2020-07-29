@@ -13,7 +13,7 @@ import AVKit
 import SendBirdSDK
 import MUXSDKStats;
 import CoreLocation
-
+import EasyTipView
 
 class StreamDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDataSource,UITableViewDelegate,UITextFieldDelegate,CollectionViewCellDelegate,OpenChanannelChatDelegate,OpenChannelMessageTableViewCellDelegate,AGEmojiKeyboardViewDelegate,SBDChannelDelegate, AGEmojiKeyboardViewDataSource,UIWebViewDelegate,UICollectionViewDelegateFlowLayout,CLLocationManagerDelegate{
     // MARK: - Variables Declaration
@@ -101,7 +101,7 @@ class StreamDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDat
     @IBOutlet weak var imgStreamThumbNail: UIImageView!
     @IBOutlet weak var btnPlayStream: UIButton!
     @IBOutlet weak var lblStreamUnavailable: UILabel!
-    
+    var toolTipView = EasyTipView(text: "");
     var isChannelAvailable = false;
     var isChannelAvailable_emoji = false;
     var sendBirdErrorCode = 0;
@@ -133,7 +133,7 @@ class StreamDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDat
     var videoPlayer = AVPlayer()
     var isStream = true;
     var isUpcoming = false;
-
+    var toolTipPreferences = EasyTipView.Preferences()
     // MARK: - View Life cycle
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -183,6 +183,20 @@ class StreamDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDat
         if(UIDevice.current.userInterfaceIdiom == .pad && UIDevice.current.orientation.isLandscape){
             isIpadLandScape = true
         }
+        
+        toolTipPreferences.drawing.font = UIFont(name: "Futura-Medium", size: 13)!
+        toolTipPreferences.drawing.foregroundColor = UIColor.white
+        toolTipPreferences.drawing.backgroundColor = UIColor.init(red: 10, green: 72, blue: 88)
+        toolTipPreferences.drawing.arrowPosition = EasyTipView.ArrowPosition.top
+        //toolTipPreferences.animating.showDuration = 1.5
+       // toolTipPreferences.animating.dismissDuration = 1.5
+        toolTipPreferences.animating.dismissOnTap = true
+        EasyTipView.globalPreferences = toolTipPreferences
+        toolTipView = EasyTipView(text: self.strTitle, preferences: toolTipPreferences)
+
+        // later on you can dismiss it
+        //tipView.dismiss()
+        
     }
     @objc func txtEmojiTap(textField: UITextField) {
         if ((imgEmoji1.image?.isEqual(UIImage.init(named: "addemoji.png")))!)
@@ -195,7 +209,13 @@ class StreamDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDat
         }
     }
     
-    @IBAction func test(){
+    @IBAction func onTapTitle(){
+        print("onTapTitle called")
+        
+        /*
+         * Optionally you can make these preferences global for all future EasyTipViews
+         */
+        toolTipView.show(forView: self.lblTitle, withinSuperview: self.view)
         
     }
     
@@ -397,15 +417,15 @@ class StreamDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDat
             liveEvents();
             //getPerformerOrgInfo();
             hideViews();
-
+            
             let infoLine = self.buttonCVC.viewWithTag(10) as? UILabel
             let btnText = self.buttonCVC.viewWithTag(20) as? UIButton
             let orange = UIColor(red: 255, green: 115, blue: 90);
             infoLine?.backgroundColor = orange;
             btnText?.setTitleColor(orange, for: .normal)
             viewInfo.isHidden = false
-
-
+            
+            
         }
         let viewHeight = self.view.frame.size.height*0.35
         liveStreamHeight.constant = CGFloat(viewHeight)
@@ -416,58 +436,58 @@ class StreamDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDat
         tblComments.estimatedRowHeight = UITableView.automaticDimension
     }
     func showVideo(strURL : String){
-           if let url = URL(string: strURL){
-               videoPlayer = AVPlayer(url: url)
-               let controller = AVPlayerViewController()
-               controller.player = videoPlayer
-               controller.allowsPictureInPicturePlayback = true
-               controller.view.frame = self.viewVOD.bounds
-               controller.videoGravity = AVLayerVideoGravity.resize
-               self.viewVOD.addSubview(controller.view)
-               self.addChild(controller)
-               btnPlayStream.isHidden = true;
-               viewLiveStream.isHidden = true;
-               viewVOD.isHidden = false;
-               videoPlayer.play()
-               
-               //            let player = AVPlayer(url: url)
-               //            let controller=AVPlayerViewController()
-               //            controller.player=player
-               //            controller.view.frame = self.viewVideo.frame
-               //            self.viewVideo.addSubview(controller.view)
-               //            self.addChild(controller)
-               //            player.play()
-               
-               //388266
-               
-               
-               // Environment and player data that persists until the player is destroyed
-               let playerData = MUXSDKCustomerPlayerData(environmentKey:"dev")
-               playerData?.viewerUserId = "1234"
-               playerData?.experimentName = "player_test_A"
-               playerData?.playerName = "My Main Player"
-               playerData?.playerVersion = "1.0.0"
-               
-               // Video metadata (cleared with videoChangeForPlayer:withVideoData:)
-               let videoData = MUXSDKCustomerVideoData()
-               videoData.videoId = "abcd123"
-               videoData.videoTitle = "My Great Video"
-               videoData.videoSeries = "Weekly Great Videos"
-               videoData.videoDuration = 120000 // in milliseconds
-               videoData.videoIsLive = false
-               videoData.videoCdn = "cdn"
-               
-               MUXSDKStats.monitorAVPlayerViewController(controller, withPlayerName: "Player Name", playerData: playerData!, videoData: videoData)
-           }else{
-               //print("Invalid URL")
-               showAlert(strMsg: "Unable to play video due to invalid URL.")
-           }
-       }
-       
-       func stopVideo(){
-           videoPlayer.pause()
-           videoPlayer.replaceCurrentItem(with: nil)
-       }
+        if let url = URL(string: strURL){
+            videoPlayer = AVPlayer(url: url)
+            let controller = AVPlayerViewController()
+            controller.player = videoPlayer
+            controller.allowsPictureInPicturePlayback = true
+            controller.view.frame = self.viewVOD.bounds
+            controller.videoGravity = AVLayerVideoGravity.resize
+            self.viewVOD.addSubview(controller.view)
+            self.addChild(controller)
+            btnPlayStream.isHidden = true;
+            viewLiveStream.isHidden = true;
+            viewVOD.isHidden = false;
+            videoPlayer.play()
+            
+            //            let player = AVPlayer(url: url)
+            //            let controller=AVPlayerViewController()
+            //            controller.player=player
+            //            controller.view.frame = self.viewVideo.frame
+            //            self.viewVideo.addSubview(controller.view)
+            //            self.addChild(controller)
+            //            player.play()
+            
+            //388266
+            
+            
+            // Environment and player data that persists until the player is destroyed
+            let playerData = MUXSDKCustomerPlayerData(environmentKey:"dev")
+            playerData?.viewerUserId = "1234"
+            playerData?.experimentName = "player_test_A"
+            playerData?.playerName = "My Main Player"
+            playerData?.playerVersion = "1.0.0"
+            
+            // Video metadata (cleared with videoChangeForPlayer:withVideoData:)
+            let videoData = MUXSDKCustomerVideoData()
+            videoData.videoId = "abcd123"
+            videoData.videoTitle = "My Great Video"
+            videoData.videoSeries = "Weekly Great Videos"
+            videoData.videoDuration = 120000 // in milliseconds
+            videoData.videoIsLive = false
+            videoData.videoCdn = "cdn"
+            
+            MUXSDKStats.monitorAVPlayerViewController(controller, withPlayerName: "Player Name", playerData: playerData!, videoData: videoData)
+        }else{
+            //print("Invalid URL")
+            showAlert(strMsg: "Unable to play video due to invalid URL.")
+        }
+    }
+    
+    func stopVideo(){
+        videoPlayer.pause()
+        videoPlayer.replaceCurrentItem(with: nil)
+    }
     func delay(_ delay:Double, closure:@escaping ()->()) {
         DispatchQueue.main.asyncAfter(
             deadline: DispatchTime.now() + Double(Int64(delay * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC), execute: closure)
@@ -520,7 +540,7 @@ class StreamDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDat
             backPressed = true
             closeStream()
             stopVideo()
-
+            
             if(!isIpadLandScape){
                 if (btnRotationStreamTap){
                     let value = UIInterfaceOrientation.portrait.rawValue
@@ -599,7 +619,7 @@ class StreamDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDat
             viewTip.isHidden = false;
         case "share":
             share(sender);
-        
+            
         default:
             break
         }
@@ -972,7 +992,7 @@ class StreamDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDat
         
         let alert = UIAlertController(title: "Chat Rules", message: "", preferredStyle: .alert)
         alert.setValue(attributedText, forKey: "attributedMessage")
-
+        
         alert.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
         
         DispatchQueue.main.async {
@@ -1081,7 +1101,7 @@ class StreamDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDat
                                 self.streamVideoCode = streamObj?["stream_video_code"] as? String ?? ""
                                 let streamVideoTitle = streamObj?["stream_video_title"] as? String ?? ""
                                 let streamVideoDesc = streamObj?["stream_video_description"] as? String ?? ""
-                               // "currency_type" = USD;
+                                // "currency_type" = USD;
                                 var currency_type = streamObj?["currency_type"] as? String ?? ""
                                 if(currency_type == "GBP"){
                                     currency_type = "£"
@@ -1089,7 +1109,7 @@ class StreamDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDat
                                     currency_type = "$"
                                 }
                                 var amount = "0.0"
-
+                                
                                 if (streamObj?["stream_payment_amount"] as? Double) != nil {
                                     amount = String(streamObj?["stream_payment_amount"] as? Double ?? 0.0)
                                 }else if (streamObj?["stream_payment_amount"] as? String) != nil {
@@ -1103,7 +1123,7 @@ class StreamDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDat
                                 if let urlBanner = URL(string: streamBannerURL){
                                     self.downloadImage(from: urlBanner as URL, imageView: self.imgStreamThumbNail)
                                 }
-                               
+                                
                                 self.paymentAmount = streamObj?["stream_payment_amount"]as? Int ?? 0
                                 self.lblTitle.text = streamVideoTitle
                                 self.txtVideoDesc_Info.text = streamVideoDesc
@@ -1134,7 +1154,7 @@ class StreamDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDat
                                     //if user does not pay amount
                                     self.btnPayPerView.isHidden = false
                                     self.viewVOD.isHidden = false
-
+                                    
                                 }else{
                                     self.btnPayPerView.isHidden = true
                                     if (self.aryStreamInfo.count > 0){
@@ -1145,7 +1165,7 @@ class StreamDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDat
                                             self.isStream = true;
                                             self.btnPlayStream.isHidden = false;
                                             self.lblStreamUnavailable.text = "";
-                                           
+                                            
                                         }else{
                                             self.lblVODUnavailable.text = ""
                                             self.viewVOD.isHidden = false
@@ -1192,22 +1212,22 @@ class StreamDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDat
                                 self.btnPlayStream.isUserInteractionEnabled = false
                                 self.btnPlayStream.setImage(UIImage.init(named: "eye-cross.png"), for: .normal)
                                 self.lblStreamUnavailable.text = "This vidoe may be inappropriate for some users"
-
+                                
                             }
-                           
+                            
                             let performer_info = data?["performer_info"] != nil
                             if(performer_info){
                                 self.dicPerformerInfo = data?["performer_info"] as? [String : Any] ?? [String:Any]()
                                 let performerName = self.dicPerformerInfo["performer_display_name"] as? String ?? ""
-                               /* var performer_bio = self.dicPerformerInfo["performer_bio"] as? String ?? ""
-                                performer_bio = performer_bio.htmlToString
-                                
-                                self.txtProfile.text = performerName + "\n" + performer_bio*/
+                                /* var performer_bio = self.dicPerformerInfo["performer_bio"] as? String ?? ""
+                                 performer_bio = performer_bio.htmlToString
+                                 
+                                 self.txtProfile.text = performerName + "\n" + performer_bio*/
                                 let videoDesc = self.txtVideoDesc_Info.text!;
                                 let creatorName = "Creator Name:" + performerName;
                                 
                                 self.txtVideoDesc_Info.text = videoDesc  + "\n\n\n" + creatorName
-
+                                
                                 self.app_id_for_adds = self.dicPerformerInfo["app_id"] as? String ?? "0"
                                 if (self.aryStreamInfo.count == 0){
                                     //performer_profile_banner

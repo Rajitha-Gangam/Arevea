@@ -36,20 +36,24 @@ class MultiStreamVC: UIViewController {
     }
     func getGuestDetailInGraphql(_ cachePolicy: CachePolicy) {
         
-        let listQuery = GetMulticreatorshareddataQuery(id: "58_1594894849561_multi_creator_test_event")
-        
+        let listQuery = GetMulticreatorshareddataQuery(id: "1872_1595845007395_mc2")
+        //1872_1595845007395_mc2
+        //58_1594894849561_multi_creator_test_event
         appSyncClient?.fetch(query: listQuery, cachePolicy: cachePolicy) { result, error in
             
             if let error = error {
                 print("Error fetching data: \(error)")
                 return
             }
-            print("--result:",result)
+           // print("--result:",result)
             if((result != nil)  && (result?.data != nil)){
-                print("--data:",result?.data)
-                var data = result?.data
-                if((data?.getMulticreatorshareddata) != nil){
-                    print("--data2:",data?.getMulticreatorshareddata)
+               // print("--data:",result?.data)
+                let data = result?.data
+                let multiData = data?.getMulticreatorshareddata
+                if(multiData != nil){
+                   // let multiDataJSON = self.convertToDictionary(text: multiData)
+
+                   print("--data2:",multiData)
                 }else{
                     print("--getMulticreatorshareddata null")
                 }
@@ -58,6 +62,17 @@ class MultiStreamVC: UIViewController {
             // Remove existing records if we're either loading from cache, or loading fresh (e.g., from a refresh)
         }
     }
+    func convertToDictionary(text: String) -> [String: Any]? {
+        if let data = text.data(using: .utf8) {
+            do {
+                return try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
+            } catch {
+                //print(error.localizedDescription)
+            }
+        }
+        return nil
+    }
+    
     @IBAction func payTip(_ sender: Any) {
     }
     override func viewWillAppear(_ animated: Bool) {

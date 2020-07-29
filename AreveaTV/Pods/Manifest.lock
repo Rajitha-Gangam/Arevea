@@ -29,6 +29,7 @@ PODS:
   - AWSMobileClient (2.13.3):
     - AWSAuthCore (= 2.13.3)
     - AWSCognitoIdentityProvider (= 2.13.3)
+  - EasyTipView (2.0.4)
   - FBSDKCoreKit (5.8.0):
     - FBSDKCoreKit/Basics (= 5.8.0)
     - FBSDKCoreKit/Core (= 5.8.0)
@@ -750,6 +751,7 @@ DEPENDENCIES:
   - AWSCore
   - AWSFacebookSignIn
   - AWSMobileClient
+  - EasyTipView (~> 2.0.4)
   - Firebase/Analytics
   - Firebase/Crashlytics
   - Instabug
@@ -802,6 +804,7 @@ SPEC REPOS:
     - AGEmojiKeyboard
     - AppSyncRealTimeClient
     - AWSAppSync
+    - EasyTipView
     - ReachabilitySwift
     - SQLite.swift
     - Starscream
@@ -820,6 +823,7 @@ SPEC CHECKSUMS:
   AWSCore: fc361166b595e3c0183c55987743b295646c39d2
   AWSFacebookSignIn: 651bdb4cc9675411d7f8b107f154e7e5a0b5010a
   AWSMobileClient: 9149b664d1a89279bd49d36598c7afc38a63d7d1
+  EasyTipView: 4f8beae0a82db2ca4a9b5fd658785fc5f61d296b
   FBSDKCoreKit: e7dcac0aabcfb09d0166998edd95fe3b05a0ce5d
   FBSDKLoginKit: 1b0cf04df0370b37404213157b060d6666ede814
   Firebase: b28e55c60efd98963cd9011fe2fac5a10c2ba124
@@ -851,6 +855,6 @@ SPEC CHECKSUMS:
   SQLite.swift: d2b4642190917051ce6bd1d49aab565fe794eea3
   Starscream: 4bb2f9942274833f7b4d296a55504dcfc7edb7b0
 
-PODFILE CHECKSUM: b1ad48728ee95a033cf7b8e41cee2e27b109dc7c
+PODFILE CHECKSUM: 91a554c03e36394f696e4ba0d8224b185892840d
 
 COCOAPODS: 1.9.3
