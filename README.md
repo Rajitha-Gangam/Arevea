@@ -29,7 +29,10 @@ Method Names : **setLiveStreamConfig(),configureStreamView()**
 we got Red 5 Pro sample from the following link.
 https://github.com/red5pro/streaming-ios
 
+
 Eventhough we are using BaseTest directly, we are not using any Publisher methods.
-Please observe **R5options.plist** file it has only **subscribe** params, but not **publish** params.
+Please observe **R5options.plist** file(It exists in the following path **/AreveaTV/AreveaTV/Stream Classes**) it has only **subscribe** params, but not **publish** params.
 
 And Please observe **config()** method in **SubscribeTest.swift** and **getConfig()** method in **BaseTest.swift**, We are not using any publisher methods.
+
+**SubscribeTest.swift** and **BaseTest.swift** are exists in the following path. **/AreveaTV/AreveaTV/Stream Classes**
