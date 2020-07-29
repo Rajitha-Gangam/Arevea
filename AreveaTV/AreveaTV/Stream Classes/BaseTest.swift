@@ -63,7 +63,6 @@ class BaseTest: UIViewController , R5StreamDelegate {
     
     var shouldClose : Bool = true
     var currentView : R5VideoViewController? = nil
-    var publishStream : R5Stream? = nil
     var subscribeStream : R5Stream? = nil
     
     required init () {
@@ -76,11 +75,7 @@ class BaseTest: UIViewController , R5StreamDelegate {
     }
     
     func cleanup () {
-        if( self.publishStream != nil ) {
-            self.publishStream!.client = nil
-            self.publishStream?.delegate = nil
-            self.publishStream = nil
-        }
+        
         
         if( self.subscribeStream != nil ) {
             self.subscribeStream!.client = nil
@@ -94,9 +89,6 @@ class BaseTest: UIViewController , R5StreamDelegate {
         
         NSLog("closing view")
 
-        if( self.publishStream != nil ){
-            self.publishStream!.stop()
-        }
         
         if( self.subscribeStream != nil ){
             self.subscribeStream!.stop()
@@ -136,29 +128,7 @@ class BaseTest: UIViewController , R5StreamDelegate {
         
     }
     
-    func setupPublisher(connection: R5Connection){
-        
-        self.publishStream = R5Stream(connection: connection)
-        self.publishStream!.delegate = self
-        
-            // Attach the video from camera to stream
-            let videoDevice = AVCaptureDevice.devices(for: AVMediaType.video).last as? AVCaptureDevice
-            
-            let camera = R5Camera(device: videoDevice, andBitRate: Int32(Testbed.getParameter(param: "bitrate") as! Int))
-           
-            camera?.width = Int32(Testbed.getParameter(param: "camera_width") as! Int)
-            camera?.height = Int32(Testbed.getParameter(param: "camera_height") as! Int)
-            camera?.fps = Int32(Testbed.getParameter(param: "fps") as! Int)
-            camera?.orientation = 90
-            self.publishStream!.attachVideo(camera)
-        
-            // Attach the audio from microphone to stream
-            let audioDevice = AVCaptureDevice.default(for: AVMediaType.audio)
-            let microphone = R5Microphone(device: audioDevice)
-            microphone?.bitrate = 32
-            NSLog("Got device %@", String(describing: audioDevice?.localizedName))
-            self.publishStream!.attachAudio(microphone)
-    }
+   
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -184,17 +154,7 @@ class BaseTest: UIViewController , R5StreamDelegate {
         
     }
     
-    func getPublishRecordType () -> R5RecordType {
-        var type = R5RecordTypeLive
-        if Testbed.getParameter(param: "record_on") as! Bool {
-            type = R5RecordTypeRecord
-            if Testbed.getParameter(param: "append_on") as! Bool {
-                type = R5RecordTypeAppend
-            }
-        }
-        return type
-    }
-    
+   
     func setupDefaultR5VideoViewController() -> R5VideoViewController{
         
         currentView = getNewR5VideoViewController(rect: self.view.frame)
