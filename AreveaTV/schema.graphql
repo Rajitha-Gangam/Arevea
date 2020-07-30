@@ -1,4 +1,4 @@
-﻿﻿﻿schema {
+﻿schema {
   query: Query
   mutation: Mutation
   subscription: Subscription
@@ -17,19 +17,38 @@ type MULTICREATORSHAREDDATAConnection {
 
 type Mutation {
   createMULTICREATORSHAREDDATA(input: CreateMULTICREATORSHAREDDATAInput!): MULTICREATORSHAREDDATA
+  createSTREAMCOUNTS(input: CreateSTREAMCOUNTSInput!): STREAMCOUNTS
   deleteMULTICREATORSHAREDDATA(input: DeleteMULTICREATORSHAREDDATAInput!): MULTICREATORSHAREDDATA
+  deleteSTREAMCOUNTS(input: DeleteSTREAMCOUNTSInput!): STREAMCOUNTS
   updateMULTICREATORSHAREDDATA(input: UpdateMULTICREATORSHAREDDATAInput!): MULTICREATORSHAREDDATA
+  updateSTREAMCOUNTS(input: UpdateSTREAMCOUNTSInput!): STREAMCOUNTS
 }
 
 type Query {
   getMULTICREATORSHAREDDATA(id: String!): MULTICREATORSHAREDDATA
+  getSTREAMCOUNTS(streamid: Int!): STREAMCOUNTS
   listMULTICREATORSHAREDDATAS(filter: TableMULTICREATORSHAREDDATAFilterInput, limit: Int, nextToken: String): MULTICREATORSHAREDDATAConnection
+  listSTREAMCOUNTS(filter: TableSTREAMCOUNTSFilterInput, limit: Int, nextToken: String): STREAMCOUNTSConnection
+}
+
+type STREAMCOUNTS {
+  active: Int
+  streamid: Int!
+  total: Int
+}
+
+type STREAMCOUNTSConnection {
+  items: [STREAMCOUNTS]
+  nextToken: String
 }
 
 type Subscription {
   onCreateMULTICREATORSHAREDDATA(data: String, id: String): MULTICREATORSHAREDDATA @aws_subscribe(mutations : ["createMULTICREATORSHAREDDATA"])
+  onCreateSTREAMCOUNTS(streamid: Int): STREAMCOUNTS @aws_subscribe(mutations : ["createSTREAMCOUNTS"])
   onDeleteMULTICREATORSHAREDDATA(data: String, id: String): MULTICREATORSHAREDDATA @aws_subscribe(mutations : ["deleteMULTICREATORSHAREDDATA"])
+  onDeleteSTREAMCOUNTS(streamid: Int): STREAMCOUNTS @aws_subscribe(mutations : ["deleteSTREAMCOUNTS"])
   onUpdateMULTICREATORSHAREDDATA(data: String, id: String): MULTICREATORSHAREDDATA @aws_subscribe(mutations : ["updateMULTICREATORSHAREDDATA"])
+  onUpdateSTREAMCOUNTS(streamid: Int): STREAMCOUNTS @aws_subscribe(mutations : ["updateSTREAMCOUNTS"])
 }
 
 input CreateMULTICREATORSHAREDDATAInput {
@@ -38,8 +57,18 @@ input CreateMULTICREATORSHAREDDATAInput {
   version: Int
 }
 
+input CreateSTREAMCOUNTSInput {
+  active: Int
+  streamid: Int!
+  total: Int
+}
+
 input DeleteMULTICREATORSHAREDDATAInput {
   id: String!
+}
+
+input DeleteSTREAMCOUNTSInput {
+  streamid: Int!
 }
 
 input TableBooleanFilterInput {
@@ -88,6 +117,10 @@ input TableMULTICREATORSHAREDDATAFilterInput {
   id: TableStringFilterInput
 }
 
+input TableSTREAMCOUNTSFilterInput {
+  streamid: TableIntFilterInput
+}
+
 input TableStringFilterInput {
   beginsWith: String
   between: [String]
@@ -105,4 +138,10 @@ input UpdateMULTICREATORSHAREDDATAInput {
   data: String
   expectedVersion: Int
   id: String!
+}
+
+input UpdateSTREAMCOUNTSInput {
+  active: Int
+  streamid: Int!
+  total: Int
 }

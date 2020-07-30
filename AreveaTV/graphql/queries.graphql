@@ -6,6 +6,13 @@ query GetMulticreatorshareddata($id: String!) {
     version
   }
 }
+query GetStreamcounts($streamid: Int!) {
+  getSTREAMCOUNTS(streamid: $streamid) {
+    active
+    streamid
+    total
+  }
+}
 query ListMulticreatorshareddatas(
   $filter: TableMULTICREATORSHAREDDATAFilterInput
   $limit: Int
@@ -20,6 +27,20 @@ query ListMulticreatorshareddatas(
       data
       id
       version
+    }
+    nextToken
+  }
+}
+query ListStreamcounts(
+  $filter: TableSTREAMCOUNTSFilterInput
+  $limit: Int
+  $nextToken: String
+) {
+  listSTREAMCOUNTS(filter: $filter, limit: $limit, nextToken: $nextToken) {
+    items {
+      active
+      streamid
+      total
     }
     nextToken
   }

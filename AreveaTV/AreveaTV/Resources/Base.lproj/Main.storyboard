@@ -8,6 +8,11 @@
         <capability name="collection view cell content view" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
+    <customFonts key="customFonts">
+        <array key="Poppins-Bold.ttf">
+            <string>Poppins-Bold</string>
+        </array>
+    </customFonts>
     <scenes>
         <!--SplashVC-->
         <scene sceneID="tne-QT-ifu">
@@ -833,7 +838,7 @@
                                             <constraint firstAttribute="width" constant="180" id="8Dv-kI-eDI"/>
                                             <constraint firstAttribute="height" constant="36" id="uv5-qY-RdO"/>
                                         </constraints>
-                                        <fontDescription key="fontDescription" type="system" pointSize="20"/>
+                                        <fontDescription key="fontDescription" name="HelveticaNeue" family="Helvetica Neue" pointSize="17"/>
                                         <state key="normal" title="Back to Sign In">
                                             <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         </state>
@@ -1018,7 +1023,7 @@
                                             <constraint firstAttribute="height" constant="45" id="0N8-1k-vjK"/>
                                             <constraint firstAttribute="width" constant="348" id="ysY-Pl-hO5"/>
                                         </constraints>
-                                        <fontDescription key="fontDescription" type="boldSystem" pointSize="16"/>
+                                        <fontDescription key="fontDescription" name="Poppins-Bold" family="Poppins" pointSize="17"/>
                                         <state key="normal" title="SUBMIT">
                                             <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         </state>
@@ -2217,11 +2222,11 @@
                                     </tableView>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Version: " lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="yi2-uv-wds">
                                         <rect key="frame" x="20" y="775" width="314" height="35"/>
-                                        <fontDescription key="fontDescription" type="boldSystem" pointSize="17"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="15"/>
                                         <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <nil key="highlightedColor"/>
                                         <variation key="heightClass=regular-widthClass=regular">
-                                            <fontDescription key="fontDescription" type="boldSystem" pointSize="25"/>
+                                            <fontDescription key="fontDescription" type="system" pointSize="23"/>
                                         </variation>
                                     </label>
                                 </subviews>
@@ -6039,7 +6044,7 @@
                                             <action selector="back:" destination="Tmy-DK-Dnd" eventType="touchUpInside" id="orO-Nh-NdB"/>
                                         </connections>
                                     </button>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Channel" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="oSr-Rc-sId">
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Multi Creator Event Name" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="oSr-Rc-sId">
                                         <rect key="frame" x="50" y="0.0" width="354" height="44"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="44" id="cHH-7v-gXM"/>
@@ -6068,6 +6073,10 @@
                                 <connections>
                                     <action selector="onTapTitle" destination="bDf-IW-UuP" eventType="touchDown" id="5WF-QG-pfq"/>
                                 </connections>
+                            </view>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="uVv-dC-UAl">
+                                <rect key="frame" x="0.0" y="88" width="414" height="808"/>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
                             </view>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="dBQ-KO-2eg">
                                 <rect key="frame" x="147" y="393" width="120" height="120"/>
@@ -6112,10 +6121,14 @@
                         <color key="backgroundColor" red="0.0039215686269999999" green="0.1137254902" blue="0.1529411765" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
                             <constraint firstItem="dBQ-KO-2eg" firstAttribute="centerY" secondItem="ZfP-Hg-Lcy" secondAttribute="centerY" id="8TN-TB-uNk"/>
+                            <constraint firstItem="uVv-dC-UAl" firstAttribute="top" secondItem="1uo-9U-uXJ" secondAttribute="bottom" id="Fx8-Nl-NPu"/>
                             <constraint firstItem="dBQ-KO-2eg" firstAttribute="centerX" secondItem="ZfP-Hg-Lcy" secondAttribute="centerX" id="PWp-H6-cCB"/>
                             <constraint firstItem="1uo-9U-uXJ" firstAttribute="leading" secondItem="ZfP-Hg-Lcy" secondAttribute="leading" id="gwG-vr-dLf"/>
+                            <constraint firstItem="uVv-dC-UAl" firstAttribute="trailing" secondItem="ZfP-Hg-Lcy" secondAttribute="trailing" id="hxW-eI-lGB"/>
                             <constraint firstItem="1uo-9U-uXJ" firstAttribute="trailing" secondItem="ZfP-Hg-Lcy" secondAttribute="trailing" id="lg2-7u-6oQ"/>
+                            <constraint firstAttribute="bottom" secondItem="uVv-dC-UAl" secondAttribute="bottom" id="o6o-BZ-2M6"/>
                             <constraint firstItem="1uo-9U-uXJ" firstAttribute="top" secondItem="ZfP-Hg-Lcy" secondAttribute="top" id="vUd-3A-fgg"/>
+                            <constraint firstItem="uVv-dC-UAl" firstAttribute="leading" secondItem="ZfP-Hg-Lcy" secondAttribute="leading" id="vvY-zl-xu8"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="ZfP-Hg-Lcy"/>
                     </view>
@@ -6123,12 +6136,13 @@
                         <outlet property="heightTopView" destination="iZd-6Y-O95" id="Upg-gF-h1N"/>
                         <outlet property="lblTitle" destination="oSr-Rc-sId" id="gj7-Tc-O2k"/>
                         <outlet property="viewActivity" destination="dBQ-KO-2eg" id="xE1-Kh-JZa"/>
+                        <outlet property="viewStream" destination="uVv-dC-UAl" id="tbS-bw-6VF"/>
                         <outlet property="viewTop" destination="1uo-9U-uXJ" id="Lnh-Az-6KZ"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="4rm-Qa-wYI" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-245" y="2666"/>
+            <point key="canvasLocation" x="-246.37681159420291" y="2665.8482142857142"/>
         </scene>
         <!--My EventsVC-->
         <scene sceneID="G9S-Bz-ywv">

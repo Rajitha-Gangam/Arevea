@@ -56,6 +56,17 @@
 			<key>class</key>
 			<string>SubscribeTest</string>
 		</dict>
+		<key>subscribe - Two Streams</key>
+		<dict>
+			<key>description</key>
+			<string>Allows subscribing to both streams at once</string>
+			<key>LocalProperties</key>
+			<dict/>
+			<key>name</key>
+			<string>Subscribe - Two Streams</string>
+			<key>class</key>
+			<string>SubscribeTwoStreams</string>
+		</dict>
 	</dict>
 </dict>
 </plist>

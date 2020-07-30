@@ -96,14 +96,14 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
         
         UIDevice.current.setValue(self.preferredInterfaceOrientationForPresentation.rawValue, forKey: "orientation")
         
-        lblVersion.text = "Version: " + getAppversion()
+        lblVersion.text = "v" + getAppversion()
         
     }
     func getAppversion() -> String {
                   let dictionary = Bundle.main.infoDictionary!
                   let version = dictionary["CFBundleShortVersionString"] as! String
                   let build = dictionary["CFBundleVersion"] as! String
-                  return "\(version)(\(build))"
+                  return "\(version).\(build)"
     }
     override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
         super.viewWillTransition(to: size, with: coordinator)
@@ -656,7 +656,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
         
         if (selectedOrg?["parent_category_id"]as? Int != nil){
             let storyboard = UIStoryboard(name: "Main", bundle: nil);
-            let vc = storyboard.instantiateViewController(withIdentifier: "MultiStreamVC") as! MultiStreamVC
+            let vc = storyboard.instantiateViewController(withIdentifier: "StreamDetailVC") as! StreamDetailVC
             vc.orgId = selectedOrg?["organization_id"] as? Int ?? 0
             vc.streamId = selectedOrg?["id"] as? Int ?? 0
             vc.delegate = self

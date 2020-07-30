@@ -8,6 +8,13 @@ mutation CreateMulticreatorshareddata(
     version
   }
 }
+mutation CreateStreamcounts($input: CreateSTREAMCOUNTSInput!) {
+  createSTREAMCOUNTS(input: $input) {
+    active
+    streamid
+    total
+  }
+}
 mutation DeleteMulticreatorshareddata(
   $input: DeleteMULTICREATORSHAREDDATAInput!
 ) {
@@ -17,6 +24,13 @@ mutation DeleteMulticreatorshareddata(
     version
   }
 }
+mutation DeleteStreamcounts($input: DeleteSTREAMCOUNTSInput!) {
+  deleteSTREAMCOUNTS(input: $input) {
+    active
+    streamid
+    total
+  }
+}
 mutation UpdateMulticreatorshareddata(
   $input: UpdateMULTICREATORSHAREDDATAInput!
 ) {
@@ -24,5 +38,12 @@ mutation UpdateMulticreatorshareddata(
     data
     id
     version
+  }
+}
+mutation UpdateStreamcounts($input: UpdateSTREAMCOUNTSInput!) {
+  updateSTREAMCOUNTS(input: $input) {
+    active
+    streamid
+    total
   }
 }

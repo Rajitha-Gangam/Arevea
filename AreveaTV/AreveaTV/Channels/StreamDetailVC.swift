@@ -432,7 +432,7 @@ class StreamDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDat
         self.viewLiveStream.layoutIfNeeded()
         VODHeight.constant = CGFloat(viewHeight)
         self.viewVOD.layoutIfNeeded()
-        tblComments.rowHeight = 150
+        tblComments.rowHeight = 40
         tblComments.estimatedRowHeight = UITableView.automaticDimension
     }
     func showVideo(strURL : String){
@@ -1097,9 +1097,11 @@ class StreamDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDat
                                 let streamObj = self.aryStreamInfo[0] as? [String:Any]
                                 self.streamId = streamObj?["id"] as? Int ?? 0
                                 self.age_limit = streamObj?["age_limit"] as? Int ?? 0
-                                
                                 self.streamVideoCode = streamObj?["stream_video_code"] as? String ?? ""
                                 let streamVideoTitle = streamObj?["stream_video_title"] as? String ?? ""
+                                self.isChannelAvailable = true
+                                self.sendBirdChatConfig()
+                                self.sendBirdEmojiConfig()
                                 let streamVideoDesc = streamObj?["stream_video_description"] as? String ?? ""
                                 // "currency_type" = USD;
                                 var currency_type = streamObj?["currency_type"] as? String ?? ""
@@ -1154,7 +1156,7 @@ class StreamDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDat
                                     //if user does not pay amount
                                     self.btnPayPerView.isHidden = false
                                     self.viewVOD.isHidden = false
-                                    
+                                    self.isChannelAvailable = false
                                 }else{
                                     self.btnPayPerView.isHidden = true
                                     if (self.aryStreamInfo.count > 0){
@@ -1208,6 +1210,7 @@ class StreamDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDat
                                     }
                                 }
                             }else{
+                                self.isChannelAvailable = false
                                 self.btnPlayStream.isHidden = false;
                                 self.btnPlayStream.isUserInteractionEnabled = false
                                 self.btnPlayStream.setImage(UIImage.init(named: "eye-cross.png"), for: .normal)
@@ -1567,7 +1570,7 @@ class StreamDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDat
         self.txtTopOfToolBar.text = ""
         
         if (!isChannelAvailable){
-            //print("sendBirdErrorCode:",sendBirdErrorCode)
+            print("sendBirdErrorCode:",sendBirdErrorCode)
             switch sendBirdErrorCode {
             case 403100:
                 showAlert(strMsg: "Application id disabled/expired, Please contact admin.")

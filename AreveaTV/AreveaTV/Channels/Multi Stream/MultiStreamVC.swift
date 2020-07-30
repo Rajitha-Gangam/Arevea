@@ -7,71 +7,109 @@
 //
 
 import UIKit
-import Alamofire
-import AWSAppSync
+
 
 class MultiStreamVC: UIViewController {
+    // MARK: - Variables Declaration
     let appDelegate = UIApplication.shared.delegate as! AppDelegate
     var backPressed = false
-    var appSyncClient: AWSAppSyncClient?
     @IBOutlet weak var heightTopView: NSLayoutConstraint?
     @IBOutlet weak var viewTop: UIView!
     weak var delegate: OpenChanannelChatDelegate?
     @IBOutlet weak var lblTitle: UILabel!
     @IBOutlet weak var viewActivity: UIView!
-    
+    @IBOutlet weak var viewStream: UIView!
+
     var orgId = 0;
     var performerId = 0;
     var streamId = 0;
     var strTitle = ""
+    var detailStreamItem: NSDictionary? {
+        didSet {
+            // Update the view.
+            // self.configureView()
+        }
+    }
+    var r5ViewController : BaseTest? = nil
+    // MARK: - View Life cycle
+
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
-        appSyncClient = appDelegate.appSyncClient
-        getGuestDetailInGraphql(.returnCacheDataAndFetch)
+        
         lblTitle.text = strTitle
         viewActivity.isHidden = true
-
+        setLiveStreamConfig()
         
     }
-    func getGuestDetailInGraphql(_ cachePolicy: CachePolicy) {
+    func setLiveStreamConfig(){
         
-        let listQuery = GetMulticreatorshareddataQuery(id: "1872_1595845007395_mc2")
-        //1872_1595845007395_mc2
-        //58_1594894849561_multi_creator_test_event
-        appSyncClient?.fetch(query: listQuery, cachePolicy: cachePolicy) { result, error in
+        let session_token = UserDefaults.standard.string(forKey: "session_token");
+        let user_email = UserDefaults.standard.string(forKey: "user_email");
+        
+        let path = Bundle.main.path(forResource: "R5options", ofType: "plist")
+        let dicPlist = NSMutableDictionary(contentsOfFile: path!)
+        let dicGlobalProperties = dicPlist?.value(forKey: "GlobalProperties") as? NSMutableDictionary
+        
+        let license_key = dicGlobalProperties?["license_key"] as? String
+        let server_port = dicGlobalProperties?["server_port"] as? String
+        let bitrate = dicGlobalProperties?["bitrate"] as? Int
+        let host = dicGlobalProperties?["host"] as? String
+        let buffer_time = dicGlobalProperties?["buffer_time"] as? Float
+        let port = dicGlobalProperties?["port"] as? Int
+        let stream2 = dicGlobalProperties?["stream2"] as? String
+        let context = dicGlobalProperties?["context"] as? String
+        let camera_width = dicGlobalProperties?["camera_width"] as? Int
+        let camera_height = dicGlobalProperties?["camera_height"] as? Int
+        let fps = dicGlobalProperties?["fps"] as? Int
+        let sm_version = dicGlobalProperties?["sm_version"] as? String
+        
+        Testbed.setUserName(name: user_email ?? "")
+        Testbed.setPassword(name: session_token ?? "")
+        Testbed.setLicenseKey(name:license_key ?? "")
+        Testbed.setServerPort(name: server_port ?? "")
+        Testbed.setBitrate(name: bitrate ?? 0)
+        Testbed.setBufferTime(name: buffer_time ?? 0.0)
+        Testbed.setPort(name: port ?? 0)
+//        Testbed.setStreamName(name: streamVideoCode)
+//        Testbed.setStream1Name(name: streamVideoCode)
+        Testbed.setStream2Name(name: stream2 ?? "")
+        Testbed.setHost(name: host ?? "");
+        Testbed.setContext(name: context ?? "")
+        Testbed.setCameraWidth(name: camera_width ?? 0)
+        Testbed.setCameraHeight(name: camera_height ?? 0)
+        Testbed.setFPs(name: fps ?? 0)
+        Testbed.setSMVersion(name: sm_version ?? "")
+        Testbed.setDebug(on: true)
+        Testbed.setVideo(on: true)
+        Testbed.setAudio(on: true)
+        Testbed.setHWAccel(on: false)
+        Testbed.setRecord(on: true)
+        Testbed.setRecordAppend(on: true)
+        // Testbed.parameters = Testbed.dictionary!.value(forKey: "GlobalProperties") as? NSMutableDictionary
+        configureStreamView()
+    }
+    func configureStreamView() {
+        // Update the user interface for the detail item.
+        // Access the static shared interface to ensure it's loaded
+        _ = Testbed.sharedInstance
+        self.detailStreamItem = Testbed.testAtIndex(index: 1)
+        if(self.detailStreamItem != nil){
+            //print("props:",self.detailStreamItem!["LocalProperties"] as? NSMutableDictionary)
             
-            if let error = error {
-                print("Error fetching data: \(error)")
-                return
-            }
-           // print("--result:",result)
-            if((result != nil)  && (result?.data != nil)){
-               // print("--data:",result?.data)
-                let data = result?.data
-                let multiData = data?.getMulticreatorshareddata
-                if(multiData != nil){
-                   // let multiDataJSON = self.convertToDictionary(text: multiData)
-
-                   print("--data2:",multiData)
-                }else{
-                    print("--getMulticreatorshareddata null")
-                }
-                
-            }
-            // Remove existing records if we're either loading from cache, or loading fresh (e.g., from a refresh)
+            Testbed.setLocalOverrides(params: self.detailStreamItem!["LocalProperties"] as? NSMutableDictionary)
+            let className = self.detailStreamItem!["class"] as! String
+            let mClass = NSClassFromString(className) as! BaseTest.Type;
+            
+            r5ViewController  = mClass.init()
+            r5ViewController?.view.frame = self.viewStream.bounds
+            self.viewStream.addSubview(r5ViewController!.view)
+            self.addChild(r5ViewController!)
+            //self.viewLiveStream.bringSubviewToFront(webView)
+            //self.viewLiveStream.bringSubviewToFront(btnRotationStream)
         }
     }
-    func convertToDictionary(text: String) -> [String: Any]? {
-        if let data = text.data(using: .utf8) {
-            do {
-                return try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
-            } catch {
-                //print(error.localizedDescription)
-            }
-        }
-        return nil
-    }
+    
     
     @IBAction func payTip(_ sender: Any) {
     }

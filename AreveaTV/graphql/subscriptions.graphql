@@ -6,6 +6,13 @@ subscription OnCreateMulticreatorshareddata($data: String, $id: String) {
     version
   }
 }
+subscription OnCreateStreamcounts($streamid: Int) {
+  onCreateSTREAMCOUNTS(streamid: $streamid) {
+    active
+    streamid
+    total
+  }
+}
 subscription OnDeleteMulticreatorshareddata($data: String, $id: String) {
   onDeleteMULTICREATORSHAREDDATA(data: $data, id: $id) {
     data
@@ -13,10 +20,24 @@ subscription OnDeleteMulticreatorshareddata($data: String, $id: String) {
     version
   }
 }
+subscription OnDeleteStreamcounts($streamid: Int) {
+  onDeleteSTREAMCOUNTS(streamid: $streamid) {
+    active
+    streamid
+    total
+  }
+}
 subscription OnUpdateMulticreatorshareddata($data: String, $id: String) {
   onUpdateMULTICREATORSHAREDDATA(data: $data, id: $id) {
     data
     id
     version
+  }
+}
+subscription OnUpdateStreamcounts($streamid: Int) {
+  onUpdateSTREAMCOUNTS(streamid: $streamid) {
+    active
+    streamid
+    total
   }
 }
