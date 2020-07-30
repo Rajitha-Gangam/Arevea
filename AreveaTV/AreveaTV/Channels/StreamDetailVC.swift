@@ -432,7 +432,7 @@ class StreamDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDat
         self.viewLiveStream.layoutIfNeeded()
         VODHeight.constant = CGFloat(viewHeight)
         self.viewVOD.layoutIfNeeded()
-        tblComments.rowHeight = 40
+        tblComments.rowHeight = 100
         tblComments.estimatedRowHeight = UITableView.automaticDimension
     }
     func showVideo(strURL : String){

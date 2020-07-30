@@ -49,14 +49,14 @@
 		184A0B542472CC20006EDDA3 /* PaymentHistoryCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 184A0B522472CC20006EDDA3 /* PaymentHistoryCell.xib */; };
 		184A0B562473AF8C006EDDA3 /* donation-icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 184A0B552473AF8C006EDDA3 /* donation-icon.png */; };
 		184A0B5A24741F8A006EDDA3 /* default-img1.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 184A0B5924741F8A006EDDA3 /* default-img1.jpg */; };
+		184B86D324D302C8003F4D3D /* OpenChannelMessageTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 184B86CD24D302C8003F4D3D /* OpenChannelMessageTableViewCell.swift */; };
+		184B86D424D302C8003F4D3D /* OpenChannelMessageTableViewCellDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 184B86CE24D302C8003F4D3D /* OpenChannelMessageTableViewCellDelegate.swift */; };
+		184B86D524D302C8003F4D3D /* OpenChanannelChatDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 184B86CF24D302C8003F4D3D /* OpenChanannelChatDelegate.swift */; };
+		184B86D624D302C8003F4D3D /* OpenChannelUserMessageTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 184B86D024D302C8003F4D3D /* OpenChannelUserMessageTableViewCell.swift */; };
+		184B86D724D302C8003F4D3D /* OpenChannelUserMessageTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 184B86D124D302C8003F4D3D /* OpenChannelUserMessageTableViewCell.xib */; };
+		184B86D824D302C8003F4D3D /* OpenChannelTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 184B86D224D302C8003F4D3D /* OpenChannelTableViewCell.swift */; };
 		1858EAD22484F51C00A69D10 /* HelpVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1858EAD12484F51C00A69D10 /* HelpVC.swift */; };
 		1858EAD42485113A00A69D10 /* help-icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 1858EAD32485113900A69D10 /* help-icon.png */; };
-		1859610624D2D5B500931D70 /* OpenChannelUserMessageTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1859610024D2D5B500931D70 /* OpenChannelUserMessageTableViewCell.swift */; };
-		1859610724D2D5B500931D70 /* OpenChanannelChatDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1859610124D2D5B500931D70 /* OpenChanannelChatDelegate.swift */; };
-		1859610824D2D5B500931D70 /* OpenChannelMessageTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1859610224D2D5B500931D70 /* OpenChannelMessageTableViewCell.swift */; };
-		1859610924D2D5B500931D70 /* OpenChannelMessageTableViewCellDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1859610324D2D5B500931D70 /* OpenChannelMessageTableViewCellDelegate.swift */; };
-		1859610A24D2D5B500931D70 /* OpenChannelTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1859610424D2D5B500931D70 /* OpenChannelTableViewCell.swift */; };
-		1859610B24D2D5B500931D70 /* OpenChannelUserMessageTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1859610524D2D5B500931D70 /* OpenChannelUserMessageTableViewCell.xib */; };
 		1859D17E24CAFC96008F4BCC /* filter-icon-or.png in Resources */ = {isa = PBXBuildFile; fileRef = 1859D17B24CAFC95008F4BCC /* filter-icon-or.png */; };
 		1859D17F24CAFC96008F4BCC /* menu-or.png in Resources */ = {isa = PBXBuildFile; fileRef = 1859D17C24CAFC95008F4BCC /* menu-or.png */; };
 		1859D18024CAFC96008F4BCC /* search-or.png in Resources */ = {isa = PBXBuildFile; fileRef = 1859D17D24CAFC96008F4BCC /* search-or.png */; };
@@ -242,14 +242,14 @@
 		184A0B522472CC20006EDDA3 /* PaymentHistoryCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = PaymentHistoryCell.xib; sourceTree = "<group>"; };
 		184A0B552473AF8C006EDDA3 /* donation-icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "donation-icon.png"; sourceTree = "<group>"; };
 		184A0B5924741F8A006EDDA3 /* default-img1.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "default-img1.jpg"; sourceTree = "<group>"; };
+		184B86CD24D302C8003F4D3D /* OpenChannelMessageTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OpenChannelMessageTableViewCell.swift; sourceTree = "<group>"; };
+		184B86CE24D302C8003F4D3D /* OpenChannelMessageTableViewCellDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OpenChannelMessageTableViewCellDelegate.swift; sourceTree = "<group>"; };
+		184B86CF24D302C8003F4D3D /* OpenChanannelChatDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OpenChanannelChatDelegate.swift; sourceTree = "<group>"; };
+		184B86D024D302C8003F4D3D /* OpenChannelUserMessageTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OpenChannelUserMessageTableViewCell.swift; sourceTree = "<group>"; };
+		184B86D124D302C8003F4D3D /* OpenChannelUserMessageTableViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = OpenChannelUserMessageTableViewCell.xib; sourceTree = "<group>"; };
+		184B86D224D302C8003F4D3D /* OpenChannelTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OpenChannelTableViewCell.swift; sourceTree = "<group>"; };
 		1858EAD12484F51C00A69D10 /* HelpVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelpVC.swift; sourceTree = "<group>"; };
 		1858EAD32485113900A69D10 /* help-icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "help-icon.png"; sourceTree = "<group>"; };
-		1859610024D2D5B500931D70 /* OpenChannelUserMessageTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OpenChannelUserMessageTableViewCell.swift; sourceTree = "<group>"; };
-		1859610124D2D5B500931D70 /* OpenChanannelChatDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OpenChanannelChatDelegate.swift; sourceTree = "<group>"; };
-		1859610224D2D5B500931D70 /* OpenChannelMessageTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OpenChannelMessageTableViewCell.swift; sourceTree = "<group>"; };
-		1859610324D2D5B500931D70 /* OpenChannelMessageTableViewCellDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OpenChannelMessageTableViewCellDelegate.swift; sourceTree = "<group>"; };
-		1859610424D2D5B500931D70 /* OpenChannelTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OpenChannelTableViewCell.swift; sourceTree = "<group>"; };
-		1859610524D2D5B500931D70 /* OpenChannelUserMessageTableViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = OpenChannelUserMessageTableViewCell.xib; sourceTree = "<group>"; };
 		1859D17B24CAFC95008F4BCC /* filter-icon-or.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "filter-icon-or.png"; sourceTree = "<group>"; };
 		1859D17C24CAFC95008F4BCC /* menu-or.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "menu-or.png"; sourceTree = "<group>"; };
 		1859D17D24CAFC96008F4BCC /* search-or.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "search-or.png"; sourceTree = "<group>"; };
@@ -451,27 +451,26 @@
 			path = "Payment History Cell";
 			sourceTree = "<group>";
 		};
+		184B86CC24D302C8003F4D3D /* Open Channel Cells */ = {
+			isa = PBXGroup;
+			children = (
+				184B86CD24D302C8003F4D3D /* OpenChannelMessageTableViewCell.swift */,
+				184B86CE24D302C8003F4D3D /* OpenChannelMessageTableViewCellDelegate.swift */,
+				184B86CF24D302C8003F4D3D /* OpenChanannelChatDelegate.swift */,
+				184B86D024D302C8003F4D3D /* OpenChannelUserMessageTableViewCell.swift */,
+				184B86D124D302C8003F4D3D /* OpenChannelUserMessageTableViewCell.xib */,
+				184B86D224D302C8003F4D3D /* OpenChannelTableViewCell.swift */,
+			);
+			path = "Open Channel Cells";
+			sourceTree = "<group>";
+		};
 		1869F50A24659CC3003153B1 /* Send Bird */ = {
 			isa = PBXGroup;
 			children = (
-				1869F50B24659CFC003153B1 /* Open Channel Cells */,
+				184B86CC24D302C8003F4D3D /* Open Channel Cells */,
 				1869F51824659D5F003153B1 /* SBOpenChatVC.swift */,
 			);
 			path = "Send Bird";
-			sourceTree = "<group>";
-		};
-		1869F50B24659CFC003153B1 /* Open Channel Cells */ = {
-			isa = PBXGroup;
-			children = (
-				1859610124D2D5B500931D70 /* OpenChanannelChatDelegate.swift */,
-				1859610224D2D5B500931D70 /* OpenChannelMessageTableViewCell.swift */,
-				1859610324D2D5B500931D70 /* OpenChannelMessageTableViewCellDelegate.swift */,
-				1859610424D2D5B500931D70 /* OpenChannelTableViewCell.swift */,
-				1859610024D2D5B500931D70 /* OpenChannelUserMessageTableViewCell.swift */,
-				1859610524D2D5B500931D70 /* OpenChannelUserMessageTableViewCell.xib */,
-			);
-			name = "Open Channel Cells";
-			path = "../../../../../Swift/TestSandBird/TestSandBird/Open Channel Cells";
 			sourceTree = "<group>";
 		};
 		1891CA56244AC82B00EE1E45 = {
@@ -1001,7 +1000,7 @@
 				189EBF3A2459D25700C52B0E /* UpcomingCell.xib in Resources */,
 				18D2718524A4A8E600F958BC /* icon-72@2x.png in Resources */,
 				18D480B82451AA0B00640C1A /* channel3.png in Resources */,
-				1859610B24D2D5B500931D70 /* OpenChannelUserMessageTableViewCell.xib in Resources */,
+				184B86D724D302C8003F4D3D /* OpenChannelUserMessageTableViewCell.xib in Resources */,
 				183AB4A6247E988500E0197C /* play-vod.png in Resources */,
 				184A0B542472CC20006EDDA3 /* PaymentHistoryCell.xib in Resources */,
 				18D4809424509A5600640C1A /* logout-icon.png in Resources */,
@@ -1171,19 +1170,18 @@
 				18D480AA24519D1100640C1A /* SubscribeTest.swift in Sources */,
 				18EB81C7244ACC4F008EB09A /* SignUpVC.swift in Sources */,
 				18EB81C8244ACC4F008EB09A /* ConfirmSignUpVC.swift in Sources */,
-				1859610624D2D5B500931D70 /* OpenChannelUserMessageTableViewCell.swift in Sources */,
 				18E77E1E24C6E541003BBC39 /* MyEventsVC.swift in Sources */,
 				189EBF392459D25700C52B0E /* UpcomingCell.swift in Sources */,
-				1859610824D2D5B500931D70 /* OpenChannelMessageTableViewCell.swift in Sources */,
 				18404764248A79AC000573A2 /* SearchViewController.swift in Sources */,
 				1858EAD22484F51C00A69D10 /* HelpVC.swift in Sources */,
-				1859610924D2D5B500931D70 /* OpenChannelMessageTableViewCellDelegate.swift in Sources */,
 				18D480C02452E00500640C1A /* PaymentVC.swift in Sources */,
 				182A5EF7245F057800FF6147 /* FilterCVCell.swift in Sources */,
 				18EB81CE244ACC86008EB09A /* DashBoardVC.swift in Sources */,
 				18D48066244EDE4000640C1A /* ALToastView.m in Sources */,
+				184B86D624D302C8003F4D3D /* OpenChannelUserMessageTableViewCell.swift in Sources */,
 				18DA10D02455F8D400E5C9EB /* DBCollectionViewCell.swift in Sources */,
 				1869F51924659D5F003153B1 /* SBOpenChatVC.swift in Sources */,
+				184B86D324D302C8003F4D3D /* OpenChannelMessageTableViewCell.swift in Sources */,
 				189EBED6245752B800C52B0E /* AudioCell.swift in Sources */,
 				18EB81CB244ACC5B008EB09A /* ResetPasswordVC.swift in Sources */,
 				18FE073C24D1CFB90011FDE3 /* SubscribeTwoStreams.swift in Sources */,
@@ -1196,9 +1194,11 @@
 				1891CA63244AC82B00EE1E45 /* AppDelegate.swift in Sources */,
 				18EB81C4244ACC40008EB09A /* LoginVC.swift in Sources */,
 				18EB81BD244ACAB9008EB09A /* SplashVC.swift in Sources */,
-				1859610A24D2D5B500931D70 /* OpenChannelTableViewCell.swift in Sources */,
 				1810E6F624C84BCA003EAF91 /* StreamDetailVC.swift in Sources */,
+				184B86D824D302C8003F4D3D /* OpenChannelTableViewCell.swift in Sources */,
+				184B86D424D302C8003F4D3D /* OpenChannelMessageTableViewCellDelegate.swift in Sources */,
 				1822F8A324CF266E009E8E1A /* MyPurchasesVC.swift in Sources */,
+				184B86D524D302C8003F4D3D /* OpenChanannelChatDelegate.swift in Sources */,
 				18D480A724509F7700640C1A /* SideMenuCell.swift in Sources */,
 				18D48069244EDF9800640C1A /* Testbed.swift in Sources */,
 				184A0B4F2472CA9E006EDDA3 /* PaymentHistoryVC.swift in Sources */,
@@ -1207,7 +1207,6 @@
 				18D48057244EA59D00640C1A /* DashBoardCell.swift in Sources */,
 				1826036024D2CD7B00248E8B /* API.swift in Sources */,
 				18EB81CC244ACC5B008EB09A /* NewPasswordVC.swift in Sources */,
-				1859610724D2D5B500931D70 /* OpenChanannelChatDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
