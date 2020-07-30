@@ -31,6 +31,10 @@
                                             </userDefinedRuntimeAttribute>
                                         </userDefinedRuntimeAttributes>
                                     </imageView>
+                                    <view alpha="0.25" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="f2r-a5-yUK">
+                                        <rect key="frame" x="0.0" y="0.0" width="220" height="220"/>
+                                        <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                    </view>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="LIVE EVENTS" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="vL2-eZ-lBd">
                                         <rect key="frame" x="0.0" y="0.0" width="220" height="30"/>
                                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -74,15 +78,19 @@
                                 <constraints>
                                     <constraint firstItem="yRm-mJ-MUo" firstAttribute="top" secondItem="z8n-Zv-BVR" secondAttribute="top" id="7Ht-bE-SCL"/>
                                     <constraint firstItem="vL2-eZ-lBd" firstAttribute="leading" secondItem="z8n-Zv-BVR" secondAttribute="leading" id="8Dj-bg-8Hb"/>
+                                    <constraint firstAttribute="trailing" secondItem="f2r-a5-yUK" secondAttribute="trailing" id="8RI-Lk-BII"/>
                                     <constraint firstAttribute="trailing" secondItem="vL2-eZ-lBd" secondAttribute="trailing" id="CMQ-A8-RT1"/>
                                     <constraint firstAttribute="bottom" secondItem="csr-no-zFc" secondAttribute="bottom" constant="6" id="H5l-dC-XKX"/>
                                     <constraint firstItem="csr-no-zFc" firstAttribute="leading" secondItem="z8n-Zv-BVR" secondAttribute="leading" constant="10" id="JrR-rE-0Mq"/>
+                                    <constraint firstItem="f2r-a5-yUK" firstAttribute="leading" secondItem="z8n-Zv-BVR" secondAttribute="leading" id="L7A-lS-o1J"/>
+                                    <constraint firstAttribute="bottom" secondItem="f2r-a5-yUK" secondAttribute="bottom" id="OcP-cl-0nV"/>
                                     <constraint firstAttribute="trailing" secondItem="csr-no-zFc" secondAttribute="trailing" constant="10" id="Tbe-HZ-nrB"/>
                                     <constraint firstAttribute="trailing" secondItem="yRm-mJ-MUo" secondAttribute="trailing" id="aQx-L9-iVw"/>
                                     <constraint firstItem="BZV-CM-HAf" firstAttribute="centerY" secondItem="z8n-Zv-BVR" secondAttribute="centerY" id="e9J-bB-1P6"/>
                                     <constraint firstAttribute="trailing" secondItem="BZV-CM-HAf" secondAttribute="trailing" constant="5" id="fnH-sG-LMO"/>
                                     <constraint firstItem="6b8-1l-UVv" firstAttribute="centerY" secondItem="z8n-Zv-BVR" secondAttribute="centerY" id="hEb-3w-9sk"/>
                                     <constraint firstAttribute="bottom" secondItem="yRm-mJ-MUo" secondAttribute="bottom" id="hIx-7g-Y0R"/>
+                                    <constraint firstItem="f2r-a5-yUK" firstAttribute="top" secondItem="z8n-Zv-BVR" secondAttribute="top" id="hON-Gc-ySR"/>
                                     <constraint firstItem="6b8-1l-UVv" firstAttribute="leading" secondItem="z8n-Zv-BVR" secondAttribute="leading" constant="5" id="im3-nr-gdO"/>
                                     <constraint firstItem="vL2-eZ-lBd" firstAttribute="top" secondItem="z8n-Zv-BVR" secondAttribute="top" id="j4r-GS-IoB"/>
                                     <constraint firstItem="yRm-mJ-MUo" firstAttribute="leading" secondItem="z8n-Zv-BVR" secondAttribute="leading" id="o6a-Gk-jUN"/>

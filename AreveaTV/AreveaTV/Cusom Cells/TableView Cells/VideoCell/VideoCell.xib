@@ -24,6 +24,10 @@
                         </constraints>
                         <state key="normal" image="default-vod.png"/>
                     </button>
+                    <view alpha="0.25" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="FxC-ip-mc8">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="150"/>
+                        <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    </view>
                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="4h2-rc-PtT">
                         <rect key="frame" x="152.5" y="40" width="70" height="70"/>
                         <constraints>
@@ -50,14 +54,18 @@
                     <constraint firstItem="4h2-rc-PtT" firstAttribute="centerX" secondItem="erj-CU-gAe" secondAttribute="centerX" id="1aI-Xl-wX5"/>
                     <constraint firstAttribute="trailing" secondItem="W8l-wF-6RA" secondAttribute="trailing" id="2vb-L4-40U"/>
                     <constraint firstAttribute="bottom" secondItem="Jey-44-feU" secondAttribute="bottom" id="4qa-6B-vya"/>
+                    <constraint firstItem="FxC-ip-mc8" firstAttribute="leading" secondItem="erj-CU-gAe" secondAttribute="leading" id="DHI-m3-cvG"/>
                     <constraint firstItem="4h2-rc-PtT" firstAttribute="centerY" secondItem="erj-CU-gAe" secondAttribute="centerY" id="EYR-ql-xk7"/>
                     <constraint firstItem="W8l-wF-6RA" firstAttribute="centerY" secondItem="erj-CU-gAe" secondAttribute="centerY" id="ONZ-WZ-4yg"/>
+                    <constraint firstItem="FxC-ip-mc8" firstAttribute="top" secondItem="erj-CU-gAe" secondAttribute="top" id="WfU-ra-WnZ"/>
                     <constraint firstItem="W8l-wF-6RA" firstAttribute="top" secondItem="erj-CU-gAe" secondAttribute="top" id="bPm-75-eXW"/>
+                    <constraint firstAttribute="trailing" secondItem="FxC-ip-mc8" secondAttribute="trailing" id="gtJ-nz-gy3"/>
                     <constraint firstAttribute="trailing" secondItem="Jey-44-feU" secondAttribute="trailing" id="nWV-UP-wL2"/>
                     <constraint firstItem="W8l-wF-6RA" firstAttribute="centerX" secondItem="erj-CU-gAe" secondAttribute="centerX" id="p9X-nz-w4E"/>
                     <constraint firstAttribute="bottom" secondItem="W8l-wF-6RA" secondAttribute="bottom" id="qcs-xb-TRr"/>
                     <constraint firstItem="Jey-44-feU" firstAttribute="leading" secondItem="erj-CU-gAe" secondAttribute="leading" id="xnF-GT-LfF"/>
                     <constraint firstItem="W8l-wF-6RA" firstAttribute="leading" secondItem="erj-CU-gAe" secondAttribute="leading" id="zwL-gd-7t6"/>
+                    <constraint firstAttribute="bottom" secondItem="FxC-ip-mc8" secondAttribute="bottom" id="zzR-oc-82a"/>
                 </constraints>
             </tableViewCellContentView>
             <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
