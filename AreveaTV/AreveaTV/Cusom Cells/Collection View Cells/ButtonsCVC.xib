@@ -7,35 +7,40 @@
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
+    <customFonts key="customFonts">
+        <array key="Poppins-SemiBold.ttf">
+            <string>Poppins-SemiBold</string>
+        </array>
+    </customFonts>
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
         <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
         <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="ButtonsCVC" id="gTV-IL-0wX" customClass="ButtonsCVC" customModule="AreveaTV" customModuleProvider="target">
-            <rect key="frame" x="0.0" y="0.0" width="90" height="32"/>
+            <rect key="frame" x="0.0" y="0.0" width="90" height="44"/>
             <autoresizingMask key="autoresizingMask"/>
             <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center">
-                <rect key="frame" x="0.0" y="0.0" width="90" height="32"/>
+                <rect key="frame" x="0.0" y="0.0" width="90" height="44"/>
                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                 <subviews>
                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="6Nx-h1-HYc">
-                        <rect key="frame" x="0.0" y="0.0" width="90" height="32"/>
+                        <rect key="frame" x="0.0" y="0.0" width="90" height="44"/>
                         <subviews>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Jtg-q0-NBS">
-                                <rect key="frame" x="0.0" y="0.0" width="90" height="29"/>
+                                <rect key="frame" x="0.0" y="0.0" width="90" height="41"/>
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="90" id="y6j-TW-ZRc"/>
                                 </constraints>
-                                <fontDescription key="fontDescription" type="boldSystem" pointSize="17"/>
+                                <fontDescription key="fontDescription" name="Poppins-SemiBold" family="Poppins" pointSize="17"/>
                                 <state key="normal" title="Button">
                                     <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 </state>
                                 <variation key="heightClass=regular-widthClass=regular">
-                                    <fontDescription key="fontDescription" type="boldSystem" pointSize="23"/>
+                                    <fontDescription key="fontDescription" name="Poppins-SemiBold" family="Poppins" pointSize="25"/>
                                 </variation>
                             </button>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="hfN-rE-OYA">
-                                <rect key="frame" x="0.0" y="29" width="90" height="2"/>
+                                <rect key="frame" x="0.0" y="42" width="90" height="2"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="2" id="8jV-H5-QQI"/>
@@ -47,14 +52,13 @@
                         </subviews>
                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
-                            <constraint firstItem="hfN-rE-OYA" firstAttribute="top" secondItem="Jtg-q0-NBS" secondAttribute="bottom" id="2nV-Mm-69B"/>
                             <constraint firstItem="Jtg-q0-NBS" firstAttribute="leading" secondItem="6Nx-h1-HYc" secondAttribute="leading" id="64l-H3-uM1"/>
                             <constraint firstAttribute="trailing" secondItem="Jtg-q0-NBS" secondAttribute="trailing" id="Noe-sN-Kkm"/>
                             <constraint firstItem="hfN-rE-OYA" firstAttribute="leading" secondItem="6Nx-h1-HYc" secondAttribute="leading" id="PWA-dN-ChU"/>
                             <constraint firstAttribute="trailing" secondItem="hfN-rE-OYA" secondAttribute="trailing" id="TcP-Gc-dwo"/>
-                            <constraint firstAttribute="bottom" secondItem="hfN-rE-OYA" secondAttribute="bottom" constant="1" id="aeV-Zr-78M"/>
+                            <constraint firstAttribute="bottom" secondItem="hfN-rE-OYA" secondAttribute="bottom" id="aeV-Zr-78M"/>
                             <constraint firstItem="Jtg-q0-NBS" firstAttribute="top" secondItem="6Nx-h1-HYc" secondAttribute="top" id="ouh-ME-GL9"/>
-                            <constraint firstItem="hfN-rE-OYA" firstAttribute="top" secondItem="Jtg-q0-NBS" secondAttribute="bottom" id="uMV-BL-9nT"/>
+                            <constraint firstItem="hfN-rE-OYA" firstAttribute="top" secondItem="Jtg-q0-NBS" secondAttribute="bottom" constant="1" id="uMV-BL-9nT"/>
                         </constraints>
                     </view>
                 </subviews>

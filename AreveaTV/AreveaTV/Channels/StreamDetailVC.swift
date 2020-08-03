@@ -57,14 +57,13 @@ class StreamDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDat
     }
     var backPressed = false
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
-    
-    @IBOutlet weak var lblVideoDesc: UILabel!
-    @IBOutlet weak var lblVideoTitle: UILabel!
+    @IBOutlet weak var lblVideoDesc_info: UILabel!
+    @IBOutlet weak var lblVideoTitle_info: UILabel!
     @IBOutlet weak var txtVideoDesc_Info: UITextView!
-    
+    @IBOutlet weak var imgPerformer: UIImageView!
+
     @IBOutlet weak var lblNoDataComments: UILabel!
     @IBOutlet weak var lblNoDataDonations: UILabel!
-    @IBOutlet weak var lblTitle: UILabel!
     
     
     
@@ -134,6 +133,7 @@ class StreamDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDat
     var isStream = true;
     var isUpcoming = false;
     var toolTipPreferences = EasyTipView.Preferences()
+    var streamVideoDesc = ""
     // MARK: - View Life cycle
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -146,7 +146,7 @@ class StreamDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDat
         viewLiveStream.isHidden = true;
         lblNoDataComments.text = ""
         lblNoDataDonations.text = "No results found"
-        lblTitle.text = strTitle
+        //lblTitle.text = strTitle
         //sendBirdConnect()
         
         // txtComment.textInputMode?.primaryLanguage = "emoji"
@@ -184,7 +184,7 @@ class StreamDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDat
             isIpadLandScape = true
         }
         
-        toolTipPreferences.drawing.font = UIFont(name: "Futura-Medium", size: 13)!
+        toolTipPreferences.drawing.font = UIFont(name: "Poppins-Regular", size: 13)!
         toolTipPreferences.drawing.foregroundColor = UIColor.white
         toolTipPreferences.drawing.backgroundColor = UIColor.init(red: 10, green: 72, blue: 88)
         toolTipPreferences.drawing.arrowPosition = EasyTipView.ArrowPosition.top
@@ -215,7 +215,7 @@ class StreamDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDat
         /*
          * Optionally you can make these preferences global for all future EasyTipViews
          */
-        toolTipView.show(forView: self.lblTitle, withinSuperview: self.view)
+        //toolTipView.show(forView: self.lblTitle, withinSuperview: self.view)
         
     }
     
@@ -366,7 +366,7 @@ class StreamDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDat
                 }else if(value == "not_available"){
                     if (viewLiveStream.isHidden == false){
                         lblStreamUnavailable.text = "Video streaming is currently unavailable. Please try again later"
-                        btnPlayStream.setImage(UIImage.init(named: "refresh-icon.png"), for: .normal)
+                        btnPlayStream.setImage(UIImage.init(named: "refresh"), for: .normal)
                         btnPlayStream.isHidden = false;
                     }
                 }
@@ -420,8 +420,9 @@ class StreamDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDat
             
             let infoLine = self.buttonCVC.viewWithTag(10) as? UILabel
             let btnText = self.buttonCVC.viewWithTag(20) as? UIButton
-            let orange = UIColor(red: 255, green: 115, blue: 90);
+            let orange = UIColor(red: 255, green: 139, blue: 50);
             infoLine?.backgroundColor = orange;
+            infoLine?.isHidden = false;
             btnText?.setTitleColor(orange, for: .normal)
             viewInfo.isHidden = false
             
@@ -432,7 +433,7 @@ class StreamDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDat
         self.viewLiveStream.layoutIfNeeded()
         VODHeight.constant = CGFloat(viewHeight)
         self.viewVOD.layoutIfNeeded()
-        tblComments.rowHeight = 100
+        tblComments.rowHeight = 40
         tblComments.estimatedRowHeight = UITableView.automaticDimension
     }
     func showVideo(strURL : String){
@@ -442,6 +443,8 @@ class StreamDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDat
             controller.player = videoPlayer
             controller.allowsPictureInPicturePlayback = true
             controller.view.frame = self.viewVOD.bounds
+            controller.view.frame.origin.y = 44
+            controller.view.frame.size.height = self.viewVOD.bounds.size.height - 44
             controller.videoGravity = AVLayerVideoGravity.resize
             self.viewVOD.addSubview(controller.view)
             self.addChild(controller)
@@ -534,7 +537,11 @@ class StreamDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDat
     
     
     
-    
+     @IBAction func viewBGTap(_ sender: Any) {
+        txtEmoji.resignFirstResponder()
+        txtComment.resignFirstResponder()
+        imgEmoji1.image = UIImage.init(named: "addemoji.png")
+    }
     @IBAction func back(_ sender: Any) {
         if (!backPressed){
             backPressed = true
@@ -586,9 +593,19 @@ class StreamDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDat
         viewComments.isHidden = true;
         viewInfo.isHidden = true;
         viewTip.isHidden = true;
+        for (index,_) in buttonNames.enumerated() {
+            let name = buttonNames[index]
+            let lineTag = 10 + index;
+            let btnTag = 20 + index;
+            let lblLine = self.buttonCVC.viewWithTag(lineTag) as? UILabel
+            let btnText = self.buttonCVC.viewWithTag(btnTag) as? UIButton
+                lblLine?.isHidden = true;
+                btnText?.setTitleColor(.white, for: .normal)
+        }
     }
     @objc func btnPress(_ sender: UIButton) {
         txtEmoji.resignFirstResponder()
+        imgEmoji1.image = UIImage.init(named: "addemoji.png")
         txtComment.resignFirstResponder()
         txtTopOfToolBar.resignFirstResponder()
         hideViews();
@@ -601,11 +618,12 @@ class StreamDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDat
             let btnText = self.buttonCVC.viewWithTag(btnTag) as? UIButton
             if (name == title){
                 print("btnTag:",btnTag)
-                let orange = UIColor(red: 255, green: 115, blue: 90);
+                let orange = UIColor(red: 255, green: 139, blue: 50);
                 lblLine?.backgroundColor = orange;
+                lblLine?.isHidden = false;
                 btnText?.setTitleColor(orange, for: .normal)
             }else{
-                lblLine?.backgroundColor = .white;
+                lblLine?.isHidden = true;
                 btnText?.setTitleColor(.white, for: .normal)
             }
         }
@@ -1080,10 +1098,7 @@ class StreamDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDat
                     self.viewActivity.isHidden = true
                     self.btnPlayStream.isUserInteractionEnabled = true
                     self.btnRotationStream.isHidden = false
-                    self.hideViews()
-                    self.viewInfo.isHidden = false;
-                    let commentsLine = self.buttonCVC.viewWithTag(11) as? UILabel
-                    commentsLine?.isHidden = false
+                    
                     if let json = resultObj as? [String: Any] {
                         print("liveEvents json:",json);
                         if (json["statusCode"]as? String == "200"){
@@ -1092,7 +1107,7 @@ class StreamDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDat
                             self.aryStreamInfo = data?["stream_info"] as? [Any] ?? [Any]()
                             if (self.aryStreamInfo.count > 0){
                                 self.viewLiveStream.isHidden = false;
-                                self.btnPlayStream.setImage(UIImage.init(named: "play-vod.png"), for: .normal)
+                                self.btnPlayStream.setImage(UIImage.init(named: "video-play"), for: .normal)
                                 self.btnPlayStream.isHidden = true;
                                 let streamObj = self.aryStreamInfo[0] as? [String:Any]
                                 self.streamId = streamObj?["id"] as? Int ?? 0
@@ -1102,7 +1117,7 @@ class StreamDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDat
                                 self.isChannelAvailable = true
                                 self.sendBirdChatConfig()
                                 self.sendBirdEmojiConfig()
-                                let streamVideoDesc = streamObj?["stream_video_description"] as? String ?? ""
+                                self.streamVideoDesc = streamObj?["stream_video_description"] as? String ?? ""
                                 // "currency_type" = USD;
                                 var currency_type = streamObj?["currency_type"] as? String ?? ""
                                 if(currency_type == "GBP"){
@@ -1127,8 +1142,7 @@ class StreamDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDat
                                 }
                                 
                                 self.paymentAmount = streamObj?["stream_payment_amount"]as? Int ?? 0
-                                self.lblTitle.text = streamVideoTitle
-                                self.txtVideoDesc_Info.text = streamVideoDesc
+                                self.lblVideoTitle_info.text = streamVideoTitle
                                 self.streamPaymentMode = streamObj?["stream_payment_mode"] as? String ?? ""
                             }else{
                                 //if we get any error default, we are showing VOD
@@ -1138,7 +1152,7 @@ class StreamDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDat
                                 if (!self.isVOD){
                                     self.lblStreamUnavailable.text = "Please wait for the host to start the live stream"
                                     self.btnPlayStream.isHidden = false
-                                    self.btnPlayStream.setImage(UIImage.init(named: "refresh-icon.png"), for: .normal)
+                                    self.btnPlayStream.setImage(UIImage.init(named: "refresh"), for: .normal)
                                     self.btnPlayStream.isUserInteractionEnabled = false
                                 }
                                 //ALToastView.toast(in: self.viewVOD, withText:"Stream Info not found")
@@ -1213,7 +1227,7 @@ class StreamDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDat
                                 self.isChannelAvailable = false
                                 self.btnPlayStream.isHidden = false;
                                 self.btnPlayStream.isUserInteractionEnabled = false
-                                self.btnPlayStream.setImage(UIImage.init(named: "eye-cross.png"), for: .normal)
+                                self.btnPlayStream.setImage(UIImage.init(named: "eye-cross"), for: .normal)
                                 self.lblStreamUnavailable.text = "This vidoe may be inappropriate for some users"
                                 
                             }
@@ -1226,10 +1240,10 @@ class StreamDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDat
                                  performer_bio = performer_bio.htmlToString
                                  
                                  self.txtProfile.text = performerName + "\n" + performer_bio*/
-                                let videoDesc = self.txtVideoDesc_Info.text!;
-                                let creatorName = "Creator Name:" + performerName;
+                                let videoDesc = self.streamVideoDesc;
+                                let creatorName = "Creator Name: " + performerName;
                                 
-                                self.txtVideoDesc_Info.text = videoDesc  + "\n\n\n" + creatorName
+                                self.txtVideoDesc_Info.text = videoDesc  + "\n\n" + creatorName
                                 
                                 self.app_id_for_adds = self.dicPerformerInfo["app_id"] as? String ?? "0"
                                 if (self.aryStreamInfo.count == 0){
@@ -1239,9 +1253,17 @@ class StreamDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDat
                                         self.downloadImage(from: urlBanner as URL, imageView: self.imgStreamThumbNail)
                                     }
                                 }
+                                let performer_profile_banner1 = self.dicPerformerInfo["performer_profile_banner"] as? String ?? ""
+                                if let urlBanner = URL(string: performer_profile_banner1){
+                                    self.downloadImage(from: urlBanner as URL, imageView: self.imgPerformer)
+                                    self.imgPerformer.layer.cornerRadius = self.imgPerformer.frame.size.width/2
+                                }else{
+                                    self.imgPerformer.layer.cornerRadius = 0
+                                }
                                 //print("self.app_id_for_adds:",self.app_id_for_adds)
                             }else{
                                 self.txtProfile.text = ""
+                                
                             }
                         }else{
                             let strError = json["message"] as? String
@@ -1996,6 +2018,7 @@ class StreamDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDat
             }
         }
     }
+    // MARK: - orientation Handlers
     @IBAction func landscapeStream() {
         print("lanscape:",btnRotationStreamTap)
         btnRotationStreamTap = !btnRotationStreamTap
@@ -2003,49 +2026,55 @@ class StreamDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDat
         if(isIpadLandScape){
             print("iPad already landscape")
             if (btnRotationStreamTap){
-                btnRotationStream.setImage(UIImage.init(named: "small_view.png"), for: .normal)
+                btnRotationStream.setImage(UIImage.init(named: "small-view"), for: .normal)
                 liveStreamHeight.constant = self.view.frame.size.height - 100//header height
+                VODHeight.constant = self.view.frame.size.height - 100//header height
                 print("height of view1:",self.view.frame.size.height)
                 self.viewLiveStream.layoutIfNeeded()
             }else{
-                btnRotationStream.setImage(UIImage.init(named: "full_view.png"), for: .normal)
+                btnRotationStream.setImage(UIImage.init(named: "full-view"), for: .normal)
                 let viewHeight = self.view.frame.size.height*0.35
                 print("height of view:",self.view.frame.size.height)
                 liveStreamHeight.constant = viewHeight
+                VODHeight.constant = viewHeight
                 self.viewLiveStream.layoutIfNeeded()
             }
         }else{
             if (btnRotationStreamTap){
                 let value = UIInterfaceOrientation.landscapeRight.rawValue
                 UIDevice.current.setValue(value, forKey: "orientation")
-                btnRotationStream.setImage(UIImage.init(named: "small_view.png"), for: .normal)
+                btnRotationStream.setImage(UIImage.init(named: "small-view"), for: .normal)
                 if(UIDevice.current.userInterfaceIdiom == .pad){
-                    liveStreamHeight.constant = self.view.frame.size.height - 100//header height
+                    liveStreamHeight.constant = self.view.frame.size.height//header height
                 }else{
-                    liveStreamHeight.constant = self.view.frame.size.height - 44//header height
+                    liveStreamHeight.constant = self.view.frame.size.height//header height
                 }
                 print("height of view1:",self.view.frame.size.height)
                 self.viewLiveStream.layoutIfNeeded()
                 let orientation = ["orientation": "landscape"]
-                
                 NotificationCenter.default.post(name: .StreamOrienationChange, object: self, userInfo: orientation)
                 
             }else{
                 let value = UIInterfaceOrientation.portrait.rawValue
                 UIDevice.current.setValue(value, forKey: "orientation")
-                btnRotationStream.setImage(UIImage.init(named: "full_view.png"), for: .normal)
+                btnRotationStream.setImage(UIImage.init(named: "full-view"), for: .normal)
                 let viewHeight = self.view.frame.size.height*0.35
                 print("height of view:",self.view.frame.size.height)
                 liveStreamHeight.constant = viewHeight
+                VODHeight.constant = viewHeight
                 self.viewLiveStream.layoutIfNeeded()
                 let orientation = ["orientation": "portrait"]
-                
                 NotificationCenter.default.post(name: .StreamOrienationChange, object: self, userInfo: orientation)
-                
             }
         }
-        
-        
+    }
+   override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+        super.viewWillTransition(to: size, with: coordinator)
+        if UIDevice.current.orientation.isLandscape {
+            print("live Landscape")
+        } else {
+            print("live Portrait")
+        }
     }
     
 }

@@ -9,7 +9,9 @@
 import UIKit
 import Alamofire
 
-class MyEventsVC: UIViewController,CollectionViewCellDelegate,OpenChanannelChatDelegate,UITableViewDelegate,UITableViewDataSource {
+class MyEventsVC: UIViewController,OpenChanannelChatDelegate,UITableViewDelegate,UITableViewDataSource, CollectionViewCellDelegateMyEvents {
+    
+    
     @IBOutlet weak var tblMain: UITableView!
     @IBOutlet weak var lblNoData: UILabel!
     let appDelegate = UIApplication.shared.delegate as! AppDelegate
@@ -21,7 +23,7 @@ class MyEventsVC: UIViewController,CollectionViewCellDelegate,OpenChanannelChatD
     override func viewDidLoad() {
         super.viewDidLoad()
         viewActivity.isHidden = true
-        tblMain.register(UINib(nibName: "DashBoardCell", bundle: nil), forCellReuseIdentifier: "DashBoardCell")
+        tblMain.register(UINib(nibName: "MyEventsCell", bundle: nil), forCellReuseIdentifier: "MyEventsCell")
         lblNoData.isHidden = true;
         
         // Do any additional setup after loading the view.
@@ -104,7 +106,7 @@ class MyEventsVC: UIViewController,CollectionViewCellDelegate,OpenChanannelChatD
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tblMain.dequeueReusableCell(withIdentifier: "DashBoardCell", for: indexPath) as! DashBoardCell
+        let cell = tblMain.dequeueReusableCell(withIdentifier: "MyEventsCell", for: indexPath) as! MyEventsCell
         cell.updateCellWith(row: aryMyListData,controller: "my_events")
         cell.cellDelegate = self
         return cell
@@ -116,7 +118,7 @@ class MyEventsVC: UIViewController,CollectionViewCellDelegate,OpenChanannelChatD
     }
     // MARK: collectionView Delegate
     
-    func collectionView(collectionviewcell: DBCollectionViewCell?, index: Int, didTappedInTableViewCell: DashBoardCell) {
+    func collectionView(collectionviewcell: DBCollectionViewCell?, index: Int, didTappedInTableViewCell: MyEventsCell) {
         
         let orgsList = didTappedInTableViewCell.rowWithItems
         let selectedOrg = orgsList[index] as? [String: Any]

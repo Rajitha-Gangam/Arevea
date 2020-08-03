@@ -23,7 +23,7 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
     
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     @IBOutlet weak var btnProfilePic: UIButton!
-    @IBOutlet weak var btnUpload: UIButton!
+    @IBOutlet weak var btnDelete: UIButton!
     // var choosenImage = UIImage?.self
     @IBOutlet weak var imgProfilePic: UIImageView!
     var imagePickerController = UIImagePickerController()
@@ -31,12 +31,12 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
     @IBOutlet weak var scrollView: UIScrollView!
     
     var strProfilePicURL = ""
-    @IBOutlet weak var btnDelete: UIButton!
     let pickerView = UIPickerView()
     var pickerData =  ["Under 16", "16-17","18+"];
     @IBOutlet weak var heightTopView: NSLayoutConstraint?
     @IBOutlet weak var viewTop: UIView!
-    
+    @IBOutlet weak var viewEdit: UIView!
+    var isDeleteShow = false
     // MARK: - View Life cycle
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -44,8 +44,7 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
         //Do any additional setup after loading the view.
         addDoneButton();
         getProfile();
-        btnUpload.isHidden = true
-        btnDelete.isHidden = true
+        
         imagePickerController.delegate = self
         imgProfilePic.contentMode = .scaleAspectFill
         
@@ -55,7 +54,8 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
             heightTopView?.constant = 60;
             viewTop.layoutIfNeeded()
         }
-        
+        viewEdit.isHidden = true
+
     }
     override func viewDidAppear(_ animated: Bool) {
         //        scrollView.contentSize = CGSize(width: 320,height: 1000);
@@ -253,10 +253,10 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
                             
                             let strURL = profile_data["profile_pic"]as? String ?? ""
                             self.strProfilePicURL = strURL
-                            self.btnDelete.isHidden = true;
+                            self.isDeleteShow = false
                             if let url = URL(string: strURL){
                                 self.downloadImage(from: url as URL, imageView: self.imgProfilePic)
-                                self.btnDelete.isHidden = false;
+                                self.isDeleteShow = true
                             }else{
                                 self.viewActivity.isHidden = true
                             }
@@ -487,8 +487,19 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
     }
     
     // MARK: Profile Pic Update Methods
-    
+    @IBAction func profilePicTap(){
+        viewEdit.isHidden = false
+        if(isDeleteShow){
+            btnDelete.isHidden = false
+        }else{
+            btnDelete.isHidden = true
+        }
+    }
+    @IBAction func viewBGTap(){
+        viewEdit.isHidden = true
+    }
     @IBAction func chooseProfilePic() {
+        viewEdit.isHidden = true
         let actionsheet = UIAlertController(title: "Photo Source", message: "Choose A Source", preferredStyle: .actionSheet)
         actionsheet.addAction(UIAlertAction(title: "Camera", style: .default, handler: { (action:UIAlertAction)in
             if UIImagePickerController.isSourceTypeAvailable(.camera){
@@ -519,10 +530,9 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         if let pickedImage = info[UIImagePickerController.InfoKey.originalImage] as? UIImage {
             //print("didFinishPickingImage")
-            self.btnUpload.isHidden = false
-            self.btnDelete.isHidden = true
             imgProfilePic.contentMode = .scaleAspectFill
             imgProfilePic.image = pickedImage
+            updateProfilePic()
         }
         dismiss(animated: true, completion: nil)
     }
@@ -571,8 +581,7 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
                         let strURL = json["path"]as? String ?? ""
                         self.strProfilePicURL = strURL
                         UserDefaults.standard.set("false", forKey: "is_profile_pic_loaded_left_menu")
-                        self.btnUpload.isHidden = true;
-                        self.btnDelete.isHidden = false;
+                        self.isDeleteShow = true
                     }else{
                         let strError = json["message"] as? String
                         //print(strError ?? "")
@@ -602,7 +611,7 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
     }
     // MARK: Handler for deleteSelectedFile API
     func deleteProfilePic(){
-        
+        viewEdit.isHidden = true
         let url: String = appDelegate.qaURL +  "/deleteSelectedFile"
         viewActivity.isHidden = false
         //print("getCategoryOrganisations input:",inputData)
@@ -626,9 +635,8 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
                         //print("deleteSelectedFile json:",json)
                         if (json["status"]as? Int == 0){
                             self.showAlert(strMsg: "Profile picture deleted successfully")
-                            self.imgProfilePic.image = UIImage.init(named:"default.png")
-                            self.btnDelete.isHidden = true;
-                            self.btnUpload.isHidden = true;
+                            self.imgProfilePic.image = UIImage.init(named:"user")
+                            self.isDeleteShow = false
                             UserDefaults.standard.set("false", forKey: "is_profile_pic_loaded_left_menu")
                         }else{
                             //this one should hide later once API works

@@ -24,7 +24,7 @@ class SplashVC: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         viewActivity.isHidden = true
-        assignbackground();
+        //assignbackground();
         self.navigationController?.isNavigationBarHidden = true
         delayWithSeconds(2.0){
             self.initAWS();

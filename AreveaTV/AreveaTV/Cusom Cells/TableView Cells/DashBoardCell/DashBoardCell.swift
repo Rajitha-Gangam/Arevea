@@ -27,7 +27,8 @@ class DashBoardCell: UITableViewCell, UICollectionViewDataSource, UICollectionVi
         super.awakeFromNib()
         // Initialization code
         self.collectionView.showsHorizontalScrollIndicator = false
-        
+        //for disable scroll
+        self.collectionView.isScrollEnabled = false
         // Comment if you set Datasource and delegate in .xib
         self.collectionView.dataSource = self
         self.collectionView.delegate = self
@@ -133,12 +134,12 @@ class DashBoardCell: UITableViewCell, UICollectionViewDataSource, UICollectionVi
                 cell.btnRight.isHidden = false
             }
            if(strController == "dashboard"){
-                cell.lblHeader.text = "LIVE EVENTS"
+                cell.lblHeader.text = "Live Events"
             }else if(strController == "dashboard_my_list"){
-                cell.lblHeader.text = "MY LIST"
+                cell.lblHeader.text = "My List"
             }else if(strController == "dashboard_trending_channels"){
                 if(indexPath.row == 0){
-                    cell.lblHeader.text = "TRENDING CHANNELS"
+                    cell.lblHeader.text = "Trending Channels"
                 }else{
                     cell.lblHeader.text = ""
                 }
@@ -172,10 +173,10 @@ class DashBoardCell: UITableViewCell, UICollectionViewDataSource, UICollectionVi
         print("sender.tag",sender.tag)
         if (sender.tag == 0){
             let indexPath = IndexPath(row: rowWithItems.count - 1, section: 0)
-            collectionView.scrollToItem(at: indexPath, at: .centeredHorizontally, animated: true)
+            collectionView.scrollToItem(at: indexPath, at: .centeredHorizontally, animated: false)
         }else{
             let indexPath = IndexPath(row: sender.tag - 1, section: 0)
-            collectionView.scrollToItem(at: indexPath, at: .centeredHorizontally, animated: true)
+            collectionView.scrollToItem(at: indexPath, at: .centeredHorizontally, animated: false)
         }
         
     }
@@ -185,10 +186,10 @@ class DashBoardCell: UITableViewCell, UICollectionViewDataSource, UICollectionVi
         print("last index",rowWithItems.count - 1)
         if (sender.tag < rowWithItems.count - 1){
             let indexPath = IndexPath(row: sender.tag  + 1, section: 0)
-            collectionView.scrollToItem(at: indexPath, at: .centeredHorizontally, animated: true)
+            collectionView.scrollToItem(at: indexPath, at: .centeredHorizontally, animated: false)
         }else{
             let indexPath = IndexPath(row: 0, section: 0)
-            collectionView.scrollToItem(at: indexPath, at: .centeredHorizontally, animated: true)
+            collectionView.scrollToItem(at: indexPath, at: .centeredHorizontally, animated: false)
         }
     }
     

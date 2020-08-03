@@ -58,7 +58,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
     
     @IBOutlet var imgProfilePic: UIImageView!
     
-    var arySideMenu : [[String: String]] = [["name":"Home","icon":"home.png"],["name":"My Profile","icon":"user.png"],["name":"My Events","icon":"events-icon.png"],["name":"My Payments","icon":"donation-icon.png"],["name":"My Purchases","icon":"purchases.png"],["name":"Help","icon":"help-icon.png"],["name":"Logout","icon":"logout-icon.png"]];
+    var arySideMenu : [[String: String]] = [["name":"Home","icon":"home.png"],["name":"My Profile","icon":"user1.png"],["name":"My Events","icon":"events-icon.png"],["name":"My Payments","icon":"donation-icon.png"],["name":"My Purchases","icon":"purchases.png"],["name":"Help","icon":"help-icon.png"],["name":"Logout","icon":"logout-icon.png"]];
     var sectionTitles = ["Live Events","My List","Trending Channels"]
     //MARK:View Life Cycle Methods
     
@@ -109,9 +109,9 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
         super.viewWillTransition(to: size, with: coordinator)
         self.viewSideMenu.isHidden = true
         if UIDevice.current.orientation.isLandscape {
-            print("Landscape")
+            print("DB Landscape")
         } else {
-            print("Portrait")
+            print("DB Portrait")
         }
     }
     
@@ -122,7 +122,10 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
     }
     
     override func viewWillAppear(_ animated: Bool) {
-        
+        let indexPath = IndexPath(row: 0, section: 0)
+        tblSide.selectRow(at: indexPath, animated: true, scrollPosition: .bottom)
+        //tblSide.delegate?.tableView!(myTableView, didSelectRowAt: indexPath)
+
         self.lblUserName.text = self.appDelegate.USER_NAME_FULL
         
         //if user comes from search by selecting  type "genre"
@@ -362,7 +365,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
                                 self.downloadImage(from: url as URL, imageView: self.imgProfilePic)
                             }else{
                                 self.viewActivity.isHidden = true
-                                self.imgProfilePic.image = UIImage.init(named: "default.png")
+                                self.imgProfilePic.image = UIImage.init(named: "user")
                             }
                             
                         }else{
@@ -548,14 +551,18 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
             let imageNamed = selectedItem["icon"];
             cell.imgItem.image = UIImage(named:imageNamed!)
             cell.backgroundColor = .clear
+            
+            let bgColorView = UIView()
+            bgColorView.backgroundColor = UIColor.init(red: 43, green: 31, blue: 48)
+            cell.selectedBackgroundView = bgColorView
+            
             return cell;
         }
         
     }
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        tableView.deselectRow(at: indexPath, animated: true)
         if (tableView == tblMain){
-            
+            tableView.deselectRow(at: indexPath, animated: true)
         }
         else{
             let selectedItem = arySideMenu[indexPath.row];
@@ -597,10 +604,10 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
     func showSideMenu(){
         viewSideMenu.isHidden = false;
         
-        self.leftConstraintLeftMenu?.constant = -(self.view.frame.size.width-70);
+        self.leftConstraintLeftMenu?.constant = -(self.view.frame.size.width);
         self.viewSideMenu.layoutIfNeeded()
         
-        let movementDistance:CGFloat = (self.view.frame.size.width-70);
+        let movementDistance:CGFloat = (self.view.frame.size.width);
         var movement:CGFloat = 0
         movement = movementDistance
         UIView.animate(withDuration: 1.0, animations: {
@@ -610,7 +617,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
         
     }
     func hideSideMenu(){
-        let movementDistance:CGFloat = (self.view.frame.size.width-70);
+        let movementDistance:CGFloat = (self.view.frame.size.width);
         var movement:CGFloat = 0
         movement = -movementDistance
         UIView.animate(withDuration: 1.0, animations: {

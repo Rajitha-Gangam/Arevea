@@ -24,10 +24,10 @@ class OpenChannelUserMessageTableViewCell: OpenChannelMessageTableViewCell {
     func setMessage(_ message: SBDUserMessage) {
         self.msg = message
         
-        self.resendButton.addTarget(self, action: #selector(OpenChannelUserMessageTableViewCell.clickResendUserMessageButton(_:)), for: .touchUpInside)
+        //self.resendButton.addTarget(self, action: #selector(OpenChannelUserMessageTableViewCell.clickResendUserMessageButton(_:)), for: .touchUpInside)
         
         let longClickMessageContainerGesture = UILongPressGestureRecognizer(target: self, action: #selector(OpenChannelUserMessageTableViewCell.longClickUserMessage(_:)))
-        self.messageContainerView.addGestureRecognizer(longClickMessageContainerGesture)
+       // self.messageContainerView.addGestureRecognizer(longClickMessageContainerGesture)
         
         self.messageLabel.text = message.message
         
@@ -35,8 +35,8 @@ class OpenChannelUserMessageTableViewCell: OpenChannelMessageTableViewCell {
     }
 
     func hideElementsForFailure() {
-        self.resendButtonContainerView.isHidden = true
-        self.resendButton.isEnabled = false
+       // self.resendButtonContainerView.isHidden = true
+        //self.resendButton.isEnabled = false
         self.sendingFailureContainerView.isHidden = true
         //self.messageContainerViewBottomMargin.constant = 0
     }

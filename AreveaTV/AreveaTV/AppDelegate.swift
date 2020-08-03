@@ -13,7 +13,17 @@ import CoreLocation
 import AWSAppSync
 
 
+import UIKit
 
+extension UIImage {
+    func isEqual(to image: UIImage) -> Bool {
+        guard let data1: Data = self.pngData(),
+            let data2: Data = image.pngData() else {
+                return false
+        }
+        return data1.elementsEqual(data2)
+    }
+}
 extension UIImageView {
     func downloaded(from url: URL, contentMode mode: UIView.ContentMode = .scaleToFill) {  // for swift 4.2 syntax just use ===> mode: UIView.ContentMode
         contentMode = mode

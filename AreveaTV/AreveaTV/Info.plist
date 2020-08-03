@@ -66,6 +66,14 @@
 	<string>Photo Library access required to save video</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Photo Library access required to save video</string>
+	<key>UIAppFonts</key>
+	<array>
+		<string>Poppins-Bold.ttf</string>
+		<string>Poppins-Light.ttf</string>
+		<string>Poppins-Medium.ttf</string>
+		<string>Poppins-Regular.ttf</string>
+		<string>Poppins-SemiBold.ttf</string>
+	</array>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>audio</string>
