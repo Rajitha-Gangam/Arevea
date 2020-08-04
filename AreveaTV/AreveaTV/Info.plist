@@ -57,15 +57,13 @@
 		<true/>
 	</dict>
 	<key>NSCameraUsageDescription</key>
-	<string>Camera access required for publishing.</string>
+	<string>Camera access required for take user profile picture.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>We need to know your location to get country</string>
-	<key>NSMicrophoneUsageDescription</key>
-	<string>Microphone access required for publishing.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>Photo Library access required to save video</string>
+	<string>Photo Library access required to get profile picture</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Photo Library access required to save video</string>
+	<string>Photo Library access required to get profile picture</string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>Poppins-Bold.ttf</string>

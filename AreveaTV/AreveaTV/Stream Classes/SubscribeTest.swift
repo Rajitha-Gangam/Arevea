@@ -26,16 +26,13 @@ class SubscribeTest: BaseTest {
     var serverAddress = ""
     var viewControls = UIView()
     
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
-        
     }
     func showAlert(strMsg: String){
         let alert = UIAlertController(title: "Alert", message: strMsg, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
-        
         DispatchQueue.main.async {
             self.present(alert, animated: true)
         }
@@ -50,12 +47,10 @@ class SubscribeTest: BaseTest {
         let version = Testbed.getParameter(param:"sm_version") as! String;
         let stream1 = Testbed.getParameter(param:"stream1") as! String;
         let accessToken = "YEOkGmERp08V"
-        
         // https://livestream.arevea.tv/streammanager/api/4.0/admin/event/meta/live/<stream_video_code>/?accessToken=YEOkGmERp08V
         let url = "https://" + host  + "/streammanager/api/" + version + "/admin/event/meta/live/" + stream1 + "?accessToken=" + accessToken
         print("metaLive url:",url)
         //let stream = "1588832196500_taylorswiftevent"
-        
         AF.request(url,method: .get, encoding: JSONEncoding.default)
             .responseJSON { response in
                 switch response.result {
@@ -64,7 +59,6 @@ class SubscribeTest: BaseTest {
                         //print("metaLive Response:",value)
                         if let json = value as? [String: Any] {
                             if json["errorMessage"] != nil{
-
                                 // ALToastView.toast(in: self.view, withText:errorMsg as? String ?? "")
                                 //let error = "Unable to locate stream. Broadcast has probably not started for this stream: " + stream1
                                 // ALToastView.toast(in: self.view, withText: error)

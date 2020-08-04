@@ -40,7 +40,13 @@ class SubscribeTwoStreams: BaseTest {
     var subscribeStream2 : R5Stream? = nil
     var appSyncClient: AWSAppSyncClient?
     let appDelegate = UIApplication.shared.delegate as! AppDelegate
-
+    var superIndex = 0
+    @IBOutlet weak var heightTopView: NSLayoutConstraint?
+    @IBOutlet weak var viewTop: UIView!
+    @IBOutlet weak var lblTitle: UILabel!
+    @IBOutlet weak var viewActivity: UIView!
+    @IBOutlet weak var viewStream: UIView!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -52,7 +58,7 @@ class SubscribeTwoStreams: BaseTest {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         
-        let screenSize = self.view.bounds.size
+        /*let screenSize = self.view.bounds.size
         
         firstView = getNewR5VideoViewController(rect: CGRect( x: 0, y: 0, width: screenSize.width, height: screenSize.height / 2 ))
         self.addChild(firstView!)
@@ -97,7 +103,7 @@ class SubscribeTwoStreams: BaseTest {
             
             self.subscribeStream2?.play(Testbed.getParameter(param: "stream2") as? String, withHardwareAcceleration:Testbed.getParameter(param: "hwaccel_on") as! Bool)
             
-        }
+        }*/
     }
     @objc func onMetaData(data : String){
            
@@ -111,12 +117,10 @@ class SubscribeTwoStreams: BaseTest {
            }
        }
     func getGuestDetailInGraphql(_ cachePolicy: CachePolicy) {
-        
-        /*let listQuery = GetMulticreatorshareddataQuery(id: "1872_1595845007395_mc2")
+        let listQuery = GetMulticreatorshareddataQuery(id: "1872_1595845007395_mc2")
         //1872_1595845007395_mc2
         //58_1594894849561_multi_creator_test_event
         appSyncClient?.fetch(query: listQuery, cachePolicy: cachePolicy) { result, error in
-            
             if let error = error {
                 print("Error fetching data: \(error)")
                 return
@@ -134,10 +138,9 @@ class SubscribeTwoStreams: BaseTest {
                     var streamlist = [[String:Any]]()
                     var offlineStream = [[String:Any]]()
                     for (index,_) in guestList.enumerated() {
-                        var guest = guestList[index] as! [String:Any]
+                        let guest = guestList[index] as! [String:Any]
                         let onlineStatus = guest["onlineStatus"] as? Bool ?? false
                         let liveStatus = guest["liveStatus"] as? Bool ?? false
-                        
                         if(onlineStatus && liveStatus) {
                             let auth_code = guest["auth_code"] as? String ?? ""
                             streamlist.append(["auth_code":auth_code])
@@ -145,29 +148,26 @@ class SubscribeTwoStreams: BaseTest {
                             let auth_code = guest["auth_code"] as? String ?? ""
                             offlineStream.append(["auth_code":auth_code])
                             streamlist.append(["auth_code":auth_code])
-
                             // this.unSubscribe_Subscriber(e.auth_code);
                         }
                     }
                     for(index,_) in streamlist.enumerated(){
-                        var guest = guestList[index] as! [String:Any]
+                        print("--index:",index)
+                        let guest = guestList[index] as! [String:Any]
                         let auth_code = guest["auth_code"] as? String ?? ""
+                        self.superIndex = index
                         self.findStream(streamName: auth_code)
-                      /*  let url = "https://" + host  + "/streammanager/api/" + version + "/event/" +
-                            context + "/" + auth_code + "?action=subscribe&region=" + appDelegate.strRegionCode;
                         
+                      /*let url = "https://" + host  + "/streammanager/api/" + version + "/event/" +
+                            context + "/" + auth_code + "?action=subscribe&region=" + appDelegate.strRegionCode;
                         print("url:",url)*/
-
-
                     }
-                    
                 }else{
                     print("--getMulticreatorshareddata null")
                 }
-                
             }
             // Remove existing records if we're either loading from cache, or loading fresh (e.g., from a refresh)
-        }*/
+        }
     }
     func showAlert(strMsg: String){
         let alert = UIAlertController(title: "Alert", message: strMsg, preferredStyle: .alert)
@@ -177,7 +177,7 @@ class SubscribeTwoStreams: BaseTest {
             self.present(alert, animated: true)
         }
     }
-    func findStream(streamName: String){
+    func findStream(streamName: String ){
         let netAvailable = appDelegate.isConnectedToInternet()
         if(!netAvailable){
             showAlert(strMsg: "Please check your internet connection!")
@@ -206,14 +206,14 @@ class SubscribeTwoStreams: BaseTest {
                     }
                     if let json = value as? [String: Any] {
                         if json["errorMessage"] != nil{
-                            // ALToastView.toast(in: self.view, withText:errorMsg as? String ?? "")
-                            //let error = "Unable to locate stream. Broadcast has probably not started for this stream: " + stream1
-                            print("errorMessage:",json["errorMessage"])
-                            DispatchQueue.main.async {
-                                // ALToastView.toast(in: self.view, withText: error)
-                                let streamInfo = ["Stream": "not_available"]
-                                NotificationCenter.default.post(name: .didReceiveStreamData, object: self, userInfo: streamInfo)
-                            }
+                            let errorMsg = json["errorMessage"]
+                             ALToastView.toast(in: self.view, withText:errorMsg as? String ?? "")
+                            _ = "Unable to locate stream. Broadcast has probably not started for this stream: " + streamName
+                            print("errorMessage:",errorMsg)
+                            //comment these two lines
+                            let serverAddress = "livestream.arevea.tv"
+                            self.config(url: serverAddress,stream:streamName)
+
                         }else{
                             let serverAddress = json["serverAddress"] as? String ?? ""
                             print("serverAddress:",serverAddress)
@@ -229,23 +229,27 @@ class SubscribeTwoStreams: BaseTest {
     func config(url:String,stream:String){
         let streamInfo = ["Stream": "started"]
         NotificationCenter.default.post(name: .didReceiveStreamData, object: self, userInfo: streamInfo)
+        let screenSize = self.view.bounds.size
+       
+        let firstView1 = getNewR5VideoViewController(rect: CGRect( x: 0, y: 0, width: screenSize.width/2, height: screenSize.height / 2 ))
         
+        //self.addChild(firstView1)
+        //view.addSubview((firstView1.view)!)
+        let superView = self.viewStream.viewWithTag(10*superIndex)
+        superView?.addSubview((firstView1.view)!)
+        
+        firstView1.showDebugInfo(false)
+        //firstView1.view.center = center
         let config = getConfig(url: url)
         // Set up the connection and stream
         let connection = R5Connection(config: config)
-        self.subscribeStream = R5Stream(connection: connection)
-        
-        let stats = self.subscribeStream?.getDebugStats()
+        let subscribeStream1 = R5Stream(connection: connection)
+        let stats = subscribeStream1?.getDebugStats()
         print("---stats:",stats as Any)
-        self.subscribeStream!.delegate = self
-        self.subscribeStream?.client = self;
-        // self.subscribeStream.subscribeToAudio = YES;
-        
-        currentView?.attach(subscribeStream)
-       // addControls()
-        
-        self.subscribeStream!.play(stream, withHardwareAcceleration:false)
-        
+        subscribeStream1!.delegate = self
+        subscribeStream1?.client = self;
+        firstView1.attach(subscribeStream1)
+        subscribeStream1!.play(stream, withHardwareAcceleration:false)
     }
     func convertToDictionary(text: String) -> [String: Any]? {
         if let data = text.data(using: .utf8) {

@@ -19,7 +19,7 @@ class MultiStreamVC: UIViewController {
     @IBOutlet weak var lblTitle: UILabel!
     @IBOutlet weak var viewActivity: UIView!
     @IBOutlet weak var viewStream: UIView!
-
+    
     var orgId = 0;
     var performerId = 0;
     var streamId = 0;
@@ -32,7 +32,7 @@ class MultiStreamVC: UIViewController {
     }
     var r5ViewController : BaseTest? = nil
     // MARK: - View Life cycle
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
@@ -71,8 +71,8 @@ class MultiStreamVC: UIViewController {
         Testbed.setBitrate(name: bitrate ?? 0)
         Testbed.setBufferTime(name: buffer_time ?? 0.0)
         Testbed.setPort(name: port ?? 0)
-//        Testbed.setStreamName(name: streamVideoCode)
-//        Testbed.setStream1Name(name: streamVideoCode)
+        //        Testbed.setStreamName(name: streamVideoCode)
+        //        Testbed.setStream1Name(name: streamVideoCode)
         Testbed.setStream2Name(name: stream2 ?? "")
         Testbed.setHost(name: host ?? "");
         Testbed.setContext(name: context ?? "")
@@ -92,22 +92,26 @@ class MultiStreamVC: UIViewController {
     func configureStreamView() {
         // Update the user interface for the detail item.
         // Access the static shared interface to ensure it's loaded
-        _ = Testbed.sharedInstance
-        self.detailStreamItem = Testbed.testAtIndex(index: 1)
-        if(self.detailStreamItem != nil){
-            //print("props:",self.detailStreamItem!["LocalProperties"] as? NSMutableDictionary)
-            
-            Testbed.setLocalOverrides(params: self.detailStreamItem!["LocalProperties"] as? NSMutableDictionary)
-            let className = self.detailStreamItem!["class"] as! String
-            let mClass = NSClassFromString(className) as! BaseTest.Type;
-            
-            r5ViewController  = mClass.init()
-            r5ViewController?.view.frame = self.viewStream.bounds
-            self.viewStream.addSubview(r5ViewController!.view)
-            self.addChild(r5ViewController!)
-            //self.viewLiveStream.bringSubviewToFront(webView)
-            //self.viewLiveStream.bringSubviewToFront(btnRotationStream)
-        }
+        /* _ = Testbed.sharedInstance
+         self.detailStreamItem = Testbed.testAtIndex(index: 1)
+         if(self.detailStreamItem != nil){
+         //print("props:",self.detailStreamItem!["LocalProperties"] as? NSMutableDictionary)
+         
+         Testbed.setLocalOverrides(params: self.detailStreamItem!["LocalProperties"] as? NSMutableDictionary)
+         let className = self.detailStreamItem!["class"] as! String
+         let mClass = NSClassFromString(className) as! BaseTest.Type;
+         
+         r5ViewController  = mClass.init()
+         r5ViewController?.view.frame = self.viewStream.bounds
+         self.viewStream.addSubview(r5ViewController!.view)
+         self.addChild(r5ViewController!)
+         //self.viewLiveStream.bringSubviewToFront(webView)
+         //self.viewLiveStream.bringSubviewToFront(btnRotationStream)
+         }*/
+        let storyboard = UIStoryboard(name: "Main", bundle: nil);
+        let vc = storyboard.instantiateViewController(withIdentifier: "SubscribeTwoStreams") as! SubscribeTwoStreams
+        self.navigationController?.pushViewController(vc, animated: true)
+        
     }
     
     
