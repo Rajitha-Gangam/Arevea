@@ -7,7 +7,7 @@
 //
 
 import UIKit
-import Firebase
+//import Firebase
 import SendBirdSDK
 import CoreLocation
 import AWSAppSync
@@ -83,7 +83,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate,CLLocationManagerDelegate 
         }
         self.window?.makeKeyAndVisible()
         // Use Firebase library to configure APIs
-        FirebaseApp.configure()
+        //FirebaseApp.configure()
         //SBDMain.initWithApplicationId("9308C3B1-A36D-47E2-BA3C-8F6F362C35AF")
         SBDMain.initWithApplicationId("7AF38850-F099-4C47-BD19-F7F84DAFECF8")
         /*locationManager = CLLocationManager()
