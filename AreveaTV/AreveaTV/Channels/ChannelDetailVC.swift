@@ -112,7 +112,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
             flowLayout.estimatedItemSize = CGSize(width: 1, height: 1)
         }
         
-        tblAudios.register(UINib(nibName: "AudioCell", bundle: nil), forCellReuseIdentifier: "AudioCell");
+        tblAudios.register(UINib(nibName: "VideoCell", bundle: nil), forCellReuseIdentifier: "VideoCell");
         tblVideos.register(UINib(nibName: "VideoCell", bundle: nil), forCellReuseIdentifier: "VideoCell")
         tblUpcoming.register(UINib(nibName: "UpcomingCell", bundle: nil), forCellReuseIdentifier: "UpcomingCell")
         
@@ -330,8 +330,12 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
         else if(tableView == tblVideos){
             if (self.aryVideos.count > 0){
                 self.lblNoDataVideos.isHidden = true
+                tblVideos.isHidden = false
+
             }else{
                 self.lblNoDataVideos.isHidden = false
+                tblVideos.isHidden = true
+
             }
             return aryVideos.count;
         }
@@ -371,7 +375,11 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
             if let urlVideoThumbImage = URL(string: strURL){
                 self.videoThumbNail(from: urlVideoThumbImage, button: cell.btnVideo)
             }else{
-                cell.btnVideo.setImage((UIImage.init(named: "sample_vod_square")), for: .normal)
+                if(UIDevice.current.userInterfaceIdiom == .pad){
+                cell.btnVideo.setImage((UIImage.init(named: "sample_vod_land")), for: .normal)
+                }else{
+                    cell.btnVideo.setImage((UIImage.init(named: "sample-details")), for: .normal)
+                }
             }
             return cell
         }else if (tableView == tblUpcoming){
@@ -409,11 +417,11 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
         else {
             //audios
            let cell = tableView.dequeueReusableCell(withIdentifier: "VideoCell") as! VideoCell
-           cell.btnVideo.addTarget(self, action: #selector(playVideoBtnTapped(_:)), for: .touchUpInside)
+           cell.btnVideo.addTarget(self, action: #selector(playAudioBtnTapped(_:)), for: .touchUpInside)
            cell.btnVideo.tag = indexPath.row
-           cell.btnVideo1.addTarget(self, action: #selector(playVideoBtnTapped(_:)), for: .touchUpInside)
+           cell.btnVideo1.addTarget(self, action: #selector(playAudioBtnTapped(_:)), for: .touchUpInside)
            cell.btnVideo1.tag = indexPath.row
-           let upcoming = self.aryVideos[indexPath.row] as? [String : Any];
+           let upcoming = self.aryAudios[indexPath.row] as? [String : Any];
            let strURL = upcoming?["videoThumbImage"] as? String ?? "";
            let videoTitle = upcoming?["videoTitle"] as? String ?? "";
            cell.lblTitle.text = videoTitle
@@ -421,7 +429,11 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
            if let urlVideoThumbImage = URL(string: strURL){
                self.videoThumbNail(from: urlVideoThumbImage, button: cell.btnVideo)
            }else{
-               cell.btnVideo.setImage((UIImage.init(named: "sample_vod_square")), for: .normal)
+            if(UIDevice.current.userInterfaceIdiom == .pad){
+               cell.btnVideo.setImage((UIImage.init(named: "sample_vod_land")), for: .normal)
+            }else{
+                cell.btnVideo.setImage((UIImage.init(named: "sample-details")), for: .normal)
+            }
            }
            return cell
         }
@@ -447,17 +459,23 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
             appDelegate.isLiveLoad = "1"
             vc.performerId = self.performerId;
             vc.strTitle = upcoming?["streamTitle"] as? String ?? "Channel Details"
-            vc.isVOD = false;
             vc.isUpcoming = true;
             self.navigationController?.pushViewController(vc, animated: true)
 
         }else if  (tableView == tblVideos){
             playVideoFromList(row: indexPath.row)
         }
+        else if  (tableView == tblVideos){
+            playVideoFromList(row: indexPath.row)
+        }
     }
     @objc func playVideoBtnTapped(_ sender: UIButton)
     {
         playVideoFromList(row: sender.tag)
+    }
+    @objc func playAudioBtnTapped(_ sender: UIButton)
+    {
+        playAudioFromList(row: sender.tag)
     }
     @objc func playVideoFromList(row:Int){
         let upcoming = self.aryVideos[row] as? [String : Any];
@@ -477,7 +495,28 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
         vc.performerId = self.performerId;
         vc.strTitle = upcoming?["videoTitle"] as? String ?? "Channel Details"
         vc.isVOD = true;
-        vc.isUpcoming = false;
+        self.navigationController?.pushViewController(vc, animated: true)
+    }
+    @objc func playAudioFromList(row:Int){
+        let upcoming = self.aryAudios[row] as? [String : Any];
+        self.orgId = upcoming?["organization_id"]as? Int ?? 0
+        self.performerId = upcoming?["performer_id"]as? Int ?? 0
+        self.streamId = upcoming?["videoId"] as? Int ?? 0
+        self.streamVideoCode = upcoming?["videoCode"] as? String ?? ""
+        //print("self.streamVideoCode:",self.streamVideoCode)
+        let url = upcoming?["videoUrl"] as? String ?? ""
+        videoUrl = url
+        let storyboard = UIStoryboard(name: "Main", bundle: nil);
+        let vc = storyboard.instantiateViewController(withIdentifier: "StreamDetailVC") as! StreamDetailVC
+        vc.streamId = self.streamId
+        vc.delegate = self
+        appDelegate.isLiveLoad = "1"
+        vc.performerId = self.performerId;
+        vc.strTitle = upcoming?["videoTitle"] as? String ?? "Channel Details"
+        vc.isAudio = true;
+        let  videoUrl = upcoming?["videoUrl"] as? String ?? ""
+        print("videoUrl:",videoUrl)
+        vc.strAudioSource = videoUrl
         self.navigationController?.pushViewController(vc, animated: true)
     }
     

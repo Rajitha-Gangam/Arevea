@@ -58,7 +58,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
     
     @IBOutlet var imgProfilePic: UIImageView!
     
-    var arySideMenu : [[String: String]] = [["name":"Home","icon":"home"],["name":"My Profile","icon":"user1.png"],["name":"My Events","icon":"event"],["name":"My Payments","icon":"donation"],["name":"My Purchases","icon":"purchase"],["name":"Help","icon":"help"],["name":"Logout","icon":"logout"]];
+    var arySideMenu : [[String: String]] = [["name":"Home","icon":"home"],["name":"My Profile","icon":"user-white"],["name":"My Events","icon":"event"],["name":"My Payments","icon":"donation"],["name":"My Purchases","icon":"purchase"],["name":"Help","icon":"help"],["name":"Logout","icon":"logout"]];
     var sectionTitles = ["Live Events","My List","Trending Channels"]
     //MARK:View Life Cycle Methods
     

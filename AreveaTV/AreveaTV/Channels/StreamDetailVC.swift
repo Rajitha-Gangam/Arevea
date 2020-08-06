@@ -124,10 +124,13 @@ class StreamDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDat
     var btnRotationVODTap = false
     @IBOutlet var btnRotationVOD:UIButton!
     var isVOD = false;
+    var isAudio = false;
+    var strAudioSource = ""
     @IBOutlet weak var VODHeight: NSLayoutConstraint!
     @IBOutlet weak var lblVODUnavailable: UILabel!
     @IBOutlet weak var viewVOD: UIView!
     var videoPlayer = AVPlayer()
+
     var isStream = true;
     var isUpcoming = false;
     var toolTipPreferences = EasyTipView.Preferences()
@@ -485,6 +488,7 @@ class StreamDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDat
         }
     }
     
+    
     func stopVideo(){
         videoPlayer.pause()
         videoPlayer.replaceCurrentItem(with: nil)
@@ -828,11 +832,11 @@ class StreamDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDat
         
         let button = UIButton.init(type: .custom)
         //set image for button
-        button.setImage(UIImage(named: "send-icon-blue.png"), for: UIControl.State.normal)
+        button.setImage(UIImage(named: "blue-send"), for: UIControl.State.normal)
         //add function for button
         button.addTarget(self, action: #selector(sendChatMessage), for: UIControl.Event.touchUpInside)
         //set frame
-        button.frame = CGRect(x: view.frame.size.width-180, y: 0, width: 33, height: 33)
+        button.frame = CGRect(x: view.frame.size.width-180, y: 0, width: 20, height: 20)
         
         let sendBtn = UIBarButtonItem(customView: button)
         
@@ -1173,7 +1177,7 @@ class StreamDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDat
                                     self.btnPayPerView.isHidden = true
                                     if (self.aryStreamInfo.count > 0){
                                         let streamObj = self.aryStreamInfo[0] as? [String:Any]
-                                        if (streamObj?["stream_vod"]as? String == "stream" && self.isVOD == false){
+                                        if (streamObj?["stream_vod"]as? String == "stream" && self.isVOD == false && self.isAudio == false){
                                             self.viewVOD.isHidden = true
                                             self.viewLiveStream.isHidden = false;
                                             self.isStream = true;
@@ -1186,38 +1190,46 @@ class StreamDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDat
                                             self.viewLiveStream.isHidden = true;
                                             self.btnPlayStream.isHidden = true;
                                             self.isStream = false;
-                                            let vod_urls = streamObj?["vod_urls"] as? String ?? ""
-                                            var strURL = "";
-                                            if (vod_urls != ""){
-                                                let vod_urls = self.convertToDictionary(text: vod_urls)
-                                                let strHigh = vod_urls?["1080p"] as? String ?? ""
-                                                if (strHigh != ""){
-                                                    strURL = strHigh;
-                                                }else{
-                                                    let strMedium = vod_urls?["720p"] as? String ?? ""
-                                                    if (strMedium != ""){
-                                                        strURL = strMedium;
+                                            if (self.isVOD){
+                                                let vod_urls = streamObj?["vod_urls"] as? String ?? ""
+                                                var strURL = "";
+                                                if (vod_urls != ""){
+                                                    let vod_urls = self.convertToDictionary(text: vod_urls)
+                                                    let strHigh = vod_urls?["1080p"] as? String ?? ""
+                                                    if (strHigh != ""){
+                                                        strURL = strHigh;
                                                     }else{
-                                                        let strLow = vod_urls?["540p"] as? String ?? ""
-                                                        if (strLow != ""){
-                                                            strURL = strLow;
+                                                        let strMedium = vod_urls?["720p"] as? String ?? ""
+                                                        if (strMedium != ""){
+                                                            strURL = strMedium;
                                                         }else{
-                                                            let strLowest = vod_urls?["270p"] as? String ?? ""
-                                                            if (strLowest != ""){
-                                                                strURL = strLowest;
+                                                            let strLow = vod_urls?["540p"] as? String ?? ""
+                                                            if (strLow != ""){
+                                                                strURL = strLow;
                                                             }else{
-                                                                let video_url = streamObj?["video_url"] as? String ?? ""
-                                                                strURL = video_url
+                                                                let strLowest = vod_urls?["270p"] as? String ?? ""
+                                                                if (strLowest != ""){
+                                                                    strURL = strLowest;
+                                                                }else{
+                                                                    let video_url = streamObj?["video_url"] as? String ?? ""
+                                                                    strURL = video_url
+                                                                }
                                                             }
                                                         }
                                                     }
+                                                }else{
+                                                    let video_url = streamObj?["video_url"] as? String ?? ""
+                                                    strURL = video_url
                                                 }
+                                                print("strURL:",strURL)
+                                                self.showVideo(strURL: strURL);
                                             }else{
-                                                let video_url = streamObj?["video_url"] as? String ?? ""
-                                                strURL = video_url
+                                                //audio
+                                                print("strAudioSource:",self.strAudioSource)
+                                                self.showVideo(strURL: self.strAudioSource)
                                             }
-                                            print("strURL:",strURL)
-                                            self.showVideo(strURL: strURL);
+                                            
+                                            
                                         }
                                     }
                                 }

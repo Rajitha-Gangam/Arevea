@@ -27,7 +27,7 @@
                         <constraints>
                             <constraint firstAttribute="height" constant="300" id="p3q-8C-GJj"/>
                         </constraints>
-                        <state key="normal" image="sample-details"/>
+                        <state key="normal" image="sample_vod_land"/>
                     </button>
                     <view alpha="0.25" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="FxC-ip-mc8">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="300"/>
@@ -84,7 +84,7 @@
         </tableViewCell>
     </objects>
     <resources>
-        <image name="sample-details" width="414" height="360"/>
+        <image name="sample_vod_land" width="750" height="300"/>
         <image name="video-play" width="44" height="44"/>
     </resources>
 </document>
