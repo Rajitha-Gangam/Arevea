@@ -101,25 +101,25 @@ class OpenChannelMessageTableViewCell: UITableViewCell {
         //profileImageWidth
         if(UIDevice.current.userInterfaceIdiom == .pad){
             //profileImageWidth.constant = 50
-            self.userName.layer.cornerRadius = 25
-            self.profileImageView.layer.cornerRadius = 25
-            self.layoutIfNeeded()
+//            self.userName.layer.cornerRadius = 25
+//            self.profileImageView.layer.cornerRadius = 25
+//            self.layoutIfNeeded()
         }
         if let sender = (self.msg as? SBDFileMessage)?.sender {
             if sender.nickname?.count == 0 {
                 self.nicknameLabel.text = ""
             }
             else {
-                self.nicknameLabel.text = sender.nickname ?? "" + ":"
+                self.nicknameLabel.text = sender.nickname ?? ""
             }
         } else if let sender = (self.msg as? SBDUserMessage)?.sender {
             var firstChar = ""
             if sender.nickname?.count == 0 {
-                self.nicknameLabel.text = "Anonymous:"
+                self.nicknameLabel.text = "Anonymous"
                 firstChar = "A"
             }
             else {
-                self.nicknameLabel.text = sender.nickname
+                self.nicknameLabel.text = sender.nickname ?? ""
                 let fullNameArr = sender.nickname?.components(separatedBy: " ")
                 let firstName: String = fullNameArr?[0] ?? " "
                 var lastName = ""

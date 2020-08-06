@@ -77,13 +77,27 @@ class DashBoardCell: UITableViewCell, UICollectionViewDataSource, UICollectionVi
     func numberOfSections(in collectionView: UICollectionView) -> Int {
         return 1
     }
-    
+    func getData(from url: URL, completion: @escaping (Data?, URLResponse?, Error?) -> ()) {
+        URLSession.shared.dataTask(with: url, completionHandler: completion).resume()
+    }
+    func downloadImage(from url: URL, imageView: UIImageView) {
+        //print("Download Started")
+        getData(from: url) { data, response, error in
+            guard let data = data, error == nil else { return }
+            //print(response?.suggestedFilename ?? url.lastPathComponent)
+            //print("Download Finished")
+            DispatchQueue.main.async() { [weak self] in
+                imageView.image = UIImage(data: data)
+                imageView.contentMode = .scaleAspectFill
+            }
+        }
+    }
     // Set the data for each cell (color and color name)
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "DBCollectionViewCell", for: indexPath) as? DBCollectionViewCell {
             // cell.colorView.backgroundColor = self.rowWithItems?[indexPath.item].color ?? UIColor.black
             let arySub = rowWithItems[indexPath.row] as! [String: Any]
-            let thumbNail = UIImage.init(named: "default-img1.jpg")
+            let thumbNail = UIImage.init(named: "sample-details")
             cell.imgCategory.image = thumbNail
             cell.imgCategory.contentMode = .scaleAspectFill
             if (strController == "dashboard" || strController == "dashboard_my_list" || strController == "my_events"){

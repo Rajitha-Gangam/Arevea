@@ -25,7 +25,7 @@ class StreamDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDat
     @IBOutlet weak var viewComments: UIView!
     @IBOutlet weak var viewInfo: UIView!
     @IBOutlet weak var viewTip: UIView!
-    
+
     @IBOutlet weak var tblComments: UITableView!
     @IBOutlet weak var tblDonations: UITableView!
     @IBOutlet weak var txtProfile: UITextView!
@@ -64,8 +64,6 @@ class StreamDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDat
 
     @IBOutlet weak var lblNoDataComments: UILabel!
     @IBOutlet weak var lblNoDataDonations: UILabel!
-    
-    
     
     // MARK: - Live Chat Inputs
     var channel: SBDOpenChannel?
@@ -155,7 +153,7 @@ class StreamDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDat
         emojiKeyboardView?.autoresizingMask = UIView.AutoresizingMask.flexibleHeight
         emojiKeyboardView?.delegate = self
         //self.textView.inputView = emojiKeyboardView;
-        imgEmoji1.image = UIImage.init(named: "addemoji.png")
+        imgEmoji1.image = UIImage.init(named: "add-emoji")
         txtEmoji.inputView = emojiKeyboardView
         txtEmoji.tintColor = UIColor.clear
         txtEmoji.addTarget(self, action: #selector(txtEmojiTap), for: .touchDown)
@@ -199,13 +197,13 @@ class StreamDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDat
         
     }
     @objc func txtEmojiTap(textField: UITextField) {
-        if ((imgEmoji1.image?.isEqual(UIImage.init(named: "addemoji.png")))!)
+        if ((imgEmoji1.image?.isEqual(UIImage.init(named: "add-emoji")))!)
         {
-            imgEmoji1.image = UIImage.init(named: "closeemoji.png")
+            imgEmoji1.image = UIImage.init(named: "close-emoji")
         }
         else{
             txtEmoji.resignFirstResponder()
-            imgEmoji1.image = UIImage.init(named: "addemoji.png")
+            imgEmoji1.image = UIImage.init(named: "add-emoji")
         }
     }
     
@@ -278,7 +276,7 @@ class StreamDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDat
             } else {
                 self.sendUserMessageButton.isEnabled = true
                 self.txtComment.isEnabled = true
-                self.txtComment.placeholder = "Type a message.."
+                self.txtComment.placeholder = "Send a message"
             }
         })
     }
@@ -401,9 +399,9 @@ class StreamDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDat
         backPressed = false
         self.btnPlayStream.isHidden = true
         if(UIDevice.current.userInterfaceIdiom == .pad){
-            self.imgStreamThumbNail.image = UIImage.init(named: "default-vod.png")
+            self.imgStreamThumbNail.image = UIImage.init(named: "sample-event")
         }else{
-            self.imgStreamThumbNail.image = UIImage.init(named: "default-vod-square.png")
+            self.imgStreamThumbNail.image = UIImage.init(named: "sample_vod_square")
         }
         if(isLoaded == 0 || appDelegate.isLiveLoad == "1"){
             let netAvailable = appDelegate.isConnectedToInternet()
@@ -540,7 +538,7 @@ class StreamDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDat
      @IBAction func viewBGTap(_ sender: Any) {
         txtEmoji.resignFirstResponder()
         txtComment.resignFirstResponder()
-        imgEmoji1.image = UIImage.init(named: "addemoji.png")
+        imgEmoji1.image = UIImage.init(named: "add-emoji")
     }
     @IBAction func back(_ sender: Any) {
         if (!backPressed){
@@ -605,7 +603,7 @@ class StreamDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDat
     }
     @objc func btnPress(_ sender: UIButton) {
         txtEmoji.resignFirstResponder()
-        imgEmoji1.image = UIImage.init(named: "addemoji.png")
+        imgEmoji1.image = UIImage.init(named: "add-emoji")
         txtComment.resignFirstResponder()
         txtTopOfToolBar.resignFirstResponder()
         hideViews();
@@ -623,7 +621,7 @@ class StreamDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDat
                 lblLine?.isHidden = false;
                 btnText?.setTitleColor(orange, for: .normal)
             }else{
-                lblLine?.isHidden = true;
+               lblLine?.isHidden = true;
                 btnText?.setTitleColor(.white, for: .normal)
             }
         }
@@ -814,7 +812,7 @@ class StreamDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDat
         toolbar.backgroundColor = .white
         txtTopOfToolBar =  UITextField(frame: CGRect(x: 50, y: 0, width: view.frame.size.width-150, height: 35))
         // let textfield =  UITextField()
-        txtTopOfToolBar.placeholder = "Enter comments"
+        txtTopOfToolBar.placeholder = "Send a message"
         txtTopOfToolBar.delegate = self
         txtTopOfToolBar.backgroundColor = .clear
         //txtTopOfToolBar.isUserInteractionEnabled = false
@@ -1696,7 +1694,7 @@ class StreamDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDat
                 //showAlert(strMsg: "\(self.sbdError_emoji)")
             }
             txtEmoji.resignFirstResponder()
-            imgEmoji1.image = UIImage.init(named: "addemoji.png")
+            imgEmoji1.image = UIImage.init(named: "add-emoji")
             return
         }
         
@@ -1704,7 +1702,7 @@ class StreamDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDat
         guard let channel_emoji = self.channel_emoji else {
             showAlert(strMsg: "Channel is not available, Please try again later.")
             txtEmoji.resignFirstResponder()
-            imgEmoji1.image = UIImage.init(named: "addemoji.png")
+            imgEmoji1.image = UIImage.init(named: "add-emoji")
             return
         }
         animateEmoji()
@@ -1953,7 +1951,7 @@ class StreamDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDat
         if user.userId == currentUser.userId, sender.channelUrl == channel.channelUrl {
             self.sendUserMessageButton.isEnabled = true
             self.txtComment.isEnabled = true
-            self.txtComment.placeholder = "Type a message.."
+            self.txtComment.placeholder = "Send a message"
             self.sendUserMessageButton.isEnabled = false
         }
     }

@@ -19,11 +19,21 @@ class MultiStreamVC: UIViewController {
     @IBOutlet weak var lblTitle: UILabel!
     @IBOutlet weak var viewActivity: UIView!
     @IBOutlet weak var viewStream: UIView!
-    
+    var aryStreamInfo = [Any]()
+    @IBOutlet weak var imgStreamThumbNail: UIImageView!
+    @IBOutlet weak var btnPlayStream: UIButton!
+    var age_limit = 0;
+    var streamVideoCode = ""
+    var isChannelAvailable = false;
+    var isChannelAvailable_emoji = false;
+    @IBOutlet weak var btnPayPerView: UIButton!
+
     var orgId = 0;
     var performerId = 0;
     var streamId = 0;
     var strTitle = ""
+    var paymentAmount = 0
+
     var detailStreamItem: NSDictionary? {
         didSet {
             // Update the view.
@@ -40,6 +50,7 @@ class MultiStreamVC: UIViewController {
         lblTitle.text = strTitle
         viewActivity.isHidden = true
         setLiveStreamConfig()
+        
         
     }
     func setLiveStreamConfig(){
@@ -89,6 +100,15 @@ class MultiStreamVC: UIViewController {
         // Testbed.parameters = Testbed.dictionary!.value(forKey: "GlobalProperties") as? NSMutableDictionary
         configureStreamView()
     }
+    func showAlert(strMsg: String){
+           let alert = UIAlertController(title: "Alert", message: strMsg, preferredStyle: .alert)
+           alert.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
+           
+           DispatchQueue.main.async {
+               self.present(alert, animated: true)
+           }
+       }
+    
     func configureStreamView() {
         // Update the user interface for the detail item.
         // Access the static shared interface to ensure it's loaded
@@ -110,6 +130,7 @@ class MultiStreamVC: UIViewController {
          }*/
         let storyboard = UIStoryboard(name: "Main", bundle: nil);
         let vc = storyboard.instantiateViewController(withIdentifier: "SubscribeTwoStreams") as! SubscribeTwoStreams
+        vc.strTitle = strTitle
         self.navigationController?.pushViewController(vc, animated: true)
         
     }

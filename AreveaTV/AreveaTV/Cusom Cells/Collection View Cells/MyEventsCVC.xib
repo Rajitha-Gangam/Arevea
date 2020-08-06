@@ -28,7 +28,7 @@
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="1AI-wc-d7V">
                                 <rect key="frame" x="10" y="10" width="220" height="220"/>
                                 <subviews>
-                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="Default" translatesAutoresizingMaskIntoConstraints="NO" id="8MA-f7-94k">
+                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="sample-details" translatesAutoresizingMaskIntoConstraints="NO" id="8MA-f7-94k">
                                         <rect key="frame" x="0.0" y="0.0" width="220" height="220"/>
                                         <userDefinedRuntimeAttributes>
                                             <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
@@ -136,8 +136,8 @@
         </collectionViewCell>
     </objects>
     <resources>
-        <image name="Default" width="130" height="130"/>
         <image name="back-icon" width="44" height="44"/>
         <image name="right-arrow" width="44" height="44"/>
+        <image name="sample-details" width="414" height="360"/>
     </resources>
 </document>

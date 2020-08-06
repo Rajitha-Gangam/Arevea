@@ -154,9 +154,9 @@ class PaymentHistoryVC: UIViewController, UITableViewDelegate,UITableViewDataSou
             
             let tag = 10 + (indexPath.row)
             let checkImg = tblFilter.viewWithTag(tag) as? UIImageView
-            if ((checkImg?.image?.isEqual(UIImage.init(named: "check-icon.png")))!)
+            if ((checkImg?.image?.isEqual(UIImage.init(named: "checked")))!)
             {
-                checkImg?.image = UIImage.init(named: "uncheck-icon.png")
+                checkImg?.image = UIImage.init(named: "check")
                 if(indexPath.row == 0){
                     selectedFilters.removeObject("0")
                 }else{
@@ -164,7 +164,7 @@ class PaymentHistoryVC: UIViewController, UITableViewDelegate,UITableViewDataSou
                 }
             }
             else{
-                checkImg?.image = UIImage.init(named: "check-icon.png")
+                checkImg?.image = UIImage.init(named: "checked")
                 if(indexPath.row == 0){
                     selectedFilters.append("0")
                 }else{

@@ -242,7 +242,7 @@ class SubscribeTest: BaseTest {
         videoBtn = UIButton(frame: CGRect(x: 20, y: btnY, width: btnWidth, height: btnWidth))
         videoBtn?.backgroundColor = UIColor.clear
         videoBtn?.setTitle("", for: UIControl.State.normal)
-        videoBtn?.setImage(UIImage.init(named: "pause.png"), for: .normal);
+        videoBtn?.setImage(UIImage.init(named: "pause"), for: .normal);
         videoBtn?.layer.cornerRadius = 15;
         viewControls.addSubview(videoBtn!)
         let tap1 = UITapGestureRecognizer(target: self, action: #selector(pauseVideo))
@@ -251,7 +251,7 @@ class SubscribeTest: BaseTest {
         audioBtn = UIButton(frame: CGRect(x: 60, y: btnY, width: btnWidth, height: btnWidth))
         audioBtn?.backgroundColor = UIColor.clear
         audioBtn?.setTitle("", for: UIControl.State.normal)
-        audioBtn?.setImage(UIImage.init(named: "unmute.png"), for: .normal);
+        audioBtn?.setImage(UIImage.init(named: "unmute"), for: .normal);
         audioBtn?.layer.cornerRadius = 15;
         viewControls.addSubview(audioBtn!)
         let tap2 = UITapGestureRecognizer(target: self, action: #selector(pauseAudio))
@@ -276,16 +276,16 @@ class SubscribeTest: BaseTest {
         //let hasAudio = !(self.subscribeStream?.pauseAudio)!;
         // self.subscribeStream?.pauseAudio = hasAudio;
         let imgBtn = audioBtn?.image(for: .normal)
-        if ((imgBtn?.isEqual(UIImage.init(named: "unmute.png")))!)
+        if ((imgBtn?.isEqual(UIImage.init(named: "unmute")))!)
         {
-            audioBtn?.setImage(UIImage.init(named: "mute.png"), for: .normal);
+            audioBtn?.setImage(UIImage.init(named: "mute"), for: .normal);
             //ALToastView.toast(in: self.view, withText:"Pausing Audio")
             if((self.subscribeStream?.audioController) != nil){
             self.subscribeStream?.audioController.volume = 0
             }
         }
         else{
-            audioBtn?.setImage(UIImage.init(named: "unmute.png"), for: .normal);
+            audioBtn?.setImage(UIImage.init(named: "unmute"), for: .normal);
             //ALToastView.toast(in: self.view, withText:"Playing Audio")
             if((self.subscribeStream?.audioController) != nil){
             self.subscribeStream?.audioController.volume = slider.value / 100
@@ -295,9 +295,9 @@ class SubscribeTest: BaseTest {
     @objc func pauseVideo() {
         
         let imgBtn = videoBtn?.image(for: .normal)
-        if ((imgBtn?.isEqual(UIImage.init(named: "pause.png")))!)
+        if ((imgBtn?.isEqual(UIImage.init(named: "pause")))!)
         {
-            videoBtn?.setImage(UIImage.init(named: "play.png"), for: .normal);
+            videoBtn?.setImage(UIImage.init(named: "play"), for: .normal);
             if((self.subscribeStream?.audioController) != nil){
                 self.subscribeStream?.audioController.volume = 0
             }
@@ -307,7 +307,7 @@ class SubscribeTest: BaseTest {
             }
         }
         else{
-            videoBtn?.setImage(UIImage.init(named: "pause.png"), for: .normal);
+            videoBtn?.setImage(UIImage.init(named: "pause"), for: .normal);
             if((self.subscribeStream?.audioController) != nil){
                 self.subscribeStream?.audioController.volume = slider.value / 100
             }

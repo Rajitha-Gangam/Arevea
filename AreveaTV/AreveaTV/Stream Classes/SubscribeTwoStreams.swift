@@ -35,7 +35,11 @@ import Alamofire
 import AWSAppSync
 @objc(SubscribeTwoStreams)
 class SubscribeTwoStreams: BaseTest {
-    var firstView : R5VideoViewController? = nil
+    @IBOutlet weak var view1: UIView?
+    @IBOutlet weak var view2: UIView?
+    @IBOutlet weak var view3: UIView?
+    @IBOutlet weak var view4: UIView?
+
     var secondView : R5VideoViewController? = nil
     var subscribeStream2 : R5Stream? = nil
     var appSyncClient: AWSAppSyncClient?
@@ -46,64 +50,38 @@ class SubscribeTwoStreams: BaseTest {
     @IBOutlet weak var lblTitle: UILabel!
     @IBOutlet weak var viewActivity: UIView!
     @IBOutlet weak var viewStream: UIView!
-    
+    var streamlist = [[String:Any]]()
+    var offlineStream = [[String:Any]]()
+    var strTitle = ""
+
     override func viewDidLoad() {
         super.viewDidLoad()
         
         // Do any additional setup after loading the view.
         appSyncClient = appDelegate.appSyncClient
         getGuestDetailInGraphql(.returnCacheDataAndFetch)
+        
+        view1?.layer.borderColor = UIColor.black.cgColor
+        view1?.layer.borderWidth = 1
+        
+        view2?.layer.borderColor = UIColor.black.cgColor
+        view2?.layer.borderWidth = 1
+        
+        view3?.layer.borderColor = UIColor.black.cgColor
+        view3?.layer.borderWidth = 1
+        
+        view4?.layer.borderColor = UIColor.black.cgColor
+        view4?.layer.borderWidth = 1
+        lblTitle.text = strTitle
+        
+        viewActivity.isHidden = true
+
     }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         
-        /*let screenSize = self.view.bounds.size
-        
-        firstView = getNewR5VideoViewController(rect: CGRect( x: 0, y: 0, width: screenSize.width, height: screenSize.height / 2 ))
-        self.addChild(firstView!)
-        view.addSubview((firstView?.view)!)
-        //firstView?.showDebugInfo(Testbed.getParameter(param: "debug_view") as! Bool)
-        firstView?.showDebugInfo(false)
-
-        firstView?.view.center = CGPoint( x: screenSize.width/2, y: screenSize.height/4 )
-        
-        let config = getConfig(url: "livestream.arevea.tv")
-        // Set up the connection and stream
-        let connection = R5Connection(config: config)
-        self.subscribeStream = R5Stream(connection: connection)
-        self.subscribeStream!.delegate = self
-        self.subscribeStream?.client = self;
-        
-        firstView?.attach(subscribeStream)
-        firstView?.view.backgroundColor = .red
-        self.subscribeStream!.audioController = R5AudioController()
-        
-        self.subscribeStream!.play(Testbed.getParameter(param: "stream1") as? String, withHardwareAcceleration:Testbed.getParameter(param: "hwaccel_on") as! Bool)
-        
-        secondView = getNewR5VideoViewController(rect: CGRect( x: 0, y: screenSize.height / 2, width: screenSize.width, height: screenSize.height / 2 ))
-        self.addChild(secondView!)
-        view.addSubview((secondView?.view)!)
-        //secondView?.showDebugInfo(Testbed.getParameter(param: "debug_view") as! Bool)
-        secondView?.showDebugInfo(false)
-        secondView?.view.center = CGPoint( x: screenSize.width/2, y: 3 * (screenSize.height/4) )
-        secondView?.view.backgroundColor = .green
-
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
-            
-            let connection2 = R5Connection(config: config)
-            
-            self.subscribeStream2 = R5Stream(connection: connection2 )
-            self.subscribeStream2!.delegate = self
-            self.subscribeStream2?.client = self;
-            
-            self.secondView?.attach(self.subscribeStream2)
-            
-            self.subscribeStream2?.audioController = R5AudioController()
-            
-            self.subscribeStream2?.play(Testbed.getParameter(param: "stream2") as? String, withHardwareAcceleration:Testbed.getParameter(param: "hwaccel_on") as! Bool)
-            
-        }*/
+       
     }
     @objc func onMetaData(data : String){
            
@@ -135,32 +113,22 @@ class SubscribeTwoStreams: BaseTest {
                     let guestList = multiDataJSON?["guestList"] as? [Any] ?? [Any]() ;
                     print("guestList:",guestList)
                     print("guestList count:",guestList.count)
-                    var streamlist = [[String:Any]]()
-                    var offlineStream = [[String:Any]]()
+                    self.streamlist = [[String:Any]]()
+                    self.offlineStream = [[String:Any]]()
                     for (index,_) in guestList.enumerated() {
                         let guest = guestList[index] as! [String:Any]
                         let onlineStatus = guest["onlineStatus"] as? Bool ?? false
                         let liveStatus = guest["liveStatus"] as? Bool ?? false
                         if(onlineStatus && liveStatus) {
                             let auth_code = guest["auth_code"] as? String ?? ""
-                            streamlist.append(["auth_code":auth_code])
+                            self.streamlist.append(["auth_code":auth_code])
                         } else {
                             let auth_code = guest["auth_code"] as? String ?? ""
-                            offlineStream.append(["auth_code":auth_code])
-                            streamlist.append(["auth_code":auth_code])
+                            self.offlineStream.append(["auth_code":auth_code])
+                            self.streamlist.append(["auth_code":auth_code])
                             // this.unSubscribe_Subscriber(e.auth_code);
                         }
-                    }
-                    for(index,_) in streamlist.enumerated(){
-                        print("--index:",index)
-                        let guest = guestList[index] as! [String:Any]
-                        let auth_code = guest["auth_code"] as? String ?? ""
-                        self.superIndex = index
-                        self.findStream(streamName: auth_code)
-                        
-                      /*let url = "https://" + host  + "/streammanager/api/" + version + "/event/" +
-                            context + "/" + auth_code + "?action=subscribe&region=" + appDelegate.strRegionCode;
-                        print("url:",url)*/
+                        self.findStream()
                     }
                 }else{
                     print("--getMulticreatorshareddata null")
@@ -169,6 +137,11 @@ class SubscribeTwoStreams: BaseTest {
             // Remove existing records if we're either loading from cache, or loading fresh (e.g., from a refresh)
         }
     }
+    func delayWithSeconds(_ seconds: Double, completion: @escaping () -> ()) {
+           DispatchQueue.main.asyncAfter(deadline: .now() + seconds) {
+               completion()
+           }
+       }
     func showAlert(strMsg: String){
         let alert = UIAlertController(title: "Alert", message: strMsg, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
@@ -177,7 +150,11 @@ class SubscribeTwoStreams: BaseTest {
             self.present(alert, animated: true)
         }
     }
-    func findStream(streamName: String ){
+    func findStream( ){
+        for(index,_) in streamlist.enumerated(){
+            print("==index:",index)
+            let guest = streamlist[index]
+            let streamName = guest["auth_code"] as? String ?? ""
         let netAvailable = appDelegate.isConnectedToInternet()
         if(!netAvailable){
             showAlert(strMsg: "Please check your internet connection!")
@@ -207,17 +184,20 @@ class SubscribeTwoStreams: BaseTest {
                     if let json = value as? [String: Any] {
                         if json["errorMessage"] != nil{
                             let errorMsg = json["errorMessage"]
-                             ALToastView.toast(in: self.view, withText:errorMsg as? String ?? "")
+                            let tag = 10*(index + 1)
+                            let superView = self.viewStream.viewWithTag(tag)
+
+                             ALToastView.toast(in: superView, withText:errorMsg as? String ?? "")
                             _ = "Unable to locate stream. Broadcast has probably not started for this stream: " + streamName
                             print("errorMessage:",errorMsg)
                             //comment these two lines
                             let serverAddress = "livestream.arevea.tv"
-                            self.config(url: serverAddress,stream:streamName)
+                            self.config(url: serverAddress,stream:streamName,index: index)
 
                         }else{
                             let serverAddress = json["serverAddress"] as? String ?? ""
                             print("serverAddress:",serverAddress)
-                            self.config(url: serverAddress,stream:streamName)
+                            self.config(url: serverAddress,stream:streamName,index: index)
                         }
                     }
                     
@@ -225,8 +205,9 @@ class SubscribeTwoStreams: BaseTest {
                     print(error)
                 }
         }
+        }
     }
-    func config(url:String,stream:String){
+    func config(url:String,stream:String,index:Int){
         let streamInfo = ["Stream": "started"]
         NotificationCenter.default.post(name: .didReceiveStreamData, object: self, userInfo: streamInfo)
         let screenSize = self.view.bounds.size
@@ -235,7 +216,8 @@ class SubscribeTwoStreams: BaseTest {
         
         //self.addChild(firstView1)
         //view.addSubview((firstView1.view)!)
-        let superView = self.viewStream.viewWithTag(10*superIndex)
+        let tag = 10*(index + 1)
+        let superView = self.viewStream.viewWithTag(tag)
         superView?.addSubview((firstView1.view)!)
         
         firstView1.showDebugInfo(false)
@@ -244,8 +226,6 @@ class SubscribeTwoStreams: BaseTest {
         // Set up the connection and stream
         let connection = R5Connection(config: config)
         let subscribeStream1 = R5Stream(connection: connection)
-        let stats = subscribeStream1?.getDebugStats()
-        print("---stats:",stats as Any)
         subscribeStream1!.delegate = self
         subscribeStream1?.client = self;
         firstView1.attach(subscribeStream1)
@@ -262,5 +242,11 @@ class SubscribeTwoStreams: BaseTest {
         return nil
     }
     
-   
+   @IBAction func back(_ sender: Any) {
+    print("back called")
+    self.navigationController?.popViewController(animated: true)
+   }
+    override var preferredStatusBarStyle: UIStatusBarStyle {
+           return .lightContent // .default
+       }
 }

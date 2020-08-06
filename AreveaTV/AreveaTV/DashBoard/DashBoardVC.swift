@@ -58,7 +58,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
     
     @IBOutlet var imgProfilePic: UIImageView!
     
-    var arySideMenu : [[String: String]] = [["name":"Home","icon":"home.png"],["name":"My Profile","icon":"user1.png"],["name":"My Events","icon":"events-icon.png"],["name":"My Payments","icon":"donation-icon.png"],["name":"My Purchases","icon":"purchases.png"],["name":"Help","icon":"help-icon.png"],["name":"Logout","icon":"logout-icon.png"]];
+    var arySideMenu : [[String: String]] = [["name":"Home","icon":"home"],["name":"My Profile","icon":"user1.png"],["name":"My Events","icon":"event"],["name":"My Payments","icon":"donation"],["name":"My Purchases","icon":"purchase"],["name":"Help","icon":"help"],["name":"Logout","icon":"logout"]];
     var sectionTitles = ["Live Events","My List","Trending Channels"]
     //MARK:View Life Cycle Methods
     
@@ -605,7 +605,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
         viewSideMenu.isHidden = false;
         
         self.leftConstraintLeftMenu?.constant = -(self.view.frame.size.width);
-        self.viewSideMenu.layoutIfNeeded()
+        //self.viewSideMenu.layoutIfNeeded()
         
         let movementDistance:CGFloat = (self.view.frame.size.width);
         var movement:CGFloat = 0

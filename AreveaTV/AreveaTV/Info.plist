@@ -60,6 +60,8 @@
 	<string>Camera access required for take user profile picture.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>We need to know your location to get country</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Microphone access required for publishing.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>Photo Library access required to get profile picture</string>
 	<key>NSPhotoLibraryUsageDescription</key>

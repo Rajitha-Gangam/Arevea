@@ -123,9 +123,9 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
         backPressed = false
         self.imgPerformerProfile.layer.cornerRadius = self.imgPerformerProfile.frame.size.width/2
         if(UIDevice.current.userInterfaceIdiom == .pad){
-            self.imgStreamThumbNail.image = UIImage.init(named: "default-vod.png")
+            self.imgStreamThumbNail.image = UIImage.init(named: "sample-event")
         }else{
-            self.imgStreamThumbNail.image = UIImage.init(named: "default-vod-square.png")
+            self.imgStreamThumbNail.image = UIImage.init(named: "sample_vod_square")
         }
         liveEvents();
 
@@ -340,8 +340,14 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
     }
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) ->  CGFloat {
         if (tableView == tblVideos){
+            if(UIDevice.current.userInterfaceIdiom == .pad){
+                return 500;
+            }
             return 300;
         }else if  (tableView == tblAudios){
+            if(UIDevice.current.userInterfaceIdiom == .pad){
+                return 500;
+            }
             return 300;
         }else if  (tableView == tblUpcoming){
             return 138;
@@ -365,7 +371,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
             if let urlVideoThumbImage = URL(string: strURL){
                 self.videoThumbNail(from: urlVideoThumbImage, button: cell.btnVideo)
             }else{
-                cell.btnVideo.setImage((UIImage.init(named: "default-vod-square.png")), for: .normal)
+                cell.btnVideo.setImage((UIImage.init(named: "sample_vod_square")), for: .normal)
             }
             return cell
         }else if (tableView == tblUpcoming){
@@ -415,7 +421,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
            if let urlVideoThumbImage = URL(string: strURL){
                self.videoThumbNail(from: urlVideoThumbImage, button: cell.btnVideo)
            }else{
-               cell.btnVideo.setImage((UIImage.init(named: "default-vod-square.png")), for: .normal)
+               cell.btnVideo.setImage((UIImage.init(named: "sample_vod_square")), for: .normal)
            }
            return cell
         }

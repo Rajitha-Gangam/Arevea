@@ -79,7 +79,7 @@ class MyEventsCell: UITableViewCell, UICollectionViewDataSource, UICollectionVie
         if let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "MyEventsCVC", for: indexPath) as? MyEventsCVC {
             // cell.colorView.backgroundColor = self.rowWithItems?[indexPath.item].color ?? UIColor.black
             let arySub = rowWithItems[indexPath.row] as! [String: Any]
-            let thumbNail = UIImage.init(named: "default-img1.jpg")
+            let thumbNail = UIImage.init(named: "sample-event")
             cell.imgCategory.image = thumbNail
             cell.imgCategory.contentMode = .scaleAspectFill
             if (strController == "dashboard" || strController == "dashboard_my_list" || strController == "my_events"){

@@ -23,7 +23,7 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
     
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     @IBOutlet weak var btnProfilePic: UIButton!
-    @IBOutlet weak var btnDelete: UIButton!
+    @IBOutlet weak var btnEdit: UIButton!
     // var choosenImage = UIImage?.self
     @IBOutlet weak var imgProfilePic: UIImageView!
     var imagePickerController = UIImagePickerController()
@@ -35,8 +35,11 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
     var pickerData =  ["Under 16", "16-17","18+"];
     @IBOutlet weak var heightTopView: NSLayoutConstraint?
     @IBOutlet weak var viewTop: UIView!
-    @IBOutlet weak var viewEdit: UIView!
     var isDeleteShow = false
+    @IBOutlet weak var viewChangePWD: UIView!
+    @IBOutlet weak var viewNoProfilePic: UIView!
+    @IBOutlet weak var viewProfilePic: UIView!
+
     // MARK: - View Life cycle
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -54,7 +57,11 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
             heightTopView?.constant = 60;
             viewTop.layoutIfNeeded()
         }
-        viewEdit.isHidden = true
+        viewChangePWD.layer.borderColor = UIColor.white.cgColor
+        viewNoProfilePic.layer.borderColor = UIColor.white.cgColor
+
+        viewProfilePic.isHidden = true
+        viewNoProfilePic.isHidden = false
 
     }
     override func viewDidAppear(_ animated: Bool) {
@@ -157,6 +164,8 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
                 imageView.contentMode = .scaleAspectFill
                 imageView.image = UIImage(data: data)
                 self?.viewActivity.isHidden = true
+                self?.viewProfilePic.isHidden = false
+                self?.viewNoProfilePic.isHidden = true
             }
         }
     }
@@ -257,8 +266,11 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
                             if let url = URL(string: strURL){
                                 self.downloadImage(from: url as URL, imageView: self.imgProfilePic)
                                 self.isDeleteShow = true
+                                
                             }else{
                                 self.viewActivity.isHidden = true
+                                self.viewProfilePic.isHidden = true
+                                self.viewNoProfilePic.isHidden = false
                             }
                         }else{
                             let strError = json["message"] as? String
@@ -488,18 +500,28 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
     
     // MARK: Profile Pic Update Methods
     @IBAction func profilePicTap(){
-        viewEdit.isHidden = false
-        if(isDeleteShow){
-            btnDelete.isHidden = false
-        }else{
-            btnDelete.isHidden = true
-        }
+        editConfirmation()
     }
-    @IBAction func viewBGTap(){
-        viewEdit.isHidden = true
+    
+    func editConfirmation() {
+        let actionsheet = UIAlertController(title: "Confirmation", message: "", preferredStyle: .actionSheet)
+        actionsheet.addAction(UIAlertAction(title: "Update Profile Picture", style: .default, handler: { (action:UIAlertAction)in
+            self.chooseProfilePic()
+        }))
+        actionsheet.addAction(UIAlertAction(title: "Delete Profile Picture", style: .default, handler: { (action:UIAlertAction)in
+            self.deleteProfilePic()
+            
+        }))
+        actionsheet.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+       // actionsheet.popoverPresentationController.barButtonItem = button;
+        if let popoverController = actionsheet.popoverPresentationController {
+            popoverController.sourceRect = btnProfilePic.bounds
+            popoverController.sourceView = btnProfilePic
+            popoverController.permittedArrowDirections = UIPopoverArrowDirection(rawValue: 1)
+        }
+        self.present(actionsheet,animated: true, completion: nil)
     }
     @IBAction func chooseProfilePic() {
-        viewEdit.isHidden = true
         let actionsheet = UIAlertController(title: "Photo Source", message: "Choose A Source", preferredStyle: .actionSheet)
         actionsheet.addAction(UIAlertAction(title: "Camera", style: .default, handler: { (action:UIAlertAction)in
             if UIImagePickerController.isSourceTypeAvailable(.camera){
@@ -582,6 +604,8 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
                         self.strProfilePicURL = strURL
                         UserDefaults.standard.set("false", forKey: "is_profile_pic_loaded_left_menu")
                         self.isDeleteShow = true
+                        self.viewProfilePic.isHidden = false
+                        self.viewNoProfilePic.isHidden = true
                     }else{
                         let strError = json["message"] as? String
                         //print(strError ?? "")
@@ -611,7 +635,6 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
     }
     // MARK: Handler for deleteSelectedFile API
     func deleteProfilePic(){
-        viewEdit.isHidden = true
         let url: String = appDelegate.qaURL +  "/deleteSelectedFile"
         viewActivity.isHidden = false
         //print("getCategoryOrganisations input:",inputData)
@@ -638,6 +661,8 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
                             self.imgProfilePic.image = UIImage.init(named:"user")
                             self.isDeleteShow = false
                             UserDefaults.standard.set("false", forKey: "is_profile_pic_loaded_left_menu")
+                            self.viewProfilePic.isHidden = true
+                            self.viewNoProfilePic.isHidden = false
                         }else{
                             //this one should hide later once API works
                             UserDefaults.standard.set("false", forKey: "is_profile_pic_loaded_left_menu")
@@ -645,6 +670,8 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
                             let strError = json["message"] as? String
                             //print(strError ?? "")
                             self.showAlert(strMsg: strError ?? "")
+                            self.viewProfilePic.isHidden = false
+                            self.viewNoProfilePic.isHidden = true
                         }
                     }
                 case .failure(let error):
