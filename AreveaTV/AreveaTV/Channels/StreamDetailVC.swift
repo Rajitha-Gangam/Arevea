@@ -25,7 +25,7 @@ class StreamDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDat
     @IBOutlet weak var viewComments: UIView!
     @IBOutlet weak var viewInfo: UIView!
     @IBOutlet weak var viewTip: UIView!
-
+    
     @IBOutlet weak var tblComments: UITableView!
     @IBOutlet weak var tblDonations: UITableView!
     @IBOutlet weak var txtProfile: UITextView!
@@ -61,7 +61,7 @@ class StreamDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDat
     @IBOutlet weak var lblVideoTitle_info: UILabel!
     @IBOutlet weak var txtVideoDesc_Info: UITextView!
     @IBOutlet weak var imgPerformer: UIImageView!
-
+    
     @IBOutlet weak var lblNoDataComments: UILabel!
     @IBOutlet weak var lblNoDataDonations: UILabel!
     
@@ -130,11 +130,15 @@ class StreamDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDat
     @IBOutlet weak var lblVODUnavailable: UILabel!
     @IBOutlet weak var viewVOD: UIView!
     var videoPlayer = AVPlayer()
-
+    
     var isStream = true;
     var isUpcoming = false;
     var toolTipPreferences = EasyTipView.Preferences()
     var streamVideoDesc = ""
+    var startSessionResponse =  [String:Any]()
+    var isViewerCountcall = 0;
+    @IBOutlet weak var lblPerformerName: UILabel!
+
     // MARK: - View Life cycle
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -190,13 +194,18 @@ class StreamDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDat
         toolTipPreferences.drawing.backgroundColor = UIColor.init(red: 10, green: 72, blue: 88)
         toolTipPreferences.drawing.arrowPosition = EasyTipView.ArrowPosition.top
         //toolTipPreferences.animating.showDuration = 1.5
-       // toolTipPreferences.animating.dismissDuration = 1.5
+        // toolTipPreferences.animating.dismissDuration = 1.5
         toolTipPreferences.animating.dismissOnTap = true
         EasyTipView.globalPreferences = toolTipPreferences
         toolTipView = EasyTipView(text: self.strTitle, preferences: toolTipPreferences)
-
+        
         // later on you can dismiss it
         //tipView.dismiss()
+        lblPerformerName?.layer.borderColor = UIColor.white.cgColor
+        lblPerformerName?.layer.cornerRadius = 15
+        lblPerformerName?.layer.borderWidth = 1
+        self.lblPerformerName.isHidden = true
+
         
     }
     @objc func txtEmojiTap(textField: UITextField) {
@@ -535,13 +544,10 @@ class StreamDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDat
             //self.animateEmojis()
         }
     }
-    
-    
-    
-    
-     @IBAction func viewBGTap(_ sender: Any) {
+    @IBAction func viewBGTap() {
         txtEmoji.resignFirstResponder()
         txtComment.resignFirstResponder()
+        txtTopOfToolBar.resignFirstResponder()
         imgEmoji1.image = UIImage.init(named: "add-emoji")
     }
     @IBAction func back(_ sender: Any) {
@@ -601,8 +607,8 @@ class StreamDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDat
             let btnTag = 20 + index;
             let lblLine = self.buttonCVC.viewWithTag(lineTag) as? UILabel
             let btnText = self.buttonCVC.viewWithTag(btnTag) as? UIButton
-                lblLine?.isHidden = true;
-                btnText?.setTitleColor(.white, for: .normal)
+            lblLine?.isHidden = true;
+            btnText?.setTitleColor(.white, for: .normal)
         }
     }
     @objc func btnPress(_ sender: UIButton) {
@@ -625,7 +631,7 @@ class StreamDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDat
                 lblLine?.isHidden = false;
                 btnText?.setTitleColor(orange, for: .normal)
             }else{
-               lblLine?.isHidden = true;
+                lblLine?.isHidden = true;
                 btnText?.setTitleColor(.white, for: .normal)
             }
         }
@@ -662,18 +668,16 @@ class StreamDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDat
         if(tableView == tblDonations){
             if (self.aryCharityInfo.count > 0){
                 self.lblNoDataDonations.isHidden = true
+                tblDonations.isHidden = false
             }else{
                 self.lblNoDataDonations.isHidden = false
+                tblDonations.isHidden = true
             }
             return aryCharityInfo.count;
         }
         else if(tableView == tblComments){
-            //            if (self.messages.count > 0){
-            //                lblNoDataComments.isHidden = true
-            //            }else{
-            //                lblNoDataComments.isHidden = false
-            //            }
-            if (isChannelAvailable){
+           
+            if (isChannelAvailable && self.messages.count > 0){
                 tblComments.isHidden = false
                 lblNoDataComments.text = ""
             }else{
@@ -777,6 +781,7 @@ class StreamDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDat
         //           let storyboard = UIStoryboard(name: "Main", bundle: nil);
         //           let vc = storyboard.instantiateViewController(withIdentifier: "ChannelDetailVC") as! ChannelDetailVC
         //           self.navigationController?.pushViewController(vc, animated: true)
+        viewBGTap()
         tableView.deselectRow(at: indexPath, animated: true)
         
     }
@@ -859,6 +864,9 @@ class StreamDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDat
                 let viewHeight = self.view.frame.size.height*0.35 - 100
                 liveStreamHeight.constant = CGFloat(viewHeight)
                 self.viewLiveStream.layoutIfNeeded()
+                //used for handle controls position on stream
+                let orientation = ["orientation": "portrait"]
+                NotificationCenter.default.post(name: .StreamOrienationChange, object: self, userInfo: orientation)
             }
             
         }else if(txtEmoji == textField){
@@ -875,6 +883,9 @@ class StreamDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDat
                 let viewHeight = self.view.frame.size.height*0.35
                 liveStreamHeight.constant = CGFloat(viewHeight)
                 self.viewLiveStream.layoutIfNeeded()
+                //used for handle controls position on stream
+                let orientation = ["orientation": "portrait"]
+                NotificationCenter.default.post(name: .StreamOrienationChange, object: self, userInfo: orientation)
             }
         }
         else if(txtEmoji == textField){
@@ -884,10 +895,10 @@ class StreamDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDat
     }
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder();
         if (textField == txtComment || txtTopOfToolBar == textField){
             sendChatMessage()
         }
-        textField.resignFirstResponder();
         return true;
     }
     func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
@@ -912,6 +923,7 @@ class StreamDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDat
         proceedToPayment(params: params)
     }
     @IBAction func payTip(_ sender: Any) {
+        viewBGTap()
         let user_id = UserDefaults.standard.string(forKey: "user_id");
         let params = ["paymentType": "performer_tip", "user_id": user_id ?? "1", "performer_id":self.performerId,"stream_id": streamId] as [String : Any]
         proceedToPayment(params: params)
@@ -919,6 +931,7 @@ class StreamDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDat
         
     }
     @IBAction func payPerView(_ sender: Any) {
+        viewBGTap()
         let user_id = UserDefaults.standard.string(forKey: "user_id");
         let params = ["paymentType": "pay_per_view", "user_id": user_id ?? "1", "stream_id": streamId] as [String : Any]
         proceedToPayment(params: params)
@@ -997,6 +1010,7 @@ class StreamDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDat
         }
     }
     @IBAction func showChatRules(){
+        viewBGTap()
         let strMsg = "ESL encourages a respectful, enjoyable, and harassment-free viewing for experience for everyone.\n\nPlease avoid engaging in any one of the following:\n•    Harassing, stalking, or threatening of individuals\n•    Hate speech (sexist, racist, homophobic, etc.)\n•    Spamming, hijacking, or disrupting stream\n•    Links and advertisements.\n•    Posting other people’s private information"
         let paragraph = NSMutableParagraphStyle()
         paragraph.alignment = .left
@@ -1034,9 +1048,6 @@ class StreamDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDat
             }
         }
     }
-    
-    
-    
     func videoThumbNail(from url: URL, button: UIButton) {
         getData(from: url) { data, response, error in
             guard let data = data, error == nil else { return }
@@ -1181,9 +1192,9 @@ class StreamDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDat
                                             self.viewVOD.isHidden = true
                                             self.viewLiveStream.isHidden = false;
                                             self.isStream = true;
-                                            self.btnPlayStream.isHidden = false;
+                                            self.btnPlayStream.isHidden = true;
                                             self.lblStreamUnavailable.text = "";
-                                            
+                                            self.setLiveStreamConfig()
                                         }else{
                                             self.lblVODUnavailable.text = ""
                                             self.viewVOD.isHidden = false
@@ -1241,11 +1252,29 @@ class StreamDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDat
                                 self.lblStreamUnavailable.text = "This vidoe may be inappropriate for some users"
                                 
                             }
-                            
+                            let charities_info = data?["charities_info"] != nil
+                            if(charities_info){
+                                self.aryCharityInfo = data?["charities_info"] as? [Any] ?? [Any]()
+                                self.tblDonations.reloadData()
+                            }
                             let performer_info = data?["performer_info"] != nil
                             if(performer_info){
                                 self.dicPerformerInfo = data?["performer_info"] as? [String : Any] ?? [String:Any]()
                                 let performerName = self.dicPerformerInfo["performer_display_name"] as? String ?? ""
+                                var firstChar = ""
+
+                                let fullNameArr = performerName.components(separatedBy: " ")
+                                let firstName: String = fullNameArr[0] ?? " "
+                                var lastName = ""
+                                if (fullNameArr.count ?? 0 > 1){
+                                    lastName = fullNameArr[1] ?? ""
+                                }
+                                if (lastName == ""){
+                                    firstChar = String(firstName.first!)
+                                }else{
+                                    firstChar = String(firstName.first!) + String(lastName.first!)
+                                }
+                                self.lblPerformerName.text = firstChar
                                 /* var performer_bio = self.dicPerformerInfo["performer_bio"] as? String ?? ""
                                  performer_bio = performer_bio.htmlToString
                                  
@@ -1264,11 +1293,18 @@ class StreamDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDat
                                     }
                                 }
                                 let performer_profile_banner1 = self.dicPerformerInfo["performer_profile_banner"] as? String ?? ""
+                                
                                 if let urlBanner = URL(string: performer_profile_banner1){
+                                    print("urlBanner:",urlBanner)
                                     self.downloadImage(from: urlBanner as URL, imageView: self.imgPerformer)
                                     self.imgPerformer.layer.cornerRadius = self.imgPerformer.frame.size.width/2
+                                    self.imgPerformer.isHidden = false
+                                    self.lblPerformerName.isHidden = true
                                 }else{
+                                    print("else perf")
                                     self.imgPerformer.layer.cornerRadius = 0
+                                    self.imgPerformer.isHidden = true
+                                    self.lblPerformerName.isHidden = false
                                 }
                                 //print("self.app_id_for_adds:",self.app_id_for_adds)
                             }else{
@@ -1591,6 +1627,7 @@ class StreamDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDat
     }
     
     @IBAction func sendChatMessage() {
+        
         txtComment.resignFirstResponder()
         txtTopOfToolBar.resignFirstResponder()
         let messageText = txtComment.text!.trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
@@ -2030,6 +2067,7 @@ class StreamDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDat
     }
     // MARK: - orientation Handlers
     @IBAction func landscapeStream() {
+        viewBGTap()
         print("lanscape:",btnRotationStreamTap)
         btnRotationStreamTap = !btnRotationStreamTap
         
@@ -2061,6 +2099,7 @@ class StreamDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDat
                 }
                 print("height of view1:",self.view.frame.size.height)
                 self.viewLiveStream.layoutIfNeeded()
+                //used for handle controls position on stream
                 let orientation = ["orientation": "landscape"]
                 NotificationCenter.default.post(name: .StreamOrienationChange, object: self, userInfo: orientation)
                 
@@ -2073,17 +2112,151 @@ class StreamDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDat
                 liveStreamHeight.constant = viewHeight
                 VODHeight.constant = viewHeight
                 self.viewLiveStream.layoutIfNeeded()
+                //used for handle controls position on stream
                 let orientation = ["orientation": "portrait"]
                 NotificationCenter.default.post(name: .StreamOrienationChange, object: self, userInfo: orientation)
             }
         }
     }
-   override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
         super.viewWillTransition(to: size, with: coordinator)
         if UIDevice.current.orientation.isLandscape {
             print("live Landscape")
         } else {
             print("live Portrait")
+        }
+    }
+    // MARK: Handler for events(events) API
+    func startStreamSession(){
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        let url: String = appDelegate.baseURL +  "/startSession"
+        viewActivity.isHidden = false
+        let headers: HTTPHeaders
+        headers = [appDelegate.securityKey: appDelegate.securityValue]
+        
+        let user_id = UserDefaults.standard.string(forKey: "user_id");
+        var streamIdLocal = "0"
+        if (streamId != 0){
+            streamIdLocal = String(streamId)
+        }
+        let params: [String: Any] = [ "user_id": user_id ?? "0",
+               "event_id": streamIdLocal,
+               "organization_id" : orgId,
+               "performer_id" : performerId,
+               "filekey": "stream_metrics/" + streamVideoCode + "/"]
+        
+        AF.request(url, method: .post,parameters: params, encoding: JSONEncoding.default,headers:headers)
+            .responseJSON { response in
+                self.viewActivity.isHidden = true
+                switch response.result {
+                case .success(let value):
+                    if let json = value as? [String: Any] {
+                        print("getEvents JSON:",json)
+                        if (json["statusCode"]as? String == "200"){
+                            let data  = json["Data"] as? [String:Any] ?? [:];
+                            self.startSessionResponse = data
+                            self.isViewerCountcall = 1;
+                        }
+                        else{
+                            let strError = json["message"] as? String
+                            ////print(strError ?? "")
+                            self.showAlert(strMsg: strError ?? "")
+                        }
+                    }
+                case .failure(let error):
+                    //print(error)
+                    self.showAlert(strMsg: error.localizedDescription)
+                }
+        }
+    }
+    // MARK: Handler for events(events) API
+    func endStreamSession(){
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        let url: String = appDelegate.baseURL +  "/endSession"
+        viewActivity.isHidden = false
+        let headers: HTTPHeaders
+        headers = [appDelegate.securityKey: appDelegate.securityValue]
+        
+        let user_id = UserDefaults.standard.string(forKey: "user_id");
+        var streamIdLocal = "0"
+        if (streamId != 0){
+            streamIdLocal = String(streamId)
+        }
+        let params: [String: Any] = [ "user_id": user_id ?? "0",
+               "event_id": streamIdLocal,
+               "organization_id" : orgId,
+               "performer_id" : performerId,
+               "filekey": "stream_metrics/" + streamVideoCode + "/"]
+        
+        AF.request(url, method: .post,parameters: params, encoding: JSONEncoding.default,headers:headers)
+            .responseJSON { response in
+                self.viewActivity.isHidden = true
+                switch response.result {
+                case .success(let value):
+                    if let json = value as? [String: Any] {
+                        print("getEvents JSON:",json)
+                        if (json["statusCode"]as? String == "200"){
+                            let data  = json["Data"] as? [String:Any] ?? [:];
+                            self.startSessionResponse = data
+                            self.isViewerCountcall = 1;
+                        }
+                        else{
+                            let strError = json["message"] as? String
+                            ////print(strError ?? "")
+                            self.showAlert(strMsg: strError ?? "")
+                        }
+                    }
+                case .failure(let error):
+                    //print(error)
+                    self.showAlert(strMsg: error.localizedDescription)
+                }
+        }
+    }
+    @IBAction func updateProfilePic(){
+        let netAvailable = appDelegate.isConnectedToInternet()
+        if(!netAvailable){
+            showAlert(strMsg: "Please check your internet connection!")
+            return
+        }
+        viewActivity.isHidden = false
+        let url = appDelegate.baseURL + "/endSession" /* your API url */
+        //  let url = "https://eku2g4rzxl.execute-api.us-west-2.amazonaws.com/dev/uploadProfilePic" /* your API url */
+        let session_token = UserDefaults.standard.string(forKey: "session_token") ?? ""
+        
+        //let headers: HTTPHeaders
+        //headers = [appDelegate.securityKey: appDelegate.securityValue]
+        let headers: HTTPHeaders = ["Content-type": "multipart/form-data","access_token": session_token]
+        
+        let user_id = UserDefaults.standard.string(forKey: "user_id");
+        let streamInfo = "stream_metrics/" + self.streamVideoCode + "/" + String(self.streamId)
+        
+        let params: [String: Any] = ["id":user_id ?? "","image_for": streamInfo,"session_start_time":"","is_final":"true","event_id": String(self.streamId)]
+        
+        AF.upload(multipartFormData: { (multipartFormData) in
+            for (key, value) in params {
+                multipartFormData.append("\(value)".data(using: String.Encoding.utf8)!, withName: key as String)
+            }
+           // multipartFormData.append(fileData, withName: "files", fileName: "", mimeType: "")
+        }, to: url, usingThreshold: UInt64.init(),
+           method: .post,headers: headers).responseJSON{ response in
+            self.viewActivity.isHidden = true
+            switch response.result {
+            case .success(let value):
+                if let json = value as? [String: Any] {
+                    //print(json)
+                    if (json["status"]as? Int == 200){
+                        //print(json["message"] ?? "")
+    
+                    }else{
+                        let strError = json["message"] as? String
+                        //print(strError ?? "")
+                        self.showAlert(strMsg: strError ?? "")
+                    }
+                }
+            case .failure(let error):
+                //print(error)
+                self.showAlert(strMsg: error.localizedDescription)
+            }
         }
     }
     

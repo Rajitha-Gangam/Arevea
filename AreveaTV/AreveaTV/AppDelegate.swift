@@ -11,35 +11,8 @@ import UIKit
 import SendBirdSDK
 import CoreLocation
 import AWSAppSync
-
-
 import UIKit
 
-extension UIImage {
-    func isEqual(to image: UIImage) -> Bool {
-        guard let data1: Data = self.pngData(),
-            let data2: Data = image.pngData() else {
-                return false
-        }
-        return data1.elementsEqual(data2)
-    }
-}
-extension UIImageView {
-    func downloaded(from url: URL, contentMode mode: UIView.ContentMode = .scaleToFill) {  // for swift 4.2 syntax just use ===> mode: UIView.ContentMode
-        contentMode = mode
-        URLSession.shared.dataTask(with: url) { data, response, error in
-            guard
-                let httpURLResponse = response as? HTTPURLResponse, httpURLResponse.statusCode == 200,
-                let mimeType = response?.mimeType, mimeType.hasPrefix("image"),
-                let data = data, error == nil,
-                let image = UIImage(data: data)
-                else { return }
-            DispatchQueue.main.async() { [weak self] in
-                self?.image = image
-            }
-        }.resume()
-    }
-}
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate,CLLocationManagerDelegate {
     // MARK: - Variables Declaration
@@ -109,6 +82,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate,CLLocationManagerDelegate 
        } catch {
            print("Error initializing AppSync client. \(error)")
        }
+       
         return true
     }
     func isConnectedToInternet() -> Bool {
@@ -188,7 +162,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate,CLLocationManagerDelegate 
        func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
            //print("Error \(error)")
        }
+    func application(_ application: UIApplication, shouldSaveApplicationState coder: NSCoder) -> Bool {
+        return true
+    }
+    
+    func application(_ application: UIApplication, shouldRestoreApplicationState coder: NSCoder) -> Bool {
+        return true
+    }
 }
+// MARK: - Extensions
+
 extension UISearchBar {
 
     func getTextField() -> UITextField? { return value(forKey: "searchField") as? UITextField }
@@ -274,4 +257,78 @@ private extension UITextField {
     }
 
     func getClearButton() -> UIButton? { return value(forKey: "clearButton") as? UIButton }
+    
+}
+
+extension UIImage {
+    func isEqual(to image: UIImage) -> Bool {
+        guard let data1: Data = self.pngData(),
+            let data2: Data = image.pngData() else {
+                return false
+        }
+        return data1.elementsEqual(data2)
+    }
+}
+extension UIImageView {
+    func downloaded(from url: URL, contentMode mode: UIView.ContentMode = .scaleToFill) {  // for swift 4.2 syntax just use ===> mode: UIView.ContentMode
+        contentMode = mode
+        URLSession.shared.dataTask(with: url) { data, response, error in
+            guard
+                let httpURLResponse = response as? HTTPURLResponse, httpURLResponse.statusCode == 200,
+                let mimeType = response?.mimeType, mimeType.hasPrefix("image"),
+                let data = data, error == nil,
+                let image = UIImage(data: data)
+                else { return }
+            DispatchQueue.main.async() { [weak self] in
+                self?.image = image
+            }
+        }.resume()
+    }
+    
+}
+extension UINavigationController {
+
+override open var shouldAutorotate: Bool {
+    get {
+        if let visibleVC = visibleViewController {
+            return visibleVC.shouldAutorotate
+        }
+        return super.shouldAutorotate
+    }
+}
+
+override open var preferredInterfaceOrientationForPresentation: UIInterfaceOrientation{
+    get {
+        if let visibleVC = visibleViewController {
+            return visibleVC.preferredInterfaceOrientationForPresentation
+        }
+        return super.preferredInterfaceOrientationForPresentation
+    }
+}
+
+override open var supportedInterfaceOrientations: UIInterfaceOrientationMask{
+    get {
+        if let visibleVC = visibleViewController {
+            return visibleVC.supportedInterfaceOrientations
+        }
+        return super.supportedInterfaceOrientations
+    }
+}
+    
+}
+extension NSLayoutConstraint {
+
+    static func setMultiplier(_ multiplier: CGFloat, of constraint: inout NSLayoutConstraint) {
+        NSLayoutConstraint.deactivate([constraint])
+
+        let newConstraint = NSLayoutConstraint(item: constraint.firstItem, attribute: constraint.firstAttribute, relatedBy: constraint.relation, toItem: constraint.secondItem, attribute: constraint.secondAttribute, multiplier: multiplier, constant: constraint.constant)
+
+        newConstraint.priority = constraint.priority
+        newConstraint.shouldBeArchived = constraint.shouldBeArchived
+        newConstraint.identifier = constraint.identifier
+
+        NSLayoutConstraint.activate([newConstraint])
+        constraint = newConstraint
+    }
+
 }

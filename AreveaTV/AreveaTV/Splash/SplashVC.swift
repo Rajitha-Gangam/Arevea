@@ -29,6 +29,10 @@ class SplashVC: UIViewController {
         delayWithSeconds(2.0){
             self.initAWS();
         }
+        if(UIDevice.current.userInterfaceIdiom == .phone){
+               let value = UIInterfaceOrientation.portrait.rawValue
+               UIDevice.current.setValue(value, forKey: "orientation")
+               }
     }
     override func viewDidAppear(_ animated: Bool) {
         // Create a service configuration

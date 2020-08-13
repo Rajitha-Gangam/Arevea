@@ -108,6 +108,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
     override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
         super.viewWillTransition(to: size, with: coordinator)
         self.viewSideMenu.isHidden = true
+        self.tblMain.reloadData()
         if UIDevice.current.orientation.isLandscape {
             print("DB Landscape")
         } else {
@@ -603,18 +604,14 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
     }
     func showSideMenu(){
         viewSideMenu.isHidden = false;
-        
         self.leftConstraintLeftMenu?.constant = -(self.view.frame.size.width);
         //self.viewSideMenu.layoutIfNeeded()
-        
         let movementDistance:CGFloat = (self.view.frame.size.width);
         var movement:CGFloat = 0
         movement = movementDistance
         UIView.animate(withDuration: 1.0, animations: {
             self.viewSideMenu.frame = self.viewSideMenu.frame.offsetBy(dx: movement, dy: 0)
         })
-        
-        
     }
     func hideSideMenu(){
         let movementDistance:CGFloat = (self.view.frame.size.width);
@@ -624,10 +621,8 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
             self.viewSideMenu.frame = self.viewSideMenu.frame.offsetBy(dx: movement, dy: 0)
         })
     }
-    
     @IBAction func sideMenuToggle(_ sender: Any) {
         showSideMenu();
-        
     }
     // MARK: Download Image from URL
     func getData(from url: URL, completion: @escaping (Data?, URLResponse?, Error?) -> ()) {
@@ -656,7 +651,6 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
     // MARK: collectionView Delegate
     func collectionView(collectionviewcell: DBCollectionViewCell?, index: Int, didTappedInTableViewCell: DashBoardCell) {
         hideSideMenu()
-        
         let orgsList = didTappedInTableViewCell.rowWithItems
         let selectedOrg = orgsList[index] as? [String: Any]
         //print("item:\(String(describing: selectedOrg))")
@@ -676,7 +670,6 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
                 vc.performerId = 1;
             }
             vc.strTitle = selectedOrg?["stream_video_title"] as? String ?? "Channel Details"
-            
             
             self.navigationController?.pushViewController(vc, animated: true)
         }else{

@@ -43,8 +43,6 @@
            // dismissPickerView()
             //self.assignbackground();
             
-
-            
         }
 
      
