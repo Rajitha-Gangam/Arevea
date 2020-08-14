@@ -247,7 +247,7 @@
         }
         // MARK: Handler for getCategoryOrganisations API
         func getSearchResults(searchString:String,isQuery:Bool){
-            let baseURL = "https://3ptsrb2obj.execute-api.us-east-1.amazonaws.com/dev/"
+            let baseURL = appDelegate.cloudSearchURL
             var url = ""
             if (isQuery){
                 url = baseURL + searchString
@@ -265,7 +265,7 @@
             viewActivity.isHidden = false
             //print("getCategoryOrganisations input:",inputData)
             let headers: HTTPHeaders
-            headers = [appDelegate.securityKey: appDelegate.securityValue]
+            headers = [appDelegate.x_api_key: appDelegate.x_api_value]
             AF.request(url, method: .get,encoding: JSONEncoding.default,headers:headers)
                 .responseJSON { response in
                     self.viewActivity.isHidden = true

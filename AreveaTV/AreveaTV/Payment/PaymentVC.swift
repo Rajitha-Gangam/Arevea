@@ -246,8 +246,7 @@ class PaymentVC: UIViewController,UITextFieldDelegate {
     // MARK: Handler for makePayment API
     
     func makePayment(params:[String:Any]){
-        //let url: String = appDelegate.baseURL +  "/makePayment"
-        let url = "https://qa.arevea.tv/api/payment/v1/makePayment"
+        let url = appDelegate.paymentBaseURL + "/makePayment"
         let params = params;
         //print("params:",params)
         let session_token = UserDefaults.standard.string(forKey: "session_token") ?? ""

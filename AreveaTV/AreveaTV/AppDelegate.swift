@@ -17,24 +17,49 @@ import UIKit
 class AppDelegate: UIResponder, UIApplicationDelegate,CLLocationManagerDelegate {
     // MARK: - Variables Declaration
     var window: UIWindow? // <-- Here
+    
     var USER_EMAIL = "";
     var plan = "";
-    var qaURL = "https://qa.arevea.tv/api/user/v1"
-    var qaUploadURL = "https://qa-uploads.arevea.tv/"
     var USER_NAME = "";
     var USER_NAME_FULL = "";
     var isLiveLoad = "0";
     var locationManager:CLLocationManager!
-    //var baseURL = "http://52.25.98.205/api/user/v1";
-    //var baseURL = "https://private-anon-c5fd1ec25e-viv3consumer.apiary-mock.com/dev";
+    // MARK: - Dev Environmet Variables Declaration
+    /*var baseURL = "https://r5ibd3yzp7.execute-api.us-west-2.amazonaws.com/devel/";
+    var sendBirdAppId = "AE94EB49-0A01-43BF-96B4-8297EBB47F12";
+    var profileURL = "https://dev.arevea.tv/api/user/v1/";
+    var qaUploadURL = "https://qa-uploads.arevea.tv/"//need to test in dev
+    var shareURL = "https://dev.arevea.tv/channel/";
+    var paymentBaseURL = "https://dev.arevea.tv/api/payment/v1/";
+    var cloudSearchURL = "https://r5ibd3yzp7.execute-api.us-west-2.amazonaws.com/devel/search";
+    var paymentRedirectionURL = "https://dev.arevea.tv/payment/";
+    var x_api_key = "x-api-key"
+    var x_api_value = "ORnphwUvEBoqHaoIDBIA2GOhYF0HHQ53JPkLwFM5";//X_API_KEY
+    var AWSCognitoIdentityPoolId = "us-west-2:2f173740-e6a4-4fc5-a37a-3064ac25e1bc"
+    var MULTI_STREAM_GRAPHQL_API_KEY = "da2-uozdgp6u6rainl2dl5v7ayzena";
+    var MULTI_STREAM_GRAPHQL_SERVER_URL = "https://37g7lmpcpbbm7jblrdlaqfz5ci.appsync-api.us-west-2.amazonaws.com/graphql"*/
+    //Dev Variables END
+
+    // MARK: - QA Environmet Variables Declaration
     var baseURL = "https://eku2g4rzxl.execute-api.us-west-2.amazonaws.com/dev"
-    //var baseURL = "https://eku2g4rzxl.execute-api.us-west-2.amazonaws.com/dev";
-    var securityKey = "x-api-key"
-    var securityValue = "gq78SwjuLY539BLW5G3dN88IXjVtWPLB1YHL1omd"
+    var sendBirdAppId = "7AF38850-F099-4C47-BD19-F7F84DAFECF8";
+    var profileURL = "https://qa.arevea.tv/api/user/v1"
+    var qaUploadURL = "https://qa-uploads.arevea.tv/"
+    var shareURL = "https://qa.arevea.tv/channel/"
+    var paymentBaseURL = "https://qa.arevea.tv/api/payment/v1";
+    var cloudSearchURL = "https://3ptsrb2obj.execute-api.us-east-1.amazonaws.com/dev/";
+    var paymentRedirectionURL = "https://qa.arevea.tv/payment/";
+    var x_api_key = "x-api-key"
+    var x_api_value = "gq78SwjuLY539BLW5G3dN88IXjVtWPLB1YHL1omd"//X_API_KEY
     var AWSCognitoIdentityPoolId = "us-west-2:00b71663-b151-44a1-9164-246be7970493"
+    var MULTI_STREAM_GRAPHQL_API_KEY = "da2-ddlr7pazgrfzngyth7hm4bw4d4";
+    var MULTI_STREAM_GRAPHQL_SERVER_URL = "https://b3tciadw35byllatz4xpwibxti.appsync-api.us-west-2.amazonaws.com/graphql";
+    
+    //QA Variables END
     var strCategory = "";
     var genreId = 0;
-   var aryCountries = [["region_code":"blr1","countries":["india","sri lanka","bangaldesh","pakistan","china"]],["region_code":"tor1","countries":["canada"]],["region_code":"fra1","countries":["germany"]],["region_code":"lon1","countries":["england"]],["region_code":"sgp1","countries":["singapore"]],["region_code":"sfo1","countries":["United States"]],["region_code":"sfo2","countries":["United States"]],["region_code":"ams2","countries":["netherlands"]],["region_code":"ams3","countries":["netherlands"]],["region_code":"nyc1","countries":["United States"]],["region_code":"nyc2","countries":["United States"]],["region_code":"nyc3","countries":["United States"]]]
+    
+    var aryCountries = [["region_code":"blr1","countries":["india","sri lanka","bangaldesh","pakistan","china"]],["region_code":"tor1","countries":["canada"]],["region_code":"fra1","countries":["germany"]],["region_code":"lon1","countries":["england"]],["region_code":"sgp1","countries":["singapore"]],["region_code":"sfo1","countries":["United States"]],["region_code":"sfo2","countries":["United States"]],["region_code":"ams2","countries":["netherlands"]],["region_code":"ams3","countries":["netherlands"]],["region_code":"nyc1","countries":["United States"]],["region_code":"nyc2","countries":["United States"]],["region_code":"nyc3","countries":["United States"]]]
     var strCountry = "India"//United States
     var strRegionCode = "blr1"//sfo1
     var detailToShow = "Stream" //for details screen to show stream/audio/video,,,etc based on serach selected item
@@ -44,7 +69,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate,CLLocationManagerDelegate 
         case pad   // iPad style UI (also includes macOS Catalyst)
     }
     var appSyncClient: AWSAppSyncClient?
-
+    
     // MARK: - Application Life cycle
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         
@@ -58,33 +83,34 @@ class AppDelegate: UIResponder, UIApplicationDelegate,CLLocationManagerDelegate 
         // Use Firebase library to configure APIs
         //FirebaseApp.configure()
         //SBDMain.initWithApplicationId("9308C3B1-A36D-47E2-BA3C-8F6F362C35AF")
-        SBDMain.initWithApplicationId("7AF38850-F099-4C47-BD19-F7F84DAFECF8")
+        SBDMain.initWithApplicationId(sendBirdAppId)
         /*locationManager = CLLocationManager()
-        locationManager.delegate = self
-        locationManager.desiredAccuracy = kCLLocationAccuracyBest
-        locationManager.requestAlwaysAuthorization()
+         locationManager.delegate = self
+         locationManager.desiredAccuracy = kCLLocationAccuracyBest
+         locationManager.requestAlwaysAuthorization()
+         
+         if CLLocationManager.locationServicesEnabled(){
+         locationManager.startUpdatingLocation()
+         }*/
+        do {
+            // initialize the AppSync client configuration configuration
+            let cacheConfiguration = try AWSAppSyncCacheConfiguration()
+            let appSyncConfig = try AWSAppSyncClientConfiguration(appSyncServiceConfig: AWSAppSyncServiceConfig(),
+                                                                  cacheConfiguration: cacheConfiguration)
+            // initialize app sync client
+            appSyncClient = try AWSAppSyncClient(appSyncConfig: appSyncConfig)
+            
+            // set id as the cache key for objects
+            appSyncClient?.apolloClient?.cacheKeyForObject = { $0["id"] }
+            
+            print("AppSyncClient initialized with cacheConfiguration: \(cacheConfiguration)")
+        } catch {
+            print("Error initializing AppSync client. \(error)")
+        }
         
-        if CLLocationManager.locationServicesEnabled(){
-            locationManager.startUpdatingLocation()
-        }*/
-       do {
-           // initialize the AppSync client configuration configuration
-           let cacheConfiguration = try AWSAppSyncCacheConfiguration()
-           let appSyncConfig = try AWSAppSyncClientConfiguration(appSyncServiceConfig: AWSAppSyncServiceConfig(),
-                                                                 cacheConfiguration: cacheConfiguration)
-           // initialize app sync client
-           appSyncClient = try AWSAppSyncClient(appSyncConfig: appSyncConfig)
-           
-           // set id as the cache key for objects
-           appSyncClient?.apolloClient?.cacheKeyForObject = { $0["id"] }
-           
-           print("AppSyncClient initialized with cacheConfiguration: \(cacheConfiguration)")
-       } catch {
-           print("Error initializing AppSync client. \(error)")
-       }
-       
         return true
     }
+    
     func isConnectedToInternet() -> Bool {
         let hostname = "google.com"
         let hostinfo = gethostbyname(hostname)
@@ -124,27 +150,27 @@ class AppDelegate: UIResponder, UIApplicationDelegate,CLLocationManagerDelegate 
     
     
     //MARK: - location delegate methods
-       func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-           let netAvailable = self.isConnectedToInternet()
-           if(!netAvailable){
-               return
-           }
-           let userLocation :CLLocation = locations[0] as CLLocation
-           let geocoder = CLGeocoder()
-           geocoder.reverseGeocodeLocation(userLocation) { (placemarks, error) in
-               if (error != nil){
-                   //print("error in reverseGeocode")
-               }
-               let placemark = placemarks! as [CLPlacemark]
-               if placemark.count>0{
-                   let placemark = placemarks![0]
-                   //print("country:",placemark.country!)
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        let netAvailable = self.isConnectedToInternet()
+        if(!netAvailable){
+            return
+        }
+        let userLocation :CLLocation = locations[0] as CLLocation
+        let geocoder = CLGeocoder()
+        geocoder.reverseGeocodeLocation(userLocation) { (placemarks, error) in
+            if (error != nil){
+                //print("error in reverseGeocode")
+            }
+            let placemark = placemarks! as [CLPlacemark]
+            if placemark.count>0{
+                let placemark = placemarks![0]
+                //print("country:",placemark.country!)
                 self.strCountry = placemark.country!
                 self.getRegion()
-               }
-           }
-           
-       }
+            }
+        }
+        
+    }
     func getRegion(){
         for (i,_) in aryCountries.enumerated(){
             let element = aryCountries[i]
@@ -159,9 +185,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate,CLLocationManagerDelegate 
             }
         }
     }
-       func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
-           //print("Error \(error)")
-       }
+    func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
+        //print("Error \(error)")
+    }
     func application(_ application: UIApplication, shouldSaveApplicationState coder: NSCoder) -> Bool {
         return true
     }
@@ -173,12 +199,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate,CLLocationManagerDelegate 
 // MARK: - Extensions
 
 extension UISearchBar {
-
+    
     func getTextField() -> UITextField? { return value(forKey: "searchField") as? UITextField }
     func set(textColor: UIColor) { if let textField = getTextField() { textField.textColor = textColor } }
     func setPlaceholder(textColor: UIColor) { getTextField()?.setPlaceholder(textColor: textColor) }
     func setClearButton(color: UIColor) { getTextField()?.setClearButton(color: color) }
-
+    
     func setTextField(color: UIColor) {
         guard let textField = getTextField() else { return }
         switch searchBarStyle {
@@ -189,7 +215,7 @@ extension UISearchBar {
         @unknown default: break
         }
     }
-
+    
     func setSearchImage(color: UIColor) {
         guard let imageView = getTextField()?.leftView as? UIImageView else { return }
         imageView.tintColor = color
@@ -198,25 +224,25 @@ extension UISearchBar {
 }
 
 private extension UITextField {
-
+    
     private class Label: UILabel {
         private var _textColor = UIColor.lightGray
         override var textColor: UIColor! {
             set { super.textColor = _textColor }
             get { return _textColor }
         }
-
+        
         init(label: UILabel, textColor: UIColor = .lightGray) {
             _textColor = textColor
             super.init(frame: label.frame)
             self.text = label.text
             self.font = label.font
         }
-
+        
         required init?(coder: NSCoder) { super.init(coder: coder) }
     }
-
-
+    
+    
     private class ClearButtonImage {
         static private var _image: UIImage?
         static private var semaphore = DispatchSemaphore(value: 1)
@@ -238,7 +264,7 @@ private extension UITextField {
             }
         }
     }
-
+    
     func setClearButton(color: UIColor) {
         ClearButtonImage.getImage { [weak self] image in
             guard   let image = image,
@@ -247,15 +273,15 @@ private extension UITextField {
             button.setImage(image.withRenderingMode(.alwaysTemplate), for: .normal)
         }
     }
-
+    
     var placeholderLabel: UILabel? { return value(forKey: "placeholderLabel") as? UILabel }
-
+    
     func setPlaceholder(textColor: UIColor) {
         guard let placeholderLabel = placeholderLabel else { return }
         let label = Label(label: placeholderLabel, textColor: textColor)
         setValue(label, forKey: "placeholderLabel")
     }
-
+    
     func getClearButton() -> UIButton? { return value(forKey: "clearButton") as? UIButton }
     
 }
@@ -287,48 +313,56 @@ extension UIImageView {
     
 }
 extension UINavigationController {
-
-override open var shouldAutorotate: Bool {
-    get {
-        if let visibleVC = visibleViewController {
-            return visibleVC.shouldAutorotate
+    
+    override open var shouldAutorotate: Bool {
+        get {
+            if let visibleVC = visibleViewController {
+                return visibleVC.shouldAutorotate
+            }
+            return super.shouldAutorotate
         }
-        return super.shouldAutorotate
     }
-}
-
-override open var preferredInterfaceOrientationForPresentation: UIInterfaceOrientation{
-    get {
-        if let visibleVC = visibleViewController {
-            return visibleVC.preferredInterfaceOrientationForPresentation
+    
+    override open var preferredInterfaceOrientationForPresentation: UIInterfaceOrientation{
+        get {
+            if let visibleVC = visibleViewController {
+                return visibleVC.preferredInterfaceOrientationForPresentation
+            }
+            return super.preferredInterfaceOrientationForPresentation
         }
-        return super.preferredInterfaceOrientationForPresentation
     }
-}
-
-override open var supportedInterfaceOrientations: UIInterfaceOrientationMask{
-    get {
-        if let visibleVC = visibleViewController {
-            return visibleVC.supportedInterfaceOrientations
+    
+    override open var supportedInterfaceOrientations: UIInterfaceOrientationMask{
+        get {
+            if let visibleVC = visibleViewController {
+                return visibleVC.supportedInterfaceOrientations
+            }
+            return super.supportedInterfaceOrientations
         }
-        return super.supportedInterfaceOrientations
     }
-}
     
 }
 extension NSLayoutConstraint {
-
+    
     static func setMultiplier(_ multiplier: CGFloat, of constraint: inout NSLayoutConstraint) {
         NSLayoutConstraint.deactivate([constraint])
-
+        
         let newConstraint = NSLayoutConstraint(item: constraint.firstItem, attribute: constraint.firstAttribute, relatedBy: constraint.relation, toItem: constraint.secondItem, attribute: constraint.secondAttribute, multiplier: multiplier, constant: constraint.constant)
-
+        
         newConstraint.priority = constraint.priority
         newConstraint.shouldBeArchived = constraint.shouldBeArchived
         newConstraint.identifier = constraint.identifier
-
+        
         NSLayoutConstraint.activate([newConstraint])
         constraint = newConstraint
     }
-
+    
+}
+extension Dictionary {
+    var queryString: String {
+        var output: String = ""
+        forEach({ output += "\($0.key)=\($0.value)&" })
+        output = String(output.dropLast())
+        return output
+    }
 }

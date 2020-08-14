@@ -163,7 +163,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
         let url: String = appDelegate.baseURL +  "/ongoingEvents"
         viewActivity.isHidden = false
         let headers: HTTPHeaders
-        headers = [appDelegate.securityKey: appDelegate.securityValue]
+        headers = [appDelegate.x_api_key: appDelegate.x_api_value]
         
         AF.request(url, method: .get, encoding: JSONEncoding.default,headers:headers)
             .responseJSON { response in
@@ -188,7 +188,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
         let url: String = appDelegate.baseURL +  "/myList"
         viewActivity.isHidden = false
         let headers: HTTPHeaders
-        headers = [appDelegate.securityKey: appDelegate.securityValue]
+        headers = [appDelegate.x_api_key: appDelegate.x_api_value]
         let user_id = UserDefaults.standard.string(forKey: "user_id");
         let params: [String: Any] = ["userid":user_id ?? ""]
         
@@ -224,7 +224,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
         let url: String = appDelegate.baseURL +  "/trendingChannels"
         viewActivity.isHidden = false
         let headers: HTTPHeaders
-        headers = [appDelegate.securityKey: appDelegate.securityValue]
+        headers = [appDelegate.x_api_key: appDelegate.x_api_value]
         let params: [String: Any] = ["":""]
         
         AF.request(url, method: .post,  parameters: params, encoding: JSONEncoding.default,headers:headers)
@@ -259,7 +259,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
         let url: String = appDelegate.baseURL +  "/events"
         viewActivity.isHidden = false
         let headers: HTTPHeaders
-        headers = [appDelegate.securityKey: appDelegate.securityValue]
+        headers = [appDelegate.x_api_key: appDelegate.x_api_value]
         AF.request(url, method: .post,parameters: inputData, encoding: JSONEncoding.default,headers:headers)
             .responseJSON { response in
                 self.viewActivity.isHidden = true
@@ -398,7 +398,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
         let url: String = appDelegate.baseURL +  "/logout"
         viewActivity.isHidden = false
         let headers: HTTPHeaders
-        headers = [appDelegate.securityKey: appDelegate.securityValue]
+        headers = [appDelegate.x_api_key: appDelegate.x_api_value]
         let user_id = UserDefaults.standard.string(forKey: "user_id");
         let params: [String: Any] = ["user_id":user_id ?? ""]
         AF.request(url, method: .post,  parameters: params, encoding: JSONEncoding.default,headers:headers)
@@ -657,21 +657,38 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
         
         if (selectedOrg?["parent_category_id"]as? Int != nil){
             let storyboard = UIStoryboard(name: "Main", bundle: nil);
-            let vc = storyboard.instantiateViewController(withIdentifier: "StreamDetailVC") as! StreamDetailVC
-            vc.orgId = selectedOrg?["organization_id"] as? Int ?? 0
-            vc.streamId = selectedOrg?["id"] as? Int ?? 0
-            vc.delegate = self
-            appDelegate.isLiveLoad = "1"
-            //        //print("userId:",selectedOrg?["user_id"] as Any)
-            if (selectedOrg?["performer_id"] as? Int) != nil {
-                vc.performerId = selectedOrg?["performer_id"] as! Int
+            let number_of_creators = selectedOrg?["number_of_creators"]as? Int ?? 0
+            print("number_of_creators:",number_of_creators)
+            if(number_of_creators > 1){
+                let vc = storyboard.instantiateViewController(withIdentifier: "MultiStreamVC") as! MultiStreamVC
+                vc.orgId = selectedOrg?["organization_id"] as? Int ?? 0
+                vc.streamId = selectedOrg?["id"] as? Int ?? 0
+                vc.delegate = self
+                appDelegate.isLiveLoad = "1"
+                if (selectedOrg?["performer_id"] as? Int) != nil {
+                    vc.performerId = selectedOrg?["performer_id"] as! Int
+                }
+                else {
+                    vc.performerId = 1;
+                }
+                vc.strTitle = selectedOrg?["stream_video_title"] as? String ?? "Channel Details"
+                self.navigationController?.pushViewController(vc, animated: true)
+            }else{
+                let vc = storyboard.instantiateViewController(withIdentifier: "StreamDetailVC") as! StreamDetailVC
+                vc.orgId = selectedOrg?["organization_id"] as? Int ?? 0
+                vc.streamId = selectedOrg?["id"] as? Int ?? 0
+                vc.delegate = self
+                appDelegate.isLiveLoad = "1"
+                if (selectedOrg?["performer_id"] as? Int) != nil {
+                    vc.performerId = selectedOrg?["performer_id"] as! Int
+                }
+                else {
+                    vc.performerId = 1;
+                }
+                vc.strTitle = selectedOrg?["stream_video_title"] as? String ?? "Channel Details"
+                self.navigationController?.pushViewController(vc, animated: true)
             }
-            else {
-                vc.performerId = 1;
-            }
-            vc.strTitle = selectedOrg?["stream_video_title"] as? String ?? "Channel Details"
             
-            self.navigationController?.pushViewController(vc, animated: true)
         }else{
             let storyboard = UIStoryboard(name: "Main", bundle: nil);
             let vc = storyboard.instantiateViewController(withIdentifier: "ChannelDetailVC") as! ChannelDetailVC

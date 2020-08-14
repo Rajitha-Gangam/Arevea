@@ -566,12 +566,11 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
             return
         }
         viewActivity.isHidden = false
-        let url = appDelegate.qaURL + "/uploadFile" /* your API url */
-        //  let url = "https://eku2g4rzxl.execute-api.us-west-2.amazonaws.com/dev/uploadProfilePic" /* your API url */
+        let url = appDelegate.profileURL + "/uploadFile" /* your API url */
         let session_token = UserDefaults.standard.string(forKey: "session_token") ?? ""
         
         //let headers: HTTPHeaders
-        //headers = [appDelegate.securityKey: appDelegate.securityValue]
+        //headers = [appDelegate.x_api_key: appDelegate.x_api_value]
         let headers: HTTPHeaders = ["Content-type": "multipart/form-data","access_token": session_token]
         
         let user_id = UserDefaults.standard.string(forKey: "user_id");
@@ -635,7 +634,7 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
     }
     // MARK: Handler for deleteSelectedFile API
     func deleteProfilePic(){
-        let url: String = appDelegate.qaURL +  "/deleteSelectedFile"
+        let url: String = appDelegate.profileURL +  "/deleteSelectedFile"
         viewActivity.isHidden = false
         //print("getCategoryOrganisations input:",inputData)
         let session_token = UserDefaults.standard.string(forKey: "session_token") ?? ""

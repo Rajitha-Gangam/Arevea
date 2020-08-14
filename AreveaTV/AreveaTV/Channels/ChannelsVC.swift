@@ -120,7 +120,7 @@ class ChannelsVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Col
         //print("organizationChannels params:",params)
         viewActivity.isHidden = false
         let headers: HTTPHeaders
-        headers = [appDelegate.securityKey: appDelegate.securityValue]
+        headers = [appDelegate.x_api_key: appDelegate.x_api_value]
         
         AF.request(url, method: .post,  parameters: params, encoding: JSONEncoding.default,headers:headers)
             .responseJSON { response in
@@ -250,7 +250,7 @@ class ChannelsVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Col
         let params: [String: Any] = [:]
         viewActivity.isHidden = false
         let headers: HTTPHeaders
-        headers = [appDelegate.securityKey: appDelegate.securityValue]
+        headers = [appDelegate.x_api_key: appDelegate.x_api_value]
         
         AF.request(url, method: .post,  parameters: params, encoding: JSONEncoding.default,headers:headers)
             .responseJSON { response in

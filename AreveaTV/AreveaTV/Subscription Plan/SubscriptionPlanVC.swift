@@ -65,7 +65,7 @@ class SubscriptionPlanVC: UIViewController {
                 viewActivity.isHidden = false
 
         let headers: HTTPHeaders
-               headers = [appDelegate.securityKey: appDelegate.securityValue]
+               headers = [appDelegate.x_api_key: appDelegate.x_api_value]
         AF.request(url, method: .post,  parameters: params, encoding: JSONEncoding.default,headers:headers)
             .responseJSON { response in
                 switch response.result {

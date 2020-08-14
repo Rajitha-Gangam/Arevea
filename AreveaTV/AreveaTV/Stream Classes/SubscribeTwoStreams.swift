@@ -36,7 +36,7 @@ import AWSAppSync
 import SendBirdSDK
 
 @objc(SubscribeTwoStreams)
-class SubscribeTwoStreams: UIViewController , R5StreamDelegate, UITableViewDelegate,UITableViewDataSource,OpenChanannelChatDelegate,OpenChannelMessageTableViewCellDelegate,AGEmojiKeyboardViewDelegate,SBDChannelDelegate, AGEmojiKeyboardViewDataSource,UITextFieldDelegate {
+class SubscribeTwoStreams: UIViewController , R5StreamDelegate, UITableViewDelegate,UITableViewDataSource,OpenChanannelChatDelegate,OpenChannelMessageTableViewCellDelegate,AGEmojiKeyboardViewDelegate,SBDChannelDelegate, AGEmojiKeyboardViewDataSource,UITextFieldDelegate,UIPickerViewDelegate, UIPickerViewDataSource {
     // MARK: - Variables Declaration
     
     @IBOutlet weak var view1: UIView?
@@ -44,6 +44,7 @@ class SubscribeTwoStreams: UIViewController , R5StreamDelegate, UITableViewDeleg
     @IBOutlet weak var view3: UIView?
     @IBOutlet weak var view4: UIView?
     @IBOutlet weak var viewOverlay: UIView?
+    @IBOutlet weak var viewActions: UIView?
     
     @IBOutlet weak var tblComments: UITableView!
     var aryStreamInfo = [Any]()
@@ -71,7 +72,6 @@ class SubscribeTwoStreams: UIViewController , R5StreamDelegate, UITableViewDeleg
     @IBOutlet weak var btnEmoji: UIView!
     @IBOutlet weak var btnChat: UIView!
     
-    @IBOutlet weak var viewShare: UIView!
     @IBOutlet weak var viewTips: UIView!
     @IBOutlet weak var viewDonations: UIView!
     @IBOutlet weak var viewEmoji: UIView!
@@ -90,6 +90,10 @@ class SubscribeTwoStreams: UIViewController , R5StreamDelegate, UITableViewDeleg
     @IBOutlet weak var tblDonations: UITableView!
     var aryCharityInfo = [Any]()
     @IBOutlet weak var lblNoDataDonations: UILabel!
+    @IBOutlet weak var lblNoDataTips: UILabel!
+    @IBOutlet weak var lblNoStream: UILabel!
+    @IBOutlet weak var viewTipsCreators: UIView!
+    
     var orgId = 0;
     var performerId = 0;
     var streamId = 0;
@@ -127,37 +131,35 @@ class SubscribeTwoStreams: UIViewController , R5StreamDelegate, UITableViewDeleg
     @IBOutlet weak var btnAudio: UIButton!
     @IBOutlet weak var btnVideo: UIButton!
     @IBOutlet weak var sliderVolume: UISlider!
-
+    let pickerView = UIPickerView()
+    var pickerData =  [String:Any]();
+    
+    @IBOutlet weak var txtTipCreator: UITextField!
+    var selectedCreatorForTip = -1
+    var newCommentsSubscriptionWatcher: AWSAppSyncSubscriptionWatcher<OnUpdateMulticreatorshareddataSubscription>?
+    
     // MARK: - View Life Cycle
     override func viewDidLoad() {
         super.viewDidLoad()
         
         // Do any additional setup after loading the view.
         appSyncClient = appDelegate.appSyncClient
-        getGuestDetailInGraphql(.returnCacheDataAndFetch)
-        startSubscription()
-        view1?.layer.borderColor = UIColor.white.cgColor
-        view1?.layer.borderWidth = 1
         
-        view2?.layer.borderColor = UIColor.white.cgColor
-        view2?.layer.borderWidth = 1
         
-        view3?.layer.borderColor = UIColor.white.cgColor
-        view3?.layer.borderWidth = 1
+        btnShare?.layer.borderWidth = 2
+        btnTips?.layer.borderWidth = 2
+        btnDonations?.layer.borderWidth = 2
+        btnEmoji?.layer.borderWidth = 2
+        btnChat?.layer.borderWidth = 2
         
-        view4?.layer.borderColor = UIColor.white.cgColor
-        view4?.layer.borderWidth = 1
         
-        btnShare?.layer.borderWidth = 3
-        btnTips?.layer.borderWidth = 3
-        btnDonations?.layer.borderWidth = 3
-        btnEmoji?.layer.borderWidth = 3
-        btnChat?.layer.borderWidth = 3
         
         lblTitle.text = strTitle
         viewActivity.isHidden = true
         
         tblDonations.register(UINib(nibName: "CharityCell", bundle: nil), forCellReuseIdentifier: "CharityCell")
+        tblComments.register(UINib(nibName: "OpenChannelUserMessageTableViewCell", bundle: nil), forCellReuseIdentifier: "OpenChannelUserMessageTableViewCell")
+        
         let charities_info = resultData["charities_info"] != nil
         if(charities_info){
             self.aryCharityInfo = resultData["charities_info"] as? [Any] ?? [Any]()
@@ -183,7 +185,34 @@ class SubscribeTwoStreams: UIViewController , R5StreamDelegate, UITableViewDeleg
         txtEmoji.addTarget(self, action: #selector(txtEmojiTap), for: .touchDown)
         imgEmoji.isHidden = true
         addDoneButton()
+        addDoneButton1()
         setBtnDefaultBG()
+        if(UIDevice.current.userInterfaceIdiom == .pad){
+            heightTopView?.constant = 60;
+            viewTop.layoutIfNeeded()
+            viewActions?.layoutIfNeeded()
+            btnShare?.layoutIfNeeded()
+            btnTips?.layoutIfNeeded()
+            btnDonations?.layoutIfNeeded()
+            btnEmoji?.layoutIfNeeded()
+            btnChat?.layoutIfNeeded()
+        }
+        let btnRadius = btnShare.frame.size.width/2
+        btnShare?.layer.cornerRadius = btnRadius
+        btnTips?.layer.cornerRadius = btnRadius
+        btnDonations?.layer.cornerRadius = btnRadius
+        btnEmoji?.layer.cornerRadius = btnRadius
+        btnChat?.layer.cornerRadius = btnRadius
+        
+        pickerView.delegate = self
+        self.viewOverlay?.backgroundColor = .red
+        
+        tblComments.rowHeight = 40
+        tblComments.estimatedRowHeight = UITableView.automaticDimension
+        lblNoStream.text = "Please wait for the host to start the live stream"
+        
+        getGuestDetailInGraphql(.returnCacheDataAndFetch)
+        startSubscription()
     }
     func setBtnDefaultBG(){
         btnShare?.layer.borderColor = UIColor.black.cgColor
@@ -193,6 +222,8 @@ class SubscribeTwoStreams: UIViewController , R5StreamDelegate, UITableViewDeleg
         btnChat?.layer.borderColor = UIColor.black.cgColor
         viewDonations.isHidden = true
         viewComments.isHidden = true
+        viewTips.isHidden = true
+        
         txtComment.resignFirstResponder()
         txtTopOfToolBar.resignFirstResponder()
         txtEmoji.resignFirstResponder()
@@ -203,6 +234,7 @@ class SubscribeTwoStreams: UIViewController , R5StreamDelegate, UITableViewDeleg
         txtComment.resignFirstResponder();
         txtTopOfToolBar.resignFirstResponder()
         txtEmoji.resignFirstResponder()
+        txtTipCreator.resignFirstResponder()
     }
     func addDoneButton() {
         let toolbar =  UIToolbar(frame: CGRect(x: 0, y: 0, width: view.frame.size.width, height: 35))
@@ -238,7 +270,20 @@ class SubscribeTwoStreams: UIViewController , R5StreamDelegate, UITableViewDeleg
         toolbar.sizeToFit()
         txtComment.inputAccessoryView = toolbar;
         txtTopOfToolBar.inputAccessoryView = toolbar;
-
+        
+        
+    }
+    func addDoneButton1() {
+        let toolbar =  UIToolbar(frame: CGRect(x: 0, y: 0, width: view.frame.size.width, height: 35))
+        
+        let flexButton = UIBarButtonItem(barButtonSystemItem: UIBarButtonItem.SystemItem.flexibleSpace, target: nil, action: nil)
+        let doneButton = UIBarButtonItem(title: "Done", style: .plain, target: self, action:#selector(resignKB(_:)))
+        toolbar.setItems([flexButton, doneButton], animated: true)
+        toolbar.sizeToFit()
+        
+        txtEmoji.inputAccessoryView = toolbar
+        txtTipCreator.inputAccessoryView = toolbar
+        txtTipCreator.inputView = pickerView
         
     }
     
@@ -270,7 +315,8 @@ class SubscribeTwoStreams: UIViewController , R5StreamDelegate, UITableViewDeleg
     }
     
     func getGuestDetailInGraphql(_ cachePolicy: CachePolicy) {
-        let listQuery = GetMulticreatorshareddataQuery(id: "1872_1597128068512_for_ios_app_multi_stream_test_event")
+        print("====streamVideoCode:",streamVideoCode)
+        let listQuery = GetMulticreatorshareddataQuery(id:streamVideoCode)
         //1872_1595845007395_mc2
         //58_1594894849561_multi_creator_test_event
         appSyncClient?.fetch(query: listQuery, cachePolicy: cachePolicy) { result, error in
@@ -278,6 +324,8 @@ class SubscribeTwoStreams: UIViewController , R5StreamDelegate, UITableViewDeleg
                 print("Error fetching data: \(error)")
                 return
             }
+            
+            self.lblNoStream.isHidden = false
             // print("--result:",result)
             if((result != nil)  && (result?.data != nil)){
                 // print("--data:",result?.data)
@@ -286,6 +334,7 @@ class SubscribeTwoStreams: UIViewController , R5StreamDelegate, UITableViewDeleg
                 if(multiData != nil){
                     let multiDataJSON = self.convertToDictionary(text: multiData?.data ?? "")
                     let guestList = multiDataJSON?["guestList"] as? [Any] ?? [Any]() ;
+                    
                     print("guestList:",guestList)
                     print("guestList count:",guestList.count)
                     self.streamlist = [[String:Any]]()
@@ -296,18 +345,20 @@ class SubscribeTwoStreams: UIViewController , R5StreamDelegate, UITableViewDeleg
                             let onlineStatus = guest["onlineStatus"] as? Bool ?? false
                             let liveStatus = guest["liveStatus"] as? Bool ?? false
                             if(onlineStatus && liveStatus) {
-                                let auth_code = guest["auth_code"] as? String ?? ""
-                                self.streamlist.append(["auth_code":auth_code])
+                                self.streamlist.append(guest)
                             } else {
-                                let auth_code = guest["auth_code"] as? String ?? ""
-                                self.offlineStream.append(["auth_code":auth_code])
-                                self.streamlist.append(["auth_code":auth_code])
+                                self.offlineStream.append(guest)
+                                self.streamlist.append(guest)
                                 // this.unSubscribe_Subscriber(e.auth_code);
                             }
                         }
                         
                     }
-                    self.findStream()
+                    if(self.streamlist.count > 0){
+                        self.lblNoStream.isHidden = true
+                    }
+                    self.pickerView.reloadComponent(0)
+                    //self.findStream()
                 }else{
                     print("--getMulticreatorshareddata null")
                 }
@@ -316,21 +367,69 @@ class SubscribeTwoStreams: UIViewController , R5StreamDelegate, UITableViewDeleg
         }
     }
     func startSubscription() {
-        do {
-            let watcher = try appSyncClient?.subscribe(subscription: OnUpdateMulticreatorshareddataSubscription(id:"1872_1597128068512_for_ios_app_multi_stream_test_event"),
-                                                       resultHandler: { (resultIn, trans, error) in
-                                                        if let result = resultIn {
-                                                            do {
-                                                                print("result:",result)
-                                                            } catch {
-                                                                print (error.localizedDescription)
-                                                            }
-                                                        }
-            })
-            print (watcher ?? "no watcher")
-        } catch {
+        do{
+            let subscriptionRequest = OnUpdateMulticreatorshareddataSubscription(id: streamVideoCode)
+            
+            // When we receive a new comment via subscription, AppSync will automatically cache the new comment object
+            // itself (assuming it is valid). However, we must manually update the relationship between the parent event
+            // and the new comment. Rather than re-query the service for the updated object, we will update the cache
+            // locally with the incoming data.
+            newCommentsSubscriptionWatcher =
+                try appSyncClient?.subscribe(subscription: subscriptionRequest) { [weak self] result, transaction, error in
+                    print("Received comment subscription callback on event \(self?.streamVideoCode)")
+                    
+                    guard let self = self else {
+                        print("EventDetails view controller has been deallocated since subscription was started, aborting")
+                        return
+                    }
+                    
+                    /* guard let event = self.event else {
+                     print("Event has been deallocated since the subscription was started, aborting")
+                     return
+                     }*/
+                    
+                    guard error == nil else {
+                        print("Error in comment subscription for event \(self.streamVideoCode): \(error!.localizedDescription)")
+                        return
+                    }
+                    
+                    guard let result = result else {
+                        print("Result unexpectedly nil in comment subscription for event \(self.streamVideoCode)")
+                        return
+                    }
+                    
+                    /*guard let graphQLResponseData = result.data?.subscribeToEventComments else {
+                     print("GraphQL response data unexpectedly nil in comment subscription for event \(event.id)")
+                     return
+                     }*/
+                    
+                    //  print("Received new comment on event \(event.id)")
+                    
+            }
+        }
+        catch {
             print (error.localizedDescription)
         }
+        
+        
+        
+        
+        /*do {
+         let watcher = try appSyncClient?.subscribe(subscription: OnUpdateMulticreatorshareddataSubscription(id:streamVideoCode),
+         resultHandler: { (resultIn, trans, error) in
+         if let result = resultIn {
+         do {
+         print("result:",result)
+         } catch {
+         print (error.localizedDescription)
+         }
+         }
+         })
+         print (watcher ?? "no watcher")
+         } catch {
+         print (error.localizedDescription)
+         }*/
+        
     }
     func delayWithSeconds(_ seconds: Double, completion: @escaping () -> ()) {
         DispatchQueue.main.asyncAfter(deadline: .now() + seconds) {
@@ -517,9 +616,8 @@ class SubscribeTwoStreams: UIViewController , R5StreamDelegate, UITableViewDeleg
         superView?.layer.borderColor = UIColor.lightGray.cgColor
         superView?.layer.borderWidth = 1
         superView?.addSubview((firstView1.view)!)
-        
-        
-        
+        self.viewStream.bringSubviewToFront(self.viewOverlay!)
+        self.viewOverlay?.backgroundColor = .green
         firstView1.showDebugInfo(false)
         //firstView1.view.center = center
         let config = getConfig(url: url)
@@ -578,12 +676,13 @@ class SubscribeTwoStreams: UIViewController , R5StreamDelegate, UITableViewDeleg
     }
     @IBAction func back(_ sender: Any) {
         print("back called")
-        if(UIDevice.current.userInterfaceIdiom == .phone){
-        let value = UIInterfaceOrientation.portrait.rawValue
-        UIDevice.current.setValue(value, forKey: "orientation")
-        }
+        
         for controller in self.navigationController!.viewControllers as Array {
             if controller.isKind(of: DashBoardVC.self) {
+                if(UIDevice.current.userInterfaceIdiom == .phone){
+                    let value = UIInterfaceOrientation.portrait.rawValue
+                    UIDevice.current.setValue(value, forKey: "orientation")
+                }
                 closeStream()
                 self.navigationController!.popToViewController(controller, animated: true)
                 break
@@ -612,12 +711,42 @@ class SubscribeTwoStreams: UIViewController , R5StreamDelegate, UITableViewDeleg
         setBtnDefaultBG()
         let orange = UIColor.init(red: 255, green: 155, blue: 90)
         btnShare?.layer.borderColor = orange.cgColor
+        
+        let performerInfo = self.strTitle + "/" + String(self.performerId) + "/live/";
+        let vodInfo = self.streamVideoCode + "/" + String(self.streamId)
+        let url = appDelegate.shareURL + performerInfo + vodInfo
+        print(url)
+        let textToShare = [url]
+        // set up activity view controller
+        let activityViewController = UIActivityViewController(activityItems: textToShare, applicationActivities: nil)
+        activityViewController.excludedActivityTypes = [.airDrop]
+        
+        if let popoverController = activityViewController.popoverPresentationController {
+            popoverController.sourceRect = CGRect(x: UIScreen.main.bounds.width / 2, y: UIScreen.main.bounds.height / 2, width: 0, height: 0)
+            popoverController.sourceView = self.view
+            popoverController.permittedArrowDirections = UIPopoverArrowDirection(rawValue: 0)
+        }
+        
+        self.present(activityViewController, animated: true, completion: nil)
+        
     }
     @IBAction func tapTips(){
         print("tips")
         setBtnDefaultBG()
         let orange = UIColor.init(red: 255, green: 155, blue: 90)
         btnTips?.layer.borderColor = orange.cgColor
+        viewTips.isHidden = false
+        
+        selectedCreatorForTip = -1
+        pickerView.reloadComponent(0)
+        txtTipCreator.text = ""
+        if(streamlist.count == 0){
+            viewTipsCreators.isHidden = true
+            lblNoDataTips.isHidden = false
+        }else{
+            viewTipsCreators.isHidden = false
+            lblNoDataTips.isHidden = true
+        }
     }
     @IBAction func tapDonations(){
         print("donations")
@@ -650,6 +779,28 @@ class SubscribeTwoStreams: UIViewController , R5StreamDelegate, UITableViewDeleg
         txtComment.resignFirstResponder()
         txtTopOfToolBar.resignFirstResponder()
     }
+    @IBAction func closeTips(){
+        selectedCreatorForTip = -1
+        pickerView.reloadComponent(0)
+        txtTipCreator.text = ""
+        viewTips.isHidden = true
+        btnTips?.layer.borderColor = UIColor.black.cgColor
+    }
+    @IBAction func proceedTip(){
+        if(selectedCreatorForTip == -1){
+            showAlert(strMsg: "Please select creator")
+        }else{
+            let guestInfo = self.streamlist[selectedCreatorForTip]
+            let firstName = guestInfo["first_name"] as? String ?? ""
+            let guestId = guestInfo["auth_code"]as? String ?? ""
+            let lastName = guestInfo["last_name"]as? String ?? ""
+            let user_id = UserDefaults.standard.string(forKey: "user_id");
+            
+            let params = ["paymentType": "performer_tip", "user_id": user_id ?? "1", "performer_id":self.performerId,"stream_id": streamId,"guest_first_name":firstName,"guest_id":guestId,"guest_last_name":lastName] as [String : Any]
+            
+            proceedToPayment(params: params)
+        }
+    }
     func getData(from url: URL, completion: @escaping (Data?, URLResponse?, Error?) -> ()) {
         URLSession.shared.dataTask(with: url, completionHandler: completion).resume()
     }
@@ -681,29 +832,105 @@ class SubscribeTwoStreams: UIViewController , R5StreamDelegate, UITableViewDeleg
             }
             return aryCharityInfo.count;
         }
-        
+        else if(tableView == tblComments){
+            
+            if (isChannelAvailable && self.messages.count > 0){
+                tblComments.isHidden = false
+                lblNoDataComments.text = ""
+            }else{
+                tblComments.isHidden = true
+                //lblNoDataComments.text = "Channel is unavailable"
+                
+            }
+            return self.messages.count;
+        }
         return 0;
+        
     }
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) ->  CGFloat {
         if  (tableView == tblDonations){
             return 130;
         }
+        else if  (tableView == tblComments){
+            return UITableView.automaticDimension
+        }
         return 44;
         
     }
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "CharityCell") as! CharityCell
-        cell.btnDonate.addTarget(self, action: #selector(payDonation(_:)), for: .touchUpInside)
-        cell.btnDonate.tag = indexPath.row
-        
-        let charity = self.aryCharityInfo[indexPath.row] as? [String : Any];
-        cell.lblCharityName.text = charity?["charity_name"] as? String ?? ""
-        cell.lblCharityDesc.text = charity?["charity_description"] as? String ?? ""
-        let strURL = charity?["charity_logo"]as? String ?? ""
-        if let urlCharity = URL(string: strURL){
-            self.downloadImage(from: urlCharity as URL, imageView: cell.imgCharity)
+        if (tableView == tblComments){
+            var cell: UITableViewCell = UITableViewCell()
+            
+            if self.messages[indexPath.row] is SBDAdminMessage {
+                if let adminMessage = self.messages[indexPath.row] as? SBDAdminMessage,
+                    let adminMessageCell = tableView.dequeueReusableCell(withIdentifier: "OpenChannelUserMessageTableViewCell") as? OpenChannelUserMessageTableViewCell {
+                    adminMessageCell.setMessage(adminMessage)
+                    adminMessageCell.delegate = self
+                    //adminMessageCell.profileImageView
+                    if indexPath.row > 0 {
+                        //adminMessageCell.setPreviousMessage(self.messages[indexPath.row - 1])
+                    }
+                    
+                    cell = adminMessageCell
+                }
+            }
+            else if self.messages[indexPath.row] is SBDUserMessage {
+                let userMessage = self.messages[indexPath.row] as! SBDUserMessage
+                if let userMessageCell = tableView.dequeueReusableCell(withIdentifier: "OpenChannelUserMessageTableViewCell") as? OpenChannelUserMessageTableViewCell,
+                    let sender = userMessage.sender {
+                    userMessageCell.setMessage(userMessage)
+                    userMessageCell.delegate = self
+                    
+                    
+                    if sender.userId == SBDMain.getCurrentUser()!.userId {
+                        // Outgoing message
+                        if let requestId = userMessage.requestId {
+                            if self.resendableMessages[requestId] != nil {
+                                userMessageCell.showElementsForFailure()
+                            }
+                            else {
+                                userMessageCell.hideElementsForFailure()
+                            }
+                        }
+                    }
+                    else {
+                        // Incoming message
+                        userMessageCell.hideElementsForFailure()
+                    }
+                    //userMessageCell.profileImageView
+                    DispatchQueue.main.async {
+                        guard let updateCell = tableView.cellForRow(at: indexPath) else { return }
+                        guard updateCell is OpenChannelUserMessageTableViewCell else { return }
+                        
+                        // updateUserMessageCell.profileImageView.setProfileImageView(for: sender)
+                    }
+                    
+                    cell = userMessageCell
+                }
+            }
+            
+            if indexPath.row == 0 && self.messages.count > 0 && self.initialLoading == false && self.isLoading == false {
+                self.loadPreviousMessages(initial: false)
+            }
+            
+            return cell
+        }else{
+            let cell = tableView.dequeueReusableCell(withIdentifier: "CharityCell") as! CharityCell
+            cell.btnDonate.addTarget(self, action: #selector(payDonation(_:)), for: .touchUpInside)
+            cell.btnDonate.tag = indexPath.row
+            
+            let charity = self.aryCharityInfo[indexPath.row] as? [String : Any];
+            cell.lblCharityName.text = charity?["charity_name"] as? String ?? ""
+            cell.lblCharityDesc.text = charity?["charity_description"] as? String ?? ""
+            let strURL = charity?["charity_logo"]as? String ?? ""
+            if let urlCharity = URL(string: strURL){
+                self.downloadImage(from: urlCharity as URL, imageView: cell.imgCharity)
+            }
+            
+            return cell
+            
+            
         }
-        return cell
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
@@ -719,7 +946,7 @@ class SubscribeTwoStreams: UIViewController , R5StreamDelegate, UITableViewDeleg
     }
     func proceedToPayment(params:[String:Any]){
         //let url: String = appDelegate.baseURL +  "/proceedToPayment"
-        let url = "https://qa.arevea.tv/api/payment/v1/proceedToPayment"
+        let url = appDelegate.paymentBaseURL + "/proceedToPayment"
         let params = params;
         //print("params:",params)
         let session_token = UserDefaults.standard.string(forKey: "session_token") ?? ""
@@ -738,7 +965,7 @@ class SubscribeTwoStreams: UIViewController , R5StreamDelegate, UITableViewDeleg
                         
                         if (json["token"]as? String != nil){
                             let token = json["token"]as? String ?? ""
-                            let urlOpen = "https://qa.arevea.tv/payment/" + token
+                            let urlOpen = self.appDelegate.paymentRedirectionURL + token
                             guard let url = URL(string: urlOpen) else { return }
                             UIApplication.shared.open(url)
                         }else{
@@ -1218,7 +1445,7 @@ class SubscribeTwoStreams: UIViewController , R5StreamDelegate, UITableViewDeleg
         }
         
         let currentRowNumber = self.tblComments.numberOfRows(inSection: 0)
-        
+        print("currentRowNumber:",currentRowNumber)
         self.tblComments.scrollToRow(at: IndexPath(row: currentRowNumber - 1, section: 0), at: .bottom, animated: false)
     }
     // MARK: - Keyboard
@@ -1258,8 +1485,8 @@ class SubscribeTwoStreams: UIViewController , R5StreamDelegate, UITableViewDeleg
             frameBug.origin.x = 400
             frameBug.origin.y = 400
         }else{
-            frameBug.origin.x = 200
-            frameBug.origin.y = 500
+            frameBug.origin.x = 400
+            frameBug.origin.y = 400
         }
         let xConst = frameBug.origin.x;
         let yConst = frameBug.origin.y;
@@ -1315,10 +1542,7 @@ class SubscribeTwoStreams: UIViewController , R5StreamDelegate, UITableViewDeleg
     func emojiKeyBoardView(_ emojiKeyBoardView: AGEmojiKeyboardView?, didUseEmoji emoji: String?) {
         imgEmoji.image = emoji?.image()
         sendEmoji(strEmoji: emoji ?? "")
-        //this below line we should remove
-        animateEmoji()
-
-        //txtEmoji?.text = "\(emoji ?? "")"
+        
     }
     
     func emojiKeyBoardViewDidPressBackSpace(_ emojiKeyBoardView: AGEmojiKeyboardView?) {
@@ -1380,31 +1604,31 @@ class SubscribeTwoStreams: UIViewController , R5StreamDelegate, UITableViewDeleg
         {
             btnAudio?.setImage(UIImage.init(named: "mute"), for: .normal);
             if((self.subscribeStream1?.audioController) != nil){
-            self.subscribeStream1?.audioController.volume = 0
+                self.subscribeStream1?.audioController.volume = 0
             }
             if((self.subscribeStream2?.audioController) != nil){
-            self.subscribeStream2?.audioController.volume = 0
+                self.subscribeStream2?.audioController.volume = 0
             }
             if((self.subscribeStream3?.audioController) != nil){
-            self.subscribeStream3?.audioController.volume = 0
+                self.subscribeStream3?.audioController.volume = 0
             }
             if((self.subscribeStream4?.audioController) != nil){
-            self.subscribeStream4?.audioController.volume = 0
+                self.subscribeStream4?.audioController.volume = 0
             }
         }
         else{
             btnAudio?.setImage(UIImage.init(named: "unmute"), for: .normal);
             if((self.subscribeStream1?.audioController) != nil){
-            self.subscribeStream1?.audioController.volume = sliderVolume.value / 100
+                self.subscribeStream1?.audioController.volume = sliderVolume.value / 100
             }
             if((self.subscribeStream2?.audioController) != nil){
-            self.subscribeStream2?.audioController.volume = sliderVolume.value / 100
+                self.subscribeStream2?.audioController.volume = sliderVolume.value / 100
             }
             if((self.subscribeStream3?.audioController) != nil){
-            self.subscribeStream3?.audioController.volume = sliderVolume.value / 100
+                self.subscribeStream3?.audioController.volume = sliderVolume.value / 100
             }
             if((self.subscribeStream4?.audioController) != nil){
-            self.subscribeStream4?.audioController.volume = sliderVolume.value / 100
+                self.subscribeStream4?.audioController.volume = sliderVolume.value / 100
             }
         }
     }
@@ -1418,33 +1642,33 @@ class SubscribeTwoStreams: UIViewController , R5StreamDelegate, UITableViewDeleg
                 self.subscribeStream1?.audioController.volume = 0
             }
             /*let hasVideo1 = !(self.subscribeStream1?.pauseVideo)!;
-            if (hasVideo1) {
-                self.subscribeStream1?.pauseVideo = true
-            }*/
+             if (hasVideo1) {
+             self.subscribeStream1?.pauseVideo = true
+             }*/
             
             if((self.subscribeStream2?.audioController) != nil){
                 self.subscribeStream2?.audioController.volume = 0
             }
             /*let hasVideo2 = !(self.subscribeStream2?.pauseVideo)!;
-            if (hasVideo2) {
-                self.subscribeStream2?.pauseVideo = true
-            }*/
+             if (hasVideo2) {
+             self.subscribeStream2?.pauseVideo = true
+             }*/
             
             if((self.subscribeStream3?.audioController) != nil){
                 self.subscribeStream3?.audioController.volume = 0
             }
             /*let hasVideo3 = !(self.subscribeStream3?.pauseVideo)!;
-            if (hasVideo3) {
-                self.subscribeStream3?.pauseVideo = true
-            }*/
+             if (hasVideo3) {
+             self.subscribeStream3?.pauseVideo = true
+             }*/
             
             if((self.subscribeStream4?.audioController) != nil){
                 self.subscribeStream4?.audioController.volume = 0
             }
             /*let hasVideo4 = !(self.subscribeStream4?.pauseVideo)!;
-            if (hasVideo4) {
-                self.subscribeStream4?.pauseVideo = true
-            }*/
+             if (hasVideo4) {
+             self.subscribeStream4?.pauseVideo = true
+             }*/
         }
         else{
             btnVideo?.setImage(UIImage.init(named: "pause"), for: .normal);
@@ -1452,33 +1676,33 @@ class SubscribeTwoStreams: UIViewController , R5StreamDelegate, UITableViewDeleg
                 self.subscribeStream1?.audioController.volume = sliderVolume.value / 100
             }
             /*let hasVideo1 = !(self.subscribeStream1?.pauseVideo)!;
-            if (hasVideo1) {
-                self.subscribeStream1?.pauseVideo = false
-            }*/
+             if (hasVideo1) {
+             self.subscribeStream1?.pauseVideo = false
+             }*/
             
             if((self.subscribeStream2?.audioController) != nil){
                 self.subscribeStream2?.audioController.volume = 0
             }
             /*let hasVideo2 = !(self.subscribeStream2?.pauseVideo)!;
-            if (hasVideo2) {
-                self.subscribeStream2?.pauseVideo = false
-            }*/
+             if (hasVideo2) {
+             self.subscribeStream2?.pauseVideo = false
+             }*/
             
             if((self.subscribeStream3?.audioController) != nil){
                 self.subscribeStream3?.audioController.volume = 0
             }
             /*let hasVideo3 = !(self.subscribeStream3?.pauseVideo)!;
-            if (hasVideo3) {
-                self.subscribeStream3?.pauseVideo = false
-            }*/
+             if (hasVideo3) {
+             self.subscribeStream3?.pauseVideo = false
+             }*/
             
             if((self.subscribeStream4?.audioController) != nil){
                 self.subscribeStream4?.audioController.volume = 0
             }
             /*let hasVideo4 = !(self.subscribeStream4?.pauseVideo)!;
-            if (hasVideo4) {
-                self.subscribeStream4?.pauseVideo = false
-            }*/
+             if (hasVideo4) {
+             self.subscribeStream4?.pauseVideo = false
+             }*/
         }
     }
     
@@ -1496,4 +1720,28 @@ class SubscribeTwoStreams: UIViewController , R5StreamDelegate, UITableViewDeleg
             self.subscribeStream4?.audioController.volume = sliderVolume.value / 100
         }
     }
+    // MARK: Picker DataSource & Delegate Methods
+    
+    func numberOfComponents(in pickerView: UIPickerView) -> Int {
+        return 1
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
+        return self.streamlist.count
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
+        let selectedObj = self.streamlist[row]
+        let name = selectedObj["full_name"] as? String ?? ""
+        return name
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
+        let selectedObj = self.streamlist[row]
+        let name = selectedObj["full_name"] as? String ?? ""
+        txtTipCreator.text = name
+        selectedCreatorForTip = row
+    }
+    
+    
 }

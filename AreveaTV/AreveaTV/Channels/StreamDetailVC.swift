@@ -205,7 +205,7 @@ class StreamDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDat
         lblPerformerName?.layer.cornerRadius = 15
         lblPerformerName?.layer.borderWidth = 1
         self.lblPerformerName.isHidden = true
-
+        
         
     }
     @objc func txtEmojiTap(textField: UITextField) {
@@ -370,9 +370,11 @@ class StreamDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDat
                      self.webView.isHidden = false
                      
                      self.viewLiveStream.bringSubviewToFront(self.webView)*/
+                    startSession()
                 }else if(value == "stopped"){
                     //lblStreamUnavailable.text = "publisher has unpublished. possibly from background/interrupt"
                     btnPlayStream.isHidden = true;
+                    endSession()
                 }else if(value == "not_available"){
                     if (viewLiveStream.isHidden == false){
                         lblStreamUnavailable.text = "Video streaming is currently unavailable. Please try again later"
@@ -676,7 +678,7 @@ class StreamDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDat
             return aryCharityInfo.count;
         }
         else if(tableView == tblComments){
-           
+            
             if (isChannelAvailable && self.messages.count > 0){
                 tblComments.isHidden = false
                 lblNoDataComments.text = ""
@@ -939,7 +941,7 @@ class StreamDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDat
     }
     func proceedToPayment(params:[String:Any]){
         //let url: String = appDelegate.baseURL +  "/proceedToPayment"
-        let url = "https://qa.arevea.tv/api/payment/v1/proceedToPayment"
+        let url = appDelegate.paymentBaseURL + "/proceedToPayment"
         let params = params;
         //print("params:",params)
         let session_token = UserDefaults.standard.string(forKey: "session_token") ?? ""
@@ -958,7 +960,7 @@ class StreamDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDat
                         
                         if (json["token"]as? String != nil){
                             let token = json["token"]as? String ?? ""
-                            let urlOpen = "https://qa.arevea.tv/payment/" + token
+                            let urlOpen = self.appDelegate.paymentRedirectionURL + token
                             guard let url = URL(string: urlOpen) else { return }
                             UIApplication.shared.open(url)
                         }else{
@@ -981,10 +983,9 @@ class StreamDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDat
     }
     @objc func share(_ sender: Any) {
         
-        let qa = "https://qa.arevea.tv/channel/";
         let performerInfo = self.strTitle + "/" + String(self.performerId) + "/live/";
         let vodInfo = self.streamVideoCode + "/" + String(self.streamId)
-        let url = qa + performerInfo + vodInfo
+        let url = appDelegate.shareURL + performerInfo + vodInfo
         print(url)
         let textToShare = [url]
         // set up activity view controller
@@ -1262,7 +1263,7 @@ class StreamDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDat
                                 self.dicPerformerInfo = data?["performer_info"] as? [String : Any] ?? [String:Any]()
                                 let performerName = self.dicPerformerInfo["performer_display_name"] as? String ?? ""
                                 var firstChar = ""
-
+                                
                                 let fullNameArr = performerName.components(separatedBy: " ")
                                 let firstName: String = fullNameArr[0] ?? " "
                                 var lastName = ""
@@ -2126,13 +2127,39 @@ class StreamDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDat
             print("live Portrait")
         }
     }
+    func getAppversion() -> String {
+        let dictionary = Bundle.main.infoDictionary!
+        let version = dictionary["CFBundleShortVersionString"] as! String
+        let build = dictionary["CFBundleVersion"] as! String
+        return "\(version).\(build)"
+    }
+    func saveToJsonFile() {
+        // Get the url of Persons.json in document directory
+        guard let documentDirectoryUrl = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else { return }
+        let fileUrl = documentDirectoryUrl.appendingPathComponent("Persons.json")
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "dd-MMM-yyyy hh:mm a"//14-Aug-2020 12:58 PM
+        let time = dateFormatter.string(from: Date())
+        let appName = Bundle.main.infoDictionary!["CFBundleName"] as! String
+        
+        let fileData = [["appName":appName,"appVersion":"v" + getAppversion(),"platform":"iOS","date":time]]
+        
+        // Transform array into data and save it into file
+        do {
+            let data = try JSONSerialization.data(withJSONObject: fileData, options: [])
+            try data.write(to: fileUrl, options: [])
+        } catch {
+            print(error)
+        }
+    }
+    
     // MARK: Handler for events(events) API
-    func startStreamSession(){
+    func startSession(){
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         let url: String = appDelegate.baseURL +  "/startSession"
         viewActivity.isHidden = false
         let headers: HTTPHeaders
-        headers = [appDelegate.securityKey: appDelegate.securityValue]
+        headers = [appDelegate.x_api_key: appDelegate.x_api_value]
         
         let user_id = UserDefaults.standard.string(forKey: "user_id");
         var streamIdLocal = "0"
@@ -2140,18 +2167,18 @@ class StreamDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDat
             streamIdLocal = String(streamId)
         }
         let params: [String: Any] = [ "user_id": user_id ?? "0",
-               "event_id": streamIdLocal,
-               "organization_id" : orgId,
-               "performer_id" : performerId,
-               "filekey": "stream_metrics/" + streamVideoCode + "/"]
-        
+                                      "event_id": streamIdLocal,
+                                      "organization_id" : orgId,
+                                      "performer_id" : performerId,
+                                      "filekey": "stream_metrics/" + streamVideoCode + "/"]
+        print("params:",params)
         AF.request(url, method: .post,parameters: params, encoding: JSONEncoding.default,headers:headers)
             .responseJSON { response in
                 self.viewActivity.isHidden = true
                 switch response.result {
                 case .success(let value):
                     if let json = value as? [String: Any] {
-                        print("getEvents JSON:",json)
+                        print("startSession JSON:",json)
                         if (json["statusCode"]as? String == "200"){
                             let data  = json["Data"] as? [String:Any] ?? [:];
                             self.startSessionResponse = data
@@ -2169,50 +2196,10 @@ class StreamDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDat
                 }
         }
     }
-    // MARK: Handler for events(events) API
-    func endStreamSession(){
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        let url: String = appDelegate.baseURL +  "/endSession"
-        viewActivity.isHidden = false
-        let headers: HTTPHeaders
-        headers = [appDelegate.securityKey: appDelegate.securityValue]
-        
-        let user_id = UserDefaults.standard.string(forKey: "user_id");
-        var streamIdLocal = "0"
-        if (streamId != 0){
-            streamIdLocal = String(streamId)
-        }
-        let params: [String: Any] = [ "user_id": user_id ?? "0",
-               "event_id": streamIdLocal,
-               "organization_id" : orgId,
-               "performer_id" : performerId,
-               "filekey": "stream_metrics/" + streamVideoCode + "/"]
-        
-        AF.request(url, method: .post,parameters: params, encoding: JSONEncoding.default,headers:headers)
-            .responseJSON { response in
-                self.viewActivity.isHidden = true
-                switch response.result {
-                case .success(let value):
-                    if let json = value as? [String: Any] {
-                        print("getEvents JSON:",json)
-                        if (json["statusCode"]as? String == "200"){
-                            let data  = json["Data"] as? [String:Any] ?? [:];
-                            self.startSessionResponse = data
-                            self.isViewerCountcall = 1;
-                        }
-                        else{
-                            let strError = json["message"] as? String
-                            ////print(strError ?? "")
-                            self.showAlert(strMsg: strError ?? "")
-                        }
-                    }
-                case .failure(let error):
-                    //print(error)
-                    self.showAlert(strMsg: error.localizedDescription)
-                }
-        }
-    }
-    @IBAction func updateProfilePic(){
+    
+    // MARK: Handler for endSession API
+    
+    @IBAction func endSession(){
         let netAvailable = appDelegate.isConnectedToInternet()
         if(!netAvailable){
             showAlert(strMsg: "Please check your internet connection!")
@@ -2224,29 +2211,36 @@ class StreamDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDat
         let session_token = UserDefaults.standard.string(forKey: "session_token") ?? ""
         
         //let headers: HTTPHeaders
-        //headers = [appDelegate.securityKey: appDelegate.securityValue]
+        //headers = [appDelegate.x_api_key: appDelegate.x_api_value]
         let headers: HTTPHeaders = ["Content-type": "multipart/form-data","access_token": session_token]
-        
+        saveToJsonFile()
         let user_id = UserDefaults.standard.string(forKey: "user_id");
         let streamInfo = "stream_metrics/" + self.streamVideoCode + "/" + String(self.streamId)
+        let session_start_time = self.startSessionResponse["session_start_time"] as? String ?? ""
         
-        let params: [String: Any] = ["id":user_id ?? "","image_for": streamInfo,"session_start_time":"","is_final":"true","event_id": String(self.streamId)]
+        let params: [String: Any] = ["id":user_id ?? "","image_for": streamInfo,"session_start_time":session_start_time,"is_final":"true","event_id": String(self.streamId)]
         
         AF.upload(multipartFormData: { (multipartFormData) in
             for (key, value) in params {
                 multipartFormData.append("\(value)".data(using: String.Encoding.utf8)!, withName: key as String)
             }
-           // multipartFormData.append(fileData, withName: "files", fileName: "", mimeType: "")
+            guard let documentDirectoryUrl = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else { return }
+            let fileUrl = documentDirectoryUrl.appendingPathComponent("Persons.json")
+            print("fileUrl:",fileUrl)
+            let pdfData = try! Data(contentsOf: fileUrl)
+            var data : Data = pdfData
+            multipartFormData.append(data as Data, withName: "files", fileName: "Persons.json", mimeType:"application/json")
+            print("multipartFormData:",multipartFormData)
         }, to: url, usingThreshold: UInt64.init(),
            method: .post,headers: headers).responseJSON{ response in
             self.viewActivity.isHidden = true
             switch response.result {
             case .success(let value):
                 if let json = value as? [String: Any] {
-                    //print(json)
+                    print("endSession:",json)
                     if (json["status"]as? Int == 200){
                         //print(json["message"] ?? "")
-    
+                        
                     }else{
                         let strError = json["message"] as? String
                         //print(strError ?? "")

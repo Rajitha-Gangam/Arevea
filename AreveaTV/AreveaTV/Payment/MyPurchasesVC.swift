@@ -132,7 +132,7 @@ class MyPurchasesVC: UIViewController , UITableViewDelegate,UITableViewDataSourc
         let url: String = appDelegate.baseURL +  "/myList"
         viewActivity.isHidden = false
         let headers: HTTPHeaders
-        headers = [appDelegate.securityKey: appDelegate.securityValue]
+        headers = [appDelegate.x_api_key: appDelegate.x_api_value]
         let user_id = UserDefaults.standard.string(forKey: "user_id");
         let params: [String: Any] = ["userid":user_id ?? ""]
         

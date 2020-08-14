@@ -826,7 +826,7 @@ class MultiStreamVC: UIViewController,UICollectionViewDataSource,UITableViewData
     }
     func proceedToPayment(params:[String:Any]){
         //let url: String = appDelegate.baseURL +  "/proceedToPayment"
-        let url = "https://qa.arevea.tv/api/payment/v1/proceedToPayment"
+        let url = appDelegate.paymentBaseURL + "/proceedToPayment"
         let params = params;
         //print("params:",params)
         let session_token = UserDefaults.standard.string(forKey: "session_token") ?? ""
@@ -845,7 +845,7 @@ class MultiStreamVC: UIViewController,UICollectionViewDataSource,UITableViewData
                         
                         if (json["token"]as? String != nil){
                             let token = json["token"]as? String ?? ""
-                            let urlOpen = "https://qa.arevea.tv/payment/" + token
+                            let urlOpen = self.appDelegate.paymentRedirectionURL + token
                             guard let url = URL(string: urlOpen) else { return }
                             UIApplication.shared.open(url)
                         }else{
@@ -863,10 +863,9 @@ class MultiStreamVC: UIViewController,UICollectionViewDataSource,UITableViewData
    
     @objc func share(_ sender: Any) {
         
-        let qa = "https://qa.arevea.tv/channel/";
         let performerInfo = self.strTitle + "/" + String(self.performerId) + "/live/";
         let vodInfo = self.streamVideoCode + "/" + String(self.streamId)
-        let url = qa + performerInfo + vodInfo
+        let url = appDelegate.shareURL + performerInfo + vodInfo
         print(url)
         let textToShare = [url]
         // set up activity view controller
