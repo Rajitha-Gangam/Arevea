@@ -153,22 +153,7 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
         }
     }
     // MARK: Download Image from URL
-    func getData(from url: URL, completion: @escaping (Data?, URLResponse?, Error?) -> ()) {
-        URLSession.shared.dataTask(with: url, completionHandler: completion).resume()
-    }
-    func downloadImage(from url: URL, imageView: UIImageView) {
-        getData(from: url) { data, response, error in
-            guard let data = data, error == nil else { return }
-            //print(response?.suggestedFilename ?? url.lastPathComponent)
-            DispatchQueue.main.async() { [weak self] in
-                imageView.contentMode = .scaleAspectFill
-                imageView.image = UIImage(data: data)
-                self?.viewActivity.isHidden = true
-                self?.viewProfilePic.isHidden = false
-                self?.viewNoProfilePic.isHidden = true
-            }
-        }
-    }
+    
     // MARK: Handler for performerEvents API, using for upcoming schedules
     func getProfile(){
         let netAvailable = appDelegate.isConnectedToInternet()
@@ -212,7 +197,7 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
                     
                     //print(resultObj)
                     if let json = resultObj as? [String: Any] {
-                        //print(json)
+                        print(json)
                         if (json["status"]as? Int == 0){
                             //print(json["message"] ?? "")
                             let profile_data = json["profile_data"] as? [String:Any] ?? [:]
@@ -264,9 +249,8 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
                             self.strProfilePicURL = strURL
                             self.isDeleteShow = false
                             if let url = URL(string: strURL){
-                                self.downloadImage(from: url as URL, imageView: self.imgProfilePic)
+                                self.imgProfilePic.sd_setImage(with: url, placeholderImage: UIImage(named: "user"))
                                 self.isDeleteShow = true
-                                
                             }else{
                                 self.viewActivity.isHidden = true
                                 self.viewProfilePic.isHidden = true

@@ -15,7 +15,7 @@ import MUXSDKStats;
 import CoreLocation
 import EasyTipView
 
-class MultiStreamVC: UIViewController,UICollectionViewDataSource,UITableViewDataSource,UITableViewDelegate,UITextFieldDelegate,CollectionViewCellDelegate,OpenChanannelChatDelegate,OpenChannelMessageTableViewCellDelegate,AGEmojiKeyboardViewDelegate,SBDChannelDelegate, AGEmojiKeyboardViewDataSource,UIWebViewDelegate,UICollectionViewDelegateFlowLayout,CLLocationManagerDelegate{
+class MultiStreamVC: UIViewController,UICollectionViewDataSource,UITableViewDataSource,UITableViewDelegate,UITextFieldDelegate,OpenChanannelChatDelegate,OpenChannelMessageTableViewCellDelegate,AGEmojiKeyboardViewDelegate,SBDChannelDelegate, AGEmojiKeyboardViewDataSource,UIWebViewDelegate,UICollectionViewDelegateFlowLayout,CLLocationManagerDelegate{
     // MARK: - Variables Declaration
     
     @IBOutlet weak var buttonCVC: UICollectionView!
@@ -662,12 +662,9 @@ class MultiStreamVC: UIViewController,UICollectionViewDataSource,UITableViewData
             cell.lblCharityDesc.text = charity?["charity_description"] as? String ?? ""
             let strURL = charity?["charity_logo"]as? String ?? ""
             if let urlCharity = URL(string: strURL){
-                self.downloadImage(from: urlCharity as URL, imageView: cell.imgCharity)
+                cell.imgCharity.sd_setImage(with: urlCharity, placeholderImage: UIImage(named: "charity-img.png"))
             }
-            
             return cell
-            
-            
         }
         
         
@@ -692,13 +689,7 @@ class MultiStreamVC: UIViewController,UICollectionViewDataSource,UITableViewData
         }
         return nil
     }
-    
-    
-    
-    
-    func collectionView(collectionviewcell: DBCollectionViewCell?, index: Int, didTappedInTableViewCell: DashBoardCell) {
-        
-    }
+
     override var preferredStatusBarStyle: UIStatusBarStyle {
         return .lightContent // .default
     }
@@ -845,7 +836,7 @@ class MultiStreamVC: UIViewController,UICollectionViewDataSource,UITableViewData
                         
                         if (json["token"]as? String != nil){
                             let token = json["token"]as? String ?? ""
-                            let urlOpen = self.appDelegate.paymentRedirectionURL + token
+                            let urlOpen = self.appDelegate.paymentRedirectionURL + "/" + token
                             guard let url = URL(string: urlOpen) else { return }
                             UIApplication.shared.open(url)
                         }else{
@@ -913,34 +904,7 @@ class MultiStreamVC: UIViewController,UICollectionViewDataSource,UITableViewData
             self.present(alert, animated: true)
         }
     }
-    func getData(from url: URL, completion: @escaping (Data?, URLResponse?, Error?) -> ()) {
-        URLSession.shared.dataTask(with: url, completionHandler: completion).resume()
-    }
-    func downloadImage(from url: URL, imageView: UIImageView) {
-        //print("Download Started")
-        getData(from: url) { data, response, error in
-            guard let data = data, error == nil else { return }
-            //print(response?.suggestedFilename ?? url.lastPathComponent)
-            //print("Download Finished")
-            DispatchQueue.main.async() { [weak self] in
-                imageView.image = UIImage(data: data)
-                imageView.contentMode = .scaleAspectFill
-            }
-        }
-    }
-    
-    
-    
-    func videoThumbNail(from url: URL, button: UIButton) {
-        getData(from: url) { data, response, error in
-            guard let data = data, error == nil else { return }
-            //print(response?.suggestedFilename ?? url.lastPathComponent)
-            DispatchQueue.main.async() { [weak self] in
-                button.setImage(UIImage(data: data), for: .normal)
-                button.imageView?.contentMode = .scaleAspectFill
-            }
-        }
-    }
+
     
     func multiCreatorLiveEvents() {
         /* viewVOD.isHidden = false
@@ -956,7 +920,8 @@ class MultiStreamVC: UIViewController,UICollectionViewDataSource,UITableViewData
         viewActivity.isHidden = false
         let httpMethodName = "POST"
         let URLString: String = "/multiCreatorLiveEvents"
-        let user_id = UserDefaults.standard.string(forKey: "user_id");
+        //let user_id = UserDefaults.standard.string(forKey: "user_id");
+        let user_id = "3dd42189-1741-4ced-832e-907bf210c05a"
         var streamIdLocal = "0"
         if (streamId != 0){
             streamIdLocal = String(streamId)
@@ -1034,7 +999,11 @@ class MultiStreamVC: UIViewController,UICollectionViewDataSource,UITableViewData
                                 
                                 let streamBannerURL = streamObj?["video_thumbnail_image"] as? String ?? ""
                                 if let urlBanner = URL(string: streamBannerURL){
-                                    self.downloadImage(from: urlBanner as URL, imageView: self.imgStreamThumbNail)
+                                    var imgPlaceHolder = "sample_vod_square"
+                                    if(UIDevice.current.userInterfaceIdiom == .pad){
+                                       imgPlaceHolder = "sample-event"
+                                    }
+                                    self.imgStreamThumbNail.sd_setImage(with: urlBanner, placeholderImage: UIImage(named: imgPlaceHolder))
                                 }
                                 
                                 self.paymentAmount = streamObj?["stream_payment_amount"]as? Int ?? 0
@@ -1117,12 +1086,16 @@ class MultiStreamVC: UIViewController,UICollectionViewDataSource,UITableViewData
                                     //performer_profile_banner
                                     let performer_profile_banner = self.dicPerformerInfo["performer_profile_banner"] as? String ?? ""
                                     if let urlBanner = URL(string: performer_profile_banner){
-                                        self.downloadImage(from: urlBanner as URL, imageView: self.imgStreamThumbNail)
+                                        var imgPlaceHolder = "sample_vod_square"
+                                        if(UIDevice.current.userInterfaceIdiom == .pad){
+                                           imgPlaceHolder = "sample-event"
+                                        }
+                                        self.imgStreamThumbNail.sd_setImage(with: urlBanner, placeholderImage: UIImage(named: imgPlaceHolder))
                                     }
                                 }
                                 let performer_profile_banner1 = self.dicPerformerInfo["performer_profile_banner"] as? String ?? ""
                                 if let urlBanner = URL(string: performer_profile_banner1){
-                                    self.downloadImage(from: urlBanner as URL, imageView: self.imgPerformer)
+                                    self.imgPerformer.sd_setImage(with: urlBanner, placeholderImage: UIImage(named: "user"))
                                     self.imgPerformer.layer.cornerRadius = self.imgPerformer.frame.size.width/2
                                     self.imgPerformer.isHidden = false
                                     self.lblPerformerName.isHidden = true

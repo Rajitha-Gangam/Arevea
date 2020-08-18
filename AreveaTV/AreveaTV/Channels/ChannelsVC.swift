@@ -11,6 +11,8 @@ import Alamofire
 import MaterialComponents.MaterialCollections
 
 class ChannelsVC: UIViewController,UITableViewDelegate,UITableViewDataSource,CollectionViewCellDelegate,OpenChanannelChatDelegate,UISearchBarDelegate{
+    
+    
     // MARK: - Variables Declaration
     @IBOutlet weak var tblMain: UITableView!
     @IBOutlet weak var lblTitle: UILabel!
@@ -340,7 +342,7 @@ class ChannelsVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Col
         //        self.navigationController?.pushViewController(vc, animated: true)
         
     }
-    func collectionView(collectionviewcell: DBCollectionViewCell?, index: Int, didTappedInTableViewCell: DashBoardCell) {
+    func collectionView(collectionviewcell: DBCollectionViewCell?, index: Int, title: String, didTappedInTableViewCell: DashBoardCell) {
         viewActivity.isHidden = false
         
         let orgsList = didTappedInTableViewCell.rowWithItems

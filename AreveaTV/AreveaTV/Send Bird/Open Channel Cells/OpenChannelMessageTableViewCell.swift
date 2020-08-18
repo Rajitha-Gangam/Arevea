@@ -74,21 +74,7 @@ class OpenChannelMessageTableViewCell: UITableViewCell {
         return color;
     }
     
-    func getDataPerformer(from url: URL, completion: @escaping (Data?, URLResponse?, Error?) -> ()) {
-        URLSession.shared.dataTask(with: url, completionHandler: completion).resume()
-    }
-    func downloadImage(from url: URL, imageView: UIImageView) {
-        print("Download Started")
-        getDataPerformer(from: url) { data, response, error in
-            guard let data = data, error == nil else { return }
-            print(response?.suggestedFilename ?? url.lastPathComponent)
-            print("Download Finished")
-            DispatchQueue.main.async() { [weak self] in
-                imageView.image = UIImage(data: data)
-                imageView.contentMode = .scaleAspectFill
-            }
-        }
-    }
+    
     func setMessage(_ message: SBDBaseMessage) {
         self.msg = message
         
@@ -136,7 +122,7 @@ class OpenChannelMessageTableViewCell: UITableViewCell {
             
             if let profileUrl = sender.profileUrl {
                 if let urlUserPic = URL(string: profileUrl){
-                    self.downloadImage(from: urlUserPic, imageView: self.profileImageView)
+                    self.profileImageView.sd_setImage(with: urlUserPic, placeholderImage: UIImage(named: ""))
                     self.profileImageView.isHidden = false
                     self.userName.isHidden = true
                 }else{

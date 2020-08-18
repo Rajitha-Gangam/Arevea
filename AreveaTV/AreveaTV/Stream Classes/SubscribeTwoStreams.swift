@@ -45,7 +45,8 @@ class SubscribeTwoStreams: UIViewController , R5StreamDelegate, UITableViewDeleg
     @IBOutlet weak var view4: UIView?
     @IBOutlet weak var viewOverlay: UIView?
     @IBOutlet weak var viewActions: UIView?
-    
+    @IBOutlet weak var viewControls: UIView?
+
     @IBOutlet weak var tblComments: UITableView!
     var aryStreamInfo = [Any]()
     var aryUserSubscriptionInfo = [Any]()
@@ -160,9 +161,9 @@ class SubscribeTwoStreams: UIViewController , R5StreamDelegate, UITableViewDeleg
         tblDonations.register(UINib(nibName: "CharityCell", bundle: nil), forCellReuseIdentifier: "CharityCell")
         tblComments.register(UINib(nibName: "OpenChannelUserMessageTableViewCell", bundle: nil), forCellReuseIdentifier: "OpenChannelUserMessageTableViewCell")
         
-        let charities_info = resultData["charities_info"] != nil
-        if(charities_info){
-            self.aryCharityInfo = resultData["charities_info"] as? [Any] ?? [Any]()
+        let charity_info = resultData["charity_info"] != nil
+        if(charity_info){
+            self.aryCharityInfo = resultData["charity_info"] as? [Any] ?? [Any]()
             self.tblDonations.reloadData()
         }
         self.aryStreamInfo = resultData["stream_info"] as? [Any] ?? [Any]()
@@ -212,7 +213,11 @@ class SubscribeTwoStreams: UIViewController , R5StreamDelegate, UITableViewDeleg
         lblNoStream.text = "Please wait for the host to start the live stream"
         
         getGuestDetailInGraphql(.returnCacheDataAndFetch)
-        startSubscription()
+        do {
+            try startSubscription()
+        } catch {
+            print("Error subscribing to events: \(error)")
+        }
     }
     func setBtnDefaultBG(){
         btnShare?.layer.borderColor = UIColor.black.cgColor
@@ -316,6 +321,8 @@ class SubscribeTwoStreams: UIViewController , R5StreamDelegate, UITableViewDeleg
     
     func getGuestDetailInGraphql(_ cachePolicy: CachePolicy) {
         print("====streamVideoCode:",streamVideoCode)
+        self.viewControls?.isHidden = true
+        self.lblNoStream.isHidden = false
         let listQuery = GetMulticreatorshareddataQuery(id:streamVideoCode)
         //1872_1595845007395_mc2
         //58_1594894849561_multi_creator_test_event
@@ -325,7 +332,6 @@ class SubscribeTwoStreams: UIViewController , R5StreamDelegate, UITableViewDeleg
                 return
             }
             
-            self.lblNoStream.isHidden = false
             // print("--result:",result)
             if((result != nil)  && (result?.data != nil)){
                 // print("--data:",result?.data)
@@ -348,17 +354,17 @@ class SubscribeTwoStreams: UIViewController , R5StreamDelegate, UITableViewDeleg
                                 self.streamlist.append(guest)
                             } else {
                                 self.offlineStream.append(guest)
-                                self.streamlist.append(guest)
-                                // this.unSubscribe_Subscriber(e.auth_code);
                             }
                         }
                         
                     }
                     if(self.streamlist.count > 0){
                         self.lblNoStream.isHidden = true
+                        self.viewControls?.isHidden = false
+                        self.pickerView.reloadComponent(0)
+                        self.findStream()
                     }
-                    self.pickerView.reloadComponent(0)
-                    //self.findStream()
+                    
                 }else{
                     print("--getMulticreatorshareddata null")
                 }
@@ -366,7 +372,7 @@ class SubscribeTwoStreams: UIViewController , R5StreamDelegate, UITableViewDeleg
             // Remove existing records if we're either loading from cache, or loading fresh (e.g., from a refresh)
         }
     }
-    func startSubscription() {
+    func startSubscription() throws {
         do{
             let subscriptionRequest = OnUpdateMulticreatorshareddataSubscription(id: streamVideoCode)
             
@@ -559,8 +565,7 @@ class SubscribeTwoStreams: UIViewController , R5StreamDelegate, UITableViewDeleg
                                 // "Unable to locate stream. Broadcast has probably not started for this stream: " + streamName
                                 print("errorMessage:",errorMsg)
                                 //comment these two lines
-                                let serverAddress = "livestream.arevea.tv"
-                                self.config(url: serverAddress,stream:streamName,index: index)
+                                
                                 
                             }else{
                                 let serverAddress = json["serverAddress"] as? String ?? ""
@@ -801,21 +806,7 @@ class SubscribeTwoStreams: UIViewController , R5StreamDelegate, UITableViewDeleg
             proceedToPayment(params: params)
         }
     }
-    func getData(from url: URL, completion: @escaping (Data?, URLResponse?, Error?) -> ()) {
-        URLSession.shared.dataTask(with: url, completionHandler: completion).resume()
-    }
-    func downloadImage(from url: URL, imageView: UIImageView) {
-        //print("Download Started")
-        getData(from: url) { data, response, error in
-            guard let data = data, error == nil else { return }
-            //print(response?.suggestedFilename ?? url.lastPathComponent)
-            //print("Download Finished")
-            DispatchQueue.main.async() { [weak self] in
-                imageView.image = UIImage(data: data)
-                imageView.contentMode = .scaleAspectFill
-            }
-        }
-    }
+    
     //MARK:Tableview Delegates and Datasource Methods
     
     func numberOfSections(in tableView: UITableView) ->  Int {
@@ -924,7 +915,7 @@ class SubscribeTwoStreams: UIViewController , R5StreamDelegate, UITableViewDeleg
             cell.lblCharityDesc.text = charity?["charity_description"] as? String ?? ""
             let strURL = charity?["charity_logo"]as? String ?? ""
             if let urlCharity = URL(string: strURL){
-                self.downloadImage(from: urlCharity as URL, imageView: cell.imgCharity)
+                cell.imgCharity.sd_setImage(with: urlCharity, placeholderImage: UIImage(named: "charity-img.png"))
             }
             
             return cell
@@ -965,7 +956,7 @@ class SubscribeTwoStreams: UIViewController , R5StreamDelegate, UITableViewDeleg
                         
                         if (json["token"]as? String != nil){
                             let token = json["token"]as? String ?? ""
-                            let urlOpen = self.appDelegate.paymentRedirectionURL + token
+                            let urlOpen = self.appDelegate.paymentRedirectionURL + "/" + token
                             guard let url = URL(string: urlOpen) else { return }
                             UIApplication.shared.open(url)
                         }else{

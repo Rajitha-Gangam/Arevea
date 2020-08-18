@@ -141,7 +141,8 @@ public class AreveaAPIClient: AWSAPIGatewayClient {
 	    super.init()
 	
 	    self.configuration = configuration.copy() as! AWSServiceConfiguration
-	    var URLString: String = "https://eku2g4rzxl.execute-api.us-west-2.amazonaws.com/dev"
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        var URLString: String = appDelegate.baseURL
 	    if URLString.hasSuffix("/") {
 	        URLString = URLString.substring(to: URLString.index(before: URLString.endIndex))
 	    }

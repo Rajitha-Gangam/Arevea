@@ -11,8 +11,7 @@ import AVFoundation
 import Alamofire
 import AVKit
 
-
-class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDataSource,UITableViewDelegate,CollectionViewCellDelegate,UIWebViewDelegate,UICollectionViewDelegateFlowLayout,OpenChanannelChatDelegate{
+class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDataSource,UITableViewDelegate,UIWebViewDelegate,UICollectionViewDelegateFlowLayout,OpenChanannelChatDelegate{
     // MARK: - Variables Declaration
     
     @IBOutlet weak var scrollButtons: UIScrollView!
@@ -42,14 +41,14 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
     var audioList: [String] = []
     var videoPlayer = AVPlayer()
     var streamVideoCode = ""
-    
+    var orgInfo = [String:Any]()
     var streamId = 0;
     var buttonNames = ["EVENTS","INFO","VIDEOS","AUDIOS"]
     var playerItem:AVPlayerItem?
     var player:AVPlayer?
     var slider: UISlider?
     var isLoaded = 0;
-   
+    
     var videoUrl = ""
     var backPressed = false
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
@@ -74,7 +73,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
     @IBOutlet weak var imgStreamThumbNail: UIImageView!
     var isStream = true;
     var isUpcoming = false;
-   
+    
     @IBOutlet weak var heightTopView: NSLayoutConstraint?
     @IBOutlet weak var viewTop: UIView!
     
@@ -86,7 +85,6 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
         registerNibs();
         //print("detail item in channnel page:\(detailItem)")
         
-        viewLiveStream.isHidden = true;
         lblNoDataUpcoming.text = "No results found"
         lblNoDataVideos.text = "No results found"
         lblNoDataAudios.text = "No results found"
@@ -98,7 +96,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
         }
     }
     
-   
+    
     func registerNibs() {
         if(UIDevice.current.userInterfaceIdiom == .pad){
             let nib = UINib(nibName: "ButtonsCVC-iPad", bundle: nil)
@@ -122,13 +120,11 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
         super.viewDidAppear(true);
         backPressed = false
         self.imgPerformerProfile.layer.cornerRadius = self.imgPerformerProfile.frame.size.width/2
-        if(UIDevice.current.userInterfaceIdiom == .pad){
-            self.imgStreamThumbNail.image = UIImage.init(named: "sample-event")
-        }else{
-            self.imgStreamThumbNail.image = UIImage.init(named: "sample_vod_square")
-        }
-        liveEvents();
-
+        self.imgStreamThumbNail.image = UIImage(named: "user")
+        
+        //LiveEventById();
+        performerEvents();
+        getPerformerInfo();
         if(isLoaded == 0 || appDelegate.isLiveLoad == "1"){
             let netAvailable = appDelegate.isConnectedToInternet()
             if(!netAvailable){
@@ -139,18 +135,16 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
             appDelegate.isLiveLoad = "0";
             performerVideos();
             performerAudios();
-            performerEvents();
-            //getPerformerOrgInfo();
             hideViews();
-
+            
             //bottom first object should show
-               let infoLine = self.buttonCVC.viewWithTag(11) as? UILabel
-                         let btnText = self.buttonCVC.viewWithTag(21) as? UIButton
-                         let orange = UIColor(red: 255, green: 139, blue: 50);
-                         infoLine?.backgroundColor = orange;
-                         infoLine?.isHidden = false;
-                         btnText?.setTitleColor(orange, for: .normal)
-                         viewInfo.isHidden = false
+            let infoLine = self.buttonCVC.viewWithTag(11) as? UILabel
+            let btnText = self.buttonCVC.viewWithTag(21) as? UIButton
+            let orange = UIColor(red: 255, green: 139, blue: 50);
+            infoLine?.backgroundColor = orange;
+            infoLine?.isHidden = false;
+            btnText?.setTitleColor(orange, for: .normal)
+            viewInfo.isHidden = false
         }
         let viewHeight = self.view.frame.size.height*0.35
         liveStreamHeight.constant = CGFloat(viewHeight)
@@ -206,8 +200,8 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
             let btnTag = 20 + index;
             let lblLine = self.buttonCVC.viewWithTag(lineTag) as? UILabel
             let btnText = self.buttonCVC.viewWithTag(btnTag) as? UIButton
-                lblLine?.isHidden = true;
-                btnText?.setTitleColor(.white, for: .normal)
+            lblLine?.isHidden = true;
+            btnText?.setTitleColor(.white, for: .normal)
         }
     }
     @objc func btnPress(_ sender: UIButton) {
@@ -219,7 +213,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
             let btnTag = 20 + index;
             let lblLine = self.buttonCVC.viewWithTag(lineTag) as? UILabel
             let btnText = self.buttonCVC.viewWithTag(btnTag) as? UIButton
-           if (name == title){
+            if (name == title){
                 print("btnTag:",btnTag)
                 let orange = UIColor(red: 255, green: 139, blue: 50);
                 lblLine?.backgroundColor = orange;
@@ -306,8 +300,8 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
     func numberOfSections(in tableView: UITableView) ->  Int {
         return 1
     }
-   
-   
+    
+    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if (tableView == tblAudios)
         {
@@ -331,15 +325,15 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
             if (self.aryVideos.count > 0){
                 self.lblNoDataVideos.isHidden = true
                 tblVideos.isHidden = false
-
+                
             }else{
                 self.lblNoDataVideos.isHidden = false
                 tblVideos.isHidden = true
-
+                
             }
             return aryVideos.count;
         }
-       
+        
         return 0;
     }
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) ->  CGFloat {
@@ -354,7 +348,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
             }
             return 300;
         }else if  (tableView == tblUpcoming){
-            return 138;
+            return 158;
         }
         return 44;
         
@@ -373,10 +367,17 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
             cell.lblTitle.text = videoTitle
             print("--vod strURL:",strURL);
             if let urlVideoThumbImage = URL(string: strURL){
-                self.videoThumbNail(from: urlVideoThumbImage, button: cell.btnVideo)
+                var imagePlaceHolder = "sample-details"
+                if(UIDevice.current.userInterfaceIdiom == .pad){
+                    imagePlaceHolder = "sample_vod_land"
+                }
+                // self.videoThumbNail(from: urlVideoThumbImage, button: cell.btnVideo)
+                cell.btnVideo.sd_setBackgroundImage(with:urlVideoThumbImage, for:
+                    UIControl.State.normal, placeholderImage: UIImage(named:
+                        imagePlaceHolder))
             }else{
                 if(UIDevice.current.userInterfaceIdiom == .pad){
-                cell.btnVideo.setImage((UIImage.init(named: "sample_vod_land")), for: .normal)
+                    cell.btnVideo.setImage((UIImage.init(named: "sample_vod_land")), for: .normal)
                 }else{
                     cell.btnVideo.setImage((UIImage.init(named: "sample-details")), for: .normal)
                 }
@@ -416,26 +417,33 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
         }
         else {
             //audios
-           let cell = tableView.dequeueReusableCell(withIdentifier: "VideoCell") as! VideoCell
-           cell.btnVideo.addTarget(self, action: #selector(playAudioBtnTapped(_:)), for: .touchUpInside)
-           cell.btnVideo.tag = indexPath.row
-           cell.btnVideo1.addTarget(self, action: #selector(playAudioBtnTapped(_:)), for: .touchUpInside)
-           cell.btnVideo1.tag = indexPath.row
-           let upcoming = self.aryAudios[indexPath.row] as? [String : Any];
-           let strURL = upcoming?["videoThumbImage"] as? String ?? "";
-           let videoTitle = upcoming?["videoTitle"] as? String ?? "";
-           cell.lblTitle.text = videoTitle
-           print("--vod strURL:",strURL);
-           if let urlVideoThumbImage = URL(string: strURL){
-               self.videoThumbNail(from: urlVideoThumbImage, button: cell.btnVideo)
-           }else{
-            if(UIDevice.current.userInterfaceIdiom == .pad){
-               cell.btnVideo.setImage((UIImage.init(named: "sample_vod_land")), for: .normal)
+            let cell = tableView.dequeueReusableCell(withIdentifier: "VideoCell") as! VideoCell
+            cell.btnVideo.addTarget(self, action: #selector(playAudioBtnTapped(_:)), for: .touchUpInside)
+            cell.btnVideo.tag = indexPath.row
+            cell.btnVideo1.addTarget(self, action: #selector(playAudioBtnTapped(_:)), for: .touchUpInside)
+            cell.btnVideo1.tag = indexPath.row
+            let upcoming = self.aryAudios[indexPath.row] as? [String : Any];
+            let strURL = upcoming?["videoThumbImage"] as? String ?? "";
+            let videoTitle = upcoming?["videoTitle"] as? String ?? "";
+            cell.lblTitle.text = videoTitle
+            print("--vod strURL:",strURL);
+            if let urlVideoThumbImage = URL(string: strURL){
+                var imagePlaceHolder = "sample-details"
+                if(UIDevice.current.userInterfaceIdiom == .pad){
+                    imagePlaceHolder = "sample_vod_land"
+                }
+                //self.videoThumbNail(from: urlVideoThumbImage, button: cell.btnVideo)
+                cell.btnVideo.sd_setBackgroundImage(with:urlVideoThumbImage, for:
+                    UIControl.State.normal, placeholderImage: UIImage(named:
+                        imagePlaceHolder))
             }else{
-                cell.btnVideo.setImage((UIImage.init(named: "sample-details")), for: .normal)
+                if(UIDevice.current.userInterfaceIdiom == .pad){
+                    cell.btnVideo.setImage((UIImage.init(named: "sample_vod_land")), for: .normal)
+                }else{
+                    cell.btnVideo.setImage((UIImage.init(named: "sample-details")), for: .normal)
+                }
             }
-           }
-           return cell
+            return cell
         }
     }
     
@@ -449,6 +457,8 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
             self.performerId = upcoming?["performer_id"]as? Int ?? 0
             self.streamId = upcoming?["videoId"] as? Int ?? 0
             self.streamVideoCode = upcoming?["streamCode"] as? String ?? ""
+            self.orgId = upcoming?["organization_id"]as? Int ?? 0
+
             isVOD = false;
             isUpcoming = true;
             
@@ -456,12 +466,13 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
             let vc = storyboard.instantiateViewController(withIdentifier: "StreamDetailVC") as! StreamDetailVC
             vc.streamId = self.streamId
             vc.delegate = self
+            vc.orgId = self.orgId
             appDelegate.isLiveLoad = "1"
             vc.performerId = self.performerId;
             vc.strTitle = upcoming?["streamTitle"] as? String ?? "Channel Details"
             vc.isUpcoming = true;
             self.navigationController?.pushViewController(vc, animated: true)
-
+            
         }else if  (tableView == tblVideos){
             playVideoFromList(row: indexPath.row)
         }
@@ -490,6 +501,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
         let storyboard = UIStoryboard(name: "Main", bundle: nil);
         let vc = storyboard.instantiateViewController(withIdentifier: "StreamDetailVC") as! StreamDetailVC
         vc.streamId = self.streamId
+        vc.orgId = self.orgId
         vc.delegate = self
         appDelegate.isLiveLoad = "1"
         vc.performerId = self.performerId;
@@ -514,14 +526,13 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
         vc.performerId = self.performerId;
         vc.strTitle = upcoming?["videoTitle"] as? String ?? "Channel Details"
         vc.isAudio = true;
+        vc.orgId = self.orgId
         let  videoUrl = upcoming?["videoUrl"] as? String ?? ""
         print("videoUrl:",videoUrl)
         vc.strAudioSource = videoUrl
         self.navigationController?.pushViewController(vc, animated: true)
     }
     
-    func collectionView(collectionviewcell: DBCollectionViewCell?, index: Int, didTappedInTableViewCell: DashBoardCell) {
-    }
     override var preferredStatusBarStyle: UIStatusBarStyle {
         return .lightContent // .default
     }
@@ -537,34 +548,9 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
     func getData(from url: URL, completion: @escaping (Data?, URLResponse?, Error?) -> ()) {
         URLSession.shared.dataTask(with: url, completionHandler: completion).resume()
     }
-    func downloadImage(from url: URL, imageView: UIImageView) {
-        //print("Download Started")
-        getData(from: url) { data, response, error in
-            guard let data = data, error == nil else { return }
-            //print(response?.suggestedFilename ?? url.lastPathComponent)
-            //print("Download Finished")
-            DispatchQueue.main.async() { [weak self] in
-                imageView.image = UIImage(data: data)
-                imageView.contentMode = .scaleAspectFill
-            }
-        }
-    }
     
-    func downloadPerformerPic(from url: URL) {
-        //print("Download Started")
-        getData(from: url) { data, response, error in
-            guard let data = data, error == nil else { return }
-            //print(response?.suggestedFilename ?? url.lastPathComponent)
-            //print("Download Finished")
-            DispatchQueue.main.async() { [weak self] in
-                self?.imgPerformerProfile.image = UIImage(data: data)
-                self?.imgPerformerProfile.contentMode = .scaleAspectFill
-                self?.imgStreamThumbNail.image = UIImage(data: data)
-                self?.imgStreamThumbNail.contentMode = .scaleAspectFill
-
-            }
-        }
-    }
+    
+    
     
     func videoThumbNail(from url: URL, button: UIButton) {
         getData(from: url) { data, response, error in
@@ -578,60 +564,34 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
     }
     
     // MARK: Handler for getUser API, using for filters
-    func liveEvents() {
-        /* viewVOD.isHidden = false
-         viewLiveStream.isHidden = true
-         self.showVideo(strURL: "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4");
-         return*/
-        
+    func LiveEventById() {
         let netAvailable = appDelegate.isConnectedToInternet()
         if(!netAvailable){
             showAlert(strMsg: "Please check your internet connection!")
             return
         }
         viewActivity.isHidden = false
-        let httpMethodName = "POST"
-        let URLString: String = "/liveEvents"
+        let url: String = appDelegate.baseURL +  "/LiveEventById"
         let user_id = UserDefaults.standard.string(forKey: "user_id");
         var streamIdLocal = "0"
         if (streamId != 0){
             streamIdLocal = String(streamId)
         }
+        let headers: HTTPHeaders
+        headers = [appDelegate.x_api_key: appDelegate.x_api_value]
+        
         let params: [String: Any] = ["userid":user_id ?? "","performer_id":performerId,"stream_id": streamIdLocal]
         print("liveEvents params:",params)
         // let params: [String: Any] = ["userid":user_id ?? "","performer_id":"101","stream_id": "0"]
-        
-        let headerParameters = [
-            "Content-Type": "application/json",
-            "Accept": "application/json"
-        ]
-        // Construct the request object
-        let apiRequest = AWSAPIGatewayRequest(httpMethod: httpMethodName,
-                                              urlString: URLString,
-                                              queryParameters: [:],
-                                              headerParameters: headerParameters,
-                                              httpBody: params)
-        // Fetch the Cloud Logic client to be used for invocation
-        let invocationClient = AreveaAPIClient.client(forKey:appDelegate.AWSCognitoIdentityPoolId)
-        invocationClient.invoke(apiRequest).continueWith { (task: AWSTask) -> Any? in
-            if let error = task.error {
-                //print("Error occurred: \(error)")
-                self.showAlert(strMsg: error as? String ?? error.localizedDescription)
-                // Handle error here
-                return nil
-            }
-            // Handle successful result here
-            let result = task.result!
-            let responseString = String(data: result.responseData!, encoding: .utf8)
-            let data = responseString!.data(using: .utf8)!
-            do {
-                let resultObj = try JSONSerialization.jsonObject(with: data, options : .allowFragments)
-                DispatchQueue.main.async {
-                    self.viewActivity.isHidden = true
-                    self.viewLiveStream.isHidden = false
-                    if let json = resultObj as? [String: Any] {
-                        print("liveEvents json:",json);
+        AF.request(url, method: .post,parameters: params, encoding: JSONEncoding.default,headers:headers)
+            .responseJSON { response in
+                self.viewActivity.isHidden = true
+                switch response.result {
+                case .success(let value):
+                    if let json = value as? [String: Any] {
+                        print("LiveEventById JSON:",json)
                         if (json["statusCode"]as? String == "200"){
+                            
                             //print(json["message"] as? String ?? "")
                             let data = json["Data"] as? [String:Any]
                             
@@ -647,7 +607,9 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
                                 //print("self.app_id_for_adds:",self.app_id_for_adds)
                                 let strURL = self.dicPerformerInfo["performer_profile_pic"]as? String ?? ""
                                 if let urlPerformer = URL(string: strURL){
-                                    self.downloadPerformerPic(from: urlPerformer as URL)
+                                    self.imgPerformerProfile.sd_setImage(with: urlPerformer, placeholderImage: UIImage(named: "user"))
+                                    self.imgStreamThumbNail.sd_setImage(with: urlPerformer, placeholderImage: UIImage(named: "user"))
+                                    
                                 }else{
                                     self.imgStreamThumbNail.image = UIImage(named: "user")
                                 }
@@ -658,16 +620,14 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
                             let strError = json["message"] as? String
                             //print("strError1:",strError ?? "")
                             self.showAlert(strMsg: strError ?? "")
-                            self.viewLiveStream.isHidden = true;
                         }
                         
                     }
+                    
+                case .failure(let error):
+                    //print(error)
+                    self.showAlert(strMsg: error.localizedDescription)
                 }
-            } catch let error as NSError {
-                //print(error)
-                self.showAlert(strMsg: error.localizedDescription)
-            }
-            return nil
         }
     }
     
@@ -713,7 +673,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
                     self.viewActivity.isHidden = true
                     // //print(resultObj)
                     if let json = resultObj as? [String: Any] {
-                        //print("performerEvents json:",json);
+                        print("performerEvents json:",json);
                         if (json["statusCode"]as? String == "200"){
                             //print(json["message"] as? String ?? "")
                             self.aryUpcoming = json["Data"] as? [Any] ?? [Any]() ;
@@ -868,63 +828,65 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
         }
     }
     // MARK: Handler for getCategoryOrganisations API
-    func getPerformerOrgInfo(){
+    func getPerformerInfo(){
         let netAvailable = appDelegate.isConnectedToInternet()
         if(!netAvailable){
             showAlert(strMsg: "Please check your internet connection!")
             return
         }
         viewActivity.isHidden = false
-        let httpMethodName = "POST"
-        let URLString: String = "/getPerformerOrgInfo"
+        let url: String = appDelegate.baseURL +  "/getPerformerInfo"
         let params: [String: Any] = ["performer_id": performerId]
-        let headerParameters = [
-            "Content-Type": "application/json",
-            "Accept": "application/json"
-        ]
-        // Construct the request object
-        let apiRequest = AWSAPIGatewayRequest(httpMethod: httpMethodName,
-                                              urlString: URLString,
-                                              queryParameters: [:],
-                                              headerParameters: headerParameters,
-                                              httpBody: params)
-        // Fetch the Cloud Logic client to be used for invocation
-        let invocationClient = AreveaAPIClient.client(forKey:appDelegate.AWSCognitoIdentityPoolId)
-        invocationClient.invoke(apiRequest).continueWith { (task: AWSTask) -> Any? in
-            if let error = task.error {
-                //print("Error occurred: \(error)")
-                self.showAlert(strMsg: error as? String ?? error.localizedDescription)
-                // Handle error here
-                return nil
-            }
-            // Handle successful result here
-            let result = task.result!
-            let responseString = String(data: result.responseData!, encoding: .utf8)
-            let data = responseString!.data(using: .utf8)!
-            do {
-                let resultObj = try JSONSerialization.jsonObject(with: data, options : .allowFragments)
-                DispatchQueue.main.async {
-                    //print(resultObj)
-                    self.viewActivity.isHidden = true
-                    
-                    if let json = resultObj as? [String: Any] {
-                        //print("getPerformerOrgInfo json:",json);
+        let headers: HTTPHeaders
+        headers = [appDelegate.x_api_key: appDelegate.x_api_value]
+        AF.request(url, method: .post,parameters: params, encoding: JSONEncoding.default,headers:headers)
+            .responseJSON { response in
+                self.viewActivity.isHidden = true
+                switch response.result {
+                case .success(let value):
+                    if let json = value as? [String: Any] {
+                        print("getPerformerInfo JSON:",json)
                         if (json["statusCode"]as? String == "200"){
+                            
+                            //print(json["message"] as? String ?? "")
+                            let data = json["Data"] as? [Any] ?? [Any]()
+                            if(data.count > 0){
+                                let obj = data[0] as? [String:Any] ?? [:]
+                                let performer_info = obj["performer_details"] != nil
+                                if(performer_info){
+                                    self.dicPerformerInfo = obj["performer_details"] as? [String : Any] ?? [String:Any]()
+                                    let performerName = self.dicPerformerInfo["performer_display_name"] as? String ?? ""
+                                    var performer_bio = self.dicPerformerInfo["performer_bio"] as? String ?? ""
+                                    performer_bio = performer_bio.htmlToString
+                                    
+                                    self.txtProfile.text = performerName + "\n" + performer_bio
+                                    
+                                    //print("self.app_id_for_adds:",self.app_id_for_adds)
+                                    let strURL = self.dicPerformerInfo["performer_profile_pic"]as? String ?? ""
+                                    if let urlPerformer = URL(string: strURL){
+                                        self.imgPerformerProfile.sd_setImage(with: urlPerformer, placeholderImage: UIImage(named: "user"))
+                                        self.imgStreamThumbNail.sd_setImage(with: urlPerformer, placeholderImage: UIImage(named: "user"))
+                                        
+                                    }else{
+                                        self.imgStreamThumbNail.image = UIImage(named: "user")
+                                    }
+                                }else{
+                                    self.txtProfile.text = ""
+                                }
+                            }
                             
                         }else{
                             let strError = json["message"] as? String
-                            //print("strError:",strError ?? "")
+                            //print("strError1:",strError ?? "")
                             self.showAlert(strMsg: strError ?? "")
                         }
                         
-                        
                     }
+                    
+                case .failure(let error):
+                    //print(error)
+                    self.showAlert(strMsg: error.localizedDescription)
                 }
-            } catch let error as NSError {
-                //print(error)
-                self.showAlert(strMsg: error.localizedDescription)
-            }
-            return nil
         }
     }
     
@@ -934,7 +896,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
         self.navigationController?.isNavigationBarHidden = true
         NotificationCenter.default.removeObserver(self)
     }
-   
+    
     
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
@@ -957,9 +919,9 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
     
     
     
-   
     
-   
+    
+    
     deinit {
         print("Remove NotificationCenter Deinit")
         NotificationCenter.default.removeObserver(self)

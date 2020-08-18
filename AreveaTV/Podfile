@@ -19,6 +19,6 @@ pod 'AWSAPIGateway'
 pod "AGEmojiKeyboard"
 pod 'AWSAppSync'
 pod 'EasyTipView', '~> 2.0.4'
-
+pod 'SDWebImage'
 
 end

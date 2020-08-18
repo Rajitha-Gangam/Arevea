@@ -42,7 +42,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
     
     @IBOutlet weak var lblNoData: UILabel!
     @IBOutlet weak var lblVersion: UILabel!
-
+    
     let appDelegate = UIApplication.shared.delegate as! AppDelegate
     
     var aryData = [Any]();
@@ -100,10 +100,10 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
         
     }
     func getAppversion() -> String {
-                  let dictionary = Bundle.main.infoDictionary!
-                  let version = dictionary["CFBundleShortVersionString"] as! String
-                  let build = dictionary["CFBundleVersion"] as! String
-                  return "\(version).\(build)"
+        let dictionary = Bundle.main.infoDictionary!
+        let version = dictionary["CFBundleShortVersionString"] as! String
+        let build = dictionary["CFBundleVersion"] as! String
+        return "\(version).\(build)"
     }
     override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
         super.viewWillTransition(to: size, with: coordinator)
@@ -126,7 +126,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
         let indexPath = IndexPath(row: 0, section: 0)
         tblSide.selectRow(at: indexPath, animated: true, scrollPosition: .bottom)
         //tblSide.delegate?.tableView!(myTableView, didSelectRowAt: indexPath)
-
+        
         self.lblUserName.text = self.appDelegate.USER_NAME_FULL
         
         //if user comes from search by selecting  type "genre"
@@ -185,37 +185,63 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
     // MARK: Handler for myList(myList) API
     func myList(){
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        let url: String = appDelegate.baseURL +  "/myList"
+        let URLString: String = "/myList"
         viewActivity.isHidden = false
-        let headers: HTTPHeaders
-        headers = [appDelegate.x_api_key: appDelegate.x_api_value]
         let user_id = UserDefaults.standard.string(forKey: "user_id");
         let params: [String: Any] = ["userid":user_id ?? ""]
         
-        AF.request(url, method: .post,  parameters: params, encoding: JSONEncoding.default,headers:headers)
-            .responseJSON { response in
-                self.viewActivity.isHidden = true
-                switch response.result {
-                case .success(let value):
-                    if let json = value as? [String: Any] {
+        let headerParameters = [
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+        ]
+        let httpMethodName = "POST"
+        // Construct the request object
+        let apiRequest = AWSAPIGatewayRequest(httpMethod: httpMethodName,
+                                              urlString: URLString,
+                                              queryParameters: [:],
+                                              headerParameters: headerParameters,
+                                              httpBody: params)
+        // Fetch the Cloud Logic client to be used for invocation
+        let invocationClient = AreveaAPIClient.client(forKey:appDelegate.AWSCognitoIdentityPoolId)
+        invocationClient.invoke(apiRequest).continueWith { (task: AWSTask) -> Any? in
+            if let error = task.error {
+                //print("Error occurred: \(error)")
+                self.showAlert(strMsg: error as? String ?? error.localizedDescription)
+                // Handle error here
+                return nil
+            }
+            // Handle successful result here
+            let result = task.result!
+            let responseString = String(data: result.responseData!, encoding: .utf8)
+            let data = responseString!.data(using: .utf8)!
+            do {
+                let resultObj = try JSONSerialization.jsonObject(with: data, options : .allowFragments)
+                DispatchQueue.main.async {
+                    self.viewActivity.isHidden = true
+                    //print(resultObj)
+                    if let json = resultObj as? [String: Any] {
                         if (json["statusCode"]as? String == "200"){
                             ////print(json["message"] ?? "")
                             print("Mylist JSON:",json)
                             self.aryMyListData  = json["Data"] as? [Any] ?? [Any]();
                             print("Mylist count:",self.aryMyListData.count)
                             self.tblMain.reloadSections([1], with: .none)
-                            
                         }
                         else{
                             let strError = json["message"] as? String
-                            ////print(strError ?? "")
+                            print("Mylist error:",strError ?? "")
                             self.showAlert(strMsg: strError ?? "")
                         }
+                        
                     }
-                case .failure(let error):
-                    //print(error)
-                    self.showAlert(strMsg: error.localizedDescription)
                 }
+                
+            } catch let error as NSError {
+                //print(error)
+                self.showAlert(strMsg: error.localizedDescription)
+                self.viewActivity.isHidden = true
+            }
+            return nil
         }
     }
     // MARK: Handler for myList(myList) API
@@ -225,7 +251,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
         viewActivity.isHidden = false
         let headers: HTTPHeaders
         headers = [appDelegate.x_api_key: appDelegate.x_api_value]
-        let params: [String: Any] = ["":""]
+        let params: [String: Any] = [:]
         
         AF.request(url, method: .post,  parameters: params, encoding: JSONEncoding.default,headers:headers)
             .responseJSON { response in
@@ -233,9 +259,9 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
                 switch response.result {
                 case .success(let value):
                     if let json = value as? [String: Any] {
+                        print("trendingChannels JSON:",json)
                         if (json["statusCode"]as? String == "200"){
                             ////print(json["message"] ?? "")
-                            print("trendingChannels JSON:",json)
                             self.aryTrendingChannelsData  = json["Data"] as? [Any] ?? [Any]();
                             print("trendingChannels count:",self.aryTrendingChannelsData.count)
                             self.tblMain.reloadSections([2], with: .none)
@@ -243,8 +269,8 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
                         }
                         else{
                             let strError = json["message"] as? String
-                            ////print(strError ?? "")
-                            self.showAlert(strMsg: strError ?? "")
+                            print("Trending channels error:",strError ?? "")
+                            // self.showAlert(strMsg: strError ?? "")
                         }
                     }
                 case .failure(let error):
@@ -266,7 +292,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
                 switch response.result {
                 case .success(let value):
                     if let json = value as? [String: Any] {
-                        print("getEvents JSON:",json)
+                        print("events JSON:",json)
                         let data  = json["Data"] as? [String:Any];
                         self.aryLiveChannelsData = data?["live_events"] as? [Any] ?? [Any]();
                         self.aryUpcomingData = data?["upcoming_events"] as? [Any] ?? [Any]();
@@ -276,7 +302,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
                         // self.tblMain.reloadData()
                     }
                 case .failure(let error):
-                    //print(error)
+                    print("events error:",error ?? "")
                     self.showAlert(strMsg: error.localizedDescription)
                 }
         }
@@ -363,7 +389,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
                             
                             let strURL = profile_data["profile_pic"]as? String ?? ""
                             if let url = URL(string: strURL){
-                                self.downloadImage(from: url as URL, imageView: self.imgProfilePic)
+                                self.imgProfilePic.sd_setImage(with: url, placeholderImage: UIImage(named: "user"))
                             }else{
                                 self.viewActivity.isHidden = true
                                 self.imgProfilePic.image = UIImage.init(named: "user")
@@ -371,7 +397,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
                             
                         }else{
                             let strError = json["message"] as? String
-                            //print(strError ?? "")
+                            print("getProfile:",strError ?? "")
                             self.showAlert(strMsg: strError ?? "")
                             self.viewActivity.isHidden = true
                         }
@@ -483,7 +509,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
         }
         return 1;
     }
-   
+    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if (aryLiveChannelsData.count == 0 && aryUpcomingData.count == 0 && aryMyListData.count == 0 && aryTrendingChannelsData.count == 0){
             lblNoData.isHidden = false
@@ -625,22 +651,6 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
         showSideMenu();
     }
     // MARK: Download Image from URL
-    func getData(from url: URL, completion: @escaping (Data?, URLResponse?, Error?) -> ()) {
-        URLSession.shared.dataTask(with: url, completionHandler: completion).resume()
-    }
-    func downloadImage(from url: URL, imageView: UIImageView) {
-        getData(from: url) { data, response, error in
-            guard let data = data, error == nil else { return }
-            //print(response?.suggestedFilename ?? url.lastPathComponent)
-            DispatchQueue.main.async() { [weak self] in
-                imageView.contentMode = .scaleAspectFill
-                imageView.image = UIImage(data: data)
-                self?.viewActivity.isHidden = true
-                self?.isProfileLoaded = true
-                UserDefaults.standard.set("true", forKey: "is_profile_pic_loaded_left_menu")
-            }
-        }
-    }
     
     @IBAction func viewBGTapped(_ sender: Any) {
         hideSideMenu()
@@ -649,57 +659,59 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
         return .lightContent // .default
     }
     // MARK: collectionView Delegate
-    func collectionView(collectionviewcell: DBCollectionViewCell?, index: Int, didTappedInTableViewCell: DashBoardCell) {
+    func collectionView(collectionviewcell: DBCollectionViewCell?, index: Int,title: String, didTappedInTableViewCell: DashBoardCell) {
         hideSideMenu()
         let orgsList = didTappedInTableViewCell.rowWithItems
-        let selectedOrg = orgsList[index] as? [String: Any]
-        //print("item:\(String(describing: selectedOrg))")
-        
-        if (selectedOrg?["parent_category_id"]as? Int != nil){
+        let selectedOrg = orgsList[index] as? [String: Any] ?? [:]
+        print("item:\(String(describing: selectedOrg))")
+        print("title:",title)
+        if (title == "dashboard" || title == "dashboard_my_list"){
+            var streamInfo = selectedOrg["stream_info"] as? [String: Any] ?? [:]
+            if (title == "dashboard_my_list"){
+                streamInfo = selectedOrg
+            }
             let storyboard = UIStoryboard(name: "Main", bundle: nil);
-            let number_of_creators = selectedOrg?["number_of_creators"]as? Int ?? 0
+            let number_of_creators = streamInfo["number_of_creators"] as? Int ?? 0
+            let orgId = streamInfo["organization_id"] as? Int ?? 0
+            var streamId = 0
+            let performer_id = streamInfo["performer_id"] as? Int ?? 0
+            if (title == "dashboard_my_list"){
+            streamId = streamInfo["stream_video_id"] as? Int ?? 0
+            }else{
+            streamId = streamInfo["id"] as? Int ?? 0
+            }
             print("number_of_creators:",number_of_creators)
             if(number_of_creators > 1){
                 let vc = storyboard.instantiateViewController(withIdentifier: "MultiStreamVC") as! MultiStreamVC
-                vc.orgId = selectedOrg?["organization_id"] as? Int ?? 0
-                vc.streamId = selectedOrg?["id"] as? Int ?? 0
+                vc.orgId = orgId
+                vc.streamId = streamId
                 vc.delegate = self
                 appDelegate.isLiveLoad = "1"
-                if (selectedOrg?["performer_id"] as? Int) != nil {
-                    vc.performerId = selectedOrg?["performer_id"] as! Int
-                }
-                else {
-                    vc.performerId = 1;
-                }
-                vc.strTitle = selectedOrg?["stream_video_title"] as? String ?? "Channel Details"
+                vc.performerId = performer_id
+                vc.strTitle = streamInfo["stream_video_title"] as? String ?? "Channel Details"
                 self.navigationController?.pushViewController(vc, animated: true)
             }else{
                 let vc = storyboard.instantiateViewController(withIdentifier: "StreamDetailVC") as! StreamDetailVC
-                vc.orgId = selectedOrg?["organization_id"] as? Int ?? 0
-                vc.streamId = selectedOrg?["id"] as? Int ?? 0
+                vc.orgId = orgId
+                vc.streamId = streamId
                 vc.delegate = self
                 appDelegate.isLiveLoad = "1"
-                if (selectedOrg?["performer_id"] as? Int) != nil {
-                    vc.performerId = selectedOrg?["performer_id"] as! Int
-                }
-                else {
-                    vc.performerId = 1;
-                }
-                vc.strTitle = selectedOrg?["stream_video_title"] as? String ?? "Channel Details"
+                vc.performerId = performer_id
+                vc.strTitle = streamInfo["stream_video_title"] as? String ?? "Channel Details"
                 self.navigationController?.pushViewController(vc, animated: true)
             }
-            
-        }else{
+        }else if(title == "dashboard_trending_channels"){
+            let performerDetails = selectedOrg["performer_details"] as? [String: Any] ?? [:]
             let storyboard = UIStoryboard(name: "Main", bundle: nil);
             let vc = storyboard.instantiateViewController(withIdentifier: "ChannelDetailVC") as! ChannelDetailVC
-            vc.orgId = selectedOrg?["id"] as? Int ?? 0
-            if (selectedOrg?["user_id"] as? Int) != nil {
-                vc.performerId = selectedOrg?["user_id"] as! Int
+            vc.orgId = performerDetails["id"] as? Int ?? 0
+            if (performerDetails["user_id"] as? Int) != nil {
+                vc.performerId = performerDetails["user_id"] as! Int
             }
             else {
                 vc.performerId = 1;
             }
-            vc.strTitle = selectedOrg?["performer_display_name"] as? String ?? "Channel Details"
+            vc.strTitle = performerDetails["performer_display_name"] as? String ?? "Channel Details"
             self.navigationController?.pushViewController(vc, animated: true)
         }
     }

@@ -24,41 +24,37 @@ class AppDelegate: UIResponder, UIApplicationDelegate,CLLocationManagerDelegate 
     var USER_NAME_FULL = "";
     var isLiveLoad = "0";
     var locationManager:CLLocationManager!
+    
     // MARK: - Dev Environmet Variables Declaration
-    /*var baseURL = "https://r5ibd3yzp7.execute-api.us-west-2.amazonaws.com/devel/";
+    var baseURL = "https://r5ibd3yzp7.execute-api.us-west-2.amazonaws.com/devel";
     var sendBirdAppId = "AE94EB49-0A01-43BF-96B4-8297EBB47F12";
-    var profileURL = "https://dev.arevea.tv/api/user/v1/";
-    var qaUploadURL = "https://qa-uploads.arevea.tv/"//need to test in dev
-    var shareURL = "https://dev.arevea.tv/channel/";
-    var paymentBaseURL = "https://dev.arevea.tv/api/payment/v1/";
+    var profileURL = "https://dev.arevea.tv/api/user/v1";
+    var qaUploadURL = "https://qa-uploads.arevea.tv"//need to test in dev
+    var shareURL = "https://dev.arevea.tv/channel";
+    var paymentBaseURL = "https://dev.arevea.tv/api/payment/v1";
+    var paymentRedirectionURL = "https://dev.arevea.tv/payment";
     var cloudSearchURL = "https://r5ibd3yzp7.execute-api.us-west-2.amazonaws.com/devel/search";
-    var paymentRedirectionURL = "https://dev.arevea.tv/payment/";
     var x_api_key = "x-api-key"
-    var x_api_value = "ORnphwUvEBoqHaoIDBIA2GOhYF0HHQ53JPkLwFM5";//X_API_KEY
+    var x_api_value = "ORnphwUvEBoqHaoIDBIA2GOhYF0HHQ53JPkLwFM5";
     var AWSCognitoIdentityPoolId = "us-west-2:2f173740-e6a4-4fc5-a37a-3064ac25e1bc"
-    var MULTI_STREAM_GRAPHQL_API_KEY = "da2-uozdgp6u6rainl2dl5v7ayzena";
-    var MULTI_STREAM_GRAPHQL_SERVER_URL = "https://37g7lmpcpbbm7jblrdlaqfz5ci.appsync-api.us-west-2.amazonaws.com/graphql"*/
     //Dev Variables END
 
     // MARK: - QA Environmet Variables Declaration
-    var baseURL = "https://eku2g4rzxl.execute-api.us-west-2.amazonaws.com/dev"
+    /*var baseURL = "https://eku2g4rzxl.execute-api.us-west-2.amazonaws.com/dev"
     var sendBirdAppId = "7AF38850-F099-4C47-BD19-F7F84DAFECF8";
     var profileURL = "https://qa.arevea.tv/api/user/v1"
-    var qaUploadURL = "https://qa-uploads.arevea.tv/"
+    var qaUploadURL = "https://qa-uploads.arevea.tv"
     var shareURL = "https://qa.arevea.tv/channel/"
     var paymentBaseURL = "https://qa.arevea.tv/api/payment/v1";
-    var cloudSearchURL = "https://3ptsrb2obj.execute-api.us-east-1.amazonaws.com/dev/";
-    var paymentRedirectionURL = "https://qa.arevea.tv/payment/";
+    var paymentRedirectionURL = "https://qa.arevea.tv/payment";
+    var cloudSearchURL = "https://3ptsrb2obj.execute-api.us-east-1.amazonaws.com/dev";
     var x_api_key = "x-api-key"
-    var x_api_value = "gq78SwjuLY539BLW5G3dN88IXjVtWPLB1YHL1omd"//X_API_KEY
-    var AWSCognitoIdentityPoolId = "us-west-2:00b71663-b151-44a1-9164-246be7970493"
-    var MULTI_STREAM_GRAPHQL_API_KEY = "da2-ddlr7pazgrfzngyth7hm4bw4d4";
-    var MULTI_STREAM_GRAPHQL_SERVER_URL = "https://b3tciadw35byllatz4xpwibxti.appsync-api.us-west-2.amazonaws.com/graphql";
-    
+    var x_api_value = "gq78SwjuLY539BLW5G3dN88IXjVtWPLB1YHL1omd"
+    var AWSCognitoIdentityPoolId = "us-west-2:00b71663-b151-44a1-9164-246be7970493"*/
     //QA Variables END
+    
     var strCategory = "";
     var genreId = 0;
-    
     var aryCountries = [["region_code":"blr1","countries":["india","sri lanka","bangaldesh","pakistan","china"]],["region_code":"tor1","countries":["canada"]],["region_code":"fra1","countries":["germany"]],["region_code":"lon1","countries":["england"]],["region_code":"sgp1","countries":["singapore"]],["region_code":"sfo1","countries":["United States"]],["region_code":"sfo2","countries":["United States"]],["region_code":"ams2","countries":["netherlands"]],["region_code":"ams3","countries":["netherlands"]],["region_code":"nyc1","countries":["United States"]],["region_code":"nyc2","countries":["United States"]],["region_code":"nyc3","countries":["United States"]]]
     var strCountry = "India"//United States
     var strRegionCode = "blr1"//sfo1
