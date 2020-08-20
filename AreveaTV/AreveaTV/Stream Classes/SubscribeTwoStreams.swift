@@ -138,7 +138,10 @@ class SubscribeTwoStreams: UIViewController , R5StreamDelegate, UITableViewDeleg
     @IBOutlet weak var txtTipCreator: UITextField!
     var selectedCreatorForTip = -1
     var newCommentsSubscriptionWatcher: AWSAppSyncSubscriptionWatcher<OnUpdateMulticreatorshareddataSubscription>?
-    
+    var startSessionResponse =  [String:Any]()
+    var isViewerCountcall = 0;
+    var isStreamStarted = false
+
     // MARK: - View Life Cycle
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -570,6 +573,10 @@ class SubscribeTwoStreams: UIViewController , R5StreamDelegate, UITableViewDeleg
                             }else{
                                 let serverAddress = json["serverAddress"] as? String ?? ""
                                 print("serverAddress:",serverAddress)
+                                if(!self.isStreamStarted){
+                                    self.isStreamStarted = true
+                                    self.startSession()
+                                }
                                 self.config(url: serverAddress,stream:streamName,index: index)
                             }
                         }
@@ -689,6 +696,9 @@ class SubscribeTwoStreams: UIViewController , R5StreamDelegate, UITableViewDeleg
                     UIDevice.current.setValue(value, forKey: "orientation")
                 }
                 closeStream()
+                if(isStreamStarted){
+                    endSession()
+                }
                 self.navigationController!.popToViewController(controller, animated: true)
                 break
             }
@@ -1733,6 +1743,121 @@ class SubscribeTwoStreams: UIViewController , R5StreamDelegate, UITableViewDeleg
         txtTipCreator.text = name
         selectedCreatorForTip = row
     }
+    // MARK: Handler for Metrics
+     func startSession(){
+         
+         let netAvailable = appDelegate.isConnectedToInternet()
+         if(!netAvailable){
+             showAlert(strMsg: "Please check your internet connection!")
+             return
+         }
+         viewActivity.isHidden = false
+         let httpMethodName = "POST"
+         let URLString: String = "/startSession"
+         let user_id = UserDefaults.standard.string(forKey: "user_id");
+         var streamIdLocal = "0"
+         if (streamId != 0){
+             streamIdLocal = String(streamId)
+         }
+         let params: [String: Any] = [ "user_id": user_id ?? "0",
+                                       "event_id": streamIdLocal,
+                                       "organization_id" : orgId,
+                                       "performer_id" : performerId,
+                                       "filekey": "stream_metrics/" + streamVideoCode + "/"]
+         print("params:",params)
+
+         //print("performerEvents params:",params);
+         let headerParameters = [
+             "Content-Type": "application/json",
+             "Accept": "application/json"
+         ]
+         // Construct the request object
+         let apiRequest = AWSAPIGatewayRequest(httpMethod: httpMethodName,
+                                               urlString: URLString,
+                                               queryParameters: [:],
+                                               headerParameters: headerParameters,
+                                               httpBody: params)
+         // Fetch the Cloud Logic client to be used for invocation
+         let invocationClient = AreveaAPIClient.client(forKey:appDelegate.AWSCognitoIdentityPoolId)
+         invocationClient.invoke(apiRequest).continueWith { (task: AWSTask) -> Any? in
+             if let error = task.error {
+                 //print("Error occurred: \(error)")
+                 self.showAlert(strMsg: error as? String ?? error.localizedDescription)
+                 // Handle error here
+                 return nil
+             }
+             // Handle successful result here
+             let result = task.result!
+             let responseString = String(data: result.responseData!, encoding: .utf8)
+             let data = responseString!.data(using: .utf8)!
+             do {
+                 let resultObj = try JSONSerialization.jsonObject(with: data, options : .allowFragments)
+                 DispatchQueue.main.async {
+                     self.viewActivity.isHidden = true
+                     // //print(resultObj)
+                     if let json = resultObj as? [String: Any] {
+                         print("startSession json:",json);
+                         if (json["statusCode"]as? String == "200"){
+                             //print(json["message"] as? String ?? "")
+                             //let data  = json["Data"] as? [String:Any] ?? [:];
+                             self.startSessionResponse = json
+                             self.isViewerCountcall = 1;
+                         }else{
+                             let strError = json["message"] as? String
+                             //print("strError2:",strError ?? "")
+                             self.showAlert(strMsg: strError ?? "")
+                         }
+                     }
+                 }
+             } catch let error as NSError {
+                 //print(error)
+                 self.showAlert(strMsg: error.localizedDescription)
+             }
+             return nil
+         }
+     }
+     
     
+     // MARK: Handler for endSession API
+     func endSession(){
+         let netAvailable = appDelegate.isConnectedToInternet()
+         if(!netAvailable){
+             showAlert(strMsg: "Please check your internet connection!")
+             return
+         }
+         viewActivity.isHidden = false
+         let url: String = appDelegate.baseURL +  "/endSession"
+         let session_token = UserDefaults.standard.string(forKey: "session_token") ?? ""
+         let user_id = UserDefaults.standard.string(forKey: "user_id");
+                let streamInfo = "stream_metrics/" + self.streamVideoCode + "/" + String(self.streamId)
+                let session_start_time = self.startSessionResponse["session_start_time"] as? String ?? ""
+         let params: [String: Any] = ["id":user_id ?? "","image_for": streamInfo,"session_start_time":session_start_time,"is_final":"true","event_id": String(self.streamId)]
+         print("endSession params:",params)
+
+         let headers: HTTPHeaders = ["Content-type": "multipart/form-data","access_token": session_token,appDelegate.x_api_key: appDelegate.x_api_value]
+         
+         AF.request(url, method: .post,parameters: params, encoding: JSONEncoding.default,headers:headers)
+             .responseJSON { response in
+                 self.viewActivity.isHidden = true
+                 switch response.result {
+                 case .success(let value):
+                     if let json = value as? [String: Any] {
+                         print("endSession JSON:",json)
+                         if (json["statusCode"]as? String == "200"){
+                             
+                         }else{
+                             let strError = json["message"] as? String
+                             //print("strError1:",strError ?? "")
+                             self.showAlert(strMsg: strError ?? "")
+                         }
+                         
+                     }
+                     
+                 case .failure(let error):
+                     //print(error)
+                     self.showAlert(strMsg: error.localizedDescription)
+                 }
+         }
+     }
     
 }

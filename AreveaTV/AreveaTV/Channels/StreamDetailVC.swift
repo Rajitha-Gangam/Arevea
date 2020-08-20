@@ -2177,58 +2177,44 @@ class StreamDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDat
     
    
     // MARK: Handler for endSession API
-    
-    @IBAction func endSession(){
+    func endSession(){
         let netAvailable = appDelegate.isConnectedToInternet()
         if(!netAvailable){
             showAlert(strMsg: "Please check your internet connection!")
             return
         }
         viewActivity.isHidden = false
-        let url = appDelegate.baseURL + "/endSession" /* your API url */
+        let url: String = appDelegate.baseURL +  "/endSession"
         let session_token = UserDefaults.standard.string(forKey: "session_token") ?? ""
-        
-        //let headers: HTTPHeaders
-        //headers = [appDelegate.x_api_key: appDelegate.x_api_value]
-        let headers: HTTPHeaders = ["Content-type": "multipart/form-data","access_token": session_token]
-        saveToJsonFile()
         let user_id = UserDefaults.standard.string(forKey: "user_id");
-        let streamInfo = "stream_metrics/" + self.streamVideoCode + "/" + String(self.streamId)
-        let session_start_time = self.startSessionResponse["session_start_time"] as? String ?? ""
-        
+               let streamInfo = "stream_metrics/" + self.streamVideoCode + "/" + String(self.streamId)
+               let session_start_time = self.startSessionResponse["session_start_time"] as? String ?? ""
         let params: [String: Any] = ["id":user_id ?? "","image_for": streamInfo,"session_start_time":session_start_time,"is_final":"true","event_id": String(self.streamId)]
         print("endSession params:",params)
-        AF.upload(multipartFormData: { (multipartFormData) in
-            for (key, value) in params {
-                multipartFormData.append("\(value)".data(using: String.Encoding.utf8)!, withName: key as String)
-            }
-            guard let documentDirectoryUrl = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else { return }
-            let fileUrl = documentDirectoryUrl.appendingPathComponent("metrics.json")
-            print("fileUrl:",fileUrl)
-            let pdfData = try! Data(contentsOf: fileUrl)
-            var data : Data = pdfData
-            multipartFormData.append(data as Data, withName: "files", fileName: "metrics.json", mimeType:"application/json")
-            print("multipartFormData:",multipartFormData)
-        }, to: url, usingThreshold: UInt64.init(),
-           method: .post,headers: headers).responseJSON{ response in
-            self.viewActivity.isHidden = true
-            switch response.result {
-            case .success(let value):
-                if let json = value as? [String: Any] {
-                    print("endSession:",json)
-                    if (json["status"]as? Int == 200){
-                        //print(json["message"] ?? "")
+
+        let headers: HTTPHeaders = ["Content-type": "multipart/form-data","access_token": session_token,appDelegate.x_api_key: appDelegate.x_api_value]
+        
+        AF.request(url, method: .post,parameters: params, encoding: JSONEncoding.default,headers:headers)
+            .responseJSON { response in
+                self.viewActivity.isHidden = true
+                switch response.result {
+                case .success(let value):
+                    if let json = value as? [String: Any] {
+                        print("endSession JSON:",json)
+                        if (json["statusCode"]as? String == "200"){
+                            
+                        }else{
+                            let strError = json["message"] as? String
+                            //print("strError1:",strError ?? "")
+                            self.showAlert(strMsg: strError ?? "")
+                        }
                         
-                    }else{
-                        let strError = json["message"] as? String
-                        //print(strError ?? "")
-                        self.showAlert(strMsg: strError ?? "")
                     }
+                    
+                case .failure(let error):
+                    //print(error)
+                    self.showAlert(strMsg: error.localizedDescription)
                 }
-            case .failure(let error):
-                //print(error)
-                self.showAlert(strMsg: error.localizedDescription)
-            }
         }
     }
     
