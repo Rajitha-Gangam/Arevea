@@ -47,6 +47,8 @@
 
      
         override func viewWillAppear(_ animated: Bool) {
+            AppDelegate.AppUtility.lockOrientation(.portrait)
+
             txtUserName.text = "";
             txtPassword.text = "";
 //            txtUserName.text = "grajitha2009@gmail.com";

@@ -73,6 +73,8 @@ class PaymentVC: UIViewController,UITextFieldDelegate {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated);
         self.btnUserName.setTitle(appDelegate.USER_NAME, for: .normal)
+        AppDelegate.AppUtility.lockOrientation(.portrait)
+
     }
     func addDoneButton() {
         let toolbar =  UIToolbar(frame: CGRect(x: 0, y: 0, width: view.frame.size.width, height: 35))
@@ -276,9 +278,12 @@ class PaymentVC: UIViewController,UITextFieldDelegate {
                         }
                     }
                 case .failure(let error):
-                    ////print(error)
-                    self.showAlert(strMsg: error.localizedDescription)
-                   self.viewActivity.isHidden = true
+                    if error._code == NSURLErrorTimedOut {
+                        print("Request timeout!")
+                    }else{
+                        self.showAlert(strMsg: error.localizedDescription)
+                        self.viewActivity.isHidden = true
+                    }
                 }
         }
     }
@@ -389,4 +394,10 @@ class PaymentVC: UIViewController,UITextFieldDelegate {
             return true
         }
     }
+    override func viewWillDisappear(_ animated: Bool) {
+        AppDelegate.AppUtility.lockOrientation(.all)
+    }
+    
+   
+
 }

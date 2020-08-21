@@ -195,4 +195,8 @@ class ConfirmSignUpVC: UIViewController,UITextFieldDelegate {
     override var preferredStatusBarStyle: UIStatusBarStyle {
         return .lightContent // .default
     }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        AppDelegate.AppUtility.lockOrientation(.portrait)
+    }
 }

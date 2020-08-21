@@ -181,7 +181,12 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
                     }
                 case .failure(let error):
                     //print(error)
+                   if error._code == NSURLErrorTimedOut {
+                        print("Request timeout!")
+                    }else{
                     self.showAlert(strMsg: error.localizedDescription)
+                    self.viewActivity.isHidden = true
+                    }
                 }
         }
     }
@@ -278,7 +283,12 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
                     }
                 case .failure(let error):
                     //print(error)
+                    if error._code == NSURLErrorTimedOut {
+                        print("Request timeout!")
+                    }else{
                     self.showAlert(strMsg: error.localizedDescription)
+                    self.viewActivity.isHidden = true
+                    }
                 }
         }
     }
@@ -306,7 +316,12 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
                     }
                 case .failure(let error):
                     print("events error:",error ?? "")
+                   if error._code == NSURLErrorTimedOut {
+                        print("Request timeout!")
+                    }else{
                     self.showAlert(strMsg: error.localizedDescription)
+                    self.viewActivity.isHidden = true
+                    }
                 }
         }
     }
@@ -451,7 +466,13 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
                     
                 case .failure(let error):
                     //print(error)
+                    if error._code == NSURLErrorTimedOut {
+                        print("Request timeout!")
+                    }else{
                     self.showAlert(strMsg: error.localizedDescription)
+                    self.viewActivity.isHidden = true
+                    }
+
                 }
         }
     }
@@ -678,29 +699,29 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
             let orgId = streamInfo["organization_id"] as? Int ?? 0
             var streamId = 0
             let performer_id = streamInfo["performer_id"] as? Int ?? 0
+            let stream_video_title = streamInfo["stream_video_title"] as? String ?? "Channel Details"
             if (title == "dashboard_my_list"){
             streamId = streamInfo["stream_video_id"] as? Int ?? 0
             }else{
             streamId = streamInfo["id"] as? Int ?? 0
             }
+            appDelegate.isLiveLoad = "1"
             print("number_of_creators:",number_of_creators)
             if(number_of_creators > 1){
                 let vc = storyboard.instantiateViewController(withIdentifier: "MultiStreamVC") as! MultiStreamVC
                 vc.orgId = orgId
                 vc.streamId = streamId
                 vc.delegate = self
-                appDelegate.isLiveLoad = "1"
                 vc.performerId = performer_id
-                vc.strTitle = streamInfo["stream_video_title"] as? String ?? "Channel Details"
+                vc.strTitle = stream_video_title
                 self.navigationController?.pushViewController(vc, animated: true)
             }else{
                 let vc = storyboard.instantiateViewController(withIdentifier: "StreamDetailVC") as! StreamDetailVC
                 vc.orgId = orgId
                 vc.streamId = streamId
                 vc.delegate = self
-                appDelegate.isLiveLoad = "1"
                 vc.performerId = performer_id
-                vc.strTitle = streamInfo["stream_video_title"] as? String ?? "Channel Details"
+                vc.strTitle = stream_video_title
                 self.navigationController?.pushViewController(vc, animated: true)
             }
         }else if(title == "dashboard_trending_channels"){

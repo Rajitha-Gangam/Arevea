@@ -354,16 +354,22 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
         
     }
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        if (tableView == tblVideos){
+        if (tableView == tblVideos || tableView == tblAudios){
             let cell = tableView.dequeueReusableCell(withIdentifier: "VideoCell") as! VideoCell
-            cell.btnVideo.addTarget(self, action: #selector(playVideoBtnTapped(_:)), for: .touchUpInside)
             cell.btnVideo.tag = indexPath.row
-            
-            cell.btnVideo1.addTarget(self, action: #selector(playVideoBtnTapped(_:)), for: .touchUpInside)
             cell.btnVideo1.tag = indexPath.row
-            let upcoming = self.aryVideos[indexPath.row] as? [String : Any];
-            let strURL = upcoming?["videoThumbImage"] as? String ?? "";
-            let videoTitle = upcoming?["videoTitle"] as? String ?? "";
+            var upcoming = self.aryVideos[indexPath.row] as? [String : Any];
+            if(tableView == tblAudios){
+                upcoming = self.aryAudios[indexPath.row] as? [String : Any];
+                cell.btnVideo.addTarget(self, action: #selector(playAudioBtnTapped(_:)), for: .touchUpInside)
+                cell.btnVideo1.addTarget(self, action: #selector(playAudioBtnTapped(_:)), for: .touchUpInside)
+            }else{
+                cell.btnVideo.addTarget(self, action: #selector(playVideoBtnTapped(_:)), for: .touchUpInside)
+                cell.btnVideo1.addTarget(self, action: #selector(playVideoBtnTapped(_:)), for: .touchUpInside)
+            }
+            let streamInfo = upcoming?["stream_info"] as? [String : Any];
+            let strURL = streamInfo?["video_thumbnail_image"] as? String ?? "";
+            let videoTitle = streamInfo?["stream_video_title"] as? String ?? "";
             cell.lblTitle.text = videoTitle
             print("--vod strURL:",strURL);
             if let urlVideoThumbImage = URL(string: strURL){
@@ -383,13 +389,15 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
                 }
             }
             return cell
-        }else if (tableView == tblUpcoming){
+        }else {
             let cell = tableView.dequeueReusableCell(withIdentifier: "UpcomingCell") as! UpcomingCell
             //2020-04-26T19:28:49.000Z
-            let item = self.aryUpcoming[indexPath.row] as? [String : Any];
+            let upcoming = self.aryUpcoming[indexPath.row] as? [String : Any];
             //print("--upcoming:",item)
-            cell.lblTitle.text = item?["streamTitle"] as? String;
-            let streamStatus = item?["streamStatus"] as? String;
+            let streamInfo = upcoming?["stream_info"] as? [String : Any];
+
+            cell.lblTitle.text = streamInfo?["stream_video_title"] as? String;
+            let streamStatus = streamInfo?["stream_status"] as? String;
             cell.lblStreamStatus.text = "NEW"
             cell.lblStreamStatus.backgroundColor = .lightGray
             if(streamStatus == "inprogress"){
@@ -397,7 +405,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
                 let orange = UIColor(red: 255, green: 115, blue: 90);
                 cell.lblStreamStatus.backgroundColor = orange
             }
-            let isoDate = item?["publishedOn"] as? String ?? ""
+            let isoDate = streamInfo?["publish_date_time"] as? String ?? ""
             let formatter = DateFormatter()
             formatter.timeZone = NSTimeZone(abbreviation: "UTC") as TimeZone?
             //formatter.locale = Locale(identifier: "en_US_POSIX")
@@ -410,41 +418,12 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
                 //print ("invalid date");
                 cell.lblDate.text = "";
             }
-            cell.lblPayment.text = item?["streamPaymentMode"] as? String;
+            cell.lblPayment.text = streamInfo?["stream_payment_mode"] as? String;
             //cell.lblPayment.text = String(item["streamPayment"]as! Int) + " USD"
-            cell.lblSession.text = item?["sessionType"]as? String;
+            cell.lblSession.text = "stream"
             return cell
         }
-        else {
-            //audios
-            let cell = tableView.dequeueReusableCell(withIdentifier: "VideoCell") as! VideoCell
-            cell.btnVideo.addTarget(self, action: #selector(playAudioBtnTapped(_:)), for: .touchUpInside)
-            cell.btnVideo.tag = indexPath.row
-            cell.btnVideo1.addTarget(self, action: #selector(playAudioBtnTapped(_:)), for: .touchUpInside)
-            cell.btnVideo1.tag = indexPath.row
-            let upcoming = self.aryAudios[indexPath.row] as? [String : Any];
-            let strURL = upcoming?["videoThumbImage"] as? String ?? "";
-            let videoTitle = upcoming?["videoTitle"] as? String ?? "";
-            cell.lblTitle.text = videoTitle
-            print("--vod strURL:",strURL);
-            if let urlVideoThumbImage = URL(string: strURL){
-                var imagePlaceHolder = "sample-details"
-                if(UIDevice.current.userInterfaceIdiom == .pad){
-                    imagePlaceHolder = "sample_vod_land"
-                }
-                //self.videoThumbNail(from: urlVideoThumbImage, button: cell.btnVideo)
-                cell.btnVideo.sd_setBackgroundImage(with:urlVideoThumbImage, for:
-                    UIControl.State.normal, placeholderImage: UIImage(named:
-                        imagePlaceHolder))
-            }else{
-                if(UIDevice.current.userInterfaceIdiom == .pad){
-                    cell.btnVideo.setImage((UIImage.init(named: "sample_vod_land")), for: .normal)
-                }else{
-                    cell.btnVideo.setImage((UIImage.init(named: "sample-details")), for: .normal)
-                }
-            }
-            return cell
-        }
+        
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
@@ -454,30 +433,29 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
         tableView.deselectRow(at: indexPath, animated: true)
         if (tableView == tblUpcoming){
             let upcoming = self.aryUpcoming[indexPath.row] as? [String : Any];
-            self.performerId = upcoming?["performer_id"]as? Int ?? 0
-            self.streamId = upcoming?["videoId"] as? Int ?? 0
-            self.streamVideoCode = upcoming?["streamCode"] as? String ?? ""
-            self.orgId = upcoming?["organization_id"]as? Int ?? 0
-
+            let streamInfo = upcoming?["stream_info"] as? [String : Any];
+            let performerId = streamInfo?["performer_id"]as? Int ?? 0
+            let streamId = streamInfo?["id"] as? Int ?? 0
+            //let streamVideoCode = streamInfo?["stream_video_code"] as? String ?? ""
+            let orgId = streamInfo?["organization_id"]as? Int ?? 0
             isVOD = false;
             isUpcoming = true;
-            
             let storyboard = UIStoryboard(name: "Main", bundle: nil);
             let vc = storyboard.instantiateViewController(withIdentifier: "StreamDetailVC") as! StreamDetailVC
-            vc.streamId = self.streamId
+            vc.streamId = streamId
             vc.delegate = self
-            vc.orgId = self.orgId
+            vc.orgId = orgId
             appDelegate.isLiveLoad = "1"
-            vc.performerId = self.performerId;
-            vc.strTitle = upcoming?["streamTitle"] as? String ?? "Channel Details"
+            vc.performerId = performerId;
+            vc.strTitle = streamInfo?["streamTitle"] as? String ?? "Channel Details"
             vc.isUpcoming = true;
             self.navigationController?.pushViewController(vc, animated: true)
             
         }else if  (tableView == tblVideos){
             playVideoFromList(row: indexPath.row)
         }
-        else if  (tableView == tblVideos){
-            playVideoFromList(row: indexPath.row)
+        else if  (tableView == tblAudios){
+            playAudioFromList(row: indexPath.row)
         }
     }
     @objc func playVideoBtnTapped(_ sender: UIButton)
@@ -490,44 +468,44 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
     }
     @objc func playVideoFromList(row:Int){
         let upcoming = self.aryVideos[row] as? [String : Any];
-        self.orgId = upcoming?["organization_id"]as? Int ?? 0
-        self.performerId = upcoming?["performer_id"]as? Int ?? 0
-        self.streamId = upcoming?["videoId"] as? Int ?? 0
-        self.streamVideoCode = upcoming?["videoCode"] as? String ?? ""
+        let streamInfo = upcoming?["stream_info"] as? [String : Any];
+        let performerId = streamInfo?["performer_id"]as? Int ?? 0
+        let streamId = streamInfo?["id"] as? Int ?? 0
+        let orgId = streamInfo?["organization_id"]as? Int ?? 0
         //print("self.streamVideoCode:",self.streamVideoCode)
-        let url = upcoming?["videoUrl"] as? String ?? ""
+        let url = streamInfo?["video_url"] as? String ?? ""
         videoUrl = url
         isVOD = true;
         let storyboard = UIStoryboard(name: "Main", bundle: nil);
         let vc = storyboard.instantiateViewController(withIdentifier: "StreamDetailVC") as! StreamDetailVC
-        vc.streamId = self.streamId
-        vc.orgId = self.orgId
+        vc.streamId = streamId
+        vc.orgId = orgId
         vc.delegate = self
         appDelegate.isLiveLoad = "1"
-        vc.performerId = self.performerId;
-        vc.strTitle = upcoming?["videoTitle"] as? String ?? "Channel Details"
+        vc.performerId = performerId;
+        vc.strTitle = streamInfo?["stream_video_title"] as? String ?? "Channel Details"
         vc.isVOD = true;
         self.navigationController?.pushViewController(vc, animated: true)
     }
     @objc func playAudioFromList(row:Int){
         let upcoming = self.aryAudios[row] as? [String : Any];
-        self.orgId = upcoming?["organization_id"]as? Int ?? 0
-        self.performerId = upcoming?["performer_id"]as? Int ?? 0
-        self.streamId = upcoming?["videoId"] as? Int ?? 0
-        self.streamVideoCode = upcoming?["videoCode"] as? String ?? ""
+        let streamInfo = upcoming?["stream_info"] as? [String : Any];
+        let performerId = streamInfo?["performer_id"]as? Int ?? 0
+        let streamId = streamInfo?["id"] as? Int ?? 0
+        let orgId = streamInfo?["organization_id"]as? Int ?? 0
         //print("self.streamVideoCode:",self.streamVideoCode)
-        let url = upcoming?["videoUrl"] as? String ?? ""
+        let url = streamInfo?["video_url"] as? String ?? ""
         videoUrl = url
         let storyboard = UIStoryboard(name: "Main", bundle: nil);
         let vc = storyboard.instantiateViewController(withIdentifier: "StreamDetailVC") as! StreamDetailVC
-        vc.streamId = self.streamId
+        vc.streamId = streamId
         vc.delegate = self
         appDelegate.isLiveLoad = "1"
-        vc.performerId = self.performerId;
-        vc.strTitle = upcoming?["videoTitle"] as? String ?? "Channel Details"
+        vc.performerId = performerId;
+        vc.strTitle = streamInfo?["stream_video_title"] as? String ?? "Channel Details"
         vc.isAudio = true;
-        vc.orgId = self.orgId
-        let  videoUrl = upcoming?["videoUrl"] as? String ?? ""
+        vc.orgId = orgId
+        let  videoUrl = streamInfo?["video_url"] as? String ?? ""
         print("videoUrl:",videoUrl)
         vc.strAudioSource = videoUrl
         self.navigationController?.pushViewController(vc, animated: true)
@@ -626,7 +604,12 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
                     
                 case .failure(let error):
                     //print(error)
+                    if error._code == NSURLErrorTimedOut {
+                        print("Request timeout!")
+                    }else{
                     self.showAlert(strMsg: error.localizedDescription)
+                    self.viewActivity.isHidden = true
+                    }
                 }
         }
     }
@@ -737,7 +720,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
                     
                     //print(resultObj)
                     if let json = resultObj as? [String: Any] {
-                        // //print("performerVideos json:",json);
+                        print("performerVideos json:",json);
                         print("videos count:",self.aryVideos.count);
                         
                         if (json["statusCode"]as? String == "200"){
@@ -805,7 +788,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
                     self.viewActivity.isHidden = true
                     
                     if let json = resultObj as? [String: Any] {
-                        //print("performerAudios json:",json);
+                        print("performerAudios json:",json);
                         if (json["statusCode"]as? String == "200"){
                             //print(json["message"] as? String ?? "")
                             self.aryAudios = json["Data"] as? [Any] ?? [Any]() ;
@@ -884,17 +867,21 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
                     }
                     
                 case .failure(let error):
-                    //print(error)
+                    if error._code == NSURLErrorTimedOut {
+                        print("Request timeout!")
+                    }else{
                     self.showAlert(strMsg: error.localizedDescription)
+                    self.viewActivity.isHidden = true
+                    }
                 }
         }
     }
     
     
     override func viewWillDisappear(_ animated: Bool) {
-        
         self.navigationController?.isNavigationBarHidden = true
         NotificationCenter.default.removeObserver(self)
+        AppDelegate.AppUtility.lockOrientation(.all)
     }
     
     
@@ -917,10 +904,11 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
     }
     // MARK: - Send Bird Methods
     
+   
     
-    
-    
-    
+    override func viewWillAppear(_ animated: Bool) {
+        AppDelegate.AppUtility.lockOrientation(.portrait)
+    }
     
     deinit {
         print("Remove NotificationCenter Deinit")

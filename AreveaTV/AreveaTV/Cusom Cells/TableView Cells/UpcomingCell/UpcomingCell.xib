@@ -92,9 +92,9 @@
                                 </variation>
                             </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="24 APR 2020 ,11:20 AM" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="1s3-N0-EZV">
-                                <rect key="frame" x="120" y="73" width="219" height="18"/>
+                                <rect key="frame" x="120" y="73" width="219" height="23"/>
                                 <constraints>
-                                    <constraint firstAttribute="height" constant="18" id="7jy-Yp-NqJ"/>
+                                    <constraint firstAttribute="height" constant="23" id="7jy-Yp-NqJ"/>
                                 </constraints>
                                 <fontDescription key="fontDescription" name="Poppins-Regular" family="Poppins" pointSize="17"/>
                                 <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -145,7 +145,7 @@
                             <constraint firstItem="1s3-N0-EZV" firstAttribute="leading" secondItem="WfS-Eb-anU" secondAttribute="trailing" constant="12" id="EbN-QP-jdE"/>
                             <constraint firstItem="apf-QH-yI1" firstAttribute="leading" secondItem="aa3-M1-Eid" secondAttribute="leading" constant="10" id="FjD-2S-gyG"/>
                             <constraint firstItem="apf-QH-yI1" firstAttribute="top" secondItem="aa3-M1-Eid" secondAttribute="top" constant="15" id="Frw-qK-8D7"/>
-                            <constraint firstItem="OS8-zD-QgK" firstAttribute="top" secondItem="1s3-N0-EZV" secondAttribute="bottom" constant="10" id="GU6-aJ-YbJ"/>
+                            <constraint firstItem="OS8-zD-QgK" firstAttribute="top" secondItem="1s3-N0-EZV" secondAttribute="bottom" constant="5" id="GU6-aJ-YbJ"/>
                             <constraint firstAttribute="trailing" secondItem="Qxe-vk-5FM" secondAttribute="trailing" id="PZz-Zl-HDR"/>
                             <constraint firstAttribute="trailingMargin" secondItem="OS8-zD-QgK" secondAttribute="trailing" constant="8" id="U3J-BE-MPJ"/>
                             <constraint firstAttribute="trailing" secondItem="CVj-Na-oI1" secondAttribute="trailing" constant="5" id="VOH-AI-UuP"/>

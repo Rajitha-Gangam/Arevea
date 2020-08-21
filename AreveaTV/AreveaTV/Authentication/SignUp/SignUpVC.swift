@@ -333,4 +333,8 @@ class SignUpVC: UIViewController ,UITextFieldDelegate,UIPickerViewDelegate, UIPi
         print("Remove NotificationCenter Deinit")
         NotificationCenter.default.removeObserver(self)
     }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        AppDelegate.AppUtility.lockOrientation(.portrait)
+    }
 }

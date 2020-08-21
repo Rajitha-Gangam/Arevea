@@ -48,7 +48,7 @@ class SubscribeTwoStreams: UIViewController , R5StreamDelegate, UITableViewDeleg
     @IBOutlet weak var viewControls: UIView?
 
     @IBOutlet weak var tblComments: UITableView!
-    var aryStreamInfo = [Any]()
+    var aryStreamInfo = [String: Any]()
     var aryUserSubscriptionInfo = [Any]()
     
     var subscribeStream1 : R5Stream? = nil
@@ -149,7 +149,7 @@ class SubscribeTwoStreams: UIViewController , R5StreamDelegate, UITableViewDeleg
         // Do any additional setup after loading the view.
         appSyncClient = appDelegate.appSyncClient
         
-        
+        print("resultData:",resultData)
         btnShare?.layer.borderWidth = 2
         btnTips?.layer.borderWidth = 2
         btnDonations?.layer.borderWidth = 2
@@ -169,15 +169,16 @@ class SubscribeTwoStreams: UIViewController , R5StreamDelegate, UITableViewDeleg
             self.aryCharityInfo = resultData["charity_info"] as? [Any] ?? [Any]()
             self.tblDonations.reloadData()
         }
-        self.aryStreamInfo = resultData["stream_info"] as? [Any] ?? [Any]()
-        if (self.aryStreamInfo.count > 0){
-            let streamObj = self.aryStreamInfo[0] as? [String:Any]
-            self.streamId = streamObj?["id"] as? Int ?? 0
-            self.streamVideoCode = streamObj?["stream_video_code"] as? String ?? ""
+        self.aryStreamInfo = resultData["stream_info"] as? [String:Any] ?? [:]
+        let stream_info_key_exists = self.aryStreamInfo["id"]
+        if (stream_info_key_exists != nil){
+            self.streamId = aryStreamInfo["id"] as? Int ?? 0
+            self.streamVideoCode = aryStreamInfo["stream_video_code"] as? String ?? ""
             self.isChannelAvailable = true
             self.sendBirdChatConfig()
             self.sendBirdEmojiConfig()
         }
+        
         
         sliderVolume.minimumValue = 0
         sliderVolume.maximumValue = 100
@@ -214,7 +215,7 @@ class SubscribeTwoStreams: UIViewController , R5StreamDelegate, UITableViewDeleg
         tblComments.rowHeight = 40
         tblComments.estimatedRowHeight = UITableView.automaticDimension
         lblNoStream.text = "Please wait for the host to start the live stream"
-        
+        lblNoDataComments.text = ""
         getGuestDetailInGraphql(.returnCacheDataAndFetch)
         do {
             try startSubscription()
@@ -840,8 +841,6 @@ class SubscribeTwoStreams: UIViewController , R5StreamDelegate, UITableViewDeleg
                 lblNoDataComments.text = ""
             }else{
                 tblComments.isHidden = true
-                //lblNoDataComments.text = "Channel is unavailable"
-                
             }
             return self.messages.count;
         }
@@ -1859,5 +1858,12 @@ class SubscribeTwoStreams: UIViewController , R5StreamDelegate, UITableViewDeleg
                  }
          }
      }
+    override func viewWillDisappear(_ animated: Bool) {
+       AppDelegate.AppUtility.lockOrientation(.all)
+    }
     
+    override func viewWillAppear(_ animated: Bool) {
+        AppDelegate.AppUtility.lockOrientation(.landscape)
+    }
+
 }

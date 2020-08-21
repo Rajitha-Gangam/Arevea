@@ -95,6 +95,8 @@ class ChannelsVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Col
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated);
         self.btnUserName.setTitle(appDelegate.USER_NAME, for: .normal)
+        AppDelegate.AppUtility.lockOrientation(.portrait)
+
     }
     func filterCVSetup(){
         self.collectionViewFilter.dataSource = self
@@ -159,7 +161,12 @@ class ChannelsVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Col
                     }
                 case .failure(let error):
                     //print(error)
+                   if error._code == NSURLErrorTimedOut {
+                        print("Request timeout!")
+                    }else{
                     self.showAlert(strMsg: error.localizedDescription)
+                    self.viewActivity.isHidden = true
+                    }
                 }
         }
     }
@@ -277,7 +284,12 @@ class ChannelsVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Col
                     }
                 case .failure(let error):
                     //print(error)
+                    if error._code == NSURLErrorTimedOut {
+                        print("Request timeout!")
+                    }else{
                     self.showAlert(strMsg: error.localizedDescription)
+                    self.viewActivity.isHidden = true
+                    }
                 }
         }
     }
@@ -527,4 +539,10 @@ extension ChannelsVC: UICollectionViewDataSource , UICollectionViewDelegateFlowL
             tblMain.reloadData()
         }
     }
+    override func viewWillDisappear(_ animated: Bool) {
+        AppDelegate.AppUtility.lockOrientation(.all)
+    }
+    
+    
+
 }

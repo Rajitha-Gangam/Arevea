@@ -597,7 +597,12 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
                 }
             case .failure(let error):
                 //print(error)
+                if error._code == NSURLErrorTimedOut {
+                    print("Request timeout!")
+                }else{
                 self.showAlert(strMsg: error.localizedDescription)
+                self.viewActivity.isHidden = true
+                }
             }
         }
     }
@@ -659,7 +664,12 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
                     }
                 case .failure(let error):
                     //print(error)
+                   if error._code == NSURLErrorTimedOut {
+                        print("Request timeout!")
+                    }else{
                     self.showAlert(strMsg: error.localizedDescription)
+                    self.viewActivity.isHidden = true
+                    }
                 }
         }
     }
@@ -681,5 +691,11 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
         let selectedItem = pickerData[row]
         txtDOB.text = selectedItem
+    }
+    override func viewWillDisappear(_ animated: Bool) {
+        AppDelegate.AppUtility.lockOrientation(.all)
+    }
+    override func viewWillAppear(_ animated: Bool) {
+        AppDelegate.AppUtility.lockOrientation(.portrait)
     }
 }

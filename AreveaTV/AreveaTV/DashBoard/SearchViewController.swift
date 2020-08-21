@@ -334,8 +334,13 @@
                         }
                     //searchList
                     case .failure(let error):
-                        print(error.localizedDescription)
-                        self.showAlert(strMsg: "Error occured. Please try again later")
+                       if error._code == NSURLErrorTimedOut {
+                            print("Request timeout!")
+                        }else{
+                        self.showAlert(strMsg: error.localizedDescription)
+                        self.viewActivity.isHidden = true
+                        }
+
                     }
             }
         }
@@ -554,6 +559,14 @@
                 return CGSize(width: width, height: 180.0)
             }
         }
+        override func viewWillDisappear(_ animated: Bool) {
+            AppDelegate.AppUtility.lockOrientation(.all)
+        }
+        
+        override func viewWillAppear(_ animated: Bool) {
+            AppDelegate.AppUtility.lockOrientation(.portrait)
+        }
+
         
     }
     

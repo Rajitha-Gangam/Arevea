@@ -38,7 +38,7 @@ class MultiStreamVC: UIViewController,UICollectionViewDataSource,UITableViewData
     @IBOutlet weak var viewLiveStream: UIView!
     var dicPerformerInfo = [String: Any]()
     var aryCharityInfo = [Any]()
-    var aryStreamInfo = [Any]()
+    var aryStreamInfo = [String: Any]()
     var aryUserSubscriptionInfo = [Any]()
     var orgId = 0;
     var performerId = 0;
@@ -309,6 +309,8 @@ class MultiStreamVC: UIViewController,UICollectionViewDataSource,UITableViewData
         NotificationCenter.default.addObserver(self, selector: #selector(applicationDidBecomeActive), name: UIApplication.didBecomeActiveNotification, object: nil)
         
         NotificationCenter.default.addObserver(self, selector: #selector(StreamNotificationHandler(_:)), name: .didReceiveStreamData, object: nil)
+        AppDelegate.AppUtility.lockOrientation(.portrait)
+        
     }
     
     @objc func StreamNotificationHandler(_ notification:Notification) {
@@ -354,7 +356,7 @@ class MultiStreamVC: UIViewController,UICollectionViewDataSource,UITableViewData
         // Application is back in the foreground
         //print("====applicationDidBecomeActive")
         //if user comes from payment redirection, need to refresh stream/vod
-        multiCreatorLiveEvents()
+        LiveEventById()
     }
     func registerNibs() {
         if(UIDevice.current.userInterfaceIdiom == .pad){
@@ -391,7 +393,7 @@ class MultiStreamVC: UIViewController,UICollectionViewDataSource,UITableViewData
             
             isLoaded = 1;
             appDelegate.isLiveLoad = "0";
-            multiCreatorLiveEvents();
+            LiveEventById();
             //getPerformerOrgInfo();
             hideViews();
             
@@ -689,7 +691,7 @@ class MultiStreamVC: UIViewController,UICollectionViewDataSource,UITableViewData
         }
         return nil
     }
-
+    
     override var preferredStatusBarStyle: UIStatusBarStyle {
         return .lightContent // .default
     }
@@ -847,11 +849,16 @@ class MultiStreamVC: UIViewController,UICollectionViewDataSource,UITableViewData
                     }
                 case .failure(let error):
                     ////print(error)
-                    self.showAlert(strMsg: error.localizedDescription)
+                    if error._code == NSURLErrorTimedOut {
+                        print("Request timeout!")
+                    }else{
+                        self.showAlert(strMsg: error.localizedDescription)
+                        self.viewActivity.isHidden = true
+                    }
                 }
         }
     }
-   
+    
     @objc func share(_ sender: Any) {
         
         let performerInfo = self.strTitle + "/" + String(self.performerId) + "/live/";
@@ -904,9 +911,7 @@ class MultiStreamVC: UIViewController,UICollectionViewDataSource,UITableViewData
             self.present(alert, animated: true)
         }
     }
-
-    
-    func multiCreatorLiveEvents() {
+    func LiveEventById() {
         /* viewVOD.isHidden = false
          viewLiveStream.isHidden = true
          self.showVideo(strURL: "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4");
@@ -918,69 +923,48 @@ class MultiStreamVC: UIViewController,UICollectionViewDataSource,UITableViewData
             return
         }
         viewActivity.isHidden = false
-        let httpMethodName = "POST"
-        let URLString: String = "/multiCreatorLiveEvents"
-        //let user_id = UserDefaults.standard.string(forKey: "user_id");
-        let user_id = "3dd42189-1741-4ced-832e-907bf210c05a"
+        let url: String = appDelegate.baseURL +  "/LiveEventById"
+        let user_id = UserDefaults.standard.string(forKey: "user_id");
         var streamIdLocal = "0"
         if (streamId != 0){
             streamIdLocal = String(streamId)
         }
-        let params: [String: Any] = ["userid":user_id ?? "","performer_id":performerId,"stream_id": streamIdLocal]
-        print("multiCreatorLiveEvents params:",params)
-        // let params: [String: Any] = ["userid":user_id ?? "","performer_id":"101","stream_id": "0"]
+        let headers: HTTPHeaders
+        headers = [appDelegate.x_api_key: appDelegate.x_api_value]
         
-        let headerParameters = [
-            "Content-Type": "application/json",
-            "Accept": "application/json"
-        ]
-        // Construct the request object
-        let apiRequest = AWSAPIGatewayRequest(httpMethod: httpMethodName,
-                                              urlString: URLString,
-                                              queryParameters: [:],
-                                              headerParameters: headerParameters,
-                                              httpBody: params)
-        // Fetch the Cloud Logic client to be used for invocation
-        let invocationClient = AreveaAPIClient.client(forKey:appDelegate.AWSCognitoIdentityPoolId)
-        invocationClient.invoke(apiRequest).continueWith { (task: AWSTask) -> Any? in
-            if let error = task.error {
-                //print("Error occurred: \(error)")
-                self.showAlert(strMsg: error as? String ?? error.localizedDescription)
-                // Handle error here
-                return nil
-            }
-            // Handle successful result here
-            let result = task.result!
-            let responseString = String(data: result.responseData!, encoding: .utf8)
-            let data = responseString!.data(using: .utf8)!
-            do {
-                let resultObj = try JSONSerialization.jsonObject(with: data, options : .allowFragments)
-                DispatchQueue.main.async {
-                    self.viewActivity.isHidden = true
-                    self.btnPlayStream.isUserInteractionEnabled = true
-                    
-                    if let json = resultObj as? [String: Any] {
-                        print("multiCreatorLiveEvents json:",json);
+        let params: [String: Any] = ["userid":user_id ?? "","performer_id":performerId,"stream_id": streamIdLocal]
+        print("liveEvents params:",params)
+        // let params: [String: Any] = ["userid":user_id ?? "","performer_id":"101","stream_id": "0"]
+        AF.request(url, method: .post,parameters: params, encoding: JSONEncoding.default,headers:headers)
+            .responseJSON { response in
+                self.viewActivity.isHidden = true
+                switch response.result {
+                case .success(let value):
+                    if let json = value as? [String: Any] {
+                        print("LiveEventById JSON:",json)
                         if (json["statusCode"]as? String == "200"){
+                            
                             //print(json["message"] as? String ?? "")
                             let data = json["Data"] as? [String:Any]
                             self.resultData = data ?? [:]
-                            self.aryStreamInfo = data?["stream_info"] as? [Any] ?? [Any]()
-                            if (self.aryStreamInfo.count > 0){
+                            self.aryStreamInfo = data?["stream_info"] as? [String:Any] ?? [:]
+                            let stream_info_key_exists = self.aryStreamInfo["id"]
+                            if (stream_info_key_exists != nil){
                                 self.viewLiveStream.isHidden = false;
                                 self.btnPlayStream.setImage(UIImage.init(named: "video-play"), for: .normal)
                                 self.btnPlayStream.isHidden = true;
-                                let streamObj = self.aryStreamInfo[0] as? [String:Any]
-                                self.streamId = streamObj?["id"] as? Int ?? 0
-                                self.age_limit = streamObj?["age_limit"] as? Int ?? 0
-                                self.streamVideoCode = streamObj?["stream_video_code"] as? String ?? ""
-                                let streamVideoTitle = streamObj?["stream_video_title"] as? String ?? ""
+                                let streamObj = self.aryStreamInfo
+                                self.streamId = streamObj["id"] as? Int ?? 0
+                                self.age_limit = streamObj["age_limit"] as? Int ?? 0
+                                self.streamVideoCode = streamObj["stream_video_code"] as? String ?? ""
+                                let streamVideoTitle = streamObj["stream_video_title"] as? String ?? ""
+                                print("==streamVideoTitle:",streamVideoTitle)
                                 self.isChannelAvailable = true
                                 self.sendBirdChatConfig()
                                 self.sendBirdEmojiConfig()
-                                self.streamVideoDesc = streamObj?["stream_video_description"] as? String ?? ""
+                                self.streamVideoDesc = streamObj["stream_video_description"] as? String ?? ""
                                 // "currency_type" = USD;
-                                var currency_type = streamObj?["currency_type"] as? String ?? ""
+                                var currency_type = streamObj["currency_type"] as? String ?? ""
                                 if(currency_type == "GBP"){
                                     currency_type = "£"
                                 }else{
@@ -988,35 +972,35 @@ class MultiStreamVC: UIViewController,UICollectionViewDataSource,UITableViewData
                                 }
                                 var amount = "0.0"
                                 
-                                if (streamObj?["stream_payment_amount"] as? Double) != nil {
-                                    amount = String(streamObj?["stream_payment_amount"] as? Double ?? 0.0)
-                                }else if (streamObj?["stream_payment_amount"] as? String) != nil {
-                                    amount = String(streamObj?["stream_payment_amount"] as? String ?? "0.0")
+                                if (streamObj["stream_payment_amount"] as? Double) != nil {
+                                    amount = String(streamObj["stream_payment_amount"] as? Double ?? 0.0)
+                                }else if (streamObj["stream_payment_amount"] as? String) != nil {
+                                    amount = String(streamObj["stream_payment_amount"] as? String ?? "0.0")
                                 }
                                 
                                 let titleWatchNow = "WATCH NOW | " + currency_type + amount
                                 self.btnPayPerView.setTitle(titleWatchNow, for: .normal)
                                 
-                                let streamBannerURL = streamObj?["video_thumbnail_image"] as? String ?? ""
+                                let streamBannerURL = streamObj["video_thumbnail_image"] as? String ?? ""
                                 if let urlBanner = URL(string: streamBannerURL){
-                                    var imgPlaceHolder = "sample_vod_square"
+                                    var imageName = "sample_vod_square"
                                     if(UIDevice.current.userInterfaceIdiom == .pad){
-                                       imgPlaceHolder = "sample-event"
+                                        imageName = "sample-event"
                                     }
-                                    self.imgStreamThumbNail.sd_setImage(with: urlBanner, placeholderImage: UIImage(named: imgPlaceHolder))
+                                    self.imgStreamThumbNail.sd_setImage(with:urlBanner, placeholderImage: UIImage(named: imageName))
                                 }
                                 
-                                self.paymentAmount = streamObj?["stream_payment_amount"]as? Int ?? 0
+                                self.paymentAmount = streamObj["stream_payment_amount"]as? Int ?? 0
                                 self.lblVideoTitle_info.text = streamVideoTitle
-                                self.streamPaymentMode = streamObj?["stream_payment_mode"] as? String ?? ""
+                                self.streamPaymentMode = streamObj["stream_payment_mode"] as? String ?? ""
                             }else{
                                 //if we get any error default, we are showing VOD
                                 self.viewLiveStream.isHidden = false;
                                 //self.lblVODUnavailable.text = "Stream Info not found"
-                                self.lblStreamUnavailable.text = "Please wait for the host to start the live stream"
-                                self.btnPlayStream.isHidden = false
-                                self.btnPlayStream.setImage(UIImage.init(named: "refresh"), for: .normal)
-                                self.btnPlayStream.isUserInteractionEnabled = false
+                                    self.lblStreamUnavailable.text = "Please wait for the host to start the live stream"
+                                    self.btnPlayStream.isHidden = false
+                                    self.btnPlayStream.setImage(UIImage.init(named: "refresh"), for: .normal)
+                                    self.btnPlayStream.isUserInteractionEnabled = false
                                 //ALToastView.toast(in: self.viewVOD, withText:"Stream Info not found")
                             }
                             let user_subscription_info = data?["user_subscription_info"] != nil
@@ -1034,14 +1018,12 @@ class MultiStreamVC: UIViewController,UICollectionViewDataSource,UITableViewData
                                     self.isChannelAvailable = false
                                 }else{
                                     self.btnPayPerView.isHidden = true
-                                    if (self.aryStreamInfo.count > 0){
-                                        let streamObj = self.aryStreamInfo[0] as? [String:Any]
-                                        if (streamObj?["stream_vod"]as? String == "stream"){
+                                    if (stream_info_key_exists != nil){
+                                        let streamObj = self.aryStreamInfo
                                             self.viewLiveStream.isHidden = false;
                                             self.btnPlayStream.isHidden = true;
                                             self.lblStreamUnavailable.text = "";
                                             self.setLiveStreamConfig()
-                                        }
                                     }
                                 }
                             }else{
@@ -1052,18 +1034,22 @@ class MultiStreamVC: UIViewController,UICollectionViewDataSource,UITableViewData
                                 self.lblStreamUnavailable.text = "This vidoe may be inappropriate for some users"
                                 
                             }
-                            
+                            let charity_info = data?["charity_info"] != nil
+                            if(charity_info){
+                                self.aryCharityInfo = data?["charity_info"] as? [Any] ?? [Any]()
+                                self.tblDonations.reloadData()
+                            }
                             let performer_info = data?["performer_info"] != nil
                             if(performer_info){
                                 self.dicPerformerInfo = data?["performer_info"] as? [String : Any] ?? [String:Any]()
                                 let performerName = self.dicPerformerInfo["performer_display_name"] as? String ?? ""
                                 var firstChar = ""
-
+                                
                                 let fullNameArr = performerName.components(separatedBy: " ")
-                                let firstName: String = fullNameArr[0] ?? " "
+                                let firstName: String = fullNameArr[0]
                                 var lastName = ""
-                                if (fullNameArr.count ?? 0 > 1){
-                                    lastName = fullNameArr[1] ?? ""
+                                if (fullNameArr.count > 1){
+                                    lastName = fullNameArr[1]
                                 }
                                 if (lastName == ""){
                                     firstChar = String(firstName.first!)
@@ -1071,7 +1057,6 @@ class MultiStreamVC: UIViewController,UICollectionViewDataSource,UITableViewData
                                     firstChar = String(firstName.first!) + String(lastName.first!)
                                 }
                                 self.lblPerformerName.text = firstChar
-                                
                                 /* var performer_bio = self.dicPerformerInfo["performer_bio"] as? String ?? ""
                                  performer_bio = performer_bio.htmlToString
                                  
@@ -1082,18 +1067,14 @@ class MultiStreamVC: UIViewController,UICollectionViewDataSource,UITableViewData
                                 self.txtVideoDesc_Info.text = videoDesc  + "\n\n" + creatorName
                                 
                                 self.app_id_for_adds = self.dicPerformerInfo["app_id"] as? String ?? "0"
-                                if (self.aryStreamInfo.count == 0){
+                                if (stream_info_key_exists == nil){
                                     //performer_profile_banner
                                     let performer_profile_banner = self.dicPerformerInfo["performer_profile_banner"] as? String ?? ""
                                     if let urlBanner = URL(string: performer_profile_banner){
-                                        var imgPlaceHolder = "sample_vod_square"
-                                        if(UIDevice.current.userInterfaceIdiom == .pad){
-                                           imgPlaceHolder = "sample-event"
-                                        }
-                                        self.imgStreamThumbNail.sd_setImage(with: urlBanner, placeholderImage: UIImage(named: imgPlaceHolder))
+                                        self.imgStreamThumbNail.sd_setImage(with: urlBanner, placeholderImage: UIImage(named: "sample_vod_square"))
                                     }
                                 }
-                                let performer_profile_banner1 = self.dicPerformerInfo["performer_profile_banner"] as? String ?? ""
+                                let performer_profile_banner1 = self.dicPerformerInfo["performer_profile_pic"] as? String ?? ""
                                 if let urlBanner = URL(string: performer_profile_banner1){
                                     self.imgPerformer.sd_setImage(with: urlBanner, placeholderImage: UIImage(named: "user"))
                                     self.imgPerformer.layer.cornerRadius = self.imgPerformer.frame.size.width/2
@@ -1105,26 +1086,27 @@ class MultiStreamVC: UIViewController,UICollectionViewDataSource,UITableViewData
                                     self.lblPerformerName.isHidden = false
                                 }
                                 //print("self.app_id_for_adds:",self.app_id_for_adds)
-                            }else{
-                                self.txtProfile.text = ""
-                                
                             }
-                        }else{
+                        }
+                        else{
                             let strError = json["message"] as? String
                             //print("strError1:",strError ?? "")
                             self.showAlert(strMsg: strError ?? "")
-                            self.viewLiveStream.isHidden = false;
+                            self.viewLiveStream.isHidden = true;
                         }
-                        
+                    }
+                case .failure(let error):
+                    //print(error)
+                    if error._code == NSURLErrorTimedOut {
+                        print("Request timeout!")
+                    }else{
+                        self.showAlert(strMsg: error.localizedDescription)
                     }
                 }
-            } catch let error as NSError {
-                //print(error)
-                self.showAlert(strMsg: error.localizedDescription)
-            }
-            return nil
         }
     }
+    
+    
     
     
     // MARK: - Stream Methods
@@ -1180,10 +1162,10 @@ class MultiStreamVC: UIViewController,UICollectionViewDataSource,UITableViewData
         self.configureStreamView()
     }
     func configureStreamView() {
-        if(UIDevice.current.userInterfaceIdiom == .phone){
-        let value = UIInterfaceOrientation.landscapeRight.rawValue
-        UIDevice.current.setValue(value, forKey: "orientation")
-        }
+//        if(UIDevice.current.userInterfaceIdiom == .phone){
+//            let value = UIInterfaceOrientation.landscapeRight.rawValue
+//            UIDevice.current.setValue(value, forKey: "orientation")
+//        }
         
         let storyboard = UIStoryboard(name: "Main", bundle: nil);
         let vc = storyboard.instantiateViewController(withIdentifier: "SubscribeTwoStreams") as! SubscribeTwoStreams
@@ -1208,6 +1190,8 @@ class MultiStreamVC: UIViewController,UICollectionViewDataSource,UITableViewData
         
         self.navigationController?.isNavigationBarHidden = true
         NotificationCenter.default.removeObserver(self)
+        AppDelegate.AppUtility.lockOrientation(.all)
+        
     }
     func closeStream(){
         self.viewLiveStream.isHidden = true;
@@ -1863,6 +1847,8 @@ class MultiStreamVC: UIViewController,UICollectionViewDataSource,UITableViewData
             print("live Portrait")
         }
     }
+    
+    
     
 }
 

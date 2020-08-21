@@ -211,5 +211,12 @@ class MyEventsVC: UIViewController,OpenChanannelChatDelegate,UITableViewDelegate
     override var preferredStatusBarStyle: UIStatusBarStyle {
         return .lightContent // .default
     }
+    override func viewWillDisappear(_ animated: Bool) {
+        AppDelegate.AppUtility.lockOrientation(.all)
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        AppDelegate.AppUtility.lockOrientation(.portrait)
+    }
 }
 

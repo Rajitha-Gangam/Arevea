@@ -28,6 +28,11 @@ class ResetPasswordVC: UIViewController ,UITextFieldDelegate{
 
     }
       override func viewWillAppear(_ animated: Bool) {
+        AppDelegate.AppUtility.lockOrientation(.portrait)
+
+    }
+    override func viewWillDisappear(_ animated: Bool) {
+        AppDelegate.AppUtility.lockOrientation(.all)
     }
     func addDoneButton() {
         let toolbar =  UIToolbar(frame: CGRect(x: 0, y: 0, width: view.frame.size.width, height: 35))
@@ -153,4 +158,5 @@ class ResetPasswordVC: UIViewController ,UITextFieldDelegate{
     override var preferredStatusBarStyle: UIStatusBarStyle {
         return .lightContent // .default
     }
+    
 }

@@ -969,8 +969,12 @@ class StreamDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDat
                         }
                     }
                 case .failure(let error):
-                    ////print(error)
+                    if error._code == NSURLErrorTimedOut {
+                        print("Request timeout!")
+                    }else{
                     self.showAlert(strMsg: error.localizedDescription)
+                    self.viewActivity.isHidden = true
+                    }
                 }
         }
     }
@@ -1080,6 +1084,7 @@ class StreamDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDat
                                 self.age_limit = streamObj["age_limit"] as? Int ?? 0
                                 self.streamVideoCode = streamObj["stream_video_code"] as? String ?? ""
                                 let streamVideoTitle = streamObj["stream_video_title"] as? String ?? ""
+                                print("==streamVideoTitle:",streamVideoTitle)
                                 self.isChannelAvailable = true
                                 self.sendBirdChatConfig()
                                 self.sendBirdEmojiConfig()
@@ -1163,19 +1168,19 @@ class StreamDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDat
                                                 var strURL = "";
                                                 if (vod_urls != ""){
                                                     let vod_urls = self.convertToDictionary(text: vod_urls)
-                                                    let strHigh = vod_urls?["1080p"] as? String ?? ""
+                                                    let strHigh = vod_urls?["master"] as? String ?? ""
                                                     if (strHigh != ""){
                                                         strURL = strHigh;
                                                     }else{
-                                                        let strMedium = vod_urls?["720p"] as? String ?? ""
+                                                        let strMedium = vod_urls?["level3"] as? String ?? ""
                                                         if (strMedium != ""){
                                                             strURL = strMedium;
                                                         }else{
-                                                            let strLow = vod_urls?["540p"] as? String ?? ""
+                                                            let strLow = vod_urls?["level2"] as? String ?? ""
                                                             if (strLow != ""){
                                                                 strURL = strLow;
                                                             }else{
-                                                                let strLowest = vod_urls?["270p"] as? String ?? ""
+                                                                let strLowest = vod_urls?["level1"] as? String ?? ""
                                                                 if (strLowest != ""){
                                                                     strURL = strLowest;
                                                                 }else{
@@ -1273,7 +1278,11 @@ class StreamDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDat
                     }
                 case .failure(let error):
                     //print(error)
-                    self.showAlert(strMsg: error.localizedDescription)
+                    if error._code == NSURLErrorTimedOut {
+                        print("Request timeout!")
+                    }else{
+                        self.showAlert(strMsg: error.localizedDescription)
+                    }
                 }
         }
     }
@@ -2212,8 +2221,12 @@ class StreamDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDat
                     }
                     
                 case .failure(let error):
-                    //print(error)
+                    if error._code == NSURLErrorTimedOut {
+                        print("Request timeout!")
+                    }else{
                     self.showAlert(strMsg: error.localizedDescription)
+                    self.viewActivity.isHidden = true
+                    }
                 }
         }
     }

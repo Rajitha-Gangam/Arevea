@@ -123,10 +123,14 @@ class SubscriptionPlanVC: UIViewController {
                         
                     }
                 case .failure(let error):
-                    ////print(error)
-                    self.showAlert(strMsg: error.localizedDescription)
-                           self.viewActivity.isHidden = true
-
+                    if error._code == NSURLErrorTimedOut {
+                        print("Request timeout!")
+                    }else{
+                        self.showAlert(strMsg: error.localizedDescription)
+                        self.viewActivity.isHidden = true
+                        
+                    }
+                    
                 }
         }
     }
@@ -199,9 +203,12 @@ class SubscriptionPlanVC: UIViewController {
                         
                     }
                 case .failure(let error):
-                    //print(error)
+                    if error._code == NSURLErrorTimedOut {
+                        print("Request timeout!")
+                    }else{
                     self.showAlert(strMsg: error.localizedDescription)
-                           self.viewActivity.isHidden = true
+                    self.viewActivity.isHidden = true
+                    }
 
                 }
         }
