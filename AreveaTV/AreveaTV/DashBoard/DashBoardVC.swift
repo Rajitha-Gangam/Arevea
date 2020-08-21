@@ -120,9 +120,12 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
     override func viewWillDisappear(_ animated: Bool) {
         appDelegate.strCategory = "";
         appDelegate.genreId = 0;
+        AppDelegate.AppUtility.lockOrientation(.all)
+
     }
     
     override func viewWillAppear(_ animated: Bool) {
+        AppDelegate.AppUtility.lockOrientation(.portrait)
         let indexPath = IndexPath(row: 0, section: 0)
         tblSide.selectRow(at: indexPath, animated: true, scrollPosition: .bottom)
         //tblSide.delegate?.tableView!(myTableView, didSelectRowAt: indexPath)

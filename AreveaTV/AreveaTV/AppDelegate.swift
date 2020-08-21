@@ -66,6 +66,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate,CLLocationManagerDelegate 
     }
     var appSyncClient: AWSAppSyncClient?
     
+    var orientationLock = UIInterfaceOrientationMask.all
+
+       func application(_ application: UIApplication, supportedInterfaceOrientationsFor window: UIWindow?) -> UIInterfaceOrientationMask {
+               return self.orientationLock
+       }
+    
     // MARK: - Application Life cycle
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         
@@ -191,6 +197,25 @@ class AppDelegate: UIResponder, UIApplicationDelegate,CLLocationManagerDelegate 
     func application(_ application: UIApplication, shouldRestoreApplicationState coder: NSCoder) -> Bool {
         return true
     }
+    struct AppUtility {
+
+           static func lockOrientation(_ orientation: UIInterfaceOrientationMask) {
+
+               if let delegate = UIApplication.shared.delegate as? AppDelegate {
+                   delegate.orientationLock = orientation
+               }
+           }
+
+           /// OPTIONAL Added method to adjust lock and rotate to the desired orientation
+           static func lockOrientation(_ orientation: UIInterfaceOrientationMask, andRotateTo rotateOrientation:UIInterfaceOrientation) {
+
+               self.lockOrientation(orientation)
+
+               UIDevice.current.setValue(rotateOrientation.rawValue, forKey: "orientation")
+               UINavigationController.attemptRotationToDeviceOrientation()
+           }
+
+       }
 }
 // MARK: - Extensions
 
