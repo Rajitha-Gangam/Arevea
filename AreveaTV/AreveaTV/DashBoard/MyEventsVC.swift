@@ -150,54 +150,30 @@ class MyEventsVC: UIViewController,OpenChanannelChatDelegate,UITableViewDelegate
     func collectionView(collectionviewcell: DBCollectionViewCell?, index: Int, didTappedInTableViewCell: MyEventsCell) {
         
         let orgsList = didTappedInTableViewCell.rowWithItems
-        let selectedOrg = orgsList[index] as? [String: Any]
+        let selectedOrg = orgsList[index] as? [String: Any] ?? [:]
         //print("item:\(String(describing: selectedOrg))")
         
-        if (selectedOrg?["parent_category_id"]as? Int != nil){
-            let storyboard = UIStoryboard(name: "Main", bundle: nil);
-            let number_of_creators = selectedOrg?["number_of_creators"]as? Int ?? 0
-            if(number_of_creators > 1){
-                let vc = storyboard.instantiateViewController(withIdentifier: "MultiStreamVC") as! MultiStreamVC
-                vc.orgId = selectedOrg?["organization_id"] as? Int ?? 0
-                vc.streamId = selectedOrg?["id"] as? Int ?? 0
-                vc.delegate = self
-                appDelegate.isLiveLoad = "1"
-                if (selectedOrg?["performer_id"] as? Int) != nil {
-                    vc.performerId = selectedOrg?["performer_id"] as! Int
-                }
-                else {
-                    vc.performerId = 1;
-                }
-                vc.strTitle = selectedOrg?["stream_video_title"] as? String ?? "Channel Details"
-                self.navigationController?.pushViewController(vc, animated: true)
-            }else{
-                let vc = storyboard.instantiateViewController(withIdentifier: "StreamDetailVC") as! StreamDetailVC
-                vc.orgId = selectedOrg?["organization_id"] as? Int ?? 0
-                vc.streamId = selectedOrg?["id"] as? Int ?? 0
-                vc.delegate = self
-                appDelegate.isLiveLoad = "1"
-                if (selectedOrg?["performer_id"] as? Int) != nil {
-                    vc.performerId = selectedOrg?["performer_id"] as! Int
-                }
-                else {
-                    vc.performerId = 1;
-                }
-                vc.strTitle = selectedOrg?["stream_video_title"] as? String ?? "Channel Details"
-                self.navigationController?.pushViewController(vc, animated: true)
-            }
-        }else{
-            let storyboard = UIStoryboard(name: "Main", bundle: nil);
-            let vc = storyboard.instantiateViewController(withIdentifier: "ChannelDetailVC") as! ChannelDetailVC
-            vc.orgId = selectedOrg?["id"] as? Int ?? 0
-            if (selectedOrg?["user_id"] as? Int) != nil {
-                vc.performerId = selectedOrg?["user_id"] as! Int
-            }
-            else {
-                vc.performerId = 1;
-            }
-            vc.strTitle = selectedOrg?["performer_display_name"] as? String ?? "Channel Details"
-            self.navigationController?.pushViewController(vc, animated: true)
-        }
+        let streamInfo = selectedOrg
+       let storyboard = UIStoryboard(name: "Main", bundle: nil);
+       let number_of_creators = streamInfo["number_of_creators"] as? Int ?? 0
+       let orgId = streamInfo["organization_id"] as? Int ?? 0
+       var streamId = 0
+       let performer_id = streamInfo["performer_id"] as? Int ?? 0
+       let stream_video_title = streamInfo["stream_video_title"] as? String ?? "Channel Details"
+       if (title == "dashboard_my_list"){
+           streamId = streamInfo["stream_video_id"] as? Int ?? 0
+       }else{
+           streamId = streamInfo["id"] as? Int ?? 0
+       }
+       appDelegate.isLiveLoad = "1"
+       print("number_of_creators:",number_of_creators)
+       let vc = storyboard.instantiateViewController(withIdentifier: "StreamDetailVC") as! StreamDetailVC
+                      vc.orgId = orgId
+                      vc.streamId = streamId
+                      vc.delegate = self
+                      vc.performerId = performer_id
+                      vc.strTitle = stream_video_title
+                      self.navigationController?.pushViewController(vc, animated: true)
     }
     /*
      // MARK: - Navigation

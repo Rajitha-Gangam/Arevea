@@ -105,13 +105,33 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
         let build = dictionary["CFBundleVersion"] as! String
         return "\(version).\(build)"
     }
+  
+    /*override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+          super.viewWillTransition(to: size, with: coordinator)
+          self.viewSideMenu.isHidden = true
+          self.tblMain.reloadData()
+          if UIDevice.current.orientation.isLandscape {
+              print("DB Landscape")
+              DispatchQueue.main.async {
+              //AppDelegate.AppUtility.lockOrientation(.portrait)
+              }
+          } else {
+              print("DB Portrait")
+          }
+    }*/
     override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
         super.viewWillTransition(to: size, with: coordinator)
         self.viewSideMenu.isHidden = true
         self.tblMain.reloadData()
+        AppDelegate.AppUtility.lockOrientation(.portrait, andRotateTo: .portrait)
+
         if UIDevice.current.orientation.isLandscape {
             print("DB Landscape")
+            DispatchQueue.main.async {
+          //  AppDelegate.AppUtility.lockOrientation(.portrait)
+            }
         } else {
+           // AppDelegate.AppUtility.lockOrientation(.portrait)
             print("DB Portrait")
         }
     }
@@ -121,11 +141,20 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
         appDelegate.strCategory = "";
         appDelegate.genreId = 0;
         AppDelegate.AppUtility.lockOrientation(.all)
+        
+    }
+    override func viewDidAppear(_ animated: Bool) {
+        /*AppDelegate.AppUtility.lockOrientation(.portrait)
+        if(UIDevice.current.userInterfaceIdiom == .phone){
+            let value = UIInterfaceOrientation.portrait.rawValue
+            UIDevice.current.setValue(value, forKey: "orientation")
+        }
+        tblMain.reloadData()*/
 
     }
-    
     override func viewWillAppear(_ animated: Bool) {
-        AppDelegate.AppUtility.lockOrientation(.portrait)
+         AppDelegate.AppUtility.lockOrientation(.portrait, andRotateTo: .portrait)
+       // AppDelegate.AppUtility.lockOrientation(.portrait)
         let indexPath = IndexPath(row: 0, section: 0)
         tblSide.selectRow(at: indexPath, animated: true, scrollPosition: .bottom)
         //tblSide.delegate?.tableView!(myTableView, didSelectRowAt: indexPath)
@@ -181,11 +210,11 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
                     }
                 case .failure(let error):
                     //print(error)
-                   if error._code == NSURLErrorTimedOut {
+                    if error._code == NSURLErrorTimedOut {
                         print("Request timeout!")
                     }else{
-                    self.showAlert(strMsg: error.localizedDescription)
-                    self.viewActivity.isHidden = true
+                        self.showAlert(strMsg: error.localizedDescription)
+                        self.viewActivity.isHidden = true
                     }
                 }
         }
@@ -286,8 +315,8 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
                     if error._code == NSURLErrorTimedOut {
                         print("Request timeout!")
                     }else{
-                    self.showAlert(strMsg: error.localizedDescription)
-                    self.viewActivity.isHidden = true
+                        self.showAlert(strMsg: error.localizedDescription)
+                        self.viewActivity.isHidden = true
                     }
                 }
         }
@@ -316,11 +345,11 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
                     }
                 case .failure(let error):
                     print("events error:",error ?? "")
-                   if error._code == NSURLErrorTimedOut {
+                    if error._code == NSURLErrorTimedOut {
                         print("Request timeout!")
                     }else{
-                    self.showAlert(strMsg: error.localizedDescription)
-                    self.viewActivity.isHidden = true
+                        self.showAlert(strMsg: error.localizedDescription)
+                        self.viewActivity.isHidden = true
                     }
                 }
         }
@@ -469,10 +498,10 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
                     if error._code == NSURLErrorTimedOut {
                         print("Request timeout!")
                     }else{
-                    self.showAlert(strMsg: error.localizedDescription)
-                    self.viewActivity.isHidden = true
+                        self.showAlert(strMsg: error.localizedDescription)
+                        self.viewActivity.isHidden = true
                     }
-
+                    
                 }
         }
     }
@@ -701,29 +730,19 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
             let performer_id = streamInfo["performer_id"] as? Int ?? 0
             let stream_video_title = streamInfo["stream_video_title"] as? String ?? "Channel Details"
             if (title == "dashboard_my_list"){
-            streamId = streamInfo["stream_video_id"] as? Int ?? 0
+                streamId = streamInfo["stream_video_id"] as? Int ?? 0
             }else{
-            streamId = streamInfo["id"] as? Int ?? 0
+                streamId = streamInfo["id"] as? Int ?? 0
             }
             appDelegate.isLiveLoad = "1"
             print("number_of_creators:",number_of_creators)
-            if(number_of_creators > 1){
-                let vc = storyboard.instantiateViewController(withIdentifier: "MultiStreamVC") as! MultiStreamVC
-                vc.orgId = orgId
-                vc.streamId = streamId
-                vc.delegate = self
-                vc.performerId = performer_id
-                vc.strTitle = stream_video_title
-                self.navigationController?.pushViewController(vc, animated: true)
-            }else{
-                let vc = storyboard.instantiateViewController(withIdentifier: "StreamDetailVC") as! StreamDetailVC
-                vc.orgId = orgId
-                vc.streamId = streamId
-                vc.delegate = self
-                vc.performerId = performer_id
-                vc.strTitle = stream_video_title
-                self.navigationController?.pushViewController(vc, animated: true)
-            }
+            let vc = storyboard.instantiateViewController(withIdentifier: "StreamDetailVC") as! StreamDetailVC
+                           vc.orgId = orgId
+                           vc.streamId = streamId
+                           vc.delegate = self
+                           vc.performerId = performer_id
+                           vc.strTitle = stream_video_title
+                           self.navigationController?.pushViewController(vc, animated: true)
         }else if(title == "dashboard_trending_channels"){
             let performerDetails = selectedOrg["performer_details"] as? [String: Any] ?? [:]
             let storyboard = UIStoryboard(name: "Main", bundle: nil);

@@ -26,7 +26,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate,CLLocationManagerDelegate 
     var locationManager:CLLocationManager!
     
     // MARK: - Dev Environmet Variables Declaration
-    var baseURL = "https://r5ibd3yzp7.execute-api.us-west-2.amazonaws.com/devel";
+   /* var baseURL = "https://r5ibd3yzp7.execute-api.us-west-2.amazonaws.com/devel";
     var sendBirdAppId = "AE94EB49-0A01-43BF-96B4-8297EBB47F12";
     var profileURL = "https://dev.arevea.tv/api/user/v1";
     var qaUploadURL = "https://qa-uploads.arevea.tv"//need to test in dev
@@ -36,11 +36,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate,CLLocationManagerDelegate 
     var cloudSearchURL = "https://r5ibd3yzp7.execute-api.us-west-2.amazonaws.com/devel/search";
     var x_api_key = "x-api-key"
     var x_api_value = "ORnphwUvEBoqHaoIDBIA2GOhYF0HHQ53JPkLwFM5";
-    var AWSCognitoIdentityPoolId = "us-west-2:2f173740-e6a4-4fc5-a37a-3064ac25e1bc"
+    var AWSCognitoIdentityPoolId = "us-west-2:2f173740-e6a4-4fc5-a37a-3064ac25e1bc"*/
     //Dev Variables END
 
     // MARK: - QA Environmet Variables Declaration
-    /*var baseURL = "https://eku2g4rzxl.execute-api.us-west-2.amazonaws.com/dev"
+    var baseURL = "https://eku2g4rzxl.execute-api.us-west-2.amazonaws.com/dev"
     var sendBirdAppId = "7AF38850-F099-4C47-BD19-F7F84DAFECF8";
     var profileURL = "https://qa.arevea.tv/api/user/v1"
     var qaUploadURL = "https://qa-uploads.arevea.tv"
@@ -50,7 +50,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate,CLLocationManagerDelegate 
     var cloudSearchURL = "https://3ptsrb2obj.execute-api.us-east-1.amazonaws.com/dev";
     var x_api_key = "x-api-key"
     var x_api_value = "gq78SwjuLY539BLW5G3dN88IXjVtWPLB1YHL1omd"
-    var AWSCognitoIdentityPoolId = "us-west-2:00b71663-b151-44a1-9164-246be7970493"*/
+    var AWSCognitoIdentityPoolId = "us-west-2:00b71663-b151-44a1-9164-246be7970493"
     //QA Variables END
     
     var strCategory = "";

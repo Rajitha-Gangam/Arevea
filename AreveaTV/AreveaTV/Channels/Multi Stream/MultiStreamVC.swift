@@ -1156,16 +1156,12 @@ class MultiStreamVC: UIViewController,UICollectionViewDataSource,UITableViewData
         Testbed.setDebug(on: true)
         Testbed.setVideo(on: true)
         Testbed.setAudio(on: true)
-        Testbed.setHWAccel(on: false)
         Testbed.setRecord(on: true)
         Testbed.setRecordAppend(on: true)
         self.configureStreamView()
     }
     func configureStreamView() {
-//        if(UIDevice.current.userInterfaceIdiom == .phone){
-//            let value = UIInterfaceOrientation.landscapeRight.rawValue
-//            UIDevice.current.setValue(value, forKey: "orientation")
-//        }
+
         
         let storyboard = UIStoryboard(name: "Main", bundle: nil);
         let vc = storyboard.instantiateViewController(withIdentifier: "SubscribeTwoStreams") as! SubscribeTwoStreams
