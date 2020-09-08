@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 51;
+	objectVersion = 53;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -14,6 +14,7 @@
 		1822F8A324CF266E009E8E1A /* MyPurchasesVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1822F8A224CF266E009E8E1A /* MyPurchasesVC.swift */; };
 		1822F8A824D03364009E8E1A /* MyEventsCVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1822F8A624D03364009E8E1A /* MyEventsCVC.swift */; };
 		1822F8A924D03364009E8E1A /* MyEventsCVC.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1822F8A724D03364009E8E1A /* MyEventsCVC.xib */; };
+		1822FED524F961B400AE57EA /* ACFloatingTextfield.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1822FED424F961B400AE57EA /* ACFloatingTextfield.swift */; };
 		1826035A24D2A7CC00248E8B /* Poppins-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1826035524D2A7C600248E8B /* Poppins-Light.ttf */; };
 		1826035B24D2A7CC00248E8B /* Poppins-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1826035624D2A7C800248E8B /* Poppins-Regular.ttf */; };
 		1826035C24D2A7CC00248E8B /* Poppins-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1826035724D2A7C900248E8B /* Poppins-SemiBold.ttf */; };
@@ -90,6 +91,8 @@
 		18D480BD2452D0CE00640C1A /* SubscriptionPlanVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18D480BC2452D0CE00640C1A /* SubscriptionPlanVC.swift */; };
 		18D480C02452E00500640C1A /* PaymentVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18D480BF2452E00500640C1A /* PaymentVC.swift */; };
 		18D480C62454552200640C1A /* ProfileVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18D480C52454552200640C1A /* ProfileVC.swift */; };
+		18D4AA2324F56D5C005B0FD4 /* TestVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18D4AA2224F56D5C005B0FD4 /* TestVC.swift */; };
+		18D4AA2524F5713B005B0FD4 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 18D4AA2424F5713B005B0FD4 /* WebKit.framework */; };
 		18DA10D02455F8D400E5C9EB /* DBCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18DA10CE2455F8D400E5C9EB /* DBCollectionViewCell.swift */; };
 		18DA10D12455F8D400E5C9EB /* DBCollectionViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 18DA10CF2455F8D400E5C9EB /* DBCollectionViewCell.xib */; };
 		18DAF977248FA98000A6693A /* CheckMarkCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18DAF975248FA98000A6693A /* CheckMarkCell.swift */; };
@@ -108,7 +111,6 @@
 		18DAF999248FBA1D00A6693A /* sr_sports.png in Resources */ = {isa = PBXBuildFile; fileRef = 18DAF98D248FBA1D00A6693A /* sr_sports.png */; };
 		18DAF9A4248FDE8300A6693A /* DBSearchCVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18DAF9A2248FDE8300A6693A /* DBSearchCVC.swift */; };
 		18DAF9A5248FDE8300A6693A /* DBSearchCVC.xib in Resources */ = {isa = PBXBuildFile; fileRef = 18DAF9A3248FDE8300A6693A /* DBSearchCVC.xib */; };
-		18DDD1AE24C0618500CF0F1A /* MultiStreamVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18DDD1AD24C0618500CF0F1A /* MultiStreamVC.swift */; };
 		18E77E1E24C6E541003BBC39 /* MyEventsVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18E77E1D24C6E541003BBC39 /* MyEventsVC.swift */; };
 		18EB81BD244ACAB9008EB09A /* SplashVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18EB81BC244ACAB9008EB09A /* SplashVC.swift */; };
 		18EB81C4244ACC40008EB09A /* LoginVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18EB81C3244ACC40008EB09A /* LoginVC.swift */; };
@@ -130,6 +132,7 @@
 		1822F8A224CF266E009E8E1A /* MyPurchasesVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyPurchasesVC.swift; sourceTree = "<group>"; };
 		1822F8A624D03364009E8E1A /* MyEventsCVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyEventsCVC.swift; sourceTree = "<group>"; };
 		1822F8A724D03364009E8E1A /* MyEventsCVC.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MyEventsCVC.xib; sourceTree = "<group>"; };
+		1822FED424F961B400AE57EA /* ACFloatingTextfield.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ACFloatingTextfield.swift; sourceTree = "<group>"; };
 		1826035524D2A7C600248E8B /* Poppins-Light.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Poppins-Light.ttf"; sourceTree = "<group>"; };
 		1826035624D2A7C800248E8B /* Poppins-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Poppins-Regular.ttf"; sourceTree = "<group>"; };
 		1826035724D2A7C900248E8B /* Poppins-SemiBold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Poppins-SemiBold.ttf"; sourceTree = "<group>"; };
@@ -211,6 +214,8 @@
 		18D480BC2452D0CE00640C1A /* SubscriptionPlanVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionPlanVC.swift; sourceTree = "<group>"; };
 		18D480BF2452E00500640C1A /* PaymentVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaymentVC.swift; sourceTree = "<group>"; };
 		18D480C52454552200640C1A /* ProfileVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileVC.swift; sourceTree = "<group>"; };
+		18D4AA2224F56D5C005B0FD4 /* TestVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestVC.swift; sourceTree = "<group>"; };
+		18D4AA2424F5713B005B0FD4 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
 		18DA10CE2455F8D400E5C9EB /* DBCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DBCollectionViewCell.swift; sourceTree = "<group>"; };
 		18DA10CF2455F8D400E5C9EB /* DBCollectionViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = DBCollectionViewCell.xib; sourceTree = "<group>"; };
 		18DAF975248FA98000A6693A /* CheckMarkCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckMarkCell.swift; sourceTree = "<group>"; };
@@ -229,7 +234,6 @@
 		18DAF98D248FBA1D00A6693A /* sr_sports.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = sr_sports.png; sourceTree = "<group>"; };
 		18DAF9A2248FDE8300A6693A /* DBSearchCVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DBSearchCVC.swift; sourceTree = "<group>"; };
 		18DAF9A3248FDE8300A6693A /* DBSearchCVC.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = DBSearchCVC.xib; sourceTree = "<group>"; };
-		18DDD1AD24C0618500CF0F1A /* MultiStreamVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultiStreamVC.swift; sourceTree = "<group>"; };
 		18E77E1D24C6E541003BBC39 /* MyEventsVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyEventsVC.swift; sourceTree = "<group>"; };
 		18EB81BC244ACAB9008EB09A /* SplashVC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SplashVC.swift; sourceTree = "<group>"; };
 		18EB81C3244ACC40008EB09A /* LoginVC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LoginVC.swift; sourceTree = "<group>"; };
@@ -250,6 +254,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				18D4AA2524F5713B005B0FD4 /* WebKit.framework in Frameworks */,
 				18D48050244E8F7B00640C1A /* R5Streaming.framework in Frameworks */,
 				18D4804E244E8F7000640C1A /* CoreFoundation.framework in Frameworks */,
 				18D4804C244E8F6A00640C1A /* QuartzCore.framework in Frameworks */,
@@ -268,6 +273,7 @@
 		0679B73572824C8FC160B513 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				18D4AA2424F5713B005B0FD4 /* WebKit.framework */,
 				18D4804F244E8F7A00640C1A /* R5Streaming.framework */,
 				18D4804D244E8F7000640C1A /* CoreFoundation.framework */,
 				18D4804B244E8F6A00640C1A /* QuartzCore.framework */,
@@ -279,6 +285,14 @@
 				9290EFE9F47E13554D29A225 /* Pods_AreveaTV.framework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		1822FED324F9619300AE57EA /* TextFieldFlaoting */ = {
+			isa = PBXGroup;
+			children = (
+				1822FED424F961B400AE57EA /* ACFloatingTextfield.swift */,
+			);
+			path = TextFieldFlaoting;
 			sourceTree = "<group>";
 		};
 		182A5F02246166B700FF6147 /* CharityCell */ = {
@@ -353,6 +367,7 @@
 		1891CA61244AC82B00EE1E45 /* AreveaTV */ = {
 			isa = PBXGroup;
 			children = (
+				1822FED324F9619300AE57EA /* TextFieldFlaoting */,
 				1869F50A24659CC3003153B1 /* Send Bird */,
 				189EBF4A245B382E00C52B0E /* Cusom Cells */,
 				18D480C124532D0F00640C1A /* Model */,
@@ -580,7 +595,6 @@
 			isa = PBXGroup;
 			children = (
 				1826035F24D2CD7A00248E8B /* API.swift */,
-				18DDD1AD24C0618500CF0F1A /* MultiStreamVC.swift */,
 			);
 			path = "Multi Stream";
 			sourceTree = "<group>";
@@ -635,6 +649,7 @@
 			children = (
 				18D480C42454550100640C1A /* Profile */,
 				18EB81CD244ACC86008EB09A /* DashBoardVC.swift */,
+				18D4AA2224F56D5C005B0FD4 /* TestVC.swift */,
 				18404763248A79AC000573A2 /* SearchViewController.swift */,
 				1858EAD12484F51C00A69D10 /* HelpVC.swift */,
 				18E77E1D24C6E541003BBC39 /* MyEventsVC.swift */,
@@ -691,6 +706,7 @@
 				1891CA5C244AC82B00EE1E45 /* Frameworks */,
 				1891CA5D244AC82B00EE1E45 /* Resources */,
 				335BAC798DF97301C5416574 /* [CP] Embed Pods Frameworks */,
+				18D092EF24FEA55500A9C033 /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -707,6 +723,7 @@
 		1891CA57244AC82B00EE1E45 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
+				BuildIndependentTargetsInParallel = YES;
 				LastSwiftUpdateCheck = 1130;
 				LastUpgradeCheck = 1130;
 				ORGANIZATIONNAME = apple;
@@ -797,6 +814,24 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		18D092EF24FEA55500A9C033 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"$(SRCROOT)/$(BUILT_PRODUCTS_DIR)/$(INFOPLIST_PATH)",
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\n\"${PODS_ROOT}/FirebaseCrashlytics/run\"\n";
+		};
 		1F7D37ABDA7DCAAD48B54C89 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -846,7 +881,6 @@
 				18DAF9A4248FDE8300A6693A /* DBSearchCVC.swift in Sources */,
 				1822F8A824D03364009E8E1A /* MyEventsCVC.swift in Sources */,
 				182A5F05246166D700FF6147 /* CharityCell.swift in Sources */,
-				18DDD1AE24C0618500CF0F1A /* MultiStreamVC.swift in Sources */,
 				182A5EFC2460163100FF6147 /* ButtonsCVC.swift in Sources */,
 				18DAF977248FA98000A6693A /* CheckMarkCell.swift in Sources */,
 				18D480C62454552200640C1A /* ProfileVC.swift in Sources */,
@@ -868,12 +902,14 @@
 				184B86D624D302C8003F4D3D /* OpenChannelUserMessageTableViewCell.swift in Sources */,
 				18DA10D02455F8D400E5C9EB /* DBCollectionViewCell.swift in Sources */,
 				1869F51924659D5F003153B1 /* SBOpenChatVC.swift in Sources */,
+				1822FED524F961B400AE57EA /* ACFloatingTextfield.swift in Sources */,
 				184B86D324D302C8003F4D3D /* OpenChannelMessageTableViewCell.swift in Sources */,
 				189EBED6245752B800C52B0E /* AudioCell.swift in Sources */,
 				18EB81CB244ACC5B008EB09A /* ResetPasswordVC.swift in Sources */,
 				18FE073C24D1CFB90011FDE3 /* SubscribeTwoStreams.swift in Sources */,
 				188B0EA5248E8F7A0062EB1D /* VideoEditor.swift in Sources */,
 				18D48060244EDDA300640C1A /* BaseTest.swift in Sources */,
+				18D4AA2324F56D5C005B0FD4 /* TestVC.swift in Sources */,
 				1864AFCD2454A999004F3AED /* ChannelDetailVC.swift in Sources */,
 				184A0B532472CC20006EDDA3 /* PaymentHistoryCell.swift in Sources */,
 				189EBF44245ACD3400C52B0E /* FilterCell.swift in Sources */,
@@ -1041,9 +1077,9 @@
 			baseConfigurationReference = A548ED8DA0ABEB1FF1BF009E /* Pods-AreveaTV.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
-				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 1.25;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1.5;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = M6U48XKJMW;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -1051,7 +1087,7 @@
 					"$(PROJECT_DIR)",
 				);
 				INFOPLIST_FILE = AreveaTV/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -1059,10 +1095,10 @@
 				MARKETING_VERSION = 1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.techvedika.arevea;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "Arevea Development";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "AreveaTV-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
 		};
@@ -1071,16 +1107,16 @@
 			baseConfigurationReference = 783C47A52DE81D11826FBA5C /* Pods-AreveaTV.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
-				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 1.25;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1.5;
 				DEVELOPMENT_TEAM = M6U48XKJMW;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",
 				);
 				INFOPLIST_FILE = AreveaTV/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -1088,10 +1124,10 @@
 				MARKETING_VERSION = 1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.techvedika.arevea;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "Arevea Development";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "AreveaTV-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
 		};

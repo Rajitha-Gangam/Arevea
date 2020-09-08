@@ -3,34 +3,34 @@
 <plist version="1.0">
 <dict>
 	<key>CLIENT_ID</key>
-	<string>228952785192-6ru6ckksfg0anq6r4qph3v691r149d15.apps.googleusercontent.com</string>
+	<string>558814553314-fqge6s77af4o2nh4oodgud8ek7218am2.apps.googleusercontent.com</string>
 	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.228952785192-6ru6ckksfg0anq6r4qph3v691r149d15</string>
+	<string>com.googleusercontent.apps.558814553314-fqge6s77af4o2nh4oodgud8ek7218am2</string>
 	<key>API_KEY</key>
-	<string>AIzaSyBnUl4D1Hh_4vKj-h1WB3IVucDFOQisbUg</string>
+	<string>AIzaSyBq0XM9JaFOrBzNTojUA4WReP_Bu2q84Vw</string>
 	<key>GCM_SENDER_ID</key>
-	<string>228952785192</string>
+	<string>558814553314</string>
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
 	<string>com.techvedika.arevea</string>
 	<key>PROJECT_ID</key>
-	<string>arevea-tv</string>
+	<string>areveatv-ef69b</string>
 	<key>STORAGE_BUCKET</key>
-	<string>arevea-tv.appspot.com</string>
+	<string>areveatv-ef69b.appspot.com</string>
 	<key>IS_ADS_ENABLED</key>
-	<false></false>
+	<false/>
 	<key>IS_ANALYTICS_ENABLED</key>
-	<false></false>
+	<false/>
 	<key>IS_APPINVITE_ENABLED</key>
-	<true></true>
+	<true/>
 	<key>IS_GCM_ENABLED</key>
-	<true></true>
+	<true/>
 	<key>IS_SIGNIN_ENABLED</key>
-	<true></true>
+	<true/>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:228952785192:ios:545afb52d7467a788d501d</string>
+	<string>1:558814553314:ios:08b5576b88481167a06abb</string>
 	<key>DATABASE_URL</key>
-	<string>https://arevea-tv.firebaseio.com</string>
+	<string>https://areveatv-ef69b.firebaseio.com</string>
 </dict>
 </plist>

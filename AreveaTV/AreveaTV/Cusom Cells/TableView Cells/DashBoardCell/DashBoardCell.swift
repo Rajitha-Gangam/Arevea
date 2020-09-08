@@ -83,8 +83,8 @@ class DashBoardCell: UITableViewCell, UICollectionViewDataSource, UICollectionVi
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "DBCollectionViewCell", for: indexPath) as? DBCollectionViewCell {
             // cell.colorView.backgroundColor = self.rowWithItems?[indexPath.item].color ?? UIColor.black
-            let arySub = rowWithItems[indexPath.row] as? [String: Any] ?? [:]
             let thumbNail = UIImage.init(named: "sample-details")
+            let arySub = rowWithItems[indexPath.row] as? [String: Any] ?? [:]
             cell.imgCategory.image = thumbNail
             cell.imgCategory.contentMode = .scaleAspectFill
             if (strController == "dashboard" || strController == "dashboard_my_list"){
@@ -95,9 +95,10 @@ class DashBoardCell: UITableViewCell, UICollectionViewDataSource, UICollectionVi
                 cell.nameLabel.text = streamInfo["stream_video_title"]as? String;
                 let strURL = streamInfo["video_thumbnail_image"]as? String ?? "";
                 if let url = URL(string: strURL){
-                    cell.imgCategory.sd_setImage(with: url, placeholderImage: UIImage(named: "sample-details"))
+                    //cell.imgCategory.sd_setImage(with: url, placeholderImage: UIImage(named: "sample-details"))
+                    cell.imgCategory.downloaded(from: url)
+
                 }
-                
                 cell.btnLeft.addTarget(self, action: #selector(btnLeftPress(_:)), for: .touchUpInside)
                 cell.btnRight.addTarget(self, action: #selector(btnRightPress(_:)), for: .touchUpInside)
                 cell.btnLeft.tag = indexPath.row
@@ -112,8 +113,8 @@ class DashBoardCell: UITableViewCell, UICollectionViewDataSource, UICollectionVi
                 let strURL = performerDetails["performer_profile_pic"]as? String ?? "";
                 if (strURL != "" && strURL != "NO LOGO" && strURL.range(of:"null") == nil ){
                     if let url = URL(string: strURL){
-                        cell.imgCategory.sd_setImage(with: url, placeholderImage: UIImage(named: "sample-event"))
-                        
+                        //cell.imgCategory.sd_setImage(with: url, placeholderImage: UIImage(named: "sample-event"))
+                        cell.imgCategory.downloaded(from: url)
                     }
                 }
                 cell.btnLeft.addTarget(self, action: #selector(btnLeftPress(_:)), for: .touchUpInside)
@@ -138,11 +139,7 @@ class DashBoardCell: UITableViewCell, UICollectionViewDataSource, UICollectionVi
             }else if(strController == "dashboard_my_list"){
                 cell.lblHeader.text = "My List"
             }else if(strController == "dashboard_trending_channels"){
-                if(indexPath.row == 0){
-                    cell.lblHeader.text = "Trending Channels"
-                }else{
-                    cell.lblHeader.text = ""
-                }
+                cell.lblHeader.text = "Trending Channels"
             }else{
                 cell.lblHeader.text = ""
             }
@@ -169,27 +166,27 @@ class DashBoardCell: UITableViewCell, UICollectionViewDataSource, UICollectionVi
     }
     
     @objc func btnLeftPress(_ sender: UIButton) {
-        print("btnLeftPress called")
-        print("sender.tag",sender.tag)
+//        print("btnLeftPress called")
+//        print("sender.tag",sender.tag)
         if (sender.tag == 0){
             let indexPath = IndexPath(row: rowWithItems.count - 1, section: 0)
-            collectionView.scrollToItem(at: indexPath, at: .centeredHorizontally, animated: false)
+            collectionView.scrollToItem(at: indexPath, at: .centeredHorizontally, animated: true)
         }else{
             let indexPath = IndexPath(row: sender.tag - 1, section: 0)
-            collectionView.scrollToItem(at: indexPath, at: .centeredHorizontally, animated: false)
+            collectionView.scrollToItem(at: indexPath, at: .centeredHorizontally, animated: true)
         }
         
     }
     @objc func btnRightPress(_ sender: UIButton) {
-        print("btnRightPress called")
-        print("sender.tag",sender.tag)
-        print("last index",rowWithItems.count - 1)
+//        print("btnRightPress called")
+//        print("sender.tag",sender.tag)
+//        print("last index",rowWithItems.count - 1)
         if (sender.tag < rowWithItems.count - 1){
             let indexPath = IndexPath(row: sender.tag  + 1, section: 0)
-            collectionView.scrollToItem(at: indexPath, at: .centeredHorizontally, animated: false)
+            collectionView.scrollToItem(at: indexPath, at: .centeredHorizontally, animated: true)
         }else{
             let indexPath = IndexPath(row: 0, section: 0)
-            collectionView.scrollToItem(at: indexPath, at: .centeredHorizontally, animated: false)
+            collectionView.scrollToItem(at: indexPath, at: .centeredHorizontally, animated: true)
         }
     }
     

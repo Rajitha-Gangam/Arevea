@@ -51,7 +51,7 @@ class BaseTest: UIViewController , R5StreamDelegate {
     func onR5StreamStatus(_ stream: R5Stream!, withStatus statusCode: Int32, withMessage msg: String!) {
         let s =  String(format: "Status: %s (%@)",  r5_string_for_status(statusCode), msg)
         NSLog(s)
-        ALToastView.toast(in: self.view, withText:s)
+       // ALToastView.toast(in: self.view, withText:s)
         
         if (Int(statusCode) == Int(r5_status_disconnected.rawValue)) {
             self.cleanup()

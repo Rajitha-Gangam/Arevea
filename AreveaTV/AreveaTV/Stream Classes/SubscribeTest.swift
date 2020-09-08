@@ -46,7 +46,7 @@ class SubscribeTest: BaseTest {
         let host = Testbed.getParameter(param:"host") as! String;
         let version = Testbed.getParameter(param:"sm_version") as! String;
         let stream1 = Testbed.getParameter(param:"stream1") as! String;
-        let accessToken = "YEOkGmERp08V"
+        let accessToken = appDelegate.red5_acc_token
         // https://livestream.arevea.tv/streammanager/api/4.0/admin/event/meta/live/<stream_video_code>/?accessToken=YEOkGmERp08V
         let url = "https://" + host  + "/streammanager/api/" + version + "/admin/event/meta/live/" + stream1 + "?accessToken=" + accessToken
         print("metaLive url:",url)
@@ -167,7 +167,7 @@ class SubscribeTest: BaseTest {
         setupDefaultR5VideoViewController()
         
         //need to comment the below line after testing
-        //addControls()
+       //addControls()
         
         //self.subscribeStream!.audioController.setPlaybackGain(0);
         //setPlaybackGain(0) means mute
@@ -214,8 +214,8 @@ class SubscribeTest: BaseTest {
         let screenSize = currentView?.view.bounds.size
         var btnHeight = 30
         
-        lblLive = UILabel(frame: CGRect(x: Int((screenSize?.width ?? 0.0)) - 100, y: 10, width: 80, height: btnHeight))
-        lblLive.font = UIFont.boldSystemFont(ofSize: 15)
+        lblLive = UILabel(frame: CGRect(x: 15, y: 50, width: 80, height: btnHeight))
+        lblLive.font = UIFont.boldSystemFont(ofSize: 17)
         if(UIDevice.current.userInterfaceIdiom == .pad){
             lblLive.font = UIFont.boldSystemFont(ofSize: 25)
             btnHeight = 40
@@ -324,22 +324,22 @@ class SubscribeTest: BaseTest {
         if (hasAudio && hasVideo) {
             self.subscribeStream?.pauseAudio = true
             self.subscribeStream?.pauseVideo = false
-            ALToastView.toast(in: self.view, withText:"Pausing Audio")
+           // ALToastView.toast(in: self.view, withText:"Pausing Audio")
         }
         else if (hasVideo && !hasAudio) {
             self.subscribeStream?.pauseVideo = true
             self.subscribeStream?.pauseAudio = false
-            ALToastView.toast(in: self.view, withText:"Pausing Video")
+          //  ALToastView.toast(in: self.view, withText:"Pausing Video")
         }
         else if (!hasVideo && hasAudio) {
             self.subscribeStream?.pauseVideo = true
             self.subscribeStream?.pauseAudio = true
-            ALToastView.toast(in: self.view, withText:"Pausing Audio/Video")
+          //  ALToastView.toast(in: self.view, withText:"Pausing Audio/Video")
         }
         else {
             self.subscribeStream?.pauseVideo = false
             self.subscribeStream?.pauseAudio = false
-            ALToastView.toast(in: self.view, withText:"Resuming Audio/Video")
+          //  ALToastView.toast(in: self.view, withText:"Resuming Audio/Video")
         }
     }
     func updateOrientation(value: Int) {
@@ -380,7 +380,7 @@ class SubscribeTest: BaseTest {
         
         NSLog("Status: %s ", r5_string_for_status(statusCode))
         let s =  String(format: "Status: %s (%@)",  r5_string_for_status(statusCode), msg)
-        ALToastView.toast(in: self.view, withText:s)
+        //ALToastView.toast(in: self.view, withText:s)
         if (Int(statusCode) == Int(r5_status_disconnected.rawValue)) {
             self.cleanup()
         } else if ((Int(statusCode) == Int(r5_status_netstatus.rawValue) && msg == "NetStream.Play.UnpublishNotify") || ((Int(statusCode) == Int(r5_status_netstatus.rawValue) && msg == "NetStream.Play.StreamDry"))){
@@ -439,12 +439,10 @@ class SubscribeTest: BaseTest {
             if (hasAudio) {
                 self.subscribeStream?.pauseAudio = false
             }
-            
         }
         else if (Int(statusCode) == Int(r5_status_disconnected.rawValue))
         {
             //print("=======r5_status_disconnected")
-            
         }
         else if (Int(statusCode) == Int(r5_status_stop_streaming.rawValue))
         {
@@ -454,21 +452,20 @@ class SubscribeTest: BaseTest {
     func publisherBackground(msg: String) {
         NSLog("(publisherBackground) the msg: %@", msg)
         publisherIsInBackground = true
-        ALToastView.toast(in: self.view, withText:"Publish Background")
+        //ALToastView.toast(in: self.view, withText:"Publish Background")
     }
     
     func publisherForeground(msg: String) {
         NSLog("(publisherForeground) the msg: %@", msg)
         publisherIsInBackground = false
-        ALToastView.toast(in: self.view, withText:"Publisher Foreground")
+       // ALToastView.toast(in: self.view, withText:"Publisher Foreground")
     }
     
     func publisherInterrupt(msg: String) {
         // Most likely will not receive this...
         NSLog("(publisherInterrupt) the msg: %@", msg)
         publisherIsDisconnected = true
-        ALToastView.toast(in: self.view, withText:"Publisher Interrupt")
-        
+        //ALToastView.toast(in: self.view, withText:"Publisher Interrupt")
         // Begin reconnect sequence...
         let view = currentView
         DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
@@ -477,7 +474,7 @@ class SubscribeTest: BaseTest {
                 self.subscribeStream?.delegate = nil;
                 self.subscribeStream!.stop()
             }
-            self.reconnect()
+           // self.reconnect()
         }
     }
     func reconnect () {

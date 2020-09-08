@@ -9,6 +9,7 @@
 import UIKit
 
 class PaymentHistoryCell: UITableViewCell {
+    @IBOutlet weak var lblDonatedToTitle:UILabel!
     @IBOutlet weak var lblDonatedTo:UILabel!
        @IBOutlet weak var lblTypeOfDonation:UILabel!
        @IBOutlet weak var lblDate:UILabel!

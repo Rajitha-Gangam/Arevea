@@ -34,7 +34,7 @@
                                         <constraints>
                                             <constraint firstAttribute="height" constant="24" id="ezb-k9-abI"/>
                                         </constraints>
-                                        <fontDescription key="fontDescription" name="Poppins-Regular" family="Poppins" pointSize="14"/>
+                                        <fontDescription key="fontDescription" name="Poppins-Regular" family="Poppins" pointSize="15"/>
                                         <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <nil key="highlightedColor"/>
                                         <variation key="heightClass=regular-widthClass=regular">
@@ -48,7 +48,7 @@
                                             <constraint firstAttribute="width" constant="6" id="Cuy-CU-Q8p"/>
                                             <constraint firstAttribute="height" constant="24" id="Jnv-Mp-G1r"/>
                                         </constraints>
-                                        <fontDescription key="fontDescription" name="Poppins-Regular" family="Poppins" pointSize="14"/>
+                                        <fontDescription key="fontDescription" name="Poppins-Regular" family="Poppins" pointSize="15"/>
                                         <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <nil key="highlightedColor"/>
                                         <variation key="heightClass=regular-widthClass=regular">
@@ -61,7 +61,7 @@
                                         <constraints>
                                             <constraint firstAttribute="height" constant="24" id="eVq-wV-xxZ"/>
                                         </constraints>
-                                        <fontDescription key="fontDescription" name="Poppins-Regular" family="Poppins" pointSize="14"/>
+                                        <fontDescription key="fontDescription" name="Poppins-Regular" family="Poppins" pointSize="15"/>
                                         <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <nil key="highlightedColor"/>
                                         <variation key="heightClass=regular-widthClass=regular">
@@ -74,7 +74,7 @@
                                         <constraints>
                                             <constraint firstAttribute="height" constant="24" id="rtZ-jx-lMI"/>
                                         </constraints>
-                                        <fontDescription key="fontDescription" name="Poppins-Regular" family="Poppins" pointSize="14"/>
+                                        <fontDescription key="fontDescription" name="Poppins-Regular" family="Poppins" pointSize="15"/>
                                         <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <nil key="highlightedColor"/>
                                         <variation key="heightClass=regular-widthClass=regular">
@@ -87,7 +87,7 @@
                                         <constraints>
                                             <constraint firstAttribute="height" constant="24" id="qy6-qP-Mly"/>
                                         </constraints>
-                                        <fontDescription key="fontDescription" name="Poppins-Regular" family="Poppins" pointSize="14"/>
+                                        <fontDescription key="fontDescription" name="Poppins-Regular" family="Poppins" pointSize="15"/>
                                         <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <nil key="highlightedColor"/>
                                         <variation key="heightClass=regular-widthClass=regular">
@@ -101,7 +101,7 @@
                                             <constraint firstAttribute="width" constant="6" id="Bxq-tJ-vhy"/>
                                             <constraint firstAttribute="height" constant="24" id="kqB-9i-o5f"/>
                                         </constraints>
-                                        <fontDescription key="fontDescription" name="Poppins-Regular" family="Poppins" pointSize="14"/>
+                                        <fontDescription key="fontDescription" name="Poppins-Regular" family="Poppins" pointSize="15"/>
                                         <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <nil key="highlightedColor"/>
                                         <variation key="heightClass=regular-widthClass=regular">
@@ -115,7 +115,7 @@
                                             <constraint firstAttribute="width" constant="6" id="2G9-yq-DtN"/>
                                             <constraint firstAttribute="height" constant="24" id="xD7-Gi-tpU"/>
                                         </constraints>
-                                        <fontDescription key="fontDescription" name="Poppins-Regular" family="Poppins" pointSize="14"/>
+                                        <fontDescription key="fontDescription" name="Poppins-Regular" family="Poppins" pointSize="15"/>
                                         <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <nil key="highlightedColor"/>
                                         <variation key="heightClass=regular-widthClass=regular">
@@ -129,7 +129,7 @@
                                             <constraint firstAttribute="height" constant="24" id="bhF-OM-CRD"/>
                                             <constraint firstAttribute="width" constant="6" id="cI3-wb-qqj"/>
                                         </constraints>
-                                        <fontDescription key="fontDescription" name="Poppins-Regular" family="Poppins" pointSize="14"/>
+                                        <fontDescription key="fontDescription" name="Poppins-Regular" family="Poppins" pointSize="15"/>
                                         <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <nil key="highlightedColor"/>
                                         <variation key="heightClass=regular-widthClass=regular">
@@ -174,7 +174,7 @@
                                         <constraints>
                                             <constraint firstAttribute="height" constant="24" id="uCQ-JT-zzq"/>
                                         </constraints>
-                                        <fontDescription key="fontDescription" name="Poppins-Regular" family="Poppins" pointSize="14"/>
+                                        <fontDescription key="fontDescription" name="Poppins-Regular" family="Poppins" pointSize="16"/>
                                         <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <nil key="highlightedColor"/>
                                         <variation key="heightClass=regular-widthClass=regular">
@@ -186,7 +186,7 @@
                                         <constraints>
                                             <constraint firstAttribute="height" constant="24" id="aBt-RK-GeM"/>
                                         </constraints>
-                                        <fontDescription key="fontDescription" name="Poppins-Regular" family="Poppins" pointSize="14"/>
+                                        <fontDescription key="fontDescription" name="Poppins-Regular" family="Poppins" pointSize="16"/>
                                         <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <nil key="highlightedColor"/>
                                         <variation key="heightClass=regular-widthClass=regular">
@@ -198,7 +198,7 @@
                                         <constraints>
                                             <constraint firstAttribute="height" constant="24" id="NLh-Rc-VbA"/>
                                         </constraints>
-                                        <fontDescription key="fontDescription" name="Poppins-Regular" family="Poppins" pointSize="14"/>
+                                        <fontDescription key="fontDescription" name="Poppins-Regular" family="Poppins" pointSize="16"/>
                                         <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <nil key="highlightedColor"/>
                                         <variation key="heightClass=regular-widthClass=regular">
@@ -210,7 +210,7 @@
                                         <constraints>
                                             <constraint firstAttribute="height" constant="24" id="fUV-La-YeJ"/>
                                         </constraints>
-                                        <fontDescription key="fontDescription" name="Poppins-Regular" family="Poppins" pointSize="14"/>
+                                        <fontDescription key="fontDescription" name="Poppins-Regular" family="Poppins" pointSize="16"/>
                                         <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <nil key="highlightedColor"/>
                                         <variation key="heightClass=regular-widthClass=regular">
@@ -269,6 +269,7 @@
                 <outlet property="lblAmount" destination="CIX-Pd-IBc" id="msL-1L-OkW"/>
                 <outlet property="lblDate" destination="Rot-tz-vZz" id="VlD-6A-cgN"/>
                 <outlet property="lblDonatedTo" destination="GWH-8J-dhq" id="nV2-KJ-7Yw"/>
+                <outlet property="lblDonatedToTitle" destination="jl4-HS-Url" id="iNx-jS-5sz"/>
                 <outlet property="lblTypeOfDonation" destination="jNm-HQ-nQ1" id="Fzb-YR-cnB"/>
                 <outlet property="widthFirstView" destination="gRY-zp-VRw" id="RFp-MO-PKB"/>
             </connections>

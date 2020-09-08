@@ -95,9 +95,9 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
         tblMain.layoutIfNeeded()
         
         UIDevice.current.setValue(self.preferredInterfaceOrientationForPresentation.rawValue, forKey: "orientation")
-        
         lblVersion.text = "v" + getAppversion()
-        
+        self.imgProfilePic.layer.borderColor = UIColor.gray.cgColor
+        self.imgProfilePic.layer.borderWidth = 2.0
     }
     func getAppversion() -> String {
         let dictionary = Bundle.main.infoDictionary!
@@ -209,13 +209,10 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
                         self.tblMain.reloadSections([0], with: .none)
                     }
                 case .failure(let error):
-                    //print(error)
-                    if error._code == NSURLErrorTimedOut {
-                        print("Request timeout!")
-                    }else{
-                        self.showAlert(strMsg: error.localizedDescription)
-                        self.viewActivity.isHidden = true
-                    }
+                    let errorDesc = error.localizedDescription.replacingOccurrences(of: "URLSessionTask failed with error:", with: "")
+                    self.showAlert(strMsg: errorDesc)
+                            self.viewActivity.isHidden = true
+
                 }
         }
     }
@@ -311,13 +308,10 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
                         }
                     }
                 case .failure(let error):
-                    //print(error)
-                    if error._code == NSURLErrorTimedOut {
-                        print("Request timeout!")
-                    }else{
-                        self.showAlert(strMsg: error.localizedDescription)
-                        self.viewActivity.isHidden = true
-                    }
+                  let errorDesc = error.localizedDescription.replacingOccurrences(of: "URLSessionTask failed with error:", with: "")
+                    self.showAlert(strMsg: errorDesc)
+                            self.viewActivity.isHidden = true
+
                 }
         }
     }
@@ -344,13 +338,10 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
                         // self.tblMain.reloadData()
                     }
                 case .failure(let error):
-                    print("events error:",error ?? "")
-                    if error._code == NSURLErrorTimedOut {
-                        print("Request timeout!")
-                    }else{
-                        self.showAlert(strMsg: error.localizedDescription)
-                        self.viewActivity.isHidden = true
-                    }
+                   let errorDesc = error.localizedDescription.replacingOccurrences(of: "URLSessionTask failed with error:", with: "")
+                    self.showAlert(strMsg: errorDesc)
+                            self.viewActivity.isHidden = true
+
                 }
         }
     }
@@ -474,6 +465,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
         headers = [appDelegate.x_api_key: appDelegate.x_api_value]
         let user_id = UserDefaults.standard.string(forKey: "user_id");
         let params: [String: Any] = ["user_id":user_id ?? ""]
+        print("logout params:",params)
         AF.request(url, method: .post,  parameters: params, encoding: JSONEncoding.default,headers:headers)
             .responseJSON { response in
                 self.viewActivity.isHidden = true
@@ -494,13 +486,10 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
                     }
                     
                 case .failure(let error):
-                    //print(error)
-                    if error._code == NSURLErrorTimedOut {
-                        print("Request timeout!")
-                    }else{
-                        self.showAlert(strMsg: error.localizedDescription)
-                        self.viewActivity.isHidden = true
-                    }
+                   let errorDesc = error.localizedDescription.replacingOccurrences(of: "URLSessionTask failed with error:", with: "")
+                    self.showAlert(strMsg: errorDesc)
+                            self.viewActivity.isHidden = true
+
                     
                 }
         }
@@ -591,7 +580,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) ->  CGFloat {
         if (tableView == tblMain){
             let screenRect = UIScreen.main.bounds
-            var screenHeight = screenRect.size.height/2 - 90 //for live Channels and mylist
+            let screenHeight = screenRect.size.height/2 - 90 //for live Channels and mylist
             return screenHeight
         }else{
             if(UIDevice.current.userInterfaceIdiom == .pad){
@@ -688,7 +677,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
         let movementDistance:CGFloat = (self.view.frame.size.width);
         var movement:CGFloat = 0
         movement = movementDistance
-        UIView.animate(withDuration: 1.0, animations: {
+        UIView.animate(withDuration: 0.5, animations: {
             self.viewSideMenu.frame = self.viewSideMenu.frame.offsetBy(dx: movement, dy: 0)
         })
     }
@@ -713,11 +702,12 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
     }
     // MARK: collectionView Delegate
     func collectionView(collectionviewcell: DBCollectionViewCell?, index: Int,title: String, didTappedInTableViewCell: DashBoardCell) {
+
         hideSideMenu()
         let orgsList = didTappedInTableViewCell.rowWithItems
         let selectedOrg = orgsList[index] as? [String: Any] ?? [:]
-        print("item:\(String(describing: selectedOrg))")
-        print("title:",title)
+//        print("item:\(String(describing: selectedOrg))")
+//        print("title:",title)
         if (title == "dashboard" || title == "dashboard_my_list"){
             var streamInfo = selectedOrg["stream_info"] as? [String: Any] ?? [:]
             if (title == "dashboard_my_list"){

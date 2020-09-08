@@ -20,7 +20,7 @@ class ResetPasswordVC: UIViewController ,UITextFieldDelegate{
     override func viewDidLoad() {
         super.viewDidLoad()
         viewActivity.isHidden = true
-
+        txtEmail.backgroundColor = .clear
         self.assignbackground();
         
         // Do any additional setup after loading the view.

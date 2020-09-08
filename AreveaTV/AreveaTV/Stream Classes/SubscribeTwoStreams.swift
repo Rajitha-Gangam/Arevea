@@ -34,6 +34,7 @@ import R5Streaming
 import Alamofire
 import AWSAppSync
 import SendBirdSDK
+import  WebKit
 
 @objc(SubscribeTwoStreams)
 class SubscribeTwoStreams: UIViewController , R5StreamDelegate, UITableViewDelegate,UITableViewDataSource,OpenChanannelChatDelegate,OpenChannelMessageTableViewCellDelegate,AGEmojiKeyboardViewDelegate,SBDChannelDelegate, AGEmojiKeyboardViewDataSource,UITextFieldDelegate,UIPickerViewDelegate, UIPickerViewDataSource,UIWebViewDelegate {
@@ -94,9 +95,10 @@ class SubscribeTwoStreams: UIViewController , R5StreamDelegate, UITableViewDeleg
     var aryCharityInfo = [Any]()
     @IBOutlet weak var lblNoDataDonations: UILabel!
     @IBOutlet weak var lblNoDataTips: UILabel!
-    @IBOutlet weak var lblNoStream: UILabel!
+    @IBOutlet weak var lblStreamUnavailable: UILabel!
     @IBOutlet weak var viewTipsCreators: UIView!
     @IBOutlet weak var viewInfo: UIView!
+    @IBOutlet weak var btnPlayStream: UIButton!
 
     var orgId = 0;
     var performerId = 0;
@@ -146,8 +148,12 @@ class SubscribeTwoStreams: UIViewController , R5StreamDelegate, UITableViewDeleg
     var isStreamStarted = false
     @IBOutlet weak var txtVideoDesc_Info: UITextView!
     var app_id_for_adds = ""
-    @IBOutlet weak var webView: UIWebView!
-
+    @IBOutlet weak var webView: WKWebView!
+    var publisherIsInBackground = false
+    var publisherIsDisconnected = false
+    @IBOutlet weak var lblLive: UILabel!
+    @IBOutlet weak var imgStreamThumbNail: UIImageView!
+    var timer = Timer()
     // MARK: - View Life Cycle
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -194,9 +200,12 @@ class SubscribeTwoStreams: UIViewController , R5StreamDelegate, UITableViewDeleg
             self.app_id_for_adds = dicPerformerInfo["app_id"] as? String ?? "0"
 
         }
+        let guest_list = resultData["guestList"] != nil
+        print("===guest_list:",guest_list)
         let creatorName = "Creator Name: " + performerName;
         self.txtVideoDesc_Info.text = streamVideoDesc  + "\n\n" + creatorName
-        
+        //let creators = aryStreamInfo["creators"] as? String ?? ""
+
         
         sliderVolume.minimumValue = 0
         sliderVolume.maximumValue = 100
@@ -234,14 +243,31 @@ class SubscribeTwoStreams: UIViewController , R5StreamDelegate, UITableViewDeleg
         
         tblComments.rowHeight = 40
         tblComments.estimatedRowHeight = UITableView.automaticDimension
-        lblNoStream.text = "Please wait for the host to start the live stream"
+        lblLive.isHidden = true
+        lblStreamUnavailable.text = "Please wait for the host to start the live stream"
         lblNoDataComments.text = ""
-        getGuestDetailInGraphql(.returnCacheDataAndFetch)
+        if(UIDevice.current.userInterfaceIdiom == .pad){
+            self.imgStreamThumbNail.image = UIImage.init(named: "sample-event")
+        }else{
+            self.imgStreamThumbNail.image = UIImage.init(named: "sample_vod_square")
+        }
+        let streamBannerURL = aryStreamInfo["video_banner_image"] as? String ?? ""
+        if let urlBanner = URL(string: streamBannerURL){
+            var imageName = "sample_vod_square"
+            if(UIDevice.current.userInterfaceIdiom == .pad){
+                imageName = "sample-event"
+            }
+            self.imgStreamThumbNail.sd_setImage(with:urlBanner, placeholderImage: UIImage(named: imageName))
+        }
+        btnPlayStream.isHidden = true
         do {
             try startSubscription()
         } catch {
             print("Error subscribing to events: \(error)")
         }
+        //timer = Timer.scheduledTimer(timeInterval: 10.0, target: self, selector: #selector(repeatMethod), userInfo: nil, repeats: true)
+        getGuestDetailInGraphql(.returnCacheDataAndFetch)
+
     }
     
     func setBtnDefaultBG(){
@@ -328,27 +354,93 @@ class SubscribeTwoStreams: UIViewController , R5StreamDelegate, UITableViewDeleg
     }
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
+        addOverLay1()
+
     }
+    
     func onR5StreamStatus(_ stream: R5Stream!, withStatus statusCode: Int32, withMessage msg: String!) {
-        let s =  String(format: "Status: %s (%@)",  r5_string_for_status(statusCode), msg)
-        NSLog(s)
-        ALToastView.toast(in: self.view, withText:s)
-        
-        if (Int(statusCode) == Int(r5_status_disconnected.rawValue)) {
-            self.cleanup()
-        }
-        else if (Int(statusCode) == Int(r5_status_video_render_start.rawValue)) {
-            NSLog("SUPPORT-482 %@", msg);
-        }
-    }
+           //super.onR5StreamStatus(stream, withStatus: statusCode, withMessage: msg)
+           //        if( Int(statusCode) == Int(r5_status_start_streaming.rawValue) ){
+           //            let session : AVAudioSession = AVAudioSession.sharedInstance()
+           //            let cat = session.category
+           //            let opt = session.categoryOptions
+           //            let s =  String(format: "AV: %@ (%d)",  cat.rawValue, opt.rawValue)
+           //            ALToastView.toast(in: self.view, withText:s)
+           //        }
+           //
+           //        if( Int(statusCode) == Int(r5_status_video_render_start.rawValue) ){
+           //            let f = Int(stream.getFormat().rawValue)
+           //            let s =  String(format: "Video Format: (%d)", f)
+           //            ALToastView.toast(in: self.view, withText:s)
+           //        }
+           // MARK: Customising
+           
+           NSLog("Status: %s ", r5_string_for_status(statusCode))
+           let s =  String(format: "Status: %s (%@)",  r5_string_for_status(statusCode), msg)
+           ALToastView.toast(in: self.view, withText:s)
+           if (Int(statusCode) == Int(r5_status_disconnected.rawValue)) {
+               self.cleanup()
+           } else if ((Int(statusCode) == Int(r5_status_netstatus.rawValue) && msg == "NetStream.Play.UnpublishNotify")){
+               
+               // publisher has unpublished. possibly from background/interrupt.
+               // if (publisherIsInBackground) {
+               publisherIsDisconnected = true
+               // Begin reconnect sequence...
+               DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+                self.lblLive.isHidden = true
+                self.closeStream()
+                //unload Webview
+                self.webView.loadHTMLString("", baseURL: nil)
+                self.webView.isHidden = true
+               }
+               
+           } else if ((Int(statusCode) == Int(r5_status_netstatus.rawValue) && msg == "NetStream.Play.SufficientBW")) {
+               //print("=======sufficient band Width")
+           }else if ((Int(statusCode) == Int(r5_status_netstatus.rawValue) && msg == "NetStream.Play.InSufficientBW")) {
+               ALToastView.toast(in: self.view, withText:"Poor internet connection")
+           }else if (Int(statusCode) == Int(r5_status_audio_mute.rawValue))
+           {
+               //print("=======r5_status_audio_mute")
+               
+           }
+           else if (Int(statusCode) == Int(r5_status_audio_unmute.rawValue))
+           {
+               //print("=======r5_status_audio_unmute")
+              
+               
+           }else if (Int(statusCode) == Int(r5_status_video_mute.rawValue))
+           {
+               //print("=======r5_status_video_mute")
+               
+           }
+           else if (Int(statusCode) == Int(r5_status_video_unmute.rawValue))
+           {
+               //print("=======r5_status_video_unmute")
+               
+               
+           }
+           else if (Int(statusCode) == Int(r5_status_disconnected.rawValue))
+           {
+               //print("=======r5_status_disconnected")
+               
+           }
+           else if (Int(statusCode) == Int(r5_status_stop_streaming.rawValue))
+           {
+               //print("=======r5_status_stop_streaming")
+           }
+       }
     @objc func onMetaData(data : String){
         
     }
-    
+    @objc func repeatMethod(){
+        print("====repeatMethod")
+        getGuestDetailInGraphql(.returnCacheDataAndFetch)
+    }
     func getGuestDetailInGraphql(_ cachePolicy: CachePolicy) {
         print("====streamVideoCode:",streamVideoCode)
         self.viewControls?.isHidden = true
-        self.lblNoStream.isHidden = false
+        self.lblStreamUnavailable.isHidden = false
+        self.btnPlayStream.isHidden = false
         let listQuery = GetMulticreatorshareddataQuery(id:streamVideoCode)
         //1872_1595845007395_mc2
         //58_1594894849561_multi_creator_test_event
@@ -376,26 +468,31 @@ class SubscribeTwoStreams: UIViewController , R5StreamDelegate, UITableViewDeleg
                             let guest = guestList[index] as! [String:Any]
                             let onlineStatus = guest["onlineStatus"] as? Bool ?? false
                             let liveStatus = guest["liveStatus"] as? Bool ?? false
+
                             //it should uncomment when subscribe issue resolved
-                            /*if(onlineStatus && liveStatus) {
+                            if(onlineStatus && liveStatus) {
                                 self.streamlist.append(guest)
                             } else {
                                 self.offlineStream.append(guest)
-                            }*/
-                            self.streamlist.append(guest)
+                            }
 
                         }
                         
                     }
+                    print("self.streamlist count:",self.streamlist.count)
+
                     if(self.streamlist.count > 0){
-                        self.lblNoStream.isHidden = true
-                        self.viewControls?.isHidden = false
-                        self.pickerView.reloadComponent(0)
+                        self.pickerView.reloadComponent(0)//for load creators for Tip
                         self.findStream()
+                    }else{
+                        self.lblStreamUnavailable.isHidden = false
+                        self.btnPlayStream.isHidden = false
                     }
                     
                 }else{
                     print("--getMulticreatorshareddata null")
+                    self.lblStreamUnavailable.isHidden = false
+                    self.btnPlayStream.isHidden = false
                 }
             }
             // Remove existing records if we're either loading from cache, or loading fresh (e.g., from a refresh)
@@ -601,6 +698,10 @@ class SubscribeTwoStreams: UIViewController , R5StreamDelegate, UITableViewDeleg
                                 print("serverAddress:",serverAddress)
                                 if(!self.isStreamStarted){
                                     self.isStreamStarted = true
+                                    self.lblLive.isHidden = false
+                                    self.lblStreamUnavailable.isHidden = true
+                                    self.btnPlayStream.isHidden = true
+                                    self.viewControls?.isHidden = false
                                     self.addOverLay()
                                     self.startSession()
                                 }
@@ -655,8 +756,10 @@ class SubscribeTwoStreams: UIViewController , R5StreamDelegate, UITableViewDeleg
         superView?.layer.borderColor = UIColor.lightGray.cgColor
         superView?.layer.borderWidth = 1
         superView?.addSubview((firstView1.view)!)
-        self.viewStream.bringSubviewToFront(self.viewOverlay!)
-        self.viewOverlay?.backgroundColor = .green
+        //self.viewStream.bringSubviewToFront(self.viewOverlay!)
+        //self.viewOverlay?.backgroundColor = .green
+        self.viewStream.bringSubviewToFront(self.webView)
+
         firstView1.showDebugInfo(false)
         //firstView1.view.center = center
         let config = getConfig(url: url)
@@ -716,7 +819,7 @@ class SubscribeTwoStreams: UIViewController , R5StreamDelegate, UITableViewDeleg
     @IBAction func back(_ sender: Any) {
         print("back called")
         
-        for controller in self.navigationController!.viewControllers as Array {
+         for controller in self.navigationController!.viewControllers as Array {
             if controller.isKind(of: DashBoardVC.self) {
                 if(UIDevice.current.userInterfaceIdiom == .phone){
                     let value = UIInterfaceOrientation.portrait.rawValue
@@ -836,17 +939,36 @@ class SubscribeTwoStreams: UIViewController , R5StreamDelegate, UITableViewDeleg
             showAlert(strMsg: "Please select creator")
         }else{
             let guestInfo = self.streamlist[selectedCreatorForTip]
-            let firstName = guestInfo["first_name"] as? String ?? ""
+            //let firstName = guestInfo["first_name"] as? String ?? ""
             let guestId = guestInfo["auth_code"]as? String ?? ""
-            let lastName = guestInfo["last_name"]as? String ?? ""
-            let user_id = UserDefaults.standard.string(forKey: "user_id");
-            
-            let params = ["paymentType": "performer_tip", "user_id": user_id ?? "1", "performer_id":self.performerId,"stream_id": streamId,"guest_first_name":firstName,"guest_id":guestId,"guest_last_name":lastName] as [String : Any]
-            
-            proceedToPayment(params: params)
+            //let lastName = guestInfo["last_name"]as? String ?? ""
+            proceedToPayment(type: "performer_tip",charityId: guestId)
+
         }
     }
-    
+    @IBAction func showChatRules(){
+        let strMsg = "ESL encourages a respectful, enjoyable, and harassment-free viewing for experience for everyone.\n\nPlease avoid engaging in any one of the following:\n•    Harassing, stalking, or threatening of individuals\n•    Hate speech (sexist, racist, homophobic, etc.)\n•    Spamming, hijacking, or disrupting stream\n•    Links and advertisements.\n•    Posting other people’s private information"
+        let paragraph = NSMutableParagraphStyle()
+        paragraph.alignment = .left
+        var fontSize = 15
+        if(UIDevice.current.userInterfaceIdiom == .pad){
+            fontSize = 25
+        }
+        let attributedText = NSAttributedString(string: strMsg,
+                                                attributes: [.paragraphStyle: paragraph,NSAttributedString.Key.font: UIFont.systemFont(ofSize: CGFloat(fontSize))])
+        
+        //let attributedText = NSMutableAttributedString(string: strMsg, attributes: [NSAttributedString.Key.font: UIFont.systemFont(ofSize: 15)])
+        
+        
+        let alert = UIAlertController(title: "Chat Rules", message: "", preferredStyle: .alert)
+        alert.setValue(attributedText, forKey: "attributedMessage")
+        
+        alert.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
+        
+        DispatchQueue.main.async {
+            self.present(alert, animated: true)
+        }
+    }
     //MARK:Tableview Delegates and Datasource Methods
     
     func numberOfSections(in tableView: UITableView) ->  Int {
@@ -967,47 +1089,25 @@ class SubscribeTwoStreams: UIViewController , R5StreamDelegate, UITableViewDeleg
     }
     // MARK: Tip Methods
     @objc func payDonation(_ sender: UIButton) {
-        let user_id = UserDefaults.standard.string(forKey: "user_id");
         let charity = self.aryCharityInfo[sender.tag] as? [String:Any]
         let charityId = charity?["id"] as? Int ?? 0
-        let params = ["paymentType": "charity_donation", "user_id": user_id ?? "1", "stream_id": streamId,"charity_id":charityId] as [String : Any]
-        proceedToPayment(params: params)
+        proceedToPayment(type: "charity_donation",charityId:String(charityId))
+
     }
-    func proceedToPayment(params:[String:Any]){
+   func proceedToPayment(type:String,charityId:String){
         //let url: String = appDelegate.baseURL +  "/proceedToPayment"
-        let url = appDelegate.paymentBaseURL + "/proceedToPayment"
-        let params = params;
-        //print("params:",params)
-        let session_token = UserDefaults.standard.string(forKey: "session_token") ?? ""
-        let headers: HTTPHeaders = [
-            "Authorization": "Bearer " + session_token,
-            "Accept": "application/json"
-        ]
-        viewActivity.isHidden = false
-        AF.request(url, method: .post,  parameters: params,encoding: JSONEncoding.default, headers: headers)
-            .responseJSON { response in
-                self.viewActivity.isHidden = true
-                switch response.result {
-                case .success(let value):
-                    if let json = value as? [String: Any] {
-                        //print("proceedToPayment json:",json)
-                        
-                        if (json["token"]as? String != nil){
-                            let token = json["token"]as? String ?? ""
-                            let urlOpen = self.appDelegate.paymentRedirectionURL + "/" + token
-                            guard let url = URL(string: urlOpen) else { return }
-                            UIApplication.shared.open(url)
-                        }else{
-                            let strError = json["message"] as? String
-                            ////print(strError ?? "")
-                            self.showAlert(strMsg: strError ?? "")
-                        }
-                    }
-                case .failure(let error):
-                    ////print(error)
-                    self.showAlert(strMsg: error.localizedDescription)
-                }
+        let user_id = UserDefaults.standard.string(forKey: "user_id");
+        let strUserId = user_id ?? "1"
+        var queryString = "stream_id=" + String(streamId) + "&user_id=" + strUserId//ppv
+        if(type == "performer_tip"){
+            queryString =  queryString + "&guest_id=" + charityId
+        }else if(type == "charity_donation"){
+            queryString = queryString + "&charity_id=" + charityId
         }
+        let urlOpen = appDelegate.paymentRedirectionURL + "/" + type + "?" + queryString
+        guard let url = URL(string: urlOpen) else { return }
+        print("url to open:",url)
+        //UIApplication.shared.open(url)
     }
     
     // MARK: - Send Bird Methods
@@ -1378,7 +1478,8 @@ class SubscribeTwoStreams: UIViewController , R5StreamDelegate, UITableViewDeleg
         }
     }
     @IBAction func sendEmoji(strEmoji: String) {
-        
+        txtEmoji.resignFirstResponder()
+
         if (!isChannelAvailable_emoji){
             //print("sendBirdErrorCode:",sendBirdErrorCode_Emoji)
             switch sendBirdErrorCode_Emoji {
@@ -1402,7 +1503,6 @@ class SubscribeTwoStreams: UIViewController , R5StreamDelegate, UITableViewDeleg
                 showAlert(strMsg: "Channel is not available, Please try again later.")
                 //showAlert(strMsg: "\(self.sbdError_emoji)")
             }
-            txtEmoji.resignFirstResponder()
             return
         }
         
@@ -1773,18 +1873,28 @@ class SubscribeTwoStreams: UIViewController , R5StreamDelegate, UITableViewDeleg
     }
     func addOverLay(){
         let htmlString = "<html>\n" +
-             "   <body style='margin:0;padding:0;background:transparent;'>\n" +
-             "     <iframe width=\"100%\" height=\"100%\" src=\"https://app.singular.live/appinstances/" + self.app_id_for_adds + "/outputs/Output/onair\" frameborder=\"0\" allow=\"accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture\" allowfullscreen>\n" +
-             "     </iframe>\n" +
-             "   </body>\n" +
+             "<body style='margin:0;padding:0;background:transparent;'>\n" +
+             "<iframe width=\"100%\" height=\"100%\" src=\"https://app.singular.live/appinstances/" + self.app_id_for_adds + "/outputs/Output/onair\" frameborder=\"0\" allow=\"accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture\" allowfullscreen>\n" +
+             "</iframe>\n" +
+             "</body>\n" +
              "</html>";
              print("htmlString:",htmlString)
              self.webView.loadHTMLString(htmlString, baseURL: nil)
-             self.webView.delegate = self
              self.webView.isHidden = false
              self.viewStream.bringSubviewToFront(self.webView)
         }
-
+    func addOverLay1(){
+    let htmlString = "<html>\n" +
+         "<body style='margin:0;padding:0;background:transparent;'>\n" +
+         "<iframe width=\"100%\" height=\"100%\" src=\"https://app.singular.live/appinstances/419608/outputs/Output/onair\" frameborder=\"0\" allow=\"accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture\" allowfullscreen>\n" +
+         "</iframe>\n" +
+         "</body>\n" +
+         "</html>";
+         print("htmlString in ol1:",htmlString)
+         self.webView.loadHTMLString(htmlString, baseURL: nil)
+         self.webView.isHidden = false
+         self.viewStream.bringSubviewToFront(self.webView)
+    }
     
     // MARK: Handler for Metrics
     func startSession(){
@@ -1907,18 +2017,19 @@ class SubscribeTwoStreams: UIViewController , R5StreamDelegate, UITableViewDeleg
     
     override func viewWillAppear(_ animated: Bool) {
         if(UIDevice.current.userInterfaceIdiom == .phone){
-                   let value = UIInterfaceOrientation.landscapeLeft.rawValue
+                   let value = UIInterfaceOrientation.landscapeRight.rawValue
                    UIDevice.current.setValue(value, forKey: "orientation")
         }
-        AppDelegate.AppUtility.lockOrientation(.landscapeLeft)
+        AppDelegate.AppUtility.lockOrientation(.landscapeRight)
     }
     
     override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
            super.viewWillTransition(to: size, with: coordinator)
-           AppDelegate.AppUtility.lockOrientation(.landscape, andRotateTo: .landscapeLeft)
+           AppDelegate.AppUtility.lockOrientation(.landscape, andRotateTo: .landscapeRight)
            viewStream.layoutIfNeeded()
        }
           override func viewWillDisappear(_ animated: Bool) {
               AppDelegate.AppUtility.lockOrientation(.all)
+            timer.invalidate()
           }
 }

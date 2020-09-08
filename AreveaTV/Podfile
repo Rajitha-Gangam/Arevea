@@ -20,5 +20,10 @@ pod "AGEmojiKeyboard"
 pod 'AWSAppSync'
 pod 'EasyTipView', '~> 2.0.4'
 pod 'SDWebImage'
+pod 'Firebase/Crashlytics'
+pod 'Firebase/Analytics'
+
+
+
 
 end

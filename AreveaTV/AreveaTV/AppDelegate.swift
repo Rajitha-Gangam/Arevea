@@ -12,6 +12,9 @@ import SendBirdSDK
 import CoreLocation
 import AWSAppSync
 import UIKit
+import  AVKit
+import FirebaseCore
+
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate,CLLocationManagerDelegate {
@@ -26,38 +29,82 @@ class AppDelegate: UIResponder, UIApplicationDelegate,CLLocationManagerDelegate 
     var locationManager:CLLocationManager!
     
     // MARK: - Dev Environmet Variables Declaration
-   /* var baseURL = "https://r5ibd3yzp7.execute-api.us-west-2.amazonaws.com/devel";
-    var sendBirdAppId = "AE94EB49-0A01-43BF-96B4-8297EBB47F12";
-    var profileURL = "https://dev.arevea.tv/api/user/v1";
-    var qaUploadURL = "https://qa-uploads.arevea.tv"//need to test in dev
-    var shareURL = "https://dev.arevea.tv/channel";
-    var paymentBaseURL = "https://dev.arevea.tv/api/payment/v1";
-    var paymentRedirectionURL = "https://dev.arevea.tv/payment";
-    var cloudSearchURL = "https://r5ibd3yzp7.execute-api.us-west-2.amazonaws.com/devel/search";
-    var x_api_key = "x-api-key"
-    var x_api_value = "ORnphwUvEBoqHaoIDBIA2GOhYF0HHQ53JPkLwFM5";
-    var AWSCognitoIdentityPoolId = "us-west-2:2f173740-e6a4-4fc5-a37a-3064ac25e1bc"*/
+    /* var baseURL = "https://r5ibd3yzp7.execute-api.us-west-2.amazonaws.com/devel";
+     var termsURL = "https://dev.arevea.tv"
+     var sendBirdAppId = "AE94EB49-0A01-43BF-96B4-8297EBB47F12";
+     var profileURL = "https://dev.arevea.tv/api/user/v1";
+     var uploadURL = "https://dev-uploads.arevea.tv/dev"//need to test in dev
+     var shareURL = "https://dev.arevea.tv/channel";
+     var paymentBaseURL = "https://dev.arevea.tv/api/payment/v1";
+     var paymentRedirectionURL = "https://dev.arevea.tv/payment";
+     var cloudSearchURL = "https://r5ibd3yzp7.execute-api.us-west-2.amazonaws.com/devel/search";
+     var x_api_key = "x-api-key"
+     var x_api_value = "ORnphwUvEBoqHaoIDBIA2GOhYF0HHQ53JPkLwFM5";
+     var AWSCognitoIdentityPoolId = "us-west-2:2f173740-e6a4-4fc5-a37a-3064ac25e1bc"
+     var red5_pro_host = "livestream.arevea.tv";
+     var red5_acc_token = "YEOkGmERp08V"*/
+    
     //Dev Variables END
-
+    
     // MARK: - QA Environmet Variables Declaration
     var baseURL = "https://eku2g4rzxl.execute-api.us-west-2.amazonaws.com/dev"
+    var termsURL = "https://qa.arevea.tv"
     var sendBirdAppId = "7AF38850-F099-4C47-BD19-F7F84DAFECF8";
     var profileURL = "https://qa.arevea.tv/api/user/v1"
-    var qaUploadURL = "https://qa-uploads.arevea.tv"
-    var shareURL = "https://qa.arevea.tv/channel/"
+    var uploadURL = "https://qa-uploads.arevea.tv"
+    var shareURL = "https://qa.arevea.tv/channel"
     var paymentBaseURL = "https://qa.arevea.tv/api/payment/v1";
     var paymentRedirectionURL = "https://qa.arevea.tv/payment";
     var cloudSearchURL = "https://3ptsrb2obj.execute-api.us-east-1.amazonaws.com/dev";
     var x_api_key = "x-api-key"
     var x_api_value = "gq78SwjuLY539BLW5G3dN88IXjVtWPLB1YHL1omd"
     var AWSCognitoIdentityPoolId = "us-west-2:00b71663-b151-44a1-9164-246be7970493"
+    var red5_pro_host = "livestream.arevea.tv";
+    var red5_acc_token = "YEOkGmERp08V"
     //QA Variables END
     
+    // MARK: - Pre-prod Environmet Variables Declaration
+    /*var baseURL = "https://preprod-apis.arevea.tv"
+     var termsURL = "https://preprod.arevea.tv"
+     var sendBirdAppId = "2115A8A2-36D7-4ABC-A8CE-758500A54DFD";
+     var profileURL = "https://preprod.arevea.tv/api/user/v1"
+     var uploadURL = "https://preprod-uploads.arevea.tv"
+     var shareURL = "https://preprod.arevea.tv/channel"
+     var paymentBaseURL = "https://preprod.arevea.tv/api/payment/v1";
+     var paymentRedirectionURL = "https://preprod.arevea.tv/payment";
+     var cloudSearchURL = "https://preprod-apis.arevea.tv";
+     var x_api_key = "x-api-key"
+     var x_api_value = "xeer4W0Zt47sQ09C9OYBz3AfoYMiCaQe7gu5mEeZ"
+     var AWSCognitoIdentityPoolId = "us-west-2:e1389653-813a-4f76-8af3-b15157a6ffd8"
+     var red5_pro_host = "livestream1.arevea.tv";
+     var red5_acc_token = "Ck2jUK49JIEp"*/
+    
+    //Pre-prod Variables END
+    
+    // MARK: - prod Environmet Variables Declaration
+    /* var baseURL = "https://apis.arevea.tv"
+     var termsURL = "https://www.arevea.tv"
+     var sendBirdAppId = "ED4D2A9B-A140-40FD-83BF-6D240903C5BF";
+     var profileURL = "https://www.arevea.tv/api/user/v1"
+     var uploadURL = "https://prod-uploads.arevea.tv"
+     var shareURL = "https://www.arevea.tv/c"
+     var paymentBaseURL = "https://www.arevea.tv/api/payment/v1";
+     var paymentRedirectionURL = "https://www.arevea.tv/payment";
+     var cloudSearchURL = "https://apis.arevea.tv";
+     var x_api_key = "x-api-key"
+     var x_api_value = "42aCyQg9Cj7yWDuXTCwEL7Ll3j2YojHrablYoCYs"
+     var AWSCognitoIdentityPoolId = "us-west-2:c239b0d1-5cd5-4fcf-86a1-e812eb6d4777"
+     var red5_pro_host = "livestream2.arevea.tv";
+     var red5_acc_token = "Ck2jUK49JIEp"*/
+    //prod Variables END
+    
+    
+    var emailPopulate = ""
     var strCategory = "";
     var genreId = 0;
     var aryCountries = [["region_code":"blr1","countries":["india","sri lanka","bangaldesh","pakistan","china"]],["region_code":"tor1","countries":["canada"]],["region_code":"fra1","countries":["germany"]],["region_code":"lon1","countries":["england"]],["region_code":"sgp1","countries":["singapore"]],["region_code":"sfo1","countries":["United States"]],["region_code":"sfo2","countries":["United States"]],["region_code":"ams2","countries":["netherlands"]],["region_code":"ams3","countries":["netherlands"]],["region_code":"nyc1","countries":["United States"]],["region_code":"nyc2","countries":["United States"]],["region_code":"nyc3","countries":["United States"]]]
-    var strCountry = "India"//United States
-    var strRegionCode = "blr1"//sfo1
+    var strCountry = "United States"//United States
+    var strRegionCode = "sfo1"//sfo1
     var detailToShow = "Stream" //for details screen to show stream/audio/video,,,etc based on serach selected item
     enum UIUserInterfaceIdiom : Int {
         case unspecified
@@ -67,10 +114,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate,CLLocationManagerDelegate 
     var appSyncClient: AWSAppSyncClient?
     
     var orientationLock = UIInterfaceOrientationMask.all
-
-       func application(_ application: UIApplication, supportedInterfaceOrientationsFor window: UIWindow?) -> UIInterfaceOrientationMask {
-               return self.orientationLock
-       }
+    
+    func application(_ application: UIApplication, supportedInterfaceOrientationsFor window: UIWindow?) -> UIInterfaceOrientationMask {
+        return self.orientationLock
+    }
     
     // MARK: - Application Life cycle
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
@@ -83,7 +130,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate,CLLocationManagerDelegate 
         }
         self.window?.makeKeyAndVisible()
         // Use Firebase library to configure APIs
-        //FirebaseApp.configure()
+        FirebaseApp.configure()
         //SBDMain.initWithApplicationId("9308C3B1-A36D-47E2-BA3C-8F6F362C35AF")
         SBDMain.initWithApplicationId(sendBirdAppId)
         /*locationManager = CLLocationManager()
@@ -198,24 +245,24 @@ class AppDelegate: UIResponder, UIApplicationDelegate,CLLocationManagerDelegate 
         return true
     }
     struct AppUtility {
-
-           static func lockOrientation(_ orientation: UIInterfaceOrientationMask) {
-
-               if let delegate = UIApplication.shared.delegate as? AppDelegate {
-                   delegate.orientationLock = orientation
-               }
-           }
-
-           /// OPTIONAL Added method to adjust lock and rotate to the desired orientation
-           static func lockOrientation(_ orientation: UIInterfaceOrientationMask, andRotateTo rotateOrientation:UIInterfaceOrientation) {
-
-               self.lockOrientation(orientation)
-
-               UIDevice.current.setValue(rotateOrientation.rawValue, forKey: "orientation")
-               UINavigationController.attemptRotationToDeviceOrientation()
-           }
-
-       }
+        
+        static func lockOrientation(_ orientation: UIInterfaceOrientationMask) {
+            
+            if let delegate = UIApplication.shared.delegate as? AppDelegate {
+                delegate.orientationLock = orientation
+            }
+        }
+        
+        /// OPTIONAL Added method to adjust lock and rotate to the desired orientation
+        static func lockOrientation(_ orientation: UIInterfaceOrientationMask, andRotateTo rotateOrientation:UIInterfaceOrientation) {
+            
+            self.lockOrientation(orientation)
+            
+            UIDevice.current.setValue(rotateOrientation.rawValue, forKey: "orientation")
+            UINavigationController.attemptRotationToDeviceOrientation()
+        }
+        
+    }
 }
 // MARK: - Extensions
 
@@ -317,7 +364,7 @@ extension UIImage {
     }
 }
 extension UIImageView {
-    func downloaded(from url: URL, contentMode mode: UIView.ContentMode = .scaleToFill) {  // for swift 4.2 syntax just use ===> mode: UIView.ContentMode
+    func downloaded(from url: URL, contentMode mode: UIView.ContentMode = .scaleAspectFit) {  // for swift 4.2 syntax just use ===> mode: UIView.ContentMode
         contentMode = mode
         URLSession.shared.dataTask(with: url) { data, response, error in
             guard
@@ -385,5 +432,37 @@ extension Dictionary {
         forEach({ output += "\($0.key)=\($0.value)&" })
         output = String(output.dropLast())
         return output
+    }
+}
+extension AVPlayerViewController {
+    override open var supportedInterfaceOrientations : UIInterfaceOrientationMask     {
+        return .all
+    }
+}
+extension UIColor {
+    public convenience init?(hex: String) {
+        let r, g, b, a: CGFloat
+        
+        if hex.hasPrefix("#") {
+            let start = hex.index(hex.startIndex, offsetBy: 1)
+            let hexColor = String(hex[start...])
+            
+            if hexColor.count == 8 {
+                let scanner = Scanner(string: hexColor)
+                var hexNumber: UInt64 = 0
+                
+                if scanner.scanHexInt64(&hexNumber) {
+                    r = CGFloat((hexNumber & 0xff000000) >> 24) / 255
+                    g = CGFloat((hexNumber & 0x00ff0000) >> 16) / 255
+                    b = CGFloat((hexNumber & 0x0000ff00) >> 8) / 255
+                    a = CGFloat(hexNumber & 0x000000ff) / 255
+                    
+                    self.init(red: r, green: g, blue: b, alpha: a)
+                    return
+                }
+            }
+        }
+        
+        return nil
     }
 }

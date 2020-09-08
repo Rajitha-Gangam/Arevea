@@ -149,7 +149,7 @@ class MyEventsVC: UIViewController,OpenChanannelChatDelegate,UITableViewDelegate
     
     func collectionView(collectionviewcell: DBCollectionViewCell?, index: Int, didTappedInTableViewCell: MyEventsCell) {
         
-        let orgsList = didTappedInTableViewCell.rowWithItems
+       /* let orgsList = didTappedInTableViewCell.rowWithItems
         let selectedOrg = orgsList[index] as? [String: Any] ?? [:]
         //print("item:\(String(describing: selectedOrg))")
         
@@ -173,7 +173,7 @@ class MyEventsVC: UIViewController,OpenChanannelChatDelegate,UITableViewDelegate
                       vc.delegate = self
                       vc.performerId = performer_id
                       vc.strTitle = stream_video_title
-                      self.navigationController?.pushViewController(vc, animated: true)
+                      self.navigationController?.pushViewController(vc, animated: true)*/
     }
     /*
      // MARK: - Navigation

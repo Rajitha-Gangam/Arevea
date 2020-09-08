@@ -25,8 +25,8 @@
         
         var loginDelegate: GLLoginDelegate?
         
-        @IBOutlet weak var txtUserName: UITextField!
-        @IBOutlet weak var txtPassword: UITextField!
+        @IBOutlet weak var txtUserName: ACFloatingTextfield!
+        @IBOutlet weak var txtPassword: ACFloatingTextfield!
         @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
         @IBOutlet weak var viewActivity: UIView!
         
@@ -36,6 +36,8 @@
             
             txtUserName.delegate = self;
             txtPassword.delegate = self;
+            txtUserName.backgroundColor = .clear;
+            txtPassword.backgroundColor = .clear;
             self.navigationController?.isNavigationBarHidden = true
             viewActivity.isHidden = true
             
@@ -48,13 +50,15 @@
      
         override func viewWillAppear(_ animated: Bool) {
             AppDelegate.AppUtility.lockOrientation(.portrait)
-
-            txtUserName.text = "";
+            
+            txtUserName.text = appDelegate.emailPopulate// if user comes from reset pwd / confirm sign up, auto pupulate email
             txtPassword.text = "";
 //            txtUserName.text = "grajitha2009@gmail.com";
 //            txtPassword.text = "V@rshitha12345";
         }
-        
+        override func viewWillDisappear(_ animated: Bool) {
+            appDelegate.emailPopulate = ""
+        }
         @IBAction func resignKB(_ sender: Any) {
             txtUserName.resignFirstResponder();
             txtPassword.resignFirstResponder();
@@ -90,6 +94,8 @@
         }
         
         func AWSsignIn(){
+           
+            
             let netAvailable = appDelegate.isConnectedToInternet()
             if(!netAvailable){
                 showAlert(strMsg: "Please check your internet connection!")
@@ -101,7 +107,8 @@
             AWSMobileClient.default().signIn(username: username, password: password) {
                 (signInResult, error) in
                 //print("signInResult:\(String(describing: signInResult))");
-                
+                print("There's an error : \(error)")
+
                 DispatchQueue.main.async {
                     self.viewActivity.isHidden = true
                 }
@@ -123,11 +130,15 @@
                         if (message.contains("PostAuthentication failed")){
                             self.showAlert(strMsg: "Your account is currently logged onto another device.\n\n Please log out of the other device or contact your administrator")
                         }
+                        UserDefaults.standard.set(username, forKey: "user_email")
+                        self.delayWithSeconds(2.0){
+                            self.viewActivity.isHidden = false
+                            self.getUser();
+                        }
                     default:
                         self.showAlert(strMsg: "\(error)");
                         break
                     }
-                    //print("There's an error : \(error.localizedDescription)")
                     //print(error)
                    
                     return
@@ -135,6 +146,8 @@
                 guard let signInResult = signInResult else {
                     return
                 }
+                print("signInResult:\(signInResult)");
+
                 switch (signInResult.signInState) {
                 case .signedIn:
                     //print("User is signed in.")
@@ -147,8 +160,8 @@
                     //print("User needs a new password.")
                     self.showAlert(strMsg: "User needs a new password")
                 default:
-                    //print("Sign In needs info which is not et supported.")
-                    self.showAlert(strMsg: "Sign In needs info which is not et supported")
+                    //print("Sign In needs info which is not yet supported.")
+                    self.showAlert(strMsg: "Sign In needs info which is not yet supported")
                     
                 }
             }
@@ -298,7 +311,7 @@
             let invocationClient = AreveaAPIClient.client(forKey:appDelegate.AWSCognitoIdentityPoolId)
             invocationClient.invoke(apiRequest).continueWith { (task: AWSTask) -> Any? in
                 if let error = task.error {
-                    //print("Error occurred: \(error)")
+                    print("getUser Error occurred: \(error)")
                     self.showAlert(strMsg: "\(error)")
                     self.logout()
                     // Handle error here
@@ -314,6 +327,7 @@
                         self.viewActivity.isHidden = true
                         if let json = resultObj as? [String: Any] {
                             if (json["status"]as? Int == 0){
+                                print("getUser:",json)
                                 //print(json["message"] ?? "")
                                 let user = json["user"] as? [String:Any];
                                  //print("user:",user ?? "")

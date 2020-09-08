@@ -9,11 +9,13 @@
 import UIKit
 
 class UpcomingCell: UITableViewCell {
+    @IBOutlet weak var imgEvent:UIImageView!
     @IBOutlet weak var lblTitle:UILabel!
-    @IBOutlet weak var lblSession:UILabel!
     @IBOutlet weak var lblDate:UILabel!
+    @IBOutlet weak var lblDesc:UILabel!
     @IBOutlet weak var lblPayment:UILabel!
-    @IBOutlet weak var lblStreamStatus:UILabel!
+    @IBOutlet weak var btnStatus:UIButton!
+
     override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code

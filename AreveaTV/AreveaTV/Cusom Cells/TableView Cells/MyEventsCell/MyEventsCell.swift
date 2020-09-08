@@ -86,7 +86,9 @@ class MyEventsCell: UITableViewCell, UICollectionViewDataSource, UICollectionVie
                 cell.nameLabel.text = arySub["stream_video_title"]as? String;
                 let strURL = arySub["video_thumbnail_image"]as? String ?? "";
                 if let url = URL(string: strURL){
-                    cell.imgCategory.sd_setImage(with: url, placeholderImage: UIImage(named: "sample-event"))
+                    //cell.imgCategory.sd_setImage(with: url, placeholderImage: UIImage(named: "sample-event"))
+                    cell.imgCategory.downloaded(from: url)
+
                 }
                 cell.btnLeft.addTarget(self, action: #selector(btnLeftPress(_:)), for: .touchUpInside)
                 cell.btnRight.addTarget(self, action: #selector(btnRightPress(_:)), for: .touchUpInside)
@@ -104,7 +106,9 @@ class MyEventsCell: UITableViewCell, UICollectionViewDataSource, UICollectionVie
                 cell.nameLabel.text = arySub["performer_display_name"]as? String ?? "";
                 let strURL = arySub["performer_profile_pic"]as? String ?? "";
                 if let url = URL(string: strURL){
-                    cell.imgCategory.sd_setImage(with: url, placeholderImage: UIImage(named: "sample-event"))
+                   // cell.imgCategory.sd_setImage(with: url, placeholderImage: UIImage(named: "sample-event"))
+                    cell.imgCategory.downloaded(from: url)
+
                 }
                 cell.btnLeft.addTarget(self, action: #selector(btnLeftPress(_:)), for: .touchUpInside)
                 cell.btnRight.addTarget(self, action: #selector(btnRightPress(_:)), for: .touchUpInside)
@@ -161,8 +165,8 @@ class MyEventsCell: UITableViewCell, UICollectionViewDataSource, UICollectionVie
     }
     
     @objc func btnLeftPress(_ sender: UIButton) {
-        print("btnLeftPress called")
-        print("sender.tag",sender.tag)
+//        print("btnLeftPress called")
+//        print("sender.tag",sender.tag)
         if (sender.tag == 0){
             let indexPath = IndexPath(row: rowWithItems.count - 1, section: 0)
             collectionView.scrollToItem(at: indexPath, at: .centeredHorizontally, animated: true)
@@ -173,9 +177,9 @@ class MyEventsCell: UITableViewCell, UICollectionViewDataSource, UICollectionVie
         
     }
     @objc func btnRightPress(_ sender: UIButton) {
-        print("btnRightPress called")
-        print("sender.tag",sender.tag)
-        print("last index",rowWithItems.count - 1)
+        //print("btnRightPress called")
+       // print("sender.tag",sender.tag)
+        //print("last index",rowWithItems.count - 1)
         if (sender.tag < rowWithItems.count - 1){
             let indexPath = IndexPath(row: sender.tag  + 1, section: 0)
             collectionView.scrollToItem(at: indexPath, at: .centeredHorizontally, animated: true)

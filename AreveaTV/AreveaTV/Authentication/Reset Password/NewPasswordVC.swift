@@ -24,6 +24,9 @@ class NewPasswordVC: UIViewController ,UITextFieldDelegate{
     override func viewDidLoad() {
         super.viewDidLoad()
         viewActivity.isHidden = true
+        txtCode.backgroundColor = .clear
+        txtPwd.backgroundColor = .clear
+
         self.assignbackground();
         username = UserDefaults.standard.string(forKey: "user_email");
         // Do any additional setup after loading the view.
@@ -133,6 +136,7 @@ class NewPasswordVC: UIViewController ,UITextFieldDelegate{
                 }
             }
         }
+        appDelegate.emailPopulate = username ?? ""
         var isLoginExists = false
         for controller in self.navigationController!.viewControllers as Array {
             if controller.isKind(of: LoginVC.self) {

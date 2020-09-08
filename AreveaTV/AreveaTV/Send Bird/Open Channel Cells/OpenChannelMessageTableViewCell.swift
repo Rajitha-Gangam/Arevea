@@ -21,6 +21,7 @@ class OpenChannelMessageTableViewCell: UITableViewCell {
     @IBOutlet weak var resendButton: UIButton!
     @IBOutlet weak var messageContainerView: UIView!
     @IBOutlet weak var profileImageWidth: NSLayoutConstraint!
+    @IBOutlet weak var nicknameLabelWidth: NSLayoutConstraint!
 
     //@IBOutlet weak var messageContainerViewBottomMargin: NSLayoutConstraint!
     weak var delegate: OpenChannelMessageTableViewCellDelegate?
@@ -145,6 +146,14 @@ class OpenChannelMessageTableViewCell: UITableViewCell {
                 self.nicknameLabel.textColor = greenColor
                 self.userName.backgroundColor = greenColor
             }
+            //self.nicknameLabel.intrinsicContentSize().width
+            let nickName = self.nicknameLabel.text
+            self.nicknameLabel.text = nickName! + ":"
+            var rect: CGRect = nicknameLabel.frame //get frame of label
+            rect.size = (nicknameLabel.text?.size(withAttributes: [NSAttributedString.Key.font: UIFont(name: nicknameLabel.font.fontName , size: nicknameLabel.font.pointSize)!]))! //Calculate as per label font
+            nicknameLabelWidth.constant = rect.width + 2// set width to Constraint outlet
+            nicknameLabel.layoutIfNeeded()
+
         }
     }
     

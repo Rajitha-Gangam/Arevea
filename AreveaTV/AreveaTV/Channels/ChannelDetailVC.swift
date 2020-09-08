@@ -94,6 +94,10 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
             viewTop.layoutIfNeeded()
             viewLiveStream.layoutIfNeeded()
         }
+        self.imgStreamThumbNail.image = UIImage(named: "user")
+        self.imgStreamThumbNail.contentMode = .scaleAspectFit
+        self.txtProfile.text = ""
+
     }
     
     
@@ -120,9 +124,8 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
         super.viewDidAppear(true);
         backPressed = false
         self.imgPerformerProfile.layer.cornerRadius = self.imgPerformerProfile.frame.size.width/2
-        self.imgStreamThumbNail.image = UIImage(named: "user")
-        
-        //LiveEventById();
+        self.imgPerformerProfile.layer.borderColor = UIColor.gray.cgColor
+        self.imgPerformerProfile.layer.borderWidth = 1.0
         performerEvents();
         getPerformerInfo();
         if(isLoaded == 0 || appDelegate.isLiveLoad == "1"){
@@ -348,7 +351,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
             }
             return 300;
         }else if  (tableView == tblUpcoming){
-            return 158;
+            return 105;
         }
         return 44;
         
@@ -395,15 +398,16 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
             let upcoming = self.aryUpcoming[indexPath.row] as? [String : Any];
             //print("--upcoming:",item)
             let streamInfo = upcoming?["stream_info"] as? [String : Any];
-
+            
             cell.lblTitle.text = streamInfo?["stream_video_title"] as? String;
             let streamStatus = streamInfo?["stream_status"] as? String;
-            cell.lblStreamStatus.text = "NEW"
-            cell.lblStreamStatus.backgroundColor = .lightGray
+            cell.btnStatus.setTitle("NEW", for: .normal)
+            let gray = UIColor(red: 127, green: 125, blue: 124);
+            cell.btnStatus.backgroundColor = gray
             if(streamStatus == "inprogress"){
-                cell.lblStreamStatus.text = "LIVE"
-                let orange = UIColor(red: 255, green: 115, blue: 90);
-                cell.lblStreamStatus.backgroundColor = orange
+                cell.btnStatus.setTitle("LIVE", for: .normal)
+                let orange = UIColor(red: 253, green: 107, blue: 4);
+                cell.btnStatus.backgroundColor = orange
             }
             let isoDate = streamInfo?["publish_date_time"] as? String ?? ""
             let formatter = DateFormatter()
@@ -420,7 +424,34 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
             }
             cell.lblPayment.text = streamInfo?["stream_payment_mode"] as? String;
             //cell.lblPayment.text = String(item["streamPayment"]as! Int) + " USD"
-            cell.lblSession.text = "stream"
+            cell.lblDesc.text = streamInfo?["stream_video_description"] as? String;
+            let stream_payment_mode = streamInfo?["stream_payment_mode"] as? String;
+            if(stream_payment_mode == "paid"){
+                var currency_type = streamInfo?["currency_type"] as? String ?? ""
+                if(currency_type == "GBP"){
+                    currency_type = "£"
+                }else{
+                    currency_type = "$"
+                }
+                var amount = "0.0"
+                
+                if (streamInfo?["stream_payment_amount"] as? Double) != nil {
+                    amount = String(streamInfo?["stream_payment_amount"] as? Double ?? 0.0)
+                }else if (streamInfo?["stream_payment_amount"] as? String) != nil {
+                    amount = String(streamInfo?["stream_payment_amount"] as? String ?? "0.0")
+                }
+                
+                let payment =  currency_type + amount
+                cell.lblPayment.text = payment
+            }else{
+                cell.lblPayment.text = "Free"
+            }
+            let video_thumbnail_image = streamInfo?["video_banner_image"] as? String ?? ""
+            if let urlBanner = URL(string: video_thumbnail_image){
+                cell.imgEvent.sd_setImage(with: urlBanner, placeholderImage: UIImage(named: "default-event"))
+            }else{
+                cell.imgEvent.image = UIImage.init(named: "default-event")
+            }
             return cell
         }
         
@@ -541,78 +572,6 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
         }
     }
     
-    // MARK: Handler for getUser API, using for filters
-    func LiveEventById() {
-        let netAvailable = appDelegate.isConnectedToInternet()
-        if(!netAvailable){
-            showAlert(strMsg: "Please check your internet connection!")
-            return
-        }
-        viewActivity.isHidden = false
-        let url: String = appDelegate.baseURL +  "/LiveEventById"
-        let user_id = UserDefaults.standard.string(forKey: "user_id");
-        var streamIdLocal = "0"
-        if (streamId != 0){
-            streamIdLocal = String(streamId)
-        }
-        let headers: HTTPHeaders
-        headers = [appDelegate.x_api_key: appDelegate.x_api_value]
-        
-        let params: [String: Any] = ["userid":user_id ?? "","performer_id":performerId,"stream_id": streamIdLocal]
-        print("liveEvents params:",params)
-        // let params: [String: Any] = ["userid":user_id ?? "","performer_id":"101","stream_id": "0"]
-        AF.request(url, method: .post,parameters: params, encoding: JSONEncoding.default,headers:headers)
-            .responseJSON { response in
-                self.viewActivity.isHidden = true
-                switch response.result {
-                case .success(let value):
-                    if let json = value as? [String: Any] {
-                        print("LiveEventById JSON:",json)
-                        if (json["statusCode"]as? String == "200"){
-                            
-                            //print(json["message"] as? String ?? "")
-                            let data = json["Data"] as? [String:Any]
-                            
-                            let performer_info = data?["performer_info"] != nil
-                            if(performer_info){
-                                self.dicPerformerInfo = data?["performer_info"] as? [String : Any] ?? [String:Any]()
-                                let performerName = self.dicPerformerInfo["performer_display_name"] as? String ?? ""
-                                var performer_bio = self.dicPerformerInfo["performer_bio"] as? String ?? ""
-                                performer_bio = performer_bio.htmlToString
-                                
-                                self.txtProfile.text = performerName + "\n" + performer_bio
-                                
-                                //print("self.app_id_for_adds:",self.app_id_for_adds)
-                                let strURL = self.dicPerformerInfo["performer_profile_pic"]as? String ?? ""
-                                if let urlPerformer = URL(string: strURL){
-                                    self.imgPerformerProfile.sd_setImage(with: urlPerformer, placeholderImage: UIImage(named: "user"))
-                                    self.imgStreamThumbNail.sd_setImage(with: urlPerformer, placeholderImage: UIImage(named: "user"))
-                                    
-                                }else{
-                                    self.imgStreamThumbNail.image = UIImage(named: "user")
-                                }
-                            }else{
-                                self.txtProfile.text = ""
-                            }
-                        }else{
-                            let strError = json["message"] as? String
-                            //print("strError1:",strError ?? "")
-                            self.showAlert(strMsg: strError ?? "")
-                        }
-                        
-                    }
-                    
-                case .failure(let error):
-                    //print(error)
-                    if error._code == NSURLErrorTimedOut {
-                        print("Request timeout!")
-                    }else{
-                    self.showAlert(strMsg: error.localizedDescription)
-                    self.viewActivity.isHidden = true
-                    }
-                }
-        }
-    }
     
     
     // MARK: Handler for performerEvents API, using for upcoming schedules
@@ -756,7 +715,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
         let httpMethodName = "POST"
         let URLString: String = "/performerVideos"
         let params: [String: Any] = ["performerId": performerId,"orgId": orgId,"type": "audio"]
-        //print("performerAudios params:",params)
+        print("performerAudios params:",params)
         
         let headerParameters = [
             "Content-Type": "application/json",
@@ -847,11 +806,10 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
                                     //print("self.app_id_for_adds:",self.app_id_for_adds)
                                     let strURL = self.dicPerformerInfo["performer_profile_pic"]as? String ?? ""
                                     if let urlPerformer = URL(string: strURL){
-                                        self.imgPerformerProfile.sd_setImage(with: urlPerformer, placeholderImage: UIImage(named: "user"))
-                                        self.imgStreamThumbNail.sd_setImage(with: urlPerformer, placeholderImage: UIImage(named: "user"))
-                                        
+                                        self.downloadImage(from:urlPerformer )
                                     }else{
                                         self.imgStreamThumbNail.image = UIImage(named: "user")
+                                        self.imgPerformerProfile.image = UIImage(named: "user")
                                     }
                                 }else{
                                     self.txtProfile.text = ""
@@ -867,12 +825,10 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
                     }
                     
                 case .failure(let error):
-                    if error._code == NSURLErrorTimedOut {
-                        print("Request timeout!")
-                    }else{
-                    self.showAlert(strMsg: error.localizedDescription)
-                    self.viewActivity.isHidden = true
-                    }
+                  let errorDesc = error.localizedDescription.replacingOccurrences(of: "URLSessionTask failed with error:", with: "")
+                   self.showAlert(strMsg: errorDesc)
+                           self.viewActivity.isHidden = true
+
                 }
         }
     }
@@ -904,7 +860,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
     }
     // MARK: - Send Bird Methods
     
-   
+    
     
     override func viewWillAppear(_ animated: Bool) {
         AppDelegate.AppUtility.lockOrientation(.portrait)
@@ -913,6 +869,24 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
     deinit {
         print("Remove NotificationCenter Deinit")
         NotificationCenter.default.removeObserver(self)
+    }
+    
+    func downloadImage(from url: URL) {
+        print("Download Started")
+        getData(from: url) { data, response, error in
+            guard let data = data, error == nil else { return }
+            print(response?.suggestedFilename ?? url.lastPathComponent)
+            print("Download Finished")
+            DispatchQueue.main.async() { [weak self] in
+                self?.imgPerformerProfile.image = UIImage(data: data)
+                self?.imgPerformerProfile.contentMode = .scaleToFill
+                
+                self?.imgStreamThumbNail.image = UIImage(data: data)
+                self?.imgStreamThumbNail.contentMode = .scaleAspectFit
+                
+                self?.imgPerformerProfile.layer.cornerRadius = (self?.imgPerformerProfile.frame.size.width)!/2
+            }
+        }
     }
 }
 

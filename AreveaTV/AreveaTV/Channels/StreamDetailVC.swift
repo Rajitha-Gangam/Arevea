@@ -15,8 +15,9 @@ import MUXSDKStats;
 import CoreLocation
 import EasyTipView
 import SDWebImage
+import WebKit
 
-class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate,UITextFieldDelegate,OpenChanannelChatDelegate,OpenChannelMessageTableViewCellDelegate,AGEmojiKeyboardViewDelegate,SBDChannelDelegate, AGEmojiKeyboardViewDataSource,UIWebViewDelegate,CLLocationManagerDelegate{
+class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate,UITextFieldDelegate,OpenChanannelChatDelegate,OpenChannelMessageTableViewCellDelegate,AGEmojiKeyboardViewDelegate,SBDChannelDelegate, AGEmojiKeyboardViewDataSource,CLLocationManagerDelegate{
     // MARK: - Variables Declaration
     
     
@@ -32,7 +33,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
     
     let appDelegate = UIApplication.shared.delegate as! AppDelegate
     @IBOutlet weak var btnPayPerView: UIButton!
-    @IBOutlet weak var webView: UIWebView!
+    @IBOutlet weak var webView: WKWebView!
     var txtTopOfToolBar : UITextField!
     var r5ViewController : BaseTest? = nil
     @IBOutlet weak var viewLiveStream: UIView!
@@ -140,6 +141,8 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
     @IBOutlet weak var lblTitle: UILabel!
     @IBOutlet weak var viewActions: UIView?
     @IBOutlet weak var viewOverlay: UIView?
+    @IBOutlet weak var viewBtns: UIView?
+
     var resultData = [String:Any]()
     
     // MARK: - View Life cycle
@@ -384,29 +387,31 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                 //print("value: \(value)")
                 
                 if (value == "started"){
+                    viewActivity.isHidden = true
                     isStreamStarted = true
                     btnPlayStream.isHidden = true;
-                    let htmlString = "<html>\n" +
-                     "   <body style='margin:0;padding:0;background:transparent;'>\n" +
-                     "     <iframe width=\"100%\" height=\"100%\" src=\"https://app.singular.live/appinstances/" + self.app_id_for_adds + "/outputs/Output/onair\" frameborder=\"0\" allow=\"accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture\" allowfullscreen>\n" +
-                     "     </iframe>\n" +
-                     "   </body>\n" +
-                     "</html>";
-                     print("htmlString:",htmlString)
-                     self.webView.loadHTMLString(htmlString, baseURL: nil)
-                     self.webView.delegate = self
-                     self.webView.isHidden = false
-                     
-                     self.viewLiveStream.bringSubviewToFront(self.webView)
+                    let htmlString = "<html>\n" + "<body style='margin:0;padding:0;background:transparent;'>\n" +
+                        "<iframe width=\"100%\" height=\"100%\" src=\"https://app.singular.live/appinstances/" + self.app_id_for_adds + "/outputs/Output/onair\" frameborder=\"0\" allow=\"accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture\" allowfullscreen>\n" + "</iframe>\n" + "</body>\n" + "</html>";
+                    print("htmlString:",htmlString)
+                    self.webView.loadHTMLString(htmlString, baseURL: nil)
+                    self.webView.isHidden = false
+                    
+                    self.viewLiveStream.bringSubviewToFront(self.webView)
                     startSession()
                 }else if(value == "stopped"){
-                    //lblStreamUnavailable.text = "publisher has unpublished. possibly from background/interrupt"
+                    lblStreamUnavailable.text = "publisher has unpublished. possibly from background/interrupt"
+                    self.viewLiveStream.bringSubviewToFront(lblStreamUnavailable)
+                    btnPlayStream.setImage(UIImage.init(named: "refresh"), for: .normal)
+                    btnPlayStream.isHidden = false;
+                    //unload Webview
+                    self.webView.loadHTMLString("", baseURL: nil)
+                    self.webView.isHidden = true
                     isStreamStarted = false
-                    btnPlayStream.isHidden = true;
                     endSession()
                 }else if(value == "not_available"){
+                    viewActivity.isHidden = true
                     if (viewLiveStream.isHidden == false){
-                        lblStreamUnavailable.text = "Video streaming is currently unavailable. Please try again later"
+                        lblStreamUnavailable.text = "Video streaming is currently unavailable. Please try again later."
                         btnPlayStream.setImage(UIImage.init(named: "refresh"), for: .normal)
                         btnPlayStream.isHidden = false;
                     }
@@ -905,7 +910,10 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
     
     
     // MARK: Tip Methods
-    
+    @IBAction func payTip(_ sender: Any) {
+        viewBGTap()
+        proceedToPayment(type: "performer_tip",charityId: 0)
+    }
     @objc func payDonation(_ sender: UIButton) {
         txtEmoji.resignFirstResponder()
         let charity = self.aryCharityInfo[sender.tag] as? [String:Any]
@@ -971,7 +979,6 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
         }
     }
     @IBAction func showChatRules(){
-        viewBGTap()
         let strMsg = "ESL encourages a respectful, enjoyable, and harassment-free viewing for experience for everyone.\n\nPlease avoid engaging in any one of the following:\n•    Harassing, stalking, or threatening of individuals\n•    Hate speech (sexist, racist, homophobic, etc.)\n•    Spamming, hijacking, or disrupting stream\n•    Links and advertisements.\n•    Posting other people’s private information"
         let paragraph = NSMutableParagraphStyle()
         paragraph.alignment = .left
@@ -1007,6 +1014,8 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
             return
         }
         viewActivity.isHidden = false
+        self.btnPlayStream.isUserInteractionEnabled = true
+        
         let url: String = appDelegate.baseURL +  "/LiveEventById"
         let user_id = UserDefaults.standard.string(forKey: "user_id");
         var streamIdLocal = "0"
@@ -1057,18 +1066,19 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                                 }else{
                                     currency_type = "$"
                                 }
-                                var amount = "0.0"
+                                var strAmount = "0.0"
                                 
                                 if (streamObj["stream_payment_amount"] as? Double) != nil {
-                                    amount = String(streamObj["stream_payment_amount"] as? Double ?? 0.0)
+                                    strAmount = String(streamObj["stream_payment_amount"] as? Double ?? 0.0)
                                 }else if (streamObj["stream_payment_amount"] as? String) != nil {
-                                    amount = String(streamObj["stream_payment_amount"] as? String ?? "0.0")
+                                    strAmount = String(streamObj["stream_payment_amount"] as? String ?? "0.0")
                                 }
-                                
+                                let doubleAmount = Double(strAmount)
+                                let amount = String(format: "%.02f", doubleAmount!)
                                 let titleWatchNow = "WATCH NOW | " + currency_type + amount
                                 self.btnPayPerView.setTitle(titleWatchNow, for: .normal)
                                 
-                                let streamBannerURL = streamObj["video_thumbnail_image"] as? String ?? ""
+                                let streamBannerURL = streamObj["video_banner_image"] as? String ?? ""
                                 if let urlBanner = URL(string: streamBannerURL){
                                     var imageName = "sample_vod_square"
                                     if(UIDevice.current.userInterfaceIdiom == .pad){
@@ -1117,7 +1127,8 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                                             self.isStream = true;
                                             self.btnPlayStream.isHidden = true;
                                             self.lblStreamUnavailable.text = "";
-                                            self.setLiveStreamConfig()
+                                           self.setLiveStreamConfig()
+
                                         }else{
                                             self.lblVODUnavailable.text = ""
                                             self.viewVOD.isHidden = false
@@ -1172,7 +1183,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                                 self.btnPlayStream.isHidden = false;
                                 self.btnPlayStream.isUserInteractionEnabled = false
                                 self.btnPlayStream.setImage(UIImage.init(named: "eye-cross"), for: .normal)
-                                self.lblStreamUnavailable.text = "This vidoe may be inappropriate for some users"
+                                self.lblStreamUnavailable.text = "This video may be inappropriate for some users"
                                 
                             }
                             let charity_info = data?["charity_info"] != nil
@@ -1236,12 +1247,13 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                         }
                     }
                 case .failure(let error):
-                    //print(error)
-                    if error._code == NSURLErrorTimedOut {
-                        print("Request timeout!")
-                    }else{
-                        self.showAlert(strMsg: error.localizedDescription)
-                    }
+                    let errorDesc = error.localizedDescription.replacingOccurrences(of: "URLSessionTask failed with error:", with: "")
+                    
+                    
+                    
+                    self.showAlert(strMsg: errorDesc)
+                    self.viewActivity.isHidden = true
+                    
                 }
         }
     }
@@ -1265,7 +1277,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
         let license_key = dicGlobalProperties?["license_key"] as? String
         let server_port = dicGlobalProperties?["server_port"] as? String
         let bitrate = dicGlobalProperties?["bitrate"] as? Int
-        let host = dicGlobalProperties?["host"] as? String
+        let host = appDelegate.red5_pro_host
         let buffer_time = dicGlobalProperties?["buffer_time"] as? Float
         let port = dicGlobalProperties?["port"] as? Int
         let stream2 = dicGlobalProperties?["stream2"] as? String
@@ -1285,7 +1297,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
         Testbed.setStreamName(name: streamVideoCode)
         Testbed.setStream1Name(name: streamVideoCode)
         Testbed.setStream2Name(name: stream2 ?? "")
-        Testbed.setHost(name: host ?? "");
+        Testbed.setHost(name: host );
         Testbed.setContext(name: context ?? "")
         Testbed.setCameraWidth(name: camera_width ?? 0)
         Testbed.setCameraHeight(name: camera_height ?? 0)
@@ -1301,10 +1313,12 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
         self.configureStreamView()
     }
     func configureStreamView() {
+        
         // Update the user interface for the detail item.
         // Access the static shared interface to ensure it's loaded
         //if number_of_creators > 1 multi stream
         //else single stream
+        print("====number_of_creators:",number_of_creators)
         if(number_of_creators > 1){
             let storyboard = UIStoryboard(name: "Main", bundle: nil);
             let vc = storyboard.instantiateViewController(withIdentifier: "SubscribeTwoStreams") as! SubscribeTwoStreams
@@ -1315,6 +1329,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
             vc.streamId = self.streamId
             self.navigationController?.pushViewController(vc, animated: false)
         }else{
+            viewActivity.isHidden = false
             _ = Testbed.sharedInstance
             self.detailStreamItem = Testbed.testAtIndex(index: 0)
             if(self.detailStreamItem != nil){
@@ -1643,7 +1658,8 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
         }
     }
     @IBAction func sendEmoji(strEmoji: String) {
-        
+        txtEmoji.resignFirstResponder()
+
         if (!isChannelAvailable_emoji){
             //print("sendBirdErrorCode:",sendBirdErrorCode_Emoji)
             switch sendBirdErrorCode_Emoji {
@@ -1667,7 +1683,6 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                 showAlert(strMsg: "Channel is not available, Please try again later.")
                 //showAlert(strMsg: "\(self.sbdError_emoji)")
             }
-            txtEmoji.resignFirstResponder()
             return
         }
         
@@ -1759,8 +1774,8 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
         }
     }
     @IBAction func playStream(_ sender: Any){
-        //print("playStream called")
-        self.setLiveStreamConfig();
+        print("playStream called")
+        self.configureStreamView();
     }
     // MARK: - Emoji Delegates
     
@@ -2045,18 +2060,20 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                                 }else{
                                     currency_type = "$"
                                 }
-                                var amount = "0.0"
+                                var strAmount = "0.0"
                                 
                                 if (streamObj["stream_payment_amount"] as? Double) != nil {
-                                    amount = String(streamObj["stream_payment_amount"] as? Double ?? 0.0)
+                                    strAmount = String(streamObj["stream_payment_amount"] as? Double ?? 0.0)
                                 }else if (streamObj["stream_payment_amount"] as? String) != nil {
-                                    amount = String(streamObj["stream_payment_amount"] as? String ?? "0.0")
+                                    strAmount = String(streamObj["stream_payment_amount"] as? String ?? "0.0")
                                 }
+                                let doubleAmount = Double(strAmount)
+                                let amount = String(format: "%.02f", doubleAmount!)
                                 
                                 let titleWatchNow = "WATCH NOW | " + currency_type + amount
                                 self.btnPayPerView.setTitle(titleWatchNow, for: .normal)
                                 
-                                let streamBannerURL = streamObj["video_thumbnail_image"] as? String ?? ""
+                                let streamBannerURL = streamObj["video_banner_image"] as? String ?? ""
                                 if let urlBanner = URL(string: streamBannerURL){
                                     var imageName = "sample_vod_square"
                                     if(UIDevice.current.userInterfaceIdiom == .pad){
@@ -2200,12 +2217,13 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                     }
                     
                 case .failure(let error):
-                    if error._code == NSURLErrorTimedOut {
-                        print("Request timeout!")
-                    }else{
-                        self.showAlert(strMsg: error.localizedDescription)
-                        self.viewActivity.isHidden = true
-                    }
+                    let errorDesc = error.localizedDescription.replacingOccurrences(of: "URLSessionTask failed with error:", with: "")
+                    
+                    
+                    
+                    self.showAlert(strMsg: errorDesc)
+                    self.viewActivity.isHidden = true
+                    
                 }
         }
     }
@@ -2340,12 +2358,13 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                     }
                     
                 case .failure(let error):
-                    if error._code == NSURLErrorTimedOut {
-                        print("Request timeout!")
-                    }else{
-                        self.showAlert(strMsg: error.localizedDescription)
-                        self.viewActivity.isHidden = true
-                    }
+                    let errorDesc = error.localizedDescription.replacingOccurrences(of: "URLSessionTask failed with error:", with: "")
+                    
+                    
+                    
+                    self.showAlert(strMsg: errorDesc)
+                    self.viewActivity.isHidden = true
+                    
                 }
         }
     }
@@ -2357,15 +2376,15 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
         NotificationCenter.default.addObserver(self, selector: #selector(StreamNotificationHandler(_:)), name: .didReceiveStreamData, object: nil)
         
         if(UIDevice.current.userInterfaceIdiom == .phone){
-            let value = UIInterfaceOrientation.landscapeLeft.rawValue
+            let value = UIInterfaceOrientation.landscapeRight.rawValue
             UIDevice.current.setValue(value, forKey: "orientation")
         }
-        AppDelegate.AppUtility.lockOrientation(.landscapeLeft)
+        AppDelegate.AppUtility.lockOrientation(.landscapeRight)
     }
     
     override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
         super.viewWillTransition(to: size, with: coordinator)
-        AppDelegate.AppUtility.lockOrientation(.landscape, andRotateTo: .landscapeLeft)
+        AppDelegate.AppUtility.lockOrientation(.landscape, andRotateTo: .landscapeRight)
         
     }
     override func viewWillDisappear(_ animated: Bool) {

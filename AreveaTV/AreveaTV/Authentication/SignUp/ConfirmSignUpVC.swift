@@ -23,6 +23,7 @@ class ConfirmSignUpVC: UIViewController,UITextFieldDelegate {
     // MARK: - View Life cycle
     override func viewDidLoad() {
         super.viewDidLoad()
+        txtCode.backgroundColor = .clear
         viewActivity.isHidden = true
         // Do any additional setup after loading the view.
         addDoneButton()
@@ -172,6 +173,7 @@ class ConfirmSignUpVC: UIViewController,UITextFieldDelegate {
     }
     
     @IBAction func dismissModal() {
+        appDelegate.emailPopulate = username ?? ""
         for controller in self.navigationController!.viewControllers as Array {
             if controller.isKind(of: LoginVC.self) {
                 self.navigationController!.popToViewController(controller, animated: true)

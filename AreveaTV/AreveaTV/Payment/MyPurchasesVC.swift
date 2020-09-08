@@ -74,6 +74,7 @@ class MyPurchasesVC: UIViewController , UITableViewDelegate,UITableViewDataSourc
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tblView.dequeueReusableCell(withIdentifier: "PaymentHistoryCell", for: indexPath) as! PaymentHistoryCell
         let charity  = self.aryPaymentInfo[indexPath.row]
+        cell.lblDonatedToTitle.text = "PAID TO"
         cell.lblDonatedTo.text = charity["stream_video_title"] as? String ?? ""
         cell.lblTypeOfDonation.text = "Pay Per View"
         let dateCreated = charity["created_on"] as? String ?? ""
@@ -86,10 +87,10 @@ class MyPurchasesVC: UIViewController , UITableViewDelegate,UITableViewDataSourc
         }
         var amount = "0.0"
         
-        if (charity["stream_payment_amount"] as? Double) != nil {
-            amount = String(charity["stream_payment_amount"] as? Double ?? 0.0)
-        }else if (charity["stream_payment_amount"] as? String) != nil {
-            amount = String(charity["stream_payment_amount"] as? String ?? "0.0")
+        if (charity["transaction_user_paid_amount"] as? Double) != nil {
+            amount = String(charity["transaction_user_paid_amount"] as? Double ?? 0.0)
+        }else if (charity["transaction_user_paid_amount"] as? String) != nil {
+            amount = String(charity["transaction_user_paid_amount"] as? String ?? "0.0")
         }
         cell.lblAmount.text = currency_type + amount
         

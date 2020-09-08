@@ -19,7 +19,7 @@ class SignUpVC: UIViewController ,UITextFieldDelegate,UIPickerViewDelegate, UIPi
     @IBOutlet weak var txtPassword: UITextField!
     @IBOutlet weak var txtCfrmPassword: UITextField!
     @IBOutlet weak var txtDOB: UITextField!
-    
+    @IBOutlet weak var btnCheckTermsAndCond: UIButton!
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     @IBOutlet private weak var scrollView: UIScrollView!
     var planID = "0";
@@ -31,9 +31,16 @@ class SignUpVC: UIViewController ,UITextFieldDelegate,UIPickerViewDelegate, UIPi
     var pickerData =  ["Under 16", "16-17","18+"];
     var keyboardHeight: CGFloat = 0
     var viewUp = false;
-    
+    var isTermsChecked = false
     override func viewDidLoad() {
         super.viewDidLoad()
+        txtFirstName.backgroundColor = .clear;
+        txtLastName.backgroundColor = .clear;
+        txtEmail.backgroundColor = .clear;
+        txtPhone.backgroundColor = .clear;
+        txtDOB.backgroundColor = .clear;
+        txtPassword.backgroundColor = .clear;
+        txtCfrmPassword.backgroundColor = .clear;
         viewActivity.isHidden = true
         //self.assignbackground();
         self.navigationController?.isNavigationBarHidden = true
@@ -47,22 +54,21 @@ class SignUpVC: UIViewController ,UITextFieldDelegate,UIPickerViewDelegate, UIPi
         
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
-
-
+        
+        
     }
     @objc func keyboardWillShow(notification: NSNotification) {
         if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
             keyboardHeight = keyboardSize.height
             if (viewUp && self.view.frame.origin.y == 0){
-                self.view.frame.origin.y -= keyboardSize.height
+                self.view.frame.origin.y -= 170
             }
         }
     }
     @objc func keyboardWillHide(notification: Notification) {
         if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameBeginUserInfoKey] as? NSValue)?.cgRectValue {
-             if (viewUp && self.view.frame.origin.y != 0) {
-                self.view.frame.origin.y = 0;
-            }
+            self.view.frame.origin.y = 0;
+            
         }
     }
     func addDoneButton() {
@@ -80,7 +86,7 @@ class SignUpVC: UIViewController ,UITextFieldDelegate,UIPickerViewDelegate, UIPi
         txtCfrmPassword.inputAccessoryView = toolbar;
         txtDOB.inputAccessoryView = toolbar
         txtDOB.inputView = pickerView
-
+        
     }
     @IBAction func resignKB(_ sender: Any) {
         txtFirstName.resignFirstResponder();
@@ -184,6 +190,23 @@ class SignUpVC: UIViewController ,UITextFieldDelegate,UIPickerViewDelegate, UIPi
             }
         }
     }
+    @IBAction func termsAndCond(){
+        let urlOpen = appDelegate.termsURL + "/termsandconditions"
+        guard let url = URL(string: urlOpen) else { return }
+        print("url to open:",url)
+        UIApplication.shared.open(url)
+    }
+    @IBAction func checkTermsAndCond(){
+        if (isTermsChecked)
+        {
+            btnCheckTermsAndCond?.setImage(UIImage.init(named: "check"), for: .normal);
+            isTermsChecked = false
+        }
+        else{
+            btnCheckTermsAndCond?.setImage(UIImage.init(named: "checked"), for: .normal);
+            isTermsChecked = true
+        }
+    }
     func isValidEmail() -> Bool {
         let emailRegEx = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}"
         let emailPred = NSPredicate(format:"SELF MATCHES %@", emailRegEx)
@@ -196,6 +219,7 @@ class SignUpVC: UIViewController ,UITextFieldDelegate,UIPickerViewDelegate, UIPi
             showAlert(strMsg: "Please check your internet connection!")
             return
         }
+        
         let firstName = txtFirstName.text!.trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
         let lastName = txtLastName.text!.trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
         let phone = txtPhone.text!.trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
@@ -203,7 +227,6 @@ class SignUpVC: UIViewController ,UITextFieldDelegate,UIPickerViewDelegate, UIPi
         let pwd = txtPassword.text!.trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
         let cfrmPwd = txtCfrmPassword.text!.trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
         let dob = txtDOB.text!;
-        
         if (firstName.count == 0){
             showAlert(strMsg: "Please enter first name");
         }else if (lastName.count == 0){
@@ -223,7 +246,10 @@ class SignUpVC: UIViewController ,UITextFieldDelegate,UIPickerViewDelegate, UIPi
         }else if (cfrmPwd.count == 0){
             showAlert(strMsg: "Please enter confirm password");
         }else if(pwd != cfrmPwd){
-            showAlert(strMsg: "password and confirm password did not match");
+            showAlert(strMsg: "Password and confirm password did not match");
+        }else  if (!isTermsChecked)
+        {
+           showAlert(strMsg: "Please accept terms & conditions");
         }else{
             let dateFormatter = DateFormatter()
             dateFormatter.dateFormat = "YYYY-MM-dd"
@@ -258,17 +284,12 @@ class SignUpVC: UIViewController ,UITextFieldDelegate,UIPickerViewDelegate, UIPi
     
     func textFieldDidBeginEditing(_ textField: UITextField) {
         viewUp = false;
-        if (textField==txtPassword || textField==txtCfrmPassword || textField==txtDOB || textField==txtPhone){
-           // self.animateTextField(textField: textField, up:true)
+        if (textField==txtPassword || textField==txtCfrmPassword || textField==txtDOB || textField == txtPhone || textField == txtEmail){
             viewUp = true;
         }
     }
     func textFieldDidEndEditing(_ textField: UITextField) {
-        viewUp = false;
-        if (textField==txtPassword || textField==txtCfrmPassword || textField==txtDOB){
-            //self.animateTextField( up:false)
-            viewUp = true;
-        }
+        viewUp = true;
         textField.resignFirstResponder();
     }
     
@@ -292,22 +313,7 @@ class SignUpVC: UIViewController ,UITextFieldDelegate,UIPickerViewDelegate, UIPi
     }
     // MARK: Keyboard  Delegate Methods
     
-    func animateTextField(up: Bool)
-    {
-        let movementDistance:CGFloat = -keyboardHeight
-        //var movement:CGFloat = 0
-        if up
-        {
-            //movement = movementDistance
-            if self.view.frame.origin.y == 0{
-                self.view.frame.origin.y -= movementDistance
-            }
-        }else{
-            if self.view.frame.origin.y != 0 {
-                self.view.frame.origin.y = 0;
-            }
-        }
-    }
+    
     override var preferredStatusBarStyle: UIStatusBarStyle {
         return .lightContent // .default
     }

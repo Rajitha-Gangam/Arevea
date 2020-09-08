@@ -43,6 +43,13 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
     // MARK: - View Life cycle
     override func viewDidLoad() {
         super.viewDidLoad()
+        txtFirstName.backgroundColor = .clear;
+        txtLastName.backgroundColor = .clear;
+        txtEmail.backgroundColor = .clear;
+        txtPhone.backgroundColor = .clear;
+        txtDOB.backgroundColor = .clear;
+        txtDisplayName.backgroundColor = .clear;
+        
         viewActivity.isHidden = true
         //Do any additional setup after loading the view.
         addDoneButton();
@@ -246,13 +253,18 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
                             self.txtDisplayName.text = profile_data["user_display_name"]as? String
                             
                             let strURL = profile_data["profile_pic"]as? String ?? ""
+                            
                             self.strProfilePicURL = strURL
                             self.isDeleteShow = false
+                            self.viewActivity.isHidden = true
+
                             if let url = URL(string: strURL){
+                                print("url:",url)
                                 self.imgProfilePic.sd_setImage(with: url, placeholderImage: UIImage(named: "user"))
                                 self.isDeleteShow = true
+                                self.viewProfilePic.isHidden = false
+                                self.viewNoProfilePic.isHidden = true
                             }else{
-                                self.viewActivity.isHidden = true
                                 self.viewProfilePic.isHidden = true
                                 self.viewNoProfilePic.isHidden = false
                             }
@@ -347,7 +359,7 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
                         if (json["status"]as? Int == 0){
                             //print(json["message"] ?? "")
                             self.showAlert(strMsg:"Profile updated successfully")
-                            self.navigationController?.popViewController(animated: true);
+                            //self.navigationController?.popViewController(animated: true);
                             let fn = self.txtFirstName.text!
                             let ln = self.txtLastName.text!
                             let strName = String((fn.first)!) + String((ln.first)!)
@@ -467,7 +479,7 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
     
     func animateTextField(textField: UITextField, up: Bool)
     {
-        let movementDistance:CGFloat = -150
+        let movementDistance:CGFloat = -200
         var movement:CGFloat = 0
         if up
         {
@@ -596,13 +608,11 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
                     }
                 }
             case .failure(let error):
-                //print(error)
-                if error._code == NSURLErrorTimedOut {
-                    print("Request timeout!")
-                }else{
-                self.showAlert(strMsg: error.localizedDescription)
+                //print("error:",error)
+                let errorDesc = error.localizedDescription.replacingOccurrences(of: "URLSessionTask failed with error:", with: "")
+                self.showAlert(strMsg: errorDesc)
                 self.viewActivity.isHidden = true
-                }
+                
             }
         }
     }
@@ -630,8 +640,8 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
         
         //let headers: HTTPHeaders = ["access_token": session_token]
         let user_id = UserDefaults.standard.string(forKey: "user_id");
-        //appDelegate.qaUploadURL/profile/1590754622840_profile_pic.png
-        let profile_pic_name = self.strProfilePicURL.replacingOccurrences(of:appDelegate.qaUploadURL, with: "")//profile/1590754622840_profile_pic.png
+        //appDelegate.uploadURL/profile/1590754622840_profile_pic.png
+        let profile_pic_name = self.strProfilePicURL.replacingOccurrences(of:appDelegate.uploadURL, with: "")//profile/1590754622840_profile_pic.png
         //print("profile_pic_name:",profile_pic_name)
         let params: [String: Any] = ["delete_for":"profile_pic","image_name":profile_pic_name,"user_id":user_id ?? ""]
         let headers: HTTPHeaders
@@ -663,13 +673,10 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
                         }
                     }
                 case .failure(let error):
-                    //print(error)
-                   if error._code == NSURLErrorTimedOut {
-                        print("Request timeout!")
-                    }else{
-                    self.showAlert(strMsg: error.localizedDescription)
-                    self.viewActivity.isHidden = true
-                    }
+                  let errorDesc = error.localizedDescription.replacingOccurrences(of: "URLSessionTask failed with error:", with: "")
+                    self.showAlert(strMsg: errorDesc)
+                            self.viewActivity.isHidden = true
+
                 }
         }
     }
