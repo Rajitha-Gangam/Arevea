@@ -14,8 +14,8 @@
             filePath = "AreveaTV/DashBoard/Profile/ProfileVC.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "611"
-            endingLineNumber = "611"
+            startingLineNumber = "626"
+            endingLineNumber = "626"
             landmarkName = "updateProfilePic()"
             landmarkType = "7">
          </BreakpointContent>
@@ -30,8 +30,8 @@
             filePath = "AreveaTV/DashBoard/Profile/ProfileVC.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "606"
-            endingLineNumber = "606"
+            startingLineNumber = "621"
+            endingLineNumber = "621"
             landmarkName = "updateProfilePic()"
             landmarkType = "7">
          </BreakpointContent>
@@ -46,8 +46,8 @@
             filePath = "AreveaTV/Stream Classes/SubscribeTwoStreams.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "878"
-            endingLineNumber = "878"
+            startingLineNumber = "850"
+            endingLineNumber = "850"
             landmarkName = "tapTips()"
             landmarkType = "7">
          </BreakpointContent>

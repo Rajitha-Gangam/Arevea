@@ -33,6 +33,7 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
     var strProfilePicURL = ""
     let pickerView = UIPickerView()
     var pickerData =  ["Under 16", "16-17","18+"];
+    var selectedAgeIndex = -1
     @IBOutlet weak var heightTopView: NSLayoutConstraint?
     @IBOutlet weak var viewTop: UIView!
     var isDeleteShow = false
@@ -239,14 +240,17 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
                             if (age > 17){
                                 self.txtDOB.text = self.pickerData[2]
                                 //print("second:",self.pickerData[1])
+                                self.selectedAgeIndex = 2
                                 self.pickerView.selectRow(2, inComponent: 0, animated: true)
                             }
                             else if (age == 16 || age == 17 ){
                                 self.txtDOB.text = self.pickerData[1]
                                 //print("second:",self.pickerData[1])
+                                self.selectedAgeIndex = 1
                                 self.pickerView.selectRow(1, inComponent: 0, animated: true)
                             }else{
                                 self.txtDOB.text = self.pickerData[0]
+                                self.selectedAgeIndex = 0
                                 self.pickerView.selectRow(0, inComponent: 0, animated: true)
                             }
                             //let diff = Int(currentDate) - Int(pastdate)
@@ -306,10 +310,13 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
         var dateComponent = DateComponents()
         
         if (dob == "Under 16"){
+            selectedAgeIndex = 0
             dateComponent.year = -15 // currentdate -15 years
         }else if (dob == "16-17"){
+            selectedAgeIndex = 1
             dateComponent.year = -16 // currentdate -16 years
         }else{
+            selectedAgeIndex = 2
             dateComponent.year = -18 // currentdate -18 years
         }
         let pastDate = Calendar.current.date(byAdding: dateComponent, to: currentDate)
@@ -451,6 +458,14 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
     
     func textFieldDidBeginEditing(_ textField: UITextField) {
         self.animateTextField(textField: textField, up:true)
+        if(textField == txtDOB){
+            for (index,element) in pickerData.enumerated(){
+                if(element == txtDOB.text){
+                    pickerView.selectRow(index, inComponent: 0, animated: true)
+                    break
+                }
+            }
+        }
     }
     func textFieldDidEndEditing(_ textField: UITextField) {
         self.animateTextField(textField: textField, up:false)
@@ -696,8 +711,16 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
     }
     
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
-        let selectedItem = pickerData[row]
-        txtDOB.text = selectedItem
+        
+        if (selectedAgeIndex <= row){
+            let selectedItem = pickerData[row]
+            txtDOB.text = selectedItem
+        }else{
+            txtDOB.resignFirstResponder()
+            showAlert(strMsg: "This operation is restricted")
+        }
+       
+        
     }
     override func viewWillDisappear(_ animated: Bool) {
         AppDelegate.AppUtility.lockOrientation(.all)

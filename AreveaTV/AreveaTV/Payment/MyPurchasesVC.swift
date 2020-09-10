@@ -75,6 +75,8 @@ class MyPurchasesVC: UIViewController , UITableViewDelegate,UITableViewDataSourc
         let cell = tblView.dequeueReusableCell(withIdentifier: "PaymentHistoryCell", for: indexPath) as! PaymentHistoryCell
         let charity  = self.aryPaymentInfo[indexPath.row]
         cell.lblDonatedToTitle.text = "PAID TO"
+        cell.lblTypeOfDonationTitle.text = "TYPE OF PAYMENT"
+        
         cell.lblDonatedTo.text = charity["stream_video_title"] as? String ?? ""
         cell.lblTypeOfDonation.text = "Pay Per View"
         let dateCreated = charity["created_on"] as? String ?? ""

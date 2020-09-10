@@ -12,6 +12,8 @@ class PaymentHistoryCell: UITableViewCell {
     @IBOutlet weak var lblDonatedToTitle:UILabel!
     @IBOutlet weak var lblDonatedTo:UILabel!
        @IBOutlet weak var lblTypeOfDonation:UILabel!
+    @IBOutlet weak var lblTypeOfDonationTitle:UILabel!
+
        @IBOutlet weak var lblDate:UILabel!
        @IBOutlet weak var lblAmount:UILabel!
     @IBOutlet weak var widthFirstView: NSLayoutConstraint!

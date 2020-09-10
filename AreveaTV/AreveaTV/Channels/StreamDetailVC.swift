@@ -144,7 +144,9 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
     @IBOutlet weak var viewBtns: UIView?
 
     var resultData = [String:Any]()
-    
+    var isShowChat = false
+    var isAgeAllowed = false
+    var amountWithCurrencyType = ""
     // MARK: - View Life cycle
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -248,11 +250,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
         txtTopOfToolBar.resignFirstResponder()
         txtEmoji.resignFirstResponder()
     }
-    @objc func txtEmojiTap(textField: UITextField) {
-        setBtnDefaultBG()
-        let orange = UIColor.init(red: 255, green: 155, blue: 90)
-        btnEmoji?.layer.borderColor = orange.cgColor
-    }
+   
     
     @IBAction func onTapTitle(){
         print("onTapTitle called")
@@ -626,17 +624,40 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
     }
     @IBAction func tapEmoji(){
         print("emoji")
-        setBtnDefaultBG()
-        let orange = UIColor.init(red: 255, green: 155, blue: 90)
-        btnEmoji?.layer.borderColor = orange.cgColor
+        
+    }
+    @objc func txtEmojiTap(textField: UITextField) {
+        if(isShowChat){
+           setBtnDefaultBG()
+            let orange = UIColor.init(red: 255, green: 155, blue: 90)
+            btnEmoji?.layer.borderColor = orange.cgColor
+        }else{
+            if(isAgeAllowed){
+                let msg = "Please pay " + amountWithCurrencyType
+                showAlert(strMsg: msg)
+            }else{
+                let msg = "Your age is not supported"
+                showAlert(strMsg: msg)
+            }
+        }
     }
     @IBAction func tapChat(){
         print("chat")
-        setBtnDefaultBG()
-        let orange = UIColor.init(red: 255, green: 155, blue: 90)
-        btnChat?.layer.borderColor = orange.cgColor
-        viewComments.isHidden = false
-        
+        if(isShowChat){
+            setBtnDefaultBG()
+            let orange = UIColor.init(red: 255, green: 155, blue: 90)
+            btnChat?.layer.borderColor = orange.cgColor
+            viewComments.isHidden = false
+        }else{
+            if(isAgeAllowed){
+                let msg = "Please pay " + amountWithCurrencyType
+                showAlert(strMsg: msg)
+            }else{
+                let msg = "Your age is not supported"
+                showAlert(strMsg: msg)
+            }
+            
+        }
     }
     @IBAction func closeInfo(){
         viewInfo.isHidden = true
@@ -1040,7 +1061,8 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                             //print(json["message"] as? String ?? "")
                             let data = json["Data"] as? [String:Any]
                             self.resultData = data ?? [:]
-                            
+                            self.isShowChat = true
+                            self.isAgeAllowed = true
                             self.aryStreamInfo = data?["stream_info"] as? [String:Any] ?? [:]
                             let stream_info_key_exists = self.aryStreamInfo["id"]
                             if (stream_info_key_exists != nil){
@@ -1075,7 +1097,8 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                                 }
                                 let doubleAmount = Double(strAmount)
                                 let amount = String(format: "%.02f", doubleAmount!)
-                                let titleWatchNow = "WATCH NOW | " + currency_type + amount
+                                self.amountWithCurrencyType = currency_type + amount
+                                let titleWatchNow = "WATCH NOW | " + self.amountWithCurrencyType
                                 self.btnPayPerView.setTitle(titleWatchNow, for: .normal)
                                 
                                 let streamBannerURL = streamObj["video_banner_image"] as? String ?? ""
@@ -1117,6 +1140,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                                     self.btnPayPerView.isHidden = false
                                     self.viewVOD.isHidden = false
                                     self.isChannelAvailable = false
+                                    self.isShowChat = false
                                 }else{
                                     self.btnPayPerView.isHidden = true
                                     if (stream_info_key_exists != nil){
@@ -1184,7 +1208,8 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                                 self.btnPlayStream.isUserInteractionEnabled = false
                                 self.btnPlayStream.setImage(UIImage.init(named: "eye-cross"), for: .normal)
                                 self.lblStreamUnavailable.text = "This video may be inappropriate for some users"
-                                
+                                self.isShowChat = false
+                                self.isAgeAllowed = false
                             }
                             let charity_info = data?["charity_info"] != nil
                             if(charity_info){
@@ -2069,8 +2094,8 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                                 }
                                 let doubleAmount = Double(strAmount)
                                 let amount = String(format: "%.02f", doubleAmount!)
-                                
-                                let titleWatchNow = "WATCH NOW | " + currency_type + amount
+                                self.amountWithCurrencyType = currency_type + amount
+                                let titleWatchNow = "WATCH NOW | " + self.amountWithCurrencyType
                                 self.btnPayPerView.setTitle(titleWatchNow, for: .normal)
                                 
                                 let streamBannerURL = streamObj["video_banner_image"] as? String ?? ""

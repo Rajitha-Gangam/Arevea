@@ -271,6 +271,7 @@
                 <outlet property="lblDonatedTo" destination="GWH-8J-dhq" id="nV2-KJ-7Yw"/>
                 <outlet property="lblDonatedToTitle" destination="jl4-HS-Url" id="iNx-jS-5sz"/>
                 <outlet property="lblTypeOfDonation" destination="jNm-HQ-nQ1" id="Fzb-YR-cnB"/>
+                <outlet property="lblTypeOfDonationTitle" destination="C5Y-WF-gLu" id="d1j-1D-QHV"/>
                 <outlet property="widthFirstView" destination="gRY-zp-VRw" id="RFp-MO-PKB"/>
             </connections>
             <point key="canvasLocation" x="138.40579710144928" y="133.92857142857142"/>
