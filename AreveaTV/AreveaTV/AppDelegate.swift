@@ -14,6 +14,7 @@ import AWSAppSync
 import UIKit
 import  AVKit
 import FirebaseCore
+import Alamofire
 
 
 @UIApplicationMain
@@ -25,11 +26,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate,CLLocationManagerDelegate 
     var plan = "";
     var USER_NAME = "";
     var USER_NAME_FULL = "";
+    var USER_DISPLAY_NAME = "";
     var isLiveLoad = "0";
     var locationManager:CLLocationManager!
     
     // MARK: - Dev Environmet Variables Declaration
-    /* var baseURL = "https://r5ibd3yzp7.execute-api.us-west-2.amazonaws.com/devel";
+     /*var baseURL = "https://dev-apis.arevea.tv";
      var termsURL = "https://dev.arevea.tv"
      var sendBirdAppId = "AE94EB49-0A01-43BF-96B4-8297EBB47F12";
      var profileURL = "https://dev.arevea.tv/api/user/v1";
@@ -42,12 +44,19 @@ class AppDelegate: UIResponder, UIApplicationDelegate,CLLocationManagerDelegate 
      var x_api_value = "ORnphwUvEBoqHaoIDBIA2GOhYF0HHQ53JPkLwFM5";
      var AWSCognitoIdentityPoolId = "us-west-2:2f173740-e6a4-4fc5-a37a-3064ac25e1bc"
      var red5_pro_host = "livestream.arevea.tv";
-     var red5_acc_token = "YEOkGmERp08V"*/
+     var red5_acc_token = "YEOkGmERp08V"
+     var ol_base_url = "https://api.us.onelogin.com";
+     var ol_sub_domain = "areveatv-sandbox"
+     var ol_client_id = "4e42c39db6ada915afaf60448254cd10033604c982128c55d1548e218b983279"
+     var ol_client_secret = "67795bdcf01b42caeb145988f7e64bd71d00191e2abab99dc7e43bf86da3e50c"
+     var ol_access_token = ""
+     var ol_lambda_url = "https://dev-apis.arevea.tv"*/
+        
     
     //Dev Variables END
     
     // MARK: - QA Environmet Variables Declaration
-    var baseURL = "https://eku2g4rzxl.execute-api.us-west-2.amazonaws.com/dev"
+    var baseURL = "https://qa-apis.arevea.tv"
     var termsURL = "https://qa.arevea.tv"
     var sendBirdAppId = "7AF38850-F099-4C47-BD19-F7F84DAFECF8";
     var profileURL = "https://qa.arevea.tv/api/user/v1"
@@ -61,10 +70,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate,CLLocationManagerDelegate 
     var AWSCognitoIdentityPoolId = "us-west-2:00b71663-b151-44a1-9164-246be7970493"
     var red5_pro_host = "livestream.arevea.tv";
     var red5_acc_token = "YEOkGmERp08V"
+    var ol_base_url = "https://api.us.onelogin.com";
+    var ol_sub_domain = "areveatv-sandbox"
+    var ol_client_id = "4e42c39db6ada915afaf60448254cd10033604c982128c55d1548e218b983279"
+    var ol_client_secret = "67795bdcf01b42caeb145988f7e64bd71d00191e2abab99dc7e43bf86da3e50c"
+    var ol_access_token = ""
+    var ol_lambda_url = "https://qa-apis.arevea.tv"
     //QA Variables END
     
     // MARK: - Pre-prod Environmet Variables Declaration
-    /*var baseURL = "https://preprod-apis.arevea.tv"
+   /* var baseURL = "https://preprod-apis.arevea.tv"
      var termsURL = "https://preprod.arevea.tv"
      var sendBirdAppId = "2115A8A2-36D7-4ABC-A8CE-758500A54DFD";
      var profileURL = "https://preprod.arevea.tv/api/user/v1"
@@ -77,12 +92,19 @@ class AppDelegate: UIResponder, UIApplicationDelegate,CLLocationManagerDelegate 
      var x_api_value = "xeer4W0Zt47sQ09C9OYBz3AfoYMiCaQe7gu5mEeZ"
      var AWSCognitoIdentityPoolId = "us-west-2:e1389653-813a-4f76-8af3-b15157a6ffd8"
      var red5_pro_host = "livestream1.arevea.tv";
-     var red5_acc_token = "Ck2jUK49JIEp"*/
+     var red5_acc_token = "Ck2jUK49JIEp"
+     var ol_base_url = "https://api.us.onelogin.com";
+     var ol_sub_domain = "areveatv-sandbox"
+     var ol_client_id = "4e42c39db6ada915afaf60448254cd10033604c982128c55d1548e218b983279"
+     var ol_client_secret = "67795bdcf01b42caeb145988f7e64bd71d00191e2abab99dc7e43bf86da3e50c"
+     var ol_access_token = ""
+     var ol_lambda_url = "https://preprod-apis.arevea.tv" */
+     
     
     //Pre-prod Variables END
     
     // MARK: - prod Environmet Variables Declaration
-    /* var baseURL = "https://apis.arevea.tv"
+     /*var baseURL = "https://apis.arevea.tv"
      var termsURL = "https://www.arevea.tv"
      var sendBirdAppId = "ED4D2A9B-A140-40FD-83BF-6D240903C5BF";
      var profileURL = "https://www.arevea.tv/api/user/v1"
@@ -95,7 +117,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate,CLLocationManagerDelegate 
      var x_api_value = "42aCyQg9Cj7yWDuXTCwEL7Ll3j2YojHrablYoCYs"
      var AWSCognitoIdentityPoolId = "us-west-2:c239b0d1-5cd5-4fcf-86a1-e812eb6d4777"
      var red5_pro_host = "livestream2.arevea.tv";
-     var red5_acc_token = "Ck2jUK49JIEp"*/
+     var red5_acc_token = "Ck2jUK49JIEp"
+     var ol_base_url = "https://api.us.onelogin.com";
+     var ol_sub_domain = "areveatv-sandbox"
+     var ol_client_id = "4f4a70d46e9cb24ce5f723837402343a1b622bca17dc041df218991c1f5eb247"
+     var ol_client_secret = "d5c29333a8e9e5164d203cd7540b17e4c1d7bf2c2f52d15a01460c506a60dbca"
+     var ol_access_token = ""
+     var ol_lambda_url = "https://apis.arevea.tv"*/
+     
     //prod Variables END
     
     
@@ -128,6 +157,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate,CLLocationManagerDelegate 
         if let USER_NAME_FULL  = UserDefaults.standard.string(forKey: "USER_NAME_FULL")  {
             self.USER_NAME_FULL = USER_NAME_FULL
         }
+        if let USER_DISPLAY_NAME  = UserDefaults.standard.string(forKey: "USER_DISPLAY_NAME")  {
+            self.USER_DISPLAY_NAME = USER_DISPLAY_NAME
+        }
         self.window?.makeKeyAndVisible()
         // Use Firebase library to configure APIs
         FirebaseApp.configure()
@@ -156,10 +188,24 @@ class AppDelegate: UIResponder, UIApplicationDelegate,CLLocationManagerDelegate 
         } catch {
             print("Error initializing AppSync client. \(error)")
         }
+        /*ol_access_token = UserDefaults.standard.string(forKey: "ol_access_token") ?? "";
+        if (ol_access_token == ""){
+            getToken()
+        }*/
+       let streamlist = [["user_type": "creator1", "auth_code": "bd6d55f6-7ec6-4ca1-93eb-6cdf6ed44d0f", "last_name": "vknl", "onlineStatus": 0, "first_name": "Meena", "full_name": "Meena vknl", "liveStatus": 0, "useAudio": 1, "useVideo": 1], ["first_name": "meena", "auth_code": "dd3d2c16-b5a4-4b00-826b-f5d6b5642768", "full_name": "meena vaddadi", "useVideo": 1, "onlineStatus": 0, "useAudio": 1, "liveStatus": 0, "user_type": "guest", "last_name": "vaddadi"]]
+        let duplicateList = [["user_type": "creator", "auth_code": "bd6d55f6-7ec6-4ca1-93eb-6cdf6ed44d0f", "last_name": "vknl", "onlineStatus": 0, "first_name": "Meena", "full_name": "Meena vknl", "liveStatus": 0, "useAudio": 1, "useVideo": 1], ["first_name": "meena", "auth_code": "dd3d2c16-b5a4-4b00-826b-f5d6b5642768", "full_name": "meena vaddadi", "useVideo": 1, "onlineStatus": 0, "useAudio": 1, "liveStatus": 0, "user_type": "guest", "last_name": "vaddadi"]]
+        if (streamlist as AnyObject).isEqual(duplicateList as AnyObject) {
+            print("equal")
+        }else{
+            print("not equal")
+        }
+        let actual: [[String: Any]] = [["id": "12345", "name": "Aar"]]
+        let expected: [[String: Any]] = [["id": "12345", "name": "Aar"]]
+        //print(NSDictionary(dictionary: actual).isEqual(to: expected))//False
         
         return true
     }
-    
+   
     func isConnectedToInternet() -> Bool {
         let hostname = "google.com"
         let hostinfo = gethostbyname(hostname)

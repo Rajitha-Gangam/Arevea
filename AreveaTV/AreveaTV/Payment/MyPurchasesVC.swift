@@ -131,66 +131,49 @@ class MyPurchasesVC: UIViewController , UITableViewDelegate,UITableViewDataSourc
     }
     // MARK: Handler for myList(myList) API
     func myList(){
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        let URLString: String = "/myList"
-        viewActivity.isHidden = false
-        let user_id = UserDefaults.standard.string(forKey: "user_id");
-        let params: [String: Any] = ["userid":user_id ?? ""]
-        
-        let headerParameters = [
-            "Content-Type": "application/json",
-            "Accept": "application/json"
-        ]
-        let httpMethodName = "POST"
-        // Construct the request object
-        let apiRequest = AWSAPIGatewayRequest(httpMethod: httpMethodName,
-                                              urlString: URLString,
-                                              queryParameters: [:],
-                                              headerParameters: headerParameters,
-                                              httpBody: params)
-        // Fetch the Cloud Logic client to be used for invocation
-        let invocationClient = AreveaAPIClient.client(forKey:appDelegate.AWSCognitoIdentityPoolId)
-        invocationClient.invoke(apiRequest).continueWith { (task: AWSTask) -> Any? in
-            if let error = task.error {
-                //print("Error occurred: \(error)")
-                self.showAlert(strMsg: error as? String ?? error.localizedDescription)
-                // Handle error here
-                return nil
-            }
-            // Handle successful result here
-            let result = task.result!
-            let responseString = String(data: result.responseData!, encoding: .utf8)
-            let data = responseString!.data(using: .utf8)!
-            do {
-                let resultObj = try JSONSerialization.jsonObject(with: data, options : .allowFragments)
-                DispatchQueue.main.async {
-                    self.viewActivity.isHidden = true
-
-                    //print(resultObj)
-                    if let json = resultObj as? [String: Any] {
-                        if (json["statusCode"]as? String == "200"){
-                            print("Mylist JSON:",json)
-                            self.aryPaymentInfo = json["Data"] as? [[String: Any]] ?? [[String:Any]]()
-                            print("Mylist count:",self.aryPaymentInfo.count)
-                            self.tblView.reloadData()
-                        }
-                        else{
-                            let strError = json["message"] as? String
-                            print("Mylist error:",strError ?? "")
-                            self.showAlert(strMsg: strError ?? "")
-                        }
-                        
-                    }
-                }
-                
-            } catch let error as NSError {
-                //print(error)
-                self.showAlert(strMsg: error.localizedDescription)
-                self.viewActivity.isHidden = true
-            }
-            return nil
+        let netAvailable = appDelegate.isConnectedToInternet()
+        if(!netAvailable){
+            showAlert(strMsg: "Please check your internet connection!")
+            return
         }
-    }
+              let appDelegate = UIApplication.shared.delegate as! AppDelegate
+              let url: String = appDelegate.ol_lambda_url +  "/myList"
+        let user_id = UserDefaults.standard.string(forKey: "user_id");
+        let inputData: [String: Any] = ["userid":user_id ?? ""]
+        let session_token = UserDefaults.standard.string(forKey: "session_token") ?? ""
+        let headers : HTTPHeaders = [
+            "Content-Type": "application/json",
+            appDelegate.x_api_key:appDelegate.x_api_value,
+            "Authorization": "Bearer " + session_token
+        ]
+              viewActivity.isHidden = false
+              AF.request(url, method: .post,parameters: inputData, encoding: JSONEncoding.default,headers:headers)
+                  .responseJSON { response in
+                      self.viewActivity.isHidden = true
+                      switch response.result {
+                      case .success(let value):
+                          if let json = value as? [String: Any] {
+                              print("myList JSON:",json)
+                              if (json["statusCode"]as? String == "200" ){
+                                self.aryPaymentInfo = json["Data"] as? [[String: Any]] ?? [[String:Any]]()
+                                print("Mylist count:",self.aryPaymentInfo.count)
+                                self.tblView.reloadData()
+                              }else{
+                                  let strMsg = json["message"] as? String ?? ""
+                                  self.showAlert(strMsg: strMsg)
+                              }
+                             
+                          }
+                      case .failure(let error):
+                         let errorDesc = error.localizedDescription.replacingOccurrences(of: "URLSessionTask failed with error:", with: "")
+                          self.showAlert(strMsg: errorDesc)
+                                  self.viewActivity.isHidden = true
+
+                      }
+              }
+          }
+    
+    
     
     override var preferredStatusBarStyle: UIStatusBarStyle {
         return .lightContent // .default

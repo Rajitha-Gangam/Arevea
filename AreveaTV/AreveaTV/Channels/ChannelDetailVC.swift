@@ -573,202 +573,119 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
     }
     
     
-    
-    // MARK: Handler for performerEvents API, using for upcoming schedules
     func performerEvents(){
-        let netAvailable = appDelegate.isConnectedToInternet()
-        if(!netAvailable){
-            showAlert(strMsg: "Please check your internet connection!")
-            return
-        }
-        viewActivity.isHidden = false
-        let httpMethodName = "POST"
-        let URLString: String = "/performerEvents"
-        let params: [String: Any] = ["performerId": performerId,"orgId": orgId]
-        //print("performerEvents params:",params);
-        let headerParameters = [
+              let appDelegate = UIApplication.shared.delegate as! AppDelegate
+              let url: String = appDelegate.ol_lambda_url +  "/performerEvents"
+        let inputData: [String: Any] = ["performerId": performerId,"orgId": orgId]
+        let session_token = UserDefaults.standard.string(forKey: "session_token") ?? ""
+        let headers : HTTPHeaders = [
             "Content-Type": "application/json",
-            "Accept": "application/json"
+            appDelegate.x_api_key:appDelegate.x_api_value,
+            "Authorization": "Bearer " + session_token
         ]
-        // Construct the request object
-        let apiRequest = AWSAPIGatewayRequest(httpMethod: httpMethodName,
-                                              urlString: URLString,
-                                              queryParameters: [:],
-                                              headerParameters: headerParameters,
-                                              httpBody: params)
-        // Fetch the Cloud Logic client to be used for invocation
-        let invocationClient = AreveaAPIClient.client(forKey:appDelegate.AWSCognitoIdentityPoolId)
-        invocationClient.invoke(apiRequest).continueWith { (task: AWSTask) -> Any? in
-            if let error = task.error {
-                //print("Error occurred: \(error)")
-                self.showAlert(strMsg: error as? String ?? error.localizedDescription)
-                // Handle error here
-                return nil
-            }
-            // Handle successful result here
-            let result = task.result!
-            let responseString = String(data: result.responseData!, encoding: .utf8)
-            let data = responseString!.data(using: .utf8)!
-            do {
-                let resultObj = try JSONSerialization.jsonObject(with: data, options : .allowFragments)
-                DispatchQueue.main.async {
-                    self.viewActivity.isHidden = true
-                    // //print(resultObj)
-                    if let json = resultObj as? [String: Any] {
-                        print("performerEvents json:",json);
-                        if (json["statusCode"]as? String == "200"){
-                            //print(json["message"] as? String ?? "")
-                            self.aryUpcoming = json["Data"] as? [Any] ?? [Any]() ;
-                            //print("upcoming count:",self.aryUpcoming.count);
-                            self.tblUpcoming.reloadData();
-                        }else{
-                            let strError = json["message"] as? String
-                            //print("strError2:",strError ?? "")
-                            self.showAlert(strMsg: strError ?? "")
-                        }
-                    }
-                }
-            } catch let error as NSError {
-                //print(error)
-                self.showAlert(strMsg: error.localizedDescription)
-            }
-            return nil
-        }
-    }
-    // MARK: Handler for performerEvents API, using for upcoming schedules
+              viewActivity.isHidden = false
+              AF.request(url, method: .post,parameters: inputData, encoding: JSONEncoding.default,headers:headers)
+                  .responseJSON { response in
+                      self.viewActivity.isHidden = true
+                      switch response.result {
+                      case .success(let value):
+                          if let json = value as? [String: Any] {
+                              print("performerEvents JSON:",json)
+                              if (json["statusCode"]as? String == "200" ){
+                               //print(json["message"] as? String ?? "")
+                               self.aryUpcoming = json["Data"] as? [Any] ?? [Any]() ;
+                               //print("upcoming count:",self.aryUpcoming.count);
+                               self.tblUpcoming.reloadData();
+                              }else{
+                                  let strMsg = json["message"] as? String ?? ""
+                                  self.showAlert(strMsg: strMsg)
+                              }
+                             
+                          }
+                      case .failure(let error):
+                         let errorDesc = error.localizedDescription.replacingOccurrences(of: "URLSessionTask failed with error:", with: "")
+                          self.showAlert(strMsg: errorDesc)
+                                  self.viewActivity.isHidden = true
+
+                      }
+              }
+          }
     func performerVideos(){
-        let netAvailable = appDelegate.isConnectedToInternet()
-        if(!netAvailable){
-            showAlert(strMsg: "Please check your internet connection!")
-            return
-        }
-        viewActivity.isHidden = false
-        let httpMethodName = "POST"
-        let URLString: String = "/performerVideos"
-        let params: [String: Any] = ["performerId":performerId,"orgId": orgId,"type": "video"]
-        //print("performerVideos params:",params)
-        //let params: [String: Any] = ["performerId":"23","orgId": "11","type": "video"]
-        
-        let headerParameters = [
-            "Content-Type": "application/json",
-            "Accept": "application/json"
-        ]
-        // Construct the request object
-        let apiRequest = AWSAPIGatewayRequest(httpMethod: httpMethodName,
-                                              urlString: URLString,
-                                              queryParameters: [:],
-                                              headerParameters: headerParameters,
-                                              httpBody: params)
-        // Fetch the Cloud Logic client to be used for invocation
-        let invocationClient = AreveaAPIClient.client(forKey:appDelegate.AWSCognitoIdentityPoolId)
-        invocationClient.invoke(apiRequest).continueWith { (task: AWSTask) -> Any? in
-            if let error = task.error {
-                //print("Error occurred: \(error)")
-                self.showAlert(strMsg: error as? String ?? error.localizedDescription)
-                // Handle error here
-                return nil
-            }
-            // Handle successful result here
-            let result = task.result!
-            let responseString = String(data: result.responseData!, encoding: .utf8)
-            let data = responseString!.data(using: .utf8)!
-            do {
-                let resultObj = try JSONSerialization.jsonObject(with: data, options : .allowFragments)
-                DispatchQueue.main.async {
-                    self.viewActivity.isHidden = true
-                    
-                    //print(resultObj)
-                    if let json = resultObj as? [String: Any] {
-                        print("performerVideos json:",json);
-                        print("videos count:",self.aryVideos.count);
-                        
-                        if (json["statusCode"]as? String == "200"){
-                            //print(json["message"] as? String ?? "")
-                            self.aryVideos = json["Data"] as? [Any] ?? [Any]() ;
-                            //print("videos:",self.aryVideos)
-                            self.tblVideos.reloadData();
-                        }else{
-                            let strError = json["message"] as? String
-                            //print("performerVideos strError:",strError ?? "")
-                            self.showAlert(strMsg: strError ?? "")
-                        }
-                        
-                        
-                    }
-                }
-                
-            } catch let error as NSError {
-                //print(error)
-                self.showAlert(strMsg: error.localizedDescription)
-            }
-            return nil
-        }
-    }
-    // MARK: Handler for performerEvents API, using for upcoming schedules
+          let appDelegate = UIApplication.shared.delegate as! AppDelegate
+          let url: String = appDelegate.ol_lambda_url +  "/performerVideos"
+    let inputData: [String: Any] = ["performerId":performerId,"orgId": orgId,"type": "video"]
+    let session_token = UserDefaults.standard.string(forKey: "session_token") ?? ""
+    let headers : HTTPHeaders = [
+        "Content-Type": "application/json",
+        appDelegate.x_api_key:appDelegate.x_api_value,
+        "Authorization": "Bearer " + session_token
+    ]
+          viewActivity.isHidden = false
+          AF.request(url, method: .post,parameters: inputData, encoding: JSONEncoding.default,headers:headers)
+              .responseJSON { response in
+                  self.viewActivity.isHidden = true
+                  switch response.result {
+                  case .success(let value):
+                      if let json = value as? [String: Any] {
+                          print("performerVideos JSON:",json)
+                          if (json["statusCode"]as? String == "200" ){
+                           //print(json["message"] as? String ?? "")
+                           self.aryVideos = json["Data"] as? [Any] ?? [Any]() ;
+                           //print("videos:",self.aryVideos)
+                           self.tblVideos.reloadData();
+                          }else{
+                              let strMsg = json["message"] as? String ?? ""
+                              self.showAlert(strMsg: strMsg)
+                          }
+                         
+                      }
+                  case .failure(let error):
+                     let errorDesc = error.localizedDescription.replacingOccurrences(of: "URLSessionTask failed with error:", with: "")
+                      self.showAlert(strMsg: errorDesc)
+                              self.viewActivity.isHidden = true
+
+                  }
+          }
+      }
     func performerAudios(){
-        let netAvailable = appDelegate.isConnectedToInternet()
-        if(!netAvailable){
-            showAlert(strMsg: "Please check your internet connection!")
-            return
-        }
-        viewActivity.isHidden = false
-        let httpMethodName = "POST"
-        let URLString: String = "/performerVideos"
-        let params: [String: Any] = ["performerId": performerId,"orgId": orgId,"type": "audio"]
-        print("performerAudios params:",params)
-        
-        let headerParameters = [
-            "Content-Type": "application/json",
-            "Accept": "application/json"
-        ]
-        // Construct the request object
-        let apiRequest = AWSAPIGatewayRequest(httpMethod: httpMethodName,
-                                              urlString: URLString,
-                                              queryParameters: [:],
-                                              headerParameters: headerParameters,
-                                              httpBody: params)
-        // Fetch the Cloud Logic client to be used for invocation
-        let invocationClient = AreveaAPIClient.client(forKey:appDelegate.AWSCognitoIdentityPoolId)
-        invocationClient.invoke(apiRequest).continueWith { (task: AWSTask) -> Any? in
-            if let error = task.error {
-                //print("Error occurred: \(error)")
-                self.showAlert(strMsg: error as? String ?? error.localizedDescription)
-                // Handle error here
-                return nil
-            }
-            // Handle successful result here
-            let result = task.result!
-            let responseString = String(data: result.responseData!, encoding: .utf8)
-            let data = responseString!.data(using: .utf8)!
-            do {
-                let resultObj = try JSONSerialization.jsonObject(with: data, options : .allowFragments)
-                DispatchQueue.main.async {
-                    //print(resultObj)
-                    self.viewActivity.isHidden = true
-                    
-                    if let json = resultObj as? [String: Any] {
-                        print("performerAudios json:",json);
-                        if (json["statusCode"]as? String == "200"){
-                            //print(json["message"] as? String ?? "")
-                            self.aryAudios = json["Data"] as? [Any] ?? [Any]() ;
-                            //print("audios count:",self.aryVideos.count)
-                            self.tblAudios.reloadData();
-                        }else{
-                            let strError = json["message"] as? String
-                            //print("performerAudios strError:",strError ?? "")
-                            self.showAlert(strMsg: strError ?? "")
-                        }
-                        
-                        
-                    }
-                }
-            } catch let error as NSError {
-                //print(error)
-                self.showAlert(strMsg: error.localizedDescription)
-            }
-            return nil
-        }
-    }
+          let appDelegate = UIApplication.shared.delegate as! AppDelegate
+          let url: String = appDelegate.ol_lambda_url +  "/performerVideos"
+    let inputData: [String: Any] = ["performerId": performerId,"orgId": orgId,"type": "audio"]
+    let session_token = UserDefaults.standard.string(forKey: "session_token") ?? ""
+    let headers : HTTPHeaders = [
+        "Content-Type": "application/json",
+        appDelegate.x_api_key:appDelegate.x_api_value,
+        "Authorization": "Bearer " + session_token
+    ]
+          viewActivity.isHidden = false
+          AF.request(url, method: .post,parameters: inputData, encoding: JSONEncoding.default,headers:headers)
+              .responseJSON { response in
+                  self.viewActivity.isHidden = true
+                  switch response.result {
+                  case .success(let value):
+                      if let json = value as? [String: Any] {
+                          print("performerAudios JSON:",json)
+                          if (json["statusCode"]as? String == "200" ){
+                           //print(json["message"] as? String ?? "")
+                           self.aryAudios = json["Data"] as? [Any] ?? [Any]() ;
+                           //print("audios count:",self.aryVideos.count)
+                           self.tblAudios.reloadData();
+                          }else{
+                              let strMsg = json["message"] as? String ?? ""
+                              self.showAlert(strMsg: strMsg)
+                          }
+                         
+                      }
+                  case .failure(let error):
+                     let errorDesc = error.localizedDescription.replacingOccurrences(of: "URLSessionTask failed with error:", with: "")
+                      self.showAlert(strMsg: errorDesc)
+                              self.viewActivity.isHidden = true
+
+                  }
+          }
+      }
+    
+    
     // MARK: Handler for getCategoryOrganisations API
     func getPerformerInfo(){
         let netAvailable = appDelegate.isConnectedToInternet()
@@ -863,7 +780,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
     
     
     override func viewWillAppear(_ animated: Bool) {
-        AppDelegate.AppUtility.lockOrientation(.portrait)
+        AppDelegate.AppUtility.lockOrientation(.portrait, andRotateTo: .portrait)
     }
     
     deinit {
@@ -887,6 +804,10 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
                 self?.imgPerformerProfile.layer.cornerRadius = (self?.imgPerformerProfile.frame.size.width)!/2
             }
         }
+    }
+    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+           super.viewWillTransition(to: size, with: coordinator)
+           AppDelegate.AppUtility.lockOrientation(.portrait, andRotateTo: .portrait)
     }
 }
 

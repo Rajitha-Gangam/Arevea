@@ -66,6 +66,7 @@ class SubscribeTwoStreams: UIViewController , R5StreamDelegate, UITableViewDeleg
     @IBOutlet weak var viewActivity: UIView!
     @IBOutlet weak var viewStream: UIView!
     var streamlist = [[String:Any]]()
+    var duplicateStreamList = [[String:Any]]()
     var offlineStream = [[String:Any]]()
     var strTitle = ""
     @IBOutlet weak var btnInfo: UIView!
@@ -153,8 +154,9 @@ class SubscribeTwoStreams: UIViewController , R5StreamDelegate, UITableViewDeleg
     var publisherIsDisconnected = false
     @IBOutlet weak var lblLive: UILabel!
     @IBOutlet weak var imgStreamThumbNail: UIImageView!
-    var timer = Timer()
+    var timer : Timer?
     var aryTipGuestList = [Any]()
+    
     // MARK: - View Life Cycle
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -244,12 +246,11 @@ class SubscribeTwoStreams: UIViewController , R5StreamDelegate, UITableViewDeleg
         btnChat?.layer.cornerRadius = btnRadius
         
         pickerView.delegate = self
-        self.viewOverlay?.backgroundColor = .red
         
         tblComments.rowHeight = 40
         tblComments.estimatedRowHeight = UITableView.automaticDimension
         lblLive.isHidden = true
-        lblStreamUnavailable.text = "Please wait for the host to start the live stream"
+        lblStreamUnavailable.text = "Please wait for the host to start the live stream."
         lblNoDataComments.text = ""
         if(UIDevice.current.userInterfaceIdiom == .pad){
             self.imgStreamThumbNail.image = UIImage.init(named: "sample-event")
@@ -272,9 +273,10 @@ class SubscribeTwoStreams: UIViewController , R5StreamDelegate, UITableViewDeleg
         self.viewControls?.isHidden = true
         self.lblStreamUnavailable.isHidden = false
         self.btnPlayStream.isHidden = false
-        
+        btnAudio?.setImage(UIImage.init(named: "unmute"), for: .normal);
+        btnVideo?.setImage(UIImage.init(named: "pause"), for: .normal);
+
         getGuestDetailInGraphql(.returnCacheDataAndFetch)
-        timer = Timer.scheduledTimer(timeInterval: 20.0, target: self, selector: #selector(repeatMethod), userInfo: nil, repeats: true)
         
     }
     
@@ -353,10 +355,25 @@ class SubscribeTwoStreams: UIViewController , R5StreamDelegate, UITableViewDeleg
     }
     
     func cleanup () {
+        if( self.subscribeStream1 != nil ) {
+            self.subscribeStream1!.client = nil
+            self.subscribeStream1?.delegate = nil
+            self.subscribeStream1 = nil
+        }
         if( self.subscribeStream2 != nil ) {
             self.subscribeStream2!.client = nil
             self.subscribeStream2?.delegate = nil
             self.subscribeStream2 = nil
+        }
+        if( self.subscribeStream3 != nil ) {
+            self.subscribeStream3!.client = nil
+            self.subscribeStream3?.delegate = nil
+            self.subscribeStream3 = nil
+        }
+        if( self.subscribeStream4 != nil ) {
+            self.subscribeStream4!.client = nil
+            self.subscribeStream4?.delegate = nil
+            self.subscribeStream4 = nil
         }
         self.removeFromParent()
     }
@@ -385,11 +402,16 @@ class SubscribeTwoStreams: UIViewController , R5StreamDelegate, UITableViewDeleg
         
         NSLog("Status: %s ", r5_string_for_status(statusCode))
         let s =  String(format: "Status: %s (%@)",  r5_string_for_status(statusCode), msg)
-        ALToastView.toast(in: self.view, withText:s)
+        //ALToastView.toast(in: self.view, withText:s)
         if (Int(statusCode) == Int(r5_status_disconnected.rawValue)) {
             self.cleanup()
-        } else if ((Int(statusCode) == Int(r5_status_netstatus.rawValue) && msg == "NetStream.Play.UnpublishNotify")){
-            
+        } else if ((Int(statusCode) == Int(r5_status_netstatus.rawValue) && msg == "NetStream.Play.UnpublishNotify") || ((Int(statusCode) == Int(r5_status_netstatus.rawValue) && msg == "NetStream.Play.StreamDry"))){
+            //ALToastView.toast(in: self.view, withText:"publisher has unpublished. possibly from background/interrupt")
+            self.lblStreamUnavailable.text = "Stream Ended"
+
+            //lblStreamUnavailable.text = "publisher has unpublished/paused video. Please try again later."
+            btnPlayStream.isHidden = false
+            lblStreamUnavailable.isHidden = false
             // publisher has unpublished. possibly from background/interrupt.
             // if (publisherIsInBackground) {
             publisherIsDisconnected = true
@@ -401,7 +423,6 @@ class SubscribeTwoStreams: UIViewController , R5StreamDelegate, UITableViewDeleg
                 self.webView.loadHTMLString("", baseURL: nil)
                 self.webView.isHidden = true
             }
-            
         } else if ((Int(statusCode) == Int(r5_status_netstatus.rawValue) && msg == "NetStream.Play.SufficientBW")) {
             //print("=======sufficient band Width")
         }else if ((Int(statusCode) == Int(r5_status_netstatus.rawValue) && msg == "NetStream.Play.InSufficientBW")) {
@@ -409,32 +430,53 @@ class SubscribeTwoStreams: UIViewController , R5StreamDelegate, UITableViewDeleg
         }else if (Int(statusCode) == Int(r5_status_audio_mute.rawValue))
         {
             //print("=======r5_status_audio_mute")
-            
+            /*let hasAudio = !(self.subscribeStream?.pauseAudio)!;
+            if (hasAudio) {
+                self.subscribeStream?.pauseAudio = true
+            }*/
+            ALToastView.toast(in: self.view, withText:"Audio Muted")
+
         }
         else if (Int(statusCode) == Int(r5_status_audio_unmute.rawValue))
         {
             //print("=======r5_status_audio_unmute")
-            
+            /*let hasAudio = !(self.subscribeStream?.pauseAudio)!;
+            if (hasAudio) {
+                self.subscribeStream?.pauseAudio = false
+            }*/
+            ALToastView.toast(in: self.view, withText:"Audio Unmuted")
+
             
         }else if (Int(statusCode) == Int(r5_status_video_mute.rawValue))
         {
             //print("=======r5_status_video_mute")
-            
+            /*let hasAudio = !(self.subscribeStream?.pauseAudio)!;
+            if (hasAudio) {
+                self.subscribeStream?.pauseAudio = true
+            }*/
+            ALToastView.toast(in: self.view, withText:"Video Muted")
+
         }
         else if (Int(statusCode) == Int(r5_status_video_unmute.rawValue))
         {
             //print("=======r5_status_video_unmute")
-            
-            
+            /*let hasAudio = !(self.subscribeStream?.pauseAudio)!;
+            if (hasAudio) {
+                self.subscribeStream?.pauseAudio = false
+            }*/
+            ALToastView.toast(in: self.view, withText:"Video Unmuted")
+
         }
         else if (Int(statusCode) == Int(r5_status_disconnected.rawValue))
         {
             //print("=======r5_status_disconnected")
-            
+            ALToastView.toast(in: self.view, withText:"Video Disconnected")
+
         }
         else if (Int(statusCode) == Int(r5_status_stop_streaming.rawValue))
         {
             //print("=======r5_status_stop_streaming")
+            ALToastView.toast(in: self.view, withText:"Stream Stopped")
         }
     }
     @objc func onMetaData(data : String){
@@ -442,15 +484,20 @@ class SubscribeTwoStreams: UIViewController , R5StreamDelegate, UITableViewDeleg
     }
     @objc func repeatMethod(){
         print("====repeatMethod")
-        getGuestDetailInGraphql(.returnCacheDataAndFetch)
+        if(!publisherIsDisconnected){
+            getGuestDetailInGraphql(.returnCacheDataAndFetch)
+        }
     }
     func getGuestDetailInGraphql(_ cachePolicy: CachePolicy) {
         print("====streamVideoCode:",streamVideoCode)
+        viewActivity.isHidden = false
         
         let listQuery = GetMulticreatorshareddataQuery(id:streamVideoCode)
         //1872_1595845007395_mc2
         //58_1594894849561_multi_creator_test_event
         appSyncClient?.fetch(query: listQuery, cachePolicy: cachePolicy) { result, error in
+            self.viewActivity.isHidden = true
+            
             if let error = error {
                 print("Error fetching data: \(error)")
                 return
@@ -466,6 +513,8 @@ class SubscribeTwoStreams: UIViewController , R5StreamDelegate, UITableViewDeleg
                     let guestList = multiDataJSON?["guestList"] as? [Any] ?? [Any]() ;
                     
                     print("guestList:",guestList)
+                    print("duplicateStreamList:",self.duplicateStreamList)
+                    
                     print("guestList count:",guestList.count)
                     self.streamlist = [[String:Any]]()
                     self.offlineStream = [[String:Any]]()
@@ -474,35 +523,62 @@ class SubscribeTwoStreams: UIViewController , R5StreamDelegate, UITableViewDeleg
                             let guest = guestList[index] as! [String:Any]
                             let onlineStatus = guest["onlineStatus"] as? Bool ?? false
                             let liveStatus = guest["liveStatus"] as? Bool ?? false
-                            
+                            let useVideo = guest["useVideo"]as? Bool ?? false
                             //it should uncomment when subscribe issue resolved
-                            if(onlineStatus && liveStatus) {
+                            if(onlineStatus && liveStatus && useVideo) {
                                 self.streamlist.append(guest)
                             } else {
                                 self.offlineStream.append(guest)
                             }
-                            
+                            //self.streamlist.append(guest)
                         }
-                        
                     }
-                    print("self.streamlist count:",self.streamlist.count)
+                    //print("streamlist:",self.streamlist)
+                    //print("duplicateStreamList:",self.duplicateStreamList)
                     
-                    if(self.streamlist.count > 0){
+                    var equal = false
+                    if (self.streamlist as AnyObject).isEqual(self.duplicateStreamList as AnyObject) {
+                        equal = true
+                    }
+                    //to avid may times API calling, we are checking, prev obj and current obj are same or not.
+                    if(self.streamlist.count > 0 && !equal){
+                        print("Not equal")
                         self.pickerView.reloadComponent(0)//for load creators for Tip
                         self.findStream()
                     }else{
-                        self.lblStreamUnavailable.isHidden = false
-                        self.btnPlayStream.isHidden = false
+                        print("equal")
+                        if(self.streamlist.count > 0){
+                            self.lblStreamUnavailable.isHidden = true
+                            self.btnPlayStream.isHidden = true
+                        }else{
+                            self.lblStreamUnavailable.isHidden = false
+                            self.btnPlayStream.isHidden = false
+                            
+                            if(self.isStreamStarted){
+                                self.lblLive.isHidden = true
+                                self.viewControls?.isHidden = true
+                                //self.lblStreamUnavailable.text = "publisher has unpublished/paused video. Please try again later."
+                                self.lblStreamUnavailable.text = "Stream Ended"
+
+                            }else{
+                                self.lblStreamUnavailable.text = "Please wait for the host to start the live stream"
+                            }
+                        }
                     }
-                    
                 }else{
                     print("--getMulticreatorshareddata null")
                     self.lblStreamUnavailable.isHidden = false
                     self.btnPlayStream.isHidden = false
                 }
+                self.duplicateStreamList = self.streamlist
             }
             // Remove existing records if we're either loading from cache, or loading fresh (e.g., from a refresh)
         }
+    }
+    @IBAction func playStream(_ sender: Any){
+        print("playStream called")
+        getGuestDetailInGraphql(.returnCacheDataAndFetch)
+        
     }
     func startSubscription() throws {
         do{
@@ -668,13 +744,15 @@ class SubscribeTwoStreams: UIViewController , R5StreamDelegate, UITableViewDeleg
                             }else{
                                 let serverAddress = json["serverAddress"] as? String ?? ""
                                 print("serverAddress:",serverAddress)
+                                self.lblLive.isHidden = false
+                                self.lblStreamUnavailable.isHidden = true
+                                self.btnPlayStream.isHidden = true
+                                self.viewControls?.isHidden = false
+                                
                                 if(!self.isStreamStarted){
                                     self.isStreamStarted = true
-                                    self.lblLive.isHidden = false
-                                    self.lblStreamUnavailable.isHidden = true
-                                    self.btnPlayStream.isHidden = true
-                                    self.viewControls?.isHidden = false
                                     self.addOverLay()
+                                    self.timer = Timer.scheduledTimer(timeInterval: 20.0, target: self, selector: #selector(self.repeatMethod), userInfo: nil, repeats: true)
                                     self.startSession()
                                 }
                                 self.config(url: serverAddress,stream:streamName,index: index)
@@ -743,24 +821,53 @@ class SubscribeTwoStreams: UIViewController , R5StreamDelegate, UITableViewDeleg
             subscribeStream1?.client = self;
             firstView1.attach(subscribeStream1)
             subscribeStream1!.play(stream, withHardwareAcceleration:false)
+            let guest = streamlist[index]
+            let useAudio = guest["useAudio"] as? Bool ?? false
+            if(!useAudio){
+                if( self.subscribeStream1 != nil && self.subscribeStream1?.audioController != nil) {
+                    self.subscribeStream1?.audioController.volume = 0
+                }
+            }
+            
         }else if(index == 1){
-            let subscribeStream2 = R5Stream(connection: connection)
+            subscribeStream2 = R5Stream(connection: connection)
             subscribeStream2!.delegate = self
             subscribeStream2?.client = self;
             firstView1.attach(subscribeStream2)
             subscribeStream2!.play(stream, withHardwareAcceleration:false)
+            let guest = streamlist[index]
+            let useAudio = guest["useAudio"] as? Bool ?? false
+            if(!useAudio){
+                if( self.subscribeStream2 != nil && self.subscribeStream2?.audioController != nil) {
+                    self.subscribeStream2?.audioController.volume = 0
+                }
+            }
         }else if(index == 2){
-            let subscribeStream3 = R5Stream(connection: connection)
+            subscribeStream3 = R5Stream(connection: connection)
             subscribeStream3!.delegate = self
             subscribeStream3?.client = self;
             firstView1.attach(subscribeStream3)
             subscribeStream3!.play(stream, withHardwareAcceleration:false)
+            let guest = streamlist[index]
+            let useAudio = guest["useAudio"] as? Bool ?? false
+            if(!useAudio){
+                if( self.subscribeStream3 != nil && self.subscribeStream3?.audioController != nil) {
+                    self.subscribeStream3?.audioController.volume = 0
+                }
+            }
         }else{
-            let subscribeStream4 = R5Stream(connection: connection)
+            subscribeStream4 = R5Stream(connection: connection)
             subscribeStream4!.delegate = self
             subscribeStream4?.client = self;
             firstView1.attach(subscribeStream4)
             subscribeStream4!.play(stream, withHardwareAcceleration:false)
+            let guest = streamlist[index]
+            let useAudio = guest["useAudio"] as? Bool ?? false
+            if(!useAudio){
+                if( self.subscribeStream4 != nil && self.subscribeStream4?.audioController != nil) {
+                    self.subscribeStream4?.audioController.volume = 0
+                }
+            }
         }
         
     }
@@ -788,23 +895,47 @@ class SubscribeTwoStreams: UIViewController , R5StreamDelegate, UITableViewDeleg
             self.subscribeStream4!.stop()
         }
     }
+    func showConfirmation(strMsg: String){
+        let alert = UIAlertController(title: "Alert", message: strMsg, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "No", style: .cancel, handler: nil))
+        
+        alert.addAction(UIAlertAction(title: "Yes", style: .default, handler: { action in
+            for controller in self.navigationController!.viewControllers as Array {
+                if controller.isKind(of: DashBoardVC.self) {
+                    if(UIDevice.current.userInterfaceIdiom == .phone){
+                        let value = UIInterfaceOrientation.portrait.rawValue
+                        UIDevice.current.setValue(value, forKey: "orientation")
+                    }
+                    self.closeStream()
+                    self.endSession()
+                    self.navigationController!.popToViewController(controller, animated: true)
+                    break
+                }
+            }
+        }))
+        DispatchQueue.main.async {
+            self.present(alert, animated: true)
+        }
+    }
     @IBAction func back(_ sender: Any) {
         print("back called")
-        
-        for controller in self.navigationController!.viewControllers as Array {
-            if controller.isKind(of: DashBoardVC.self) {
-                if(UIDevice.current.userInterfaceIdiom == .phone){
-                    let value = UIInterfaceOrientation.portrait.rawValue
-                    UIDevice.current.setValue(value, forKey: "orientation")
+        if(isStreamStarted){
+            showConfirmation(strMsg: "Are you sure you want to go back?")
+        }else{
+            
+            for controller in self.navigationController!.viewControllers as Array {
+                if controller.isKind(of: DashBoardVC.self) {
+                    if(UIDevice.current.userInterfaceIdiom == .phone){
+                        let value = UIInterfaceOrientation.portrait.rawValue
+                        UIDevice.current.setValue(value, forKey: "orientation")
+                    }
+                    closeStream()
+                    self.navigationController!.popToViewController(controller, animated: true)
+                    break
                 }
-                closeStream()
-                if(isStreamStarted){
-                    endSession()
-                }
-                self.navigationController!.popToViewController(controller, animated: true)
-                break
             }
         }
+        
     }
     @IBAction func viewBGTap() {
         print("viewBGTap called")
@@ -934,7 +1065,7 @@ class SubscribeTwoStreams: UIViewController , R5StreamDelegate, UITableViewDeleg
             }
             //let lastName = guestInfo["last_name"]as? String ?? ""
             //proceedToPayment(type: "performer_tip",charityId: 0)
-
+            
             let user_id = UserDefaults.standard.string(forKey: "user_id");
             let strUserId = user_id ?? "1"
             var queryString = "stream_id=" + String(streamId) + "&user_id=" + strUserId//ppv
@@ -1731,31 +1862,33 @@ class SubscribeTwoStreams: UIViewController , R5StreamDelegate, UITableViewDeleg
         if ((imgBtn?.isEqual(UIImage.init(named: "unmute")))!)
         {
             btnAudio?.setImage(UIImage.init(named: "mute"), for: .normal);
-            if((self.subscribeStream1?.audioController) != nil){
+            if( self.subscribeStream1 != nil && self.subscribeStream1?.audioController != nil) {
                 self.subscribeStream1?.audioController.volume = 0
+                ALToastView.toast(in: self.view, withText:"Pausing Audio")
             }
-            if((self.subscribeStream2?.audioController) != nil){
+            if( self.subscribeStream2 != nil && self.subscribeStream2?.audioController != nil) {
                 self.subscribeStream2?.audioController.volume = 0
             }
-            if((self.subscribeStream3?.audioController) != nil){
+            if( self.subscribeStream3 != nil && self.subscribeStream3?.audioController != nil) {
                 self.subscribeStream3?.audioController.volume = 0
             }
-            if((self.subscribeStream4?.audioController) != nil){
+            if( self.subscribeStream4 != nil && self.subscribeStream4?.audioController != nil) {
                 self.subscribeStream4?.audioController.volume = 0
             }
         }
         else{
             btnAudio?.setImage(UIImage.init(named: "unmute"), for: .normal);
-            if((self.subscribeStream1?.audioController) != nil){
+            if(self.subscribeStream1 != nil && self.subscribeStream1?.audioController != nil) {
                 self.subscribeStream1?.audioController.volume = sliderVolume.value / 100
+                ALToastView.toast(in: self.view, withText:"Playing Audio")
             }
-            if((self.subscribeStream2?.audioController) != nil){
+            if(self.subscribeStream2 != nil && self.subscribeStream2?.audioController != nil) {
                 self.subscribeStream2?.audioController.volume = sliderVolume.value / 100
             }
-            if((self.subscribeStream3?.audioController) != nil){
+            if(self.subscribeStream3 != nil && self.subscribeStream3?.audioController != nil) {
                 self.subscribeStream3?.audioController.volume = sliderVolume.value / 100
             }
-            if((self.subscribeStream4?.audioController) != nil){
+            if(self.subscribeStream4 != nil && self.subscribeStream4?.audioController != nil) {
                 self.subscribeStream4?.audioController.volume = sliderVolume.value / 100
             }
         }
@@ -1766,85 +1899,100 @@ class SubscribeTwoStreams: UIViewController , R5StreamDelegate, UITableViewDeleg
         if ((imgBtn?.isEqual(UIImage.init(named: "pause")))!)
         {
             btnVideo?.setImage(UIImage.init(named: "play"), for: .normal);
-            if((self.subscribeStream1?.audioController) != nil){
+            if(self.subscribeStream1 != nil && self.subscribeStream1?.audioController != nil) {
                 self.subscribeStream1?.audioController.volume = 0
             }
-            /*let hasVideo1 = !(self.subscribeStream1?.pauseVideo)!;
-             if (hasVideo1) {
-             self.subscribeStream1?.pauseVideo = true
-             }*/
-            
-            if((self.subscribeStream2?.audioController) != nil){
+            if(self.subscribeStream1?.pauseVideo != nil){
+                let hasVideo1 = !(self.subscribeStream1?.pauseVideo)!;
+                if (hasVideo1) {
+                    self.subscribeStream1?.pauseVideo = true
+                    ALToastView.toast(in: self.view, withText:"Pausing Video")
+                }
+            }
+            if(self.subscribeStream2 != nil && self.subscribeStream2?.audioController != nil) {
                 self.subscribeStream2?.audioController.volume = 0
             }
-            /*let hasVideo2 = !(self.subscribeStream2?.pauseVideo)!;
-             if (hasVideo2) {
-             self.subscribeStream2?.pauseVideo = true
-             }*/
-            
-            if((self.subscribeStream3?.audioController) != nil){
+            if(self.subscribeStream2?.pauseVideo != nil){
+                let hasVideo1 = !(self.subscribeStream2?.pauseVideo)!;
+                if (hasVideo1) {
+                    self.subscribeStream2?.pauseVideo = true
+                }
+            }
+            if(self.subscribeStream3 != nil && self.subscribeStream3?.audioController != nil) {
                 self.subscribeStream3?.audioController.volume = 0
             }
-            /*let hasVideo3 = !(self.subscribeStream3?.pauseVideo)!;
-             if (hasVideo3) {
-             self.subscribeStream3?.pauseVideo = true
-             }*/
-            
-            if((self.subscribeStream4?.audioController) != nil){
+            if(self.subscribeStream3?.pauseVideo != nil){
+                let hasVideo1 = !(self.subscribeStream3?.pauseVideo)!;
+                if (hasVideo1) {
+                    self.subscribeStream3?.pauseVideo = true
+                }
+            }
+            if(self.subscribeStream4 != nil && self.subscribeStream4?.audioController != nil) {
                 self.subscribeStream4?.audioController.volume = 0
             }
-            /*let hasVideo4 = !(self.subscribeStream4?.pauseVideo)!;
-             if (hasVideo4) {
-             self.subscribeStream4?.pauseVideo = true
-             }*/
+            if(self.subscribeStream4?.pauseVideo != nil){
+                let hasVideo1 = !(self.subscribeStream4?.pauseVideo)!;
+                if (hasVideo1) {
+                    self.subscribeStream4?.pauseVideo = true
+                }
+            }
+            
+            
         }
         else{
             btnVideo?.setImage(UIImage.init(named: "pause"), for: .normal);
-            if((self.subscribeStream1?.audioController) != nil){
+            if(self.subscribeStream1 != nil && self.subscribeStream1?.audioController != nil) {
                 self.subscribeStream1?.audioController.volume = sliderVolume.value / 100
             }
-            /*let hasVideo1 = !(self.subscribeStream1?.pauseVideo)!;
-             if (hasVideo1) {
-             self.subscribeStream1?.pauseVideo = false
-             }*/
-            
-            if((self.subscribeStream2?.audioController) != nil){
-                self.subscribeStream2?.audioController.volume = 0
+            if(self.subscribeStream1?.pauseVideo != nil){
+                let hasVideo1 = !(self.subscribeStream1?.pauseVideo)!;
+                if (hasVideo1) {
+                    self.subscribeStream1?.pauseVideo = false
+                    ALToastView.toast(in: self.view, withText:"Playing Video")
+                }
             }
-            /*let hasVideo2 = !(self.subscribeStream2?.pauseVideo)!;
-             if (hasVideo2) {
-             self.subscribeStream2?.pauseVideo = false
-             }*/
             
-            if((self.subscribeStream3?.audioController) != nil){
-                self.subscribeStream3?.audioController.volume = 0
+            if(self.subscribeStream2 != nil && self.subscribeStream2?.audioController != nil) {
+                self.subscribeStream2?.audioController.volume = sliderVolume.value / 100
             }
-            /*let hasVideo3 = !(self.subscribeStream3?.pauseVideo)!;
-             if (hasVideo3) {
-             self.subscribeStream3?.pauseVideo = false
-             }*/
-            
-            if((self.subscribeStream4?.audioController) != nil){
-                self.subscribeStream4?.audioController.volume = 0
+            if(self.subscribeStream2?.pauseVideo != nil){
+                let hasVideo1 = !(self.subscribeStream2?.pauseVideo)!;
+                if (hasVideo1) {
+                    self.subscribeStream2?.pauseVideo = false
+                }
             }
-            /*let hasVideo4 = !(self.subscribeStream4?.pauseVideo)!;
-             if (hasVideo4) {
-             self.subscribeStream4?.pauseVideo = false
-             }*/
+            if(self.subscribeStream3 != nil && self.subscribeStream3?.audioController != nil) {
+                self.subscribeStream3?.audioController.volume = sliderVolume.value / 100
+            }
+            if(self.subscribeStream3?.pauseVideo != nil){
+                let hasVideo1 = !(self.subscribeStream3?.pauseVideo)!;
+                if (hasVideo1) {
+                    self.subscribeStream3?.pauseVideo = false
+                }
+            }
+            if(self.subscribeStream4 != nil && self.subscribeStream4?.audioController != nil) {
+                self.subscribeStream4?.audioController.volume = sliderVolume.value / 100
+            }
+            if(self.subscribeStream4?.pauseVideo != nil){
+                let hasVideo1 = !(self.subscribeStream4?.pauseVideo)!;
+                if (hasVideo1) {
+                    self.subscribeStream4?.pauseVideo = false
+                }
+            }
         }
     }
     
     @IBAction func sliderValueDidChange() {
-        if((self.subscribeStream1?.audioController) != nil){
+        if(self.subscribeStream1 != nil && self.subscribeStream1?.audioController != nil){
             self.subscribeStream1?.audioController.volume = sliderVolume.value / 100
         }
-        if((self.subscribeStream2?.audioController) != nil){
+        if(self.subscribeStream2 != nil && self.subscribeStream2?.audioController != nil){
             self.subscribeStream2?.audioController.volume = sliderVolume.value / 100
         }
-        if((self.subscribeStream3?.audioController) != nil){
+        if(self.subscribeStream3 != nil && self.subscribeStream3?.audioController != nil){
             self.subscribeStream3?.audioController.volume = sliderVolume.value / 100
         }
-        if((self.subscribeStream4?.audioController) != nil){
+        if(self.subscribeStream4 != nil && self.subscribeStream4?.audioController != nil){
             self.subscribeStream4?.audioController.volume = sliderVolume.value / 100
         }
     }
@@ -1894,78 +2042,87 @@ class SubscribeTwoStreams: UIViewController , R5StreamDelegate, UITableViewDeleg
         self.webView.isHidden = false
         self.viewStream.bringSubviewToFront(self.webView)
     }
+    func myList(){
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        let url: String = appDelegate.ol_lambda_url +  "/startSession"
+        let user_id = UserDefaults.standard.string(forKey: "user_id");
+        let inputData: [String: Any] = ["userid":user_id ?? ""]
+        let session_token = UserDefaults.standard.string(forKey: "session_token") ?? ""
+        let headers : HTTPHeaders = [
+            "Content-Type": "application/json",
+            appDelegate.x_api_key:appDelegate.x_api_value,
+            "Authorization": "Bearer " + session_token
+        ]
+        viewActivity.isHidden = false
+        AF.request(url, method: .post,parameters: inputData, encoding: JSONEncoding.default,headers:headers)
+            .responseJSON { response in
+                self.viewActivity.isHidden = true
+                switch response.result {
+                case .success(let value):
+                    if let json = value as? [String: Any] {
+                        print("myList JSON:",json)
+                        if (json["statusCode"]as? String == "200" ){
+                            
+                        }else{
+                            let strMsg = json["message"] as? String ?? ""
+                            self.showAlert(strMsg: strMsg)
+                        }
+                        
+                    }
+                case .failure(let error):
+                    let errorDesc = error.localizedDescription.replacingOccurrences(of: "URLSessionTask failed with error:", with: "")
+                    self.showAlert(strMsg: errorDesc)
+                    self.viewActivity.isHidden = true
+                    
+                }
+        }
+    }
     
     // MARK: Handler for Metrics
+    
     func startSession(){
-        
-        let netAvailable = appDelegate.isConnectedToInternet()
-        if(!netAvailable){
-            showAlert(strMsg: "Please check your internet connection!")
-            return
-        }
-        viewActivity.isHidden = false
-        let httpMethodName = "POST"
-        let URLString: String = "/startSession"
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        let url: String = appDelegate.ol_lambda_url +  "/startSession"
         let user_id = UserDefaults.standard.string(forKey: "user_id");
         var streamIdLocal = "0"
         if (streamId != 0){
             streamIdLocal = String(streamId)
         }
-        let params: [String: Any] = [ "user_id": user_id ?? "0",
-                                      "event_id": streamIdLocal,
-                                      "organization_id" : orgId,
-                                      "performer_id" : performerId,
-                                      "filekey": "stream_metrics/" + streamVideoCode + "/"]
-        print("params:",params)
+        let inputData: [String: Any] = [ "user_id": user_id ?? "0",
+                                         "event_id": streamIdLocal,
+                                         "organization_id" : orgId,
+                                         "performer_id" : performerId,
+                                         "filekey": "stream_metrics/" + streamVideoCode + "/"]
         
-        //print("performerEvents params:",params);
-        let headerParameters = [
+        let session_token = UserDefaults.standard.string(forKey: "session_token") ?? ""
+        let headers : HTTPHeaders = [
             "Content-Type": "application/json",
-            "Accept": "application/json"
+            appDelegate.x_api_key:appDelegate.x_api_value,
+            "Authorization": "Bearer " + session_token
         ]
-        // Construct the request object
-        let apiRequest = AWSAPIGatewayRequest(httpMethod: httpMethodName,
-                                              urlString: URLString,
-                                              queryParameters: [:],
-                                              headerParameters: headerParameters,
-                                              httpBody: params)
-        // Fetch the Cloud Logic client to be used for invocation
-        let invocationClient = AreveaAPIClient.client(forKey:appDelegate.AWSCognitoIdentityPoolId)
-        invocationClient.invoke(apiRequest).continueWith { (task: AWSTask) -> Any? in
-            if let error = task.error {
-                //print("Error occurred: \(error)")
-                self.showAlert(strMsg: error as? String ?? error.localizedDescription)
-                // Handle error here
-                return nil
-            }
-            // Handle successful result here
-            let result = task.result!
-            let responseString = String(data: result.responseData!, encoding: .utf8)
-            let data = responseString!.data(using: .utf8)!
-            do {
-                let resultObj = try JSONSerialization.jsonObject(with: data, options : .allowFragments)
-                DispatchQueue.main.async {
-                    self.viewActivity.isHidden = true
-                    // //print(resultObj)
-                    if let json = resultObj as? [String: Any] {
-                        print("startSession json:",json);
-                        if (json["statusCode"]as? String == "200"){
-                            //print(json["message"] as? String ?? "")
-                            //let data  = json["Data"] as? [String:Any] ?? [:];
+        viewActivity.isHidden = false
+        AF.request(url, method: .post,parameters: inputData, encoding: JSONEncoding.default,headers:headers)
+            .responseJSON { response in
+                self.viewActivity.isHidden = true
+                switch response.result {
+                case .success(let value):
+                    if let json = value as? [String: Any] {
+                        print("startSession JSON:",json)
+                        if (json["statusCode"]as? String == "200" ){
                             self.startSessionResponse = json
                             self.isViewerCountcall = 1;
                         }else{
-                            let strError = json["message"] as? String
-                            //print("strError2:",strError ?? "")
-                            self.showAlert(strMsg: strError ?? "")
+                            let strMsg = json["message"] as? String ?? ""
+                            self.showAlert(strMsg: strMsg)
                         }
+                        
                     }
+                case .failure(let error):
+                    let errorDesc = error.localizedDescription.replacingOccurrences(of: "URLSessionTask failed with error:", with: "")
+                    self.showAlert(strMsg: errorDesc)
+                    self.viewActivity.isHidden = true
+                    
                 }
-            } catch let error as NSError {
-                //print(error)
-                self.showAlert(strMsg: error.localizedDescription)
-            }
-            return nil
         }
     }
     
@@ -2029,6 +2186,11 @@ class SubscribeTwoStreams: UIViewController , R5StreamDelegate, UITableViewDeleg
     }
     override func viewWillDisappear(_ animated: Bool) {
         AppDelegate.AppUtility.lockOrientation(.all)
-        timer.invalidate()
+        if (timer != nil)
+        {
+            print("stoptimer executed")
+            timer!.invalidate()
+            timer = nil
+        }
     }
 }

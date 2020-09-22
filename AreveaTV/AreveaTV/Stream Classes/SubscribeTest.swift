@@ -25,10 +25,11 @@ class SubscribeTest: BaseTest {
     var publisherIsDisconnected = false
     var serverAddress = ""
     var viewControls = UIView()
-    
+    var viewOverlay = UIView()
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
+        addOverlay()
     }
     func showAlert(strMsg: String){
         let alert = UIAlertController(title: "Alert", message: strMsg, preferredStyle: .alert)
@@ -209,6 +210,14 @@ class SubscribeTest: BaseTest {
             }
         }
     }
+    func addOverlay(){
+        //adding overlay with opacity to see back buttons andcontrols proplery on light stream bg
+        let screenSize = UIScreen.main.bounds
+        let frame = CGRect(x: 0.0, y: 0.0, width: screenSize.width, height: screenSize.height)
+        viewOverlay = UIView(frame: frame)
+        viewOverlay.backgroundColor =  UIColor(red: 0.0, green: 0.0, blue: 0.0, alpha: 0.15)
+        self.view.addSubview(viewOverlay)
+    }
     func addControls(){
         
         let screenSize = currentView?.view.bounds.size
@@ -265,10 +274,11 @@ class SubscribeTest: BaseTest {
         slider.value = 50
         slider.addTarget(self, action: #selector(sliderValueDidChange(sender:)), for: .valueChanged)
         viewControls.addSubview(slider)
-        
+        self.view.bringSubviewToFront(viewOverlay)
+        self.view.bringSubviewToFront(viewControls)
     }
     @objc func sliderValueDidChange(sender:UISlider!) {
-        if((self.subscribeStream?.audioController) != nil){
+        if(self.subscribeStream != nil && self.subscribeStream?.audioController != nil) {
             self.subscribeStream?.audioController.volume = slider.value / 100
         }
     }
@@ -279,16 +289,16 @@ class SubscribeTest: BaseTest {
         if ((imgBtn?.isEqual(UIImage.init(named: "unmute")))!)
         {
             audioBtn?.setImage(UIImage.init(named: "mute"), for: .normal);
-            //ALToastView.toast(in: self.view, withText:"Pausing Audio")
-            if((self.subscribeStream?.audioController) != nil){
+            if(self.subscribeStream != nil && self.subscribeStream?.audioController != nil) {
             self.subscribeStream?.audioController.volume = 0
+            ALToastView.toast(in: self.view, withText:"Pausing Audio")
             }
         }
         else{
             audioBtn?.setImage(UIImage.init(named: "unmute"), for: .normal);
-            //ALToastView.toast(in: self.view, withText:"Playing Audio")
-            if((self.subscribeStream?.audioController) != nil){
+            if( self.subscribeStream != nil && self.subscribeStream?.audioController != nil) {
             self.subscribeStream?.audioController.volume = slider.value / 100
+            ALToastView.toast(in: self.view, withText:"Playing Audio")
             }
         }
     }
@@ -298,22 +308,29 @@ class SubscribeTest: BaseTest {
         if ((imgBtn?.isEqual(UIImage.init(named: "pause")))!)
         {
             videoBtn?.setImage(UIImage.init(named: "play"), for: .normal);
-            if((self.subscribeStream?.audioController) != nil){
+            if( self.subscribeStream != nil && self.subscribeStream?.audioController != nil) {
                 self.subscribeStream?.audioController.volume = 0
             }
+            if(self.subscribeStream?.pauseVideo != nil){
             let hasVideo = !(self.subscribeStream?.pauseVideo)!;
             if (hasVideo) {
                 self.subscribeStream?.pauseVideo = true
+                ALToastView.toast(in: self.view, withText:"Playing Video")
+
+            }
             }
         }
         else{
             videoBtn?.setImage(UIImage.init(named: "pause"), for: .normal);
-            if((self.subscribeStream?.audioController) != nil){
+            if(self.subscribeStream != nil && self.subscribeStream?.audioController != nil) {
                 self.subscribeStream?.audioController.volume = slider.value / 100
             }
+            if(self.subscribeStream?.pauseVideo != nil){
             let hasVideo = !(self.subscribeStream?.pauseVideo)!;
             if (hasVideo) {
                 self.subscribeStream?.pauseVideo = false
+                ALToastView.toast(in: self.view, withText:"Pausing Video")
+            }
             }
         }
     }
@@ -395,7 +412,7 @@ class SubscribeTest: BaseTest {
                     view?.attach(nil)
                     self.subscribeStream?.delegate = nil;
                     self.subscribeStream!.stop()
-                    ALToastView.toast(in: self.view, withText:"publisher has unpublished. possibly from background/interrupt")
+                    //ALToastView.toast(in: self.view, withText:"publisher has unpublished. possibly from background/interrupt")
                     
                     let streamInfo = ["Stream": "stopped"]
                     NotificationCenter.default.post(name: .didReceiveStreamData, object: self, userInfo: streamInfo)
@@ -411,42 +428,53 @@ class SubscribeTest: BaseTest {
         }else if (Int(statusCode) == Int(r5_status_audio_mute.rawValue))
         {
             //print("=======r5_status_audio_mute")
-            let hasAudio = !(self.subscribeStream?.pauseAudio)!;
+            /*let hasAudio = !(self.subscribeStream?.pauseAudio)!;
             if (hasAudio) {
                 self.subscribeStream?.pauseAudio = true
-            }
+            }*/
+            ALToastView.toast(in: self.view, withText:"Audio Muted")
+
         }
         else if (Int(statusCode) == Int(r5_status_audio_unmute.rawValue))
         {
             //print("=======r5_status_audio_unmute")
-            let hasAudio = !(self.subscribeStream?.pauseAudio)!;
+            /*let hasAudio = !(self.subscribeStream?.pauseAudio)!;
             if (hasAudio) {
                 self.subscribeStream?.pauseAudio = false
-            }
+            }*/
+            ALToastView.toast(in: self.view, withText:"Audio Unmuted")
+
             
         }else if (Int(statusCode) == Int(r5_status_video_mute.rawValue))
         {
             //print("=======r5_status_video_mute")
-            let hasAudio = !(self.subscribeStream?.pauseAudio)!;
+            /*let hasAudio = !(self.subscribeStream?.pauseAudio)!;
             if (hasAudio) {
                 self.subscribeStream?.pauseAudio = true
-            }
+            }*/
+            ALToastView.toast(in: self.view, withText:"Video Muted")
+
         }
         else if (Int(statusCode) == Int(r5_status_video_unmute.rawValue))
         {
             //print("=======r5_status_video_unmute")
-            let hasAudio = !(self.subscribeStream?.pauseAudio)!;
+            /*let hasAudio = !(self.subscribeStream?.pauseAudio)!;
             if (hasAudio) {
                 self.subscribeStream?.pauseAudio = false
-            }
+            }*/
+            ALToastView.toast(in: self.view, withText:"Video Unmuted")
+
         }
         else if (Int(statusCode) == Int(r5_status_disconnected.rawValue))
         {
             //print("=======r5_status_disconnected")
+            ALToastView.toast(in: self.view, withText:"Video Disconnected")
+
         }
         else if (Int(statusCode) == Int(r5_status_stop_streaming.rawValue))
         {
             //print("=======r5_status_stop_streaming")
+            ALToastView.toast(in: self.view, withText:"Stream Stopped")
         }
     }
     func publisherBackground(msg: String) {

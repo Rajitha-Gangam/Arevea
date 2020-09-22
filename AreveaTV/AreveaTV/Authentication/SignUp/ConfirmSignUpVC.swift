@@ -7,9 +7,7 @@
 //
 
 import UIKit
-import AWSMobileClient
 import Alamofire
-import SendBirdSDK
 
 class ConfirmSignUpVC: UIViewController,UITextFieldDelegate {
      // MARK: - Variables Declaration
@@ -62,32 +60,7 @@ class ConfirmSignUpVC: UIViewController,UITextFieldDelegate {
         }
     }
     
-    func resendSignUpHandler(result: SignUpResult?, error: Error?) {
-        DispatchQueue.main.async {
-            self.viewActivity.isHidden = true
-        }
-        if let error = error {
-            showAlert(strMsg: "\(error)");
-            //print("\(error)")
-            return
-        }
-        
-        guard let signUpResult = result else {
-            return
-        }
-        
-        let message = "A verification code has been sent via \(signUpResult.codeDeliveryDetails!.deliveryMedium) at \(signUpResult.codeDeliveryDetails!.destination!)"
-        let alert = UIAlertController(title: "Code Sent",
-                                      message: message,
-                                      preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "Dismiss", style: .cancel, handler: { _ in
-            //Cancel Action
-        }))
-        
-        DispatchQueue.main.async {
-            self.present(alert, animated: true, completion: nil)
-        }
-    }
+  
     
     @IBAction func resendCode(_ sender: Any) {
         let netAvailable = appDelegate.isConnectedToInternet()
@@ -100,53 +73,120 @@ class ConfirmSignUpVC: UIViewController,UITextFieldDelegate {
             //print("No username")
             return
         }
+        let inputData = ["email": username,"type": "email_verification"]
+        sendOTP(inputData: inputData)
+    }
+    // MARK: Handler for events(events) API
+    func sendOTP(inputData:[String: Any]){
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        let url: String = appDelegate.ol_lambda_url +  "/sendOTP"
         viewActivity.isHidden = false
-        AWSMobileClient.default().resendSignUpCode(username: username,
-                                                          completionHandler: resendSignUpHandler)
-    }
-    
-    func handleConfirmation(signUpResult: SignUpResult?, error: Error?) {
-        DispatchQueue.main.async {
-            self.viewActivity.isHidden = true
-        }
-        if let error =  error as? AWSMobileClientError {
-            switch(error) {
-            case .codeMismatch:
-                self.showAlert(strMsg: "Invalid verification code provided, please try again");
-                 return
-            case .expiredCode(let message):
-                self.showAlert(strMsg: message);
-                 return
-            default: break
-                //showAlert(strMsg: "\(error)");
-            }
-            //print("There's an error : \(error.localizedDescription)")
-            //print(error)
-           
-        }
-        
-        guard let signUpResult = signUpResult else {
-            return
-        }
-        
-        switch(signUpResult.signUpConfirmationState) {
-        case .confirmed:
-            //print("User is signed up and confirmed.")
-            DispatchQueue.main.async {
-                self.viewActivity.isHidden = false
-                self.dismissModal()
+        let headers: HTTPHeaders
+        headers = [appDelegate.x_api_key: appDelegate.x_api_value]
+        AF.request(url, method: .post,parameters: inputData, encoding: JSONEncoding.default,headers:headers)
+            .responseJSON { response in
+                self.viewActivity.isHidden = true
+                switch response.result {
+                case .success(let value):
+                    if let json = value as? [String: Any] {
+                        print("sendOTP JSON:",json)
+                        if (json["status"]as? Int == 0 ){
+                            self.showAlert(strMsg: "Verification code sent via email")
+                        }else{
+                            let strMsg = json["message"] as? String ?? ""
+                            self.showAlert(strMsg: strMsg)
+                        }
+                       
+                    }
+                case .failure(let error):
+                   let errorDesc = error.localizedDescription.replacingOccurrences(of: "URLSessionTask failed with error:", with: "")
+                    self.showAlert(strMsg: errorDesc)
+                            self.viewActivity.isHidden = true
 
-            }
-        case .unconfirmed:
-            let username = self.username!;
-            let strError = "User is not confirmed and needs verification via email sent at " + username;
-            showAlert(strMsg: strError)
-            //print("User is not confirmed and needs verification via \(signUpResult.codeDeliveryDetails!.deliveryMedium) sent at \(signUpResult.codeDeliveryDetails!.destination!)")
-        case .unknown:
-            print("Unexpected case")
+                }
         }
     }
     
+    // MARK: Handler for events(events) API
+    func verifyOTP(inputData:[String: Any]){
+        print("verifyOTP:",inputData)
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        let url: String = appDelegate.ol_lambda_url +  "/verifyOTP"
+        viewActivity.isHidden = false
+        let headers: HTTPHeaders
+        headers = [appDelegate.x_api_key: appDelegate.x_api_value]
+        AF.request(url, method: .post,parameters: inputData, encoding: JSONEncoding.default,headers:headers)
+            .responseJSON { response in
+                self.viewActivity.isHidden = true
+                switch response.result {
+                case .success(let value):
+                    if let json = value as? [String: Any] {
+                        print("verifyOTP JSON:",json)
+                        let msg = json["message"] as? String ?? ""
+                        if (json["status"]as? Int == 1 && msg.lowercased() == "wrong otp"){
+                            let strMsg = json["message"] as? String ?? ""
+                            self.showAlert(strMsg: strMsg)
+                        }
+                       else{
+                            let userID = json["user_id"]as? String ?? ""
+                            print("userID1:",userID)
+                            self.updateUser(userId: userID)
+                        }
+                       
+                    }
+                case .failure(let error):
+                   let errorDesc = error.localizedDescription.replacingOccurrences(of: "URLSessionTask failed with error:", with: "")
+                    self.showAlert(strMsg: errorDesc)
+                            self.viewActivity.isHidden = true
+
+                }
+        }
+    }
+    
+    // MARK: Handler for events(events) API
+    func updateUser(userId: String){
+        print("updateUser:",userId)
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+                   let url: String = appDelegate.ol_base_url + "/api/2/users/" + userId
+        let inputData = ["custom_attributes":["is_user_verify":1]]
+                   viewActivity.isHidden = false
+                   let headers: HTTPHeaders = [
+                       "Authorization": "Bearer " + appDelegate.ol_access_token,
+                       "Accept": "application/json"
+                   ]
+                   AF.request(url, method: .put,parameters: inputData, encoding: JSONEncoding.default,headers:headers)
+                       .responseJSON { response in
+                           self.viewActivity.isHidden = true
+                           switch response.result {
+                           case .success(let value):
+                               if let json = value as? [String: Any] {
+                                   print("updateUser JSON:",json)
+                                   if (json["status"]as? Int == 1 ){
+                                       let strMsg = "Verified successfully"
+                                       let alert = UIAlertController(title: "Alert",
+                                                                     message:strMsg ,
+                                                                     preferredStyle: .alert)
+                                       
+                                       alert.addAction(UIAlertAction(title: "Dismiss", style: .cancel) { _ in
+                                        self.dismissModal()
+                                       })
+                                       DispatchQueue.main.async {
+                                           self.present(alert, animated: true, completion: nil)
+                                       }
+                                   }else{
+                                           let strMsg = json["message"] as? String ?? ""
+                                           self.showAlert(strMsg: strMsg)
+                                   }
+                               }
+                           case .failure(let error):
+                               let errorDesc = error.localizedDescription.replacingOccurrences(of: "URLSessionTask failed with error:", with: "")
+                               self.showAlert(strMsg: errorDesc)
+                               
+                           }
+                   }
+    }
+    
+
     @IBAction func confirmSignUp(_ sender: Any) {
         txtCode.resignFirstResponder();
         let netAvailable = appDelegate.isConnectedToInternet()
@@ -163,10 +203,8 @@ class ConfirmSignUpVC: UIViewController,UITextFieldDelegate {
                     //print("No username")
                     return
             }
-            viewActivity.isHidden = false
-            AWSMobileClient.default().confirmSignUp(username: username,
-                                                           confirmationCode: verificationCode,
-                                                           completionHandler: handleConfirmation)
+            let inputData = ["email": username,"type": "email_verification","otp":verificationCode]
+            verifyOTP(inputData: inputData)
             
         }
         

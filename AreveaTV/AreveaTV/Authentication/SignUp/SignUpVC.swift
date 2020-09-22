@@ -7,7 +7,7 @@
 //
 
 import UIKit
-import AWSMobileClient
+import Alamofire
 
 class SignUpVC: UIViewController ,UITextFieldDelegate,UIPickerViewDelegate, UIPickerViewDataSource{
     
@@ -44,11 +44,12 @@ class SignUpVC: UIViewController ,UITextFieldDelegate,UIPickerViewDelegate, UIPi
         viewActivity.isHidden = true
         //self.assignbackground();
         self.navigationController?.isNavigationBarHidden = true
-        //        txtEmail.text = "grajitha2009@gmail.com"
-        //        txtFirstName.text = "Rajitha Gangam";
-        //        txtPassword.text = "V@rshitha12345";
-        //        txtCfrmPassword.text =  "V@rshitha12345";
-        //        txtPhone.text = "+918096823214";
+        /*txtEmail.text = "grajitha2009@gmail.com"
+        txtFirstName.text = "Rajitha";
+        txtLastName.text = "Gangam"
+        txtPassword.text = "V@rshitha12345";
+        txtCfrmPassword.text =  "V@rshitha12345";
+        txtPhone.text = "+918096823214";*/
         addDoneButton()
         pickerView.delegate = self
         
@@ -110,68 +111,7 @@ class SignUpVC: UIViewController ,UITextFieldDelegate,UIPickerViewDelegate, UIPi
         self.view.sendSubviewToBack(imageView)
     }
     
-    func signUpHandler(signUpResult: SignUpResult?, error: Error?) {
-        DispatchQueue.main.async {
-            self.viewActivity.isHidden = true
-        }
-        if let error = error as? AWSMobileClientError {
-            switch(error) {
-            case .invalidPassword(message: let message):
-                //print("==invalidPassword:",message)
-                showAlert(strMsg: message);
-            case .invalidParameter(message: let message):
-                //print("==invalidState:",message)
-                showAlert(strMsg: message);
-            case .usernameExists(let message):
-                showAlert(strMsg: message);
-                
-            default:
-                showAlert(strMsg: "\(error)");
-                break
-            }
-            
-            //print("There's an error on signup: \(error.localizedDescription), \(error)")
-            
-        }
-        
-        guard let signUpResult = signUpResult else {
-            return
-        }
-        //print("signUpConfirmationState: \(signUpResult.signUpConfirmationState)");
-        switch(signUpResult.signUpConfirmationState) {
-        case .confirmed:
-            //print("User is signed up and confirmed.")
-            
-            DispatchQueue.main.async {
-                let storyboard = UIStoryboard(name: "Main", bundle: nil);
-                let vc = storyboard.instantiateViewController(withIdentifier: "DashBoardVC") as! DashBoardVC
-                self.navigationController?.pushViewController(vc, animated: true)
-            }
-            
-        case .unconfirmed:
-            let alert = UIAlertController(title: "Code sent",
-                                          message: "Confirmation code sent via \(signUpResult.codeDeliveryDetails!.deliveryMedium) to: \(signUpResult.codeDeliveryDetails!.destination!)",
-                preferredStyle: .alert)
-            
-            alert.addAction(UIAlertAction(title: "Dismiss", style: .cancel) { _ in
-                guard let username = self.txtEmail.text else {
-                    return
-                }
-                UserDefaults.standard.set(username, forKey: "user_email")
-                
-                let storyboard = UIStoryboard(name: "Main", bundle: nil);
-                let vc = storyboard.instantiateViewController(withIdentifier: "ConfirmSignUpVC") as! ConfirmSignUpVC
-                self.navigationController?.pushViewController(vc, animated: true)
-            })
-            
-            DispatchQueue.main.async {
-                self.present(alert, animated: true, completion: nil)
-            }
-            
-        case .unknown:
-            print("Unexpected case")
-        }
-    }
+   
     func showAlert(strMsg: String){
         let alert = UIAlertController(title: "Alert", message: strMsg, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
@@ -213,6 +153,7 @@ class SignUpVC: UIViewController ,UITextFieldDelegate,UIPickerViewDelegate, UIPi
         return emailPred.evaluate(with: txtEmail.text)
     }
     @IBAction func signUp(_ sender: Any) {
+        
         resignKB(sender)
         let netAvailable = appDelegate.isConnectedToInternet()
         if(!netAvailable){
@@ -249,7 +190,7 @@ class SignUpVC: UIViewController ,UITextFieldDelegate,UIPickerViewDelegate, UIPi
             showAlert(strMsg: "Password and confirm password did not match");
         }else  if (!isTermsChecked)
         {
-           showAlert(strMsg: "Please accept terms & conditions");
+            showAlert(strMsg: "Please accept terms & conditions");
         }else{
             let dateFormatter = DateFormatter()
             dateFormatter.dateFormat = "YYYY-MM-dd"
@@ -268,12 +209,61 @@ class SignUpVC: UIViewController ,UITextFieldDelegate,UIPickerViewDelegate, UIPi
             //print("pastDate:",pastDate!)
             let dobPast = dateFormatter.string(from:pastDate!)
             
+            let appDelegate = UIApplication.shared.delegate as! AppDelegate
+            let url: String = appDelegate.ol_base_url + "/api/2/users"
+            let inputData = ["firstname" : firstName,"lastname" : lastName,"email" : email,"username" : email,"phone" : phone,"password" : pwd,"password_confirmation" : pwd,"custom_attributes" : ["date_of_birth" : dobPast,"plan" : planID,"profile_pic" : "","user_display_name" : firstName + " " + lastName,"user_type" : 3,"is_user_verify" : 0]
+                ] as [String : Any]
+            
+            
             viewActivity.isHidden = false
-            //username value shoulb be like email
-            AWSMobileClient.default().signUp(username: email,
-                                             password: pwd,
-                                             userAttributes: ["email" : email, "name":firstName,"phone_number":phone,"family_name":lastName,"birthdate":dobPast,"custom:plan":planID],
-                                             completionHandler: signUpHandler);
+            let headers: HTTPHeaders = [
+                "Authorization": "Bearer " + appDelegate.ol_access_token,
+                "Accept": "application/json"
+            ]
+            AF.request(url, method: .post,parameters: inputData, encoding: JSONEncoding.default,headers:headers)
+                .responseJSON { response in
+                    self.viewActivity.isHidden = true
+                    switch response.result {
+                    case .success(let value):
+                        if let json = value as? [String: Any] {
+                            print("signUP JSON:",json)
+                            if (json["status"]as? Int == 1 ){
+                                let strMsg = "Confirmation code sent via email to " + email
+                                let alert = UIAlertController(title: "Code Sent",
+                                                              message:strMsg ,
+                                                              preferredStyle: .alert)
+                                
+                                alert.addAction(UIAlertAction(title: "Dismiss", style: .cancel) { _ in
+                                    guard let username = self.txtEmail.text else {
+                                        return
+                                    }
+                                    UserDefaults.standard.set(username, forKey: "user_email")
+                                    
+                                    let storyboard = UIStoryboard(name: "Main", bundle: nil);
+                                    let vc = storyboard.instantiateViewController(withIdentifier: "ConfirmSignUpVC") as! ConfirmSignUpVC
+                                    self.navigationController?.pushViewController(vc, animated: true)
+                                })
+                                
+                                DispatchQueue.main.async {
+                                    self.present(alert, animated: true, completion: nil)
+                                }
+                            }else{
+                                if (json["statusCode"]as? Int == 422 )  {
+                                    //An account with the given email already exists.
+                                    self.showAlert(strMsg: "An account with the given email already exists.")
+                                }else{
+                                    let strMsg = json["message"] as? String ?? ""
+                                    self.showAlert(strMsg: strMsg)
+                                }
+                            }
+                        }
+                    case .failure(let error):
+                        let errorDesc = error.localizedDescription.replacingOccurrences(of: "URLSessionTask failed with error:", with: "")
+                        self.showAlert(strMsg: errorDesc)
+                        
+                    }
+            }
+            
         }
     }
     

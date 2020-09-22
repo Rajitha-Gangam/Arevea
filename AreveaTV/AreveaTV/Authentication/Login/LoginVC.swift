@@ -7,7 +7,6 @@
     //
     
     import UIKit
-    import AWSMobileClient
     import AWSAuthCore
     import FBSDKCoreKit
     import AWSCognito
@@ -24,7 +23,6 @@
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         
         var loginDelegate: GLLoginDelegate?
-        
         @IBOutlet weak var txtUserName: ACFloatingTextfield!
         @IBOutlet weak var txtPassword: ACFloatingTextfield!
         @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
@@ -42,18 +40,18 @@
             viewActivity.isHidden = true
             
             addDoneButton()
-           // dismissPickerView()
+            // dismissPickerView()
             //self.assignbackground();
             
         }
-
-     
+        
+        
         override func viewWillAppear(_ animated: Bool) {
             AppDelegate.AppUtility.lockOrientation(.portrait)
             
             txtUserName.text = appDelegate.emailPopulate// if user comes from reset pwd / confirm sign up, auto pupulate email
             txtPassword.text = "";
-//            txtUserName.text = "grajitha2009@gmail.com";
+//            txtUserName.text = "gangamrajitha3@gmail.com";
 //            txtPassword.text = "V@rshitha12345";
         }
         override func viewWillDisappear(_ animated: Bool) {
@@ -93,79 +91,7 @@
             }
         }
         
-        func AWSsignIn(){
-           
-            
-            let netAvailable = appDelegate.isConnectedToInternet()
-            if(!netAvailable){
-                showAlert(strMsg: "Please check your internet connection!")
-                return
-            }
-            let username = txtUserName.text!
-            let password = txtPassword.text!
-            viewActivity.isHidden = false
-            AWSMobileClient.default().signIn(username: username, password: password) {
-                (signInResult, error) in
-                //print("signInResult:\(String(describing: signInResult))");
-                print("There's an error : \(error)")
-
-                DispatchQueue.main.async {
-                    self.viewActivity.isHidden = true
-                }
-                if let error =  error as? AWSMobileClientError {
-                    switch(error) {
-                    case .notAuthorized(let message):
-                        self.showAlert(strMsg: message);
-                    case .userNotFound(let message):
-                        self.showAlert(strMsg: message);
-                    case .userNotConfirmed(let message):
-                        //print("userNotConfirmed:",message)
-                        DispatchQueue.main.async {
-                            UserDefaults.standard.set(username, forKey: "user_email")
-                            let storyboard = UIStoryboard(name: "Main", bundle: nil);
-                            let vc = storyboard.instantiateViewController(withIdentifier: "ConfirmSignUpVC") as! ConfirmSignUpVC
-                            self.navigationController?.pushViewController(vc, animated: true)
-                        }
-                    case .userLambdaValidation(let message):
-                        if (message.contains("PostAuthentication failed")){
-                            self.showAlert(strMsg: "Your account is currently logged onto another device.\n\n Please log out of the other device or contact your administrator")
-                        }
-                        UserDefaults.standard.set(username, forKey: "user_email")
-                        self.delayWithSeconds(2.0){
-                            self.viewActivity.isHidden = false
-                            self.getUser();
-                        }
-                    default:
-                        self.showAlert(strMsg: "\(error)");
-                        break
-                    }
-                    //print(error)
-                   
-                    return
-                }
-                guard let signInResult = signInResult else {
-                    return
-                }
-                print("signInResult:\(signInResult)");
-
-                switch (signInResult.signInState) {
-                case .signedIn:
-                    //print("User is signed in.")
-                    UserDefaults.standard.set(username, forKey: "user_email")
-                    self.delayWithSeconds(2.0){
-                        self.viewActivity.isHidden = false
-                        self.getUser();
-                    }
-                case .newPasswordRequired:
-                    //print("User needs a new password.")
-                    self.showAlert(strMsg: "User needs a new password")
-                default:
-                    //print("Sign In needs info which is not yet supported.")
-                    self.showAlert(strMsg: "Sign In needs info which is not yet supported")
-                    
-                }
-            }
-        }
+        
         func delayWithSeconds(_ seconds: Double, completion: @escaping () -> ()) {
             DispatchQueue.main.asyncAfter(deadline: .now() + seconds) {
                 completion()
@@ -186,10 +112,85 @@
             }else if (txtPassword.text?.count == 0){
                 showAlert(strMsg: "Please enter password");
             }else{
-                AWSsignIn();
+                //AWSsignIn();
+                let email = txtUserName.text!.trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
+                let pwd = txtPassword.text!.trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
+                let inputData = ["email":email,"password":pwd]
+                OLLogin(inputData:inputData )
+                
             }
         }
-        
+        func OLLogin(inputData:[String: Any]){
+            let username = self.txtUserName.text!.trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
+            
+            let appDelegate = UIApplication.shared.delegate as! AppDelegate
+            let url: String = appDelegate.termsURL + "/api/user/v1/fanLogin"
+            viewActivity.isHidden = false
+            let headers: HTTPHeaders = [
+                "Authorization": "Bearer " + appDelegate.ol_access_token,
+                "Accept": "application/json"
+            ]
+            AF.request(url, method: .post,parameters: inputData, encoding: JSONEncoding.default,headers:headers)
+                .responseJSON { response in
+                    self.viewActivity.isHidden = true
+                    switch response.result {
+                    case .success(let value):
+                        if let json = value as? [String: Any] {
+                            print("OLLogin JSON:",json)
+                            if(json["status"] as? Int == 0){
+                                let user = json["user"] as? [String:Any] ?? [:]
+                                print("user:",user)
+                                let custom_attributes = user["custom_attributes"] as? [String:Any] ?? [:]
+                                
+                                if (custom_attributes["is_user_verify"] as? String == "0"){
+                                    UserDefaults.standard.set(username, forKey: "user_email")
+                                    let storyboard = UIStoryboard(name: "Main", bundle: nil);
+                                    let vc = storyboard.instantiateViewController(withIdentifier: "ConfirmSignUpVC") as! ConfirmSignUpVC
+                                    self.navigationController?.pushViewController(vc, animated: true)
+                                }else{
+                                    UserDefaults.standard.set(username, forKey: "user_email")
+                                    /* self.delayWithSeconds(2.0){
+                                     self.viewActivity.isHidden = false
+                                     self.getUser();
+                                     }*/
+                                    let userID = user["id"]as? String ?? ""
+                                    print("====userId:",userID)
+                                    UserDefaults.standard.set(userID, forKey: "user_id")
+                                    
+                                    UserDefaults.standard.set(user["id"], forKey: "user_id")
+                                    UserDefaults.standard.set(user["user_type"], forKey: "user_type")
+                                    UserDefaults.standard.set(user["session_token"], forKey: "session_token")
+                                    let fn = user["user_first_name"] as? String
+                                    let ln = user["user_last_name"]as? String
+                                    let displayName = user["user_display_name"]as? String
+                                    
+                                    let strName = String((fn?.first ?? "A")) + String((ln?.first ?? "B"))
+                                    self.appDelegate.USER_NAME = strName;
+                                    self.appDelegate.USER_NAME_FULL = (fn ?? "") + " " + (ln ?? "")
+                                    self.appDelegate.USER_DISPLAY_NAME = displayName!
+                                    
+                                    UserDefaults.standard.set(self.appDelegate.USER_NAME, forKey: "USER_NAME")
+                                    UserDefaults.standard.set(self.appDelegate.USER_NAME_FULL, forKey: "USER_NAME_FULL")
+                                    UserDefaults.standard.set(displayName, forKey: "user_display_name")
+                                    
+                                    self.sendBirdConnect()
+                                    
+                                }
+                                //user.custom_attributes.is_user_verify
+                            }else{
+                                let strMsg = json["message"] as? String ?? ""
+                                self.showAlert(strMsg: strMsg)
+                                
+                            }
+                            
+                        }
+                    case .failure(let error):
+                        let errorDesc = error.localizedDescription.replacingOccurrences(of: "URLSessionTask failed with error:", with: "")
+                        self.showAlert(strMsg: errorDesc)
+                        
+                    }
+            }
+        }
         @IBAction func signUp(_ sender: Any) {
             let netAvailable = appDelegate.isConnectedToInternet()
             if(!netAvailable){
@@ -211,54 +212,7 @@
             let vc = storyboard.instantiateViewController(withIdentifier: "ResetPasswordVC") as! ResetPasswordVC
             self.navigationController?.pushViewController(vc, animated: true)
         }
-        @IBAction func facebook(_ sender: Any) {
-            // Perform SAML token federation
-            AWSMobileClient.default().federatedSignIn(providerName: "Facebook",
-                                                      token: "230469618276761") { (userState, error) in
-                                                        if let error = error as? AWSMobileClientError {
-                                                            //print(error.localizedDescription)
-                                                        }
-                                                        if let userState = userState {
-                                                            //print("Status: \(userState.rawValue)")
-                                                        }
-            }
-            // awsSignInFacebook(fbAuthToken: "230469618276761")
-            
-        }
-        func awsSignInFacebook(fbAuthToken: String){
-            let logins = ["graph.facebook.com" : fbAuthToken]
-            _ = CustomIdentityProvider(tokens: logins)
-            //        let credentialsProvider = AWSCognitoCredentialsProvider(regionType: .APSouth1, identityPoolId: AWSConstants.CognitoFederatedIdentityUserPoolId, identityProviderManager: customIdentityProvider)
-            
-            
-            let credentialsProvider = AWSCognitoCredentialsProvider(regionType: .USEast1, identityPoolId: "us-east-1_DjsrvpsGK")
-            let configuration = AWSServiceConfiguration(region: .USEast1, credentialsProvider: credentialsProvider)
-            AWSServiceManager.default().defaultServiceConfiguration = configuration
-            
-            credentialsProvider.getIdentityId().continueWith { (task: AWSTask!) -> AnyObject? in
-                
-                if (task.error != nil) {
-                    //print("Error: " + (task.error?.localizedDescription)!)
-                    
-                } else {
-                    // the task result will contain the identity id
-                    let cognitoId = task.result
-                    //print("Cognito ID : \(String(describing: cognitoId))")
-                }
-                return nil
-            }
-        }
-        class CustomIdentityProvider: NSObject, AWSIdentityProviderManager {
-            var tokens : [String : String]?
-            
-            init(tokens: [String : String]) {
-                self.tokens = tokens
-            }
-            
-            @objc func logins() -> AWSTask<NSDictionary> {
-                return AWSTask(result: tokens! as NSDictionary)
-            }
-        }
+        
         
         // MARK: Text Field Delegate Methods
         
@@ -275,93 +229,129 @@
         override var preferredStatusBarStyle: UIStatusBarStyle {
             return .lightContent // .default
         }
-        func logout(){
-            //we are calling logout here, bcz if user click on login again it shoold work with AWS, otherwise, user alreday loggen in state will come
-            AWSMobileClient.default().signOut() { error in
-                if let error = error {
-                    //print(error)
-                    return
-                }
-            }
-        }
-       
-        // MARK: Handler for getUser API, using for filters
-        func getUser() {
-            let netAvailable = appDelegate.isConnectedToInternet()
-            if(!netAvailable){
-                showAlert(strMsg: "Please check your internet connection!")
-                return
-            }
+        func logoutOL(){
+            
+            let appDelegate = UIApplication.shared.delegate as! AppDelegate
+            let user_id = UserDefaults.standard.string(forKey: "user_id");
+            
+            let url: String = appDelegate.ol_base_url + "/api/1/users/" + user_id! + "/logout"
             viewActivity.isHidden = false
-            let httpMethodName = "POST"
-            let URLString: String = "/getUser"
-            let username = UserDefaults.standard.string(forKey: "user_email");
-            let params: [String: Any] = ["email":username ?? ""]
-            let headerParameters = [
-                "Content-Type": "application/json",
+            let headers: HTTPHeaders = [
+                "Authorization": "Bearer " + appDelegate.ol_access_token,
                 "Accept": "application/json"
             ]
-            // Construct the request object
-            let apiRequest = AWSAPIGatewayRequest(httpMethod: httpMethodName,
-                                                  urlString: URLString,
-                                                  queryParameters: [:],
-                                                  headerParameters: headerParameters,
-                                                  httpBody: params)
-            // Fetch the Cloud Logic client to be used for invocation
-            let invocationClient = AreveaAPIClient.client(forKey:appDelegate.AWSCognitoIdentityPoolId)
-            invocationClient.invoke(apiRequest).continueWith { (task: AWSTask) -> Any? in
-                if let error = task.error {
-                    print("getUser Error occurred: \(error)")
-                    self.showAlert(strMsg: "\(error)")
-                    self.logout()
-                    // Handle error here
-                    return nil
-                }
-                // Handle successful result here
-                let result = task.result!
-                let responseString = String(data: result.responseData!, encoding: .utf8)
-                let data = responseString!.data(using: .utf8)!
-                do {
-                    let resultObj = try JSONSerialization.jsonObject(with: data, options : .allowFragments)
-                    DispatchQueue.main.async {
+            AF.request(url, method:.put, encoding: JSONEncoding.default,headers:headers)
+                .responseJSON { response in
+                    self.viewActivity.isHidden = true
+                    switch response.result {
+                    case .success(let value):
+                        if let json = value as? [String: Any] {
+                            print("logoutOL json:",json)
+                            let status = json["status"] as? [String:Any] ?? [:]
+                            if(status["code"] as? Int == 200){
+                                self.logoutLambda()
+                            }else{
+                                let strMsg = status["message"] as? String ?? ""
+                                self.showAlert(strMsg: strMsg)
+                            }
+                        }
+                    case .failure(let error):
+                        let errorDesc = error.localizedDescription.replacingOccurrences(of: "URLSessionTask failed with error:", with: "")
+                        self.showAlert(strMsg: errorDesc)
+                        
+                    }
+            }
+        }
+        func logoutLambda(){
+            let appDelegate = UIApplication.shared.delegate as! AppDelegate
+            let url: String = appDelegate.ol_lambda_url +  "/logout"
+            let user_id = UserDefaults.standard.string(forKey: "user_id");
+            let inputData: [String: Any] = ["user_id":user_id ?? ""]
+            let session_token = UserDefaults.standard.string(forKey: "session_token") ?? ""
+            let headers : HTTPHeaders = [
+                "Content-Type": "application/json",
+                appDelegate.x_api_key:appDelegate.x_api_value,
+                "Authorization": "Bearer " + session_token
+            ]
+            viewActivity.isHidden = false
+            AF.request(url, method: .post,parameters: inputData, encoding: JSONEncoding.default,headers:headers)
+                .responseJSON { response in
+                    self.viewActivity.isHidden = true
+                    switch response.result {
+                    case .success(let value):
+                        if let json = value as? [String: Any] {
+                            print("logoutLambda JSON:",json)
+                            if (json["statusCode"]as? String == "200" ){
+                                UserDefaults.standard.set("0", forKey: "user_id")
+                            }else{
+                                let strMsg = json["message"] as? String ?? ""
+                                self.showAlert(strMsg: strMsg)
+                            }
+                            
+                        }
+                    case .failure(let error):
+                        let errorDesc = error.localizedDescription.replacingOccurrences(of: "URLSessionTask failed with error:", with: "")
+                        self.showAlert(strMsg: errorDesc)
                         self.viewActivity.isHidden = true
-                        if let json = resultObj as? [String: Any] {
-                            if (json["status"]as? Int == 0){
-                                print("getUser:",json)
-                                //print(json["message"] ?? "")
-                                let user = json["user"] as? [String:Any];
-                                 //print("user:",user ?? "")
-                                UserDefaults.standard.set(user?["id"], forKey: "user_id")
-                                UserDefaults.standard.set(user?["user_type"], forKey: "user_type")
-                                UserDefaults.standard.set(user?["session_token"], forKey: "session_token")
-                                let fn = user?["user_first_name"] as? String
-                                let ln = user?["user_last_name"]as? String
+                        
+                    }
+            }
+        }
+        
+        
+        // MARK: Handler for events(events) API
+        func getUserById(inputData:[String: Any]){
+            print("getUserById:",inputData)
+            let appDelegate = UIApplication.shared.delegate as! AppDelegate
+            let url: String = appDelegate.ol_lambda_url +  "/getUserById"
+            viewActivity.isHidden = false
+            let headers: HTTPHeaders
+            headers = [appDelegate.x_api_key: appDelegate.x_api_value]
+            AF.request(url, method: .post,parameters:inputData,  encoding: JSONEncoding.default,headers:headers)
+                .responseJSON { response in
+                    self.viewActivity.isHidden = true
+                    switch response.result {
+                    case .success(let value):
+                        if let json = value as? [String: Any] {
+                            print("getUserById JSON:",json)
+                            if (json["status"]as? Int == 0 ){
+                                let user = json["user"] as? [String: Any] ?? [:]
+                                UserDefaults.standard.set(user["id"], forKey: "user_id")
+                                UserDefaults.standard.set(user["user_type"], forKey: "user_type")
+                                UserDefaults.standard.set(user["session_token"], forKey: "session_token")
+                                let fn = user["user_first_name"] as? String
+                                let ln = user["user_last_name"]as? String
+                                let displayName = user["user_display_name"]as? String
+                                
                                 let strName = String((fn?.first ?? "A")) + String((ln?.first ?? "B"))
                                 self.appDelegate.USER_NAME = strName;
                                 self.appDelegate.USER_NAME_FULL = (fn ?? "") + " " + (ln ?? "")
+                                self.appDelegate.USER_DISPLAY_NAME = displayName!
+                                
                                 UserDefaults.standard.set(self.appDelegate.USER_NAME, forKey: "USER_NAME")
                                 UserDefaults.standard.set(self.appDelegate.USER_NAME_FULL, forKey: "USER_NAME_FULL")
+                                UserDefaults.standard.set(displayName, forKey: "user_display_name")
+                                
                                 self.sendBirdConnect()
-                            }else{
-                                let strError = json["message"] as? String
-                                //print(strError ?? "")
-                                self.showAlert(strMsg: strError ?? "")
-                                self.logout()
                             }
+                            else{
+                                self.logoutOL()
+                                let strMsg = json["message"] as? String ?? ""
+                                self.showAlert(strMsg: strMsg)
+                            }
+                            
                         }
+                    case .failure(let error):
+                        self.logoutOL()
+                        let errorDesc = error.localizedDescription.replacingOccurrences(of: "URLSessionTask failed with error:", with: "")
+                        self.showAlert(strMsg: errorDesc)
+                        self.viewActivity.isHidden = true
+                        
                     }
-                } catch let error as NSError {
-                    //print(error)
-                    self.showAlert(strMsg: "\(error)")
-                    self.viewActivity.isHidden = true
-                    self.logout()
-                }
-                return nil
             }
         }
-       
         
-       
+        
         
         @objc func action() {
             view.endEditing(true)
@@ -411,9 +401,6 @@
                 }
             }
         }
-        
-        
-        
     }
     extension LoginVC: AWSSignInDelegate {
         func onLogin(signInProvider: AWSSignInProvider, result: Any?, error: Error?) {

@@ -7,7 +7,7 @@
 //
 
 import UIKit
-import AWSMobileClient
+import Alamofire
 
 class ResetPasswordVC: UIViewController ,UITextFieldDelegate{
      // MARK: - Variables Declaration
@@ -70,6 +70,59 @@ class ResetPasswordVC: UIViewController ,UITextFieldDelegate{
            let emailPred = NSPredicate(format:"SELF MATCHES %@", emailRegEx)
            return emailPred.evaluate(with: txtEmail.text)
        }
+    
+    // MARK: Handler for events(events) API
+       func sendOTP(inputData:[String: Any]){
+        guard let username = txtEmail.text else {
+            //print("No username")
+            return
+        }
+        
+           let appDelegate = UIApplication.shared.delegate as! AppDelegate
+           let url: String = appDelegate.ol_lambda_url +  "/sendOTP"
+           viewActivity.isHidden = false
+           let headers: HTTPHeaders
+           headers = [appDelegate.x_api_key: appDelegate.x_api_value]
+           AF.request(url, method: .post,parameters: inputData, encoding: JSONEncoding.default,headers:headers)
+               .responseJSON { response in
+                   self.viewActivity.isHidden = true
+                   switch response.result {
+                   case .success(let value):
+                       if let json = value as? [String: Any] {
+                           print("sendOTP JSON:",json)
+                           if (json["status"]as? Int == 0 ){
+                               //self.showAlert(strMsg: "Verification code sent via email")
+                            let alert = UIAlertController(title: "Code sent",
+                                                          message: "Confirmation code sent via email",
+                                preferredStyle: .alert)
+                            
+                            alert.addAction(UIAlertAction(title: "Dismiss", style: .cancel) { _ in
+                                UserDefaults.standard.set(username, forKey: "user_email")
+
+                                let storyboard = UIStoryboard(name: "Main", bundle: nil);
+                                let vc = storyboard.instantiateViewController(withIdentifier: "NewPasswordVC") as! NewPasswordVC
+                                self.navigationController?.pushViewController(vc, animated: true)
+                            })
+                            
+                            DispatchQueue.main.async {
+                                self.present(alert, animated: true, completion: nil)
+                            }
+                            
+                            
+                           }else{
+                               let strMsg = json["message"] as? String ?? ""
+                               self.showAlert(strMsg: strMsg)
+                           }
+                          
+                       }
+                   case .failure(let error):
+                      let errorDesc = error.localizedDescription.replacingOccurrences(of: "URLSessionTask failed with error:", with: "")
+                       self.showAlert(strMsg: errorDesc)
+                               self.viewActivity.isHidden = true
+
+                   }
+           }
+       }
     @IBAction func submitUsername(_ sender: Any) {
         txtEmail.resignFirstResponder();
         let netAvailable = appDelegate.isConnectedToInternet()
@@ -82,59 +135,15 @@ class ResetPasswordVC: UIViewController ,UITextFieldDelegate{
         }else if (!isValidEmail()){
             showAlert(strMsg: "Please enter valid email");
         }else{
+            //forgotPWDCognito()
             guard let username = txtEmail.text else {
                 //print("No username")
                 return
             }
-            self.viewActivity.isHidden = false
-
-            AWSMobileClient.default().forgotPassword(username: username) { (forgotPasswordResult, error) in
-                DispatchQueue.main.async {
-                                self.viewActivity.isHidden = true
-
-                }
-                if let error = error {
-                    self.showAlert(strMsg: "\(error)");
-                           //print("\(error)")
-                           return
-                       }
-                if let forgotPasswordResult = forgotPasswordResult {
-                    switch(forgotPasswordResult.forgotPasswordState) {
-                    case .confirmationCodeSent:
-                        
-                        guard let codeDeliveryDetails = forgotPasswordResult.codeDeliveryDetails else {
-                            return
-                        }
-                        
-                        let alert = UIAlertController(title: "Code sent",
-                                                      message: "Confirmation code sent via \(codeDeliveryDetails.deliveryMedium) to: \(codeDeliveryDetails.destination!)",
-                            preferredStyle: .alert)
-                        
-                        alert.addAction(UIAlertAction(title: "Dismiss", style: .cancel) { _ in
-                            UserDefaults.standard.set(username, forKey: "user_email")
-
-                            let storyboard = UIStoryboard(name: "Main", bundle: nil);
-                            let vc = storyboard.instantiateViewController(withIdentifier: "NewPasswordVC") as! NewPasswordVC
-                            self.navigationController?.pushViewController(vc, animated: true)
-                        })
-                        
-                        DispatchQueue.main.async {
-                            self.present(alert, animated: true, completion: nil)
-                        }
-                        
-                    default:
-                        break
-                    }
-                } else if let error = error {
-                    //print("Error occurred: \(error.localizedDescription)")
-                }
-            }
+            let inputData = ["email": username,"type": "forgot_password"]
+            sendOTP(inputData: inputData)
         }
-        
-        
-        
     }
-    
     @IBAction func dismiss(_ sender: Any) {
         for controller in self.navigationController!.viewControllers as Array {
             if controller.isKind(of: LoginVC.self) {

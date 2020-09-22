@@ -59,7 +59,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
     @IBOutlet var imgProfilePic: UIImageView!
     
     var arySideMenu : [[String: String]] = [["name":"Home","icon":"home"],["name":"My Profile","icon":"user-white"],["name":"My Events","icon":"event"],["name":"My Payments","icon":"donation"],["name":"My Purchases","icon":"purchase"],["name":"Help","icon":"help"],["name":"Logout","icon":"logout"]];
-    var sectionTitles = ["Live Events","My List","Trending Channels"]
+    var sectionTitles = ["Live Events","Upcoming Events","My List","Trending Channels"]
     //MARK:View Life Cycle Methods
     
     @IBOutlet weak var viewActivity: UIView!
@@ -105,33 +105,33 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
         let build = dictionary["CFBundleVersion"] as! String
         return "\(version).\(build)"
     }
-  
+    
     /*override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
-          super.viewWillTransition(to: size, with: coordinator)
-          self.viewSideMenu.isHidden = true
-          self.tblMain.reloadData()
-          if UIDevice.current.orientation.isLandscape {
-              print("DB Landscape")
-              DispatchQueue.main.async {
-              //AppDelegate.AppUtility.lockOrientation(.portrait)
-              }
-          } else {
-              print("DB Portrait")
-          }
-    }*/
+     super.viewWillTransition(to: size, with: coordinator)
+     self.viewSideMenu.isHidden = true
+     self.tblMain.reloadData()
+     if UIDevice.current.orientation.isLandscape {
+     print("DB Landscape")
+     DispatchQueue.main.async {
+     //AppDelegate.AppUtility.lockOrientation(.portrait)
+     }
+     } else {
+     print("DB Portrait")
+     }
+     }*/
     override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
         super.viewWillTransition(to: size, with: coordinator)
         self.viewSideMenu.isHidden = true
         self.tblMain.reloadData()
         AppDelegate.AppUtility.lockOrientation(.portrait, andRotateTo: .portrait)
-
+        
         if UIDevice.current.orientation.isLandscape {
             print("DB Landscape")
             DispatchQueue.main.async {
-          //  AppDelegate.AppUtility.lockOrientation(.portrait)
+                //  AppDelegate.AppUtility.lockOrientation(.portrait)
             }
         } else {
-           // AppDelegate.AppUtility.lockOrientation(.portrait)
+            // AppDelegate.AppUtility.lockOrientation(.portrait)
             print("DB Portrait")
         }
     }
@@ -145,21 +145,21 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
     }
     override func viewDidAppear(_ animated: Bool) {
         /*AppDelegate.AppUtility.lockOrientation(.portrait)
-        if(UIDevice.current.userInterfaceIdiom == .phone){
-            let value = UIInterfaceOrientation.portrait.rawValue
-            UIDevice.current.setValue(value, forKey: "orientation")
-        }
-        tblMain.reloadData()*/
-
+         if(UIDevice.current.userInterfaceIdiom == .phone){
+         let value = UIInterfaceOrientation.portrait.rawValue
+         UIDevice.current.setValue(value, forKey: "orientation")
+         }
+         tblMain.reloadData()*/
+        
     }
     override func viewWillAppear(_ animated: Bool) {
-         AppDelegate.AppUtility.lockOrientation(.portrait, andRotateTo: .portrait)
-       // AppDelegate.AppUtility.lockOrientation(.portrait)
+        AppDelegate.AppUtility.lockOrientation(.portrait, andRotateTo: .portrait)
+        // AppDelegate.AppUtility.lockOrientation(.portrait)
         let indexPath = IndexPath(row: 0, section: 0)
         tblSide.selectRow(at: indexPath, animated: true, scrollPosition: .bottom)
         //tblSide.delegate?.tableView!(myTableView, didSelectRowAt: indexPath)
         
-        self.lblUserName.text = self.appDelegate.USER_NAME_FULL
+        self.lblUserName.text = self.appDelegate.USER_DISPLAY_NAME
         
         //if user comes from search by selecting  type "genre"
         if (appDelegate.genreId != 0){
@@ -187,7 +187,10 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
     func showAlert(strMsg: String){
         let alert = UIAlertController(title: "Alert", message: strMsg, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
-        self.present(alert, animated: true)
+        DispatchQueue.main.async {
+            self.present(alert, animated: true)
+        }
+        
     }
     // MARK: Handler for onGoingEvents(Live Events) API
     func onGoingEvents(){
@@ -211,73 +214,51 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
                 case .failure(let error):
                     let errorDesc = error.localizedDescription.replacingOccurrences(of: "URLSessionTask failed with error:", with: "")
                     self.showAlert(strMsg: errorDesc)
-                            self.viewActivity.isHidden = true
-
+                    self.viewActivity.isHidden = true
+                    
                 }
         }
     }
     // MARK: Handler for myList(myList) API
     func myList(){
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        let URLString: String = "/myList"
-        viewActivity.isHidden = false
+        let url: String = appDelegate.ol_lambda_url +  "/myList"
         let user_id = UserDefaults.standard.string(forKey: "user_id");
-        let params: [String: Any] = ["userid":user_id ?? ""]
-        
-        let headerParameters = [
+        let inputData: [String: Any] = ["userid":user_id ?? ""]
+        let session_token = UserDefaults.standard.string(forKey: "session_token") ?? ""
+        let headers : HTTPHeaders = [
             "Content-Type": "application/json",
-            "Accept": "application/json"
+            appDelegate.x_api_key:appDelegate.x_api_value,
+            "Authorization": "Bearer " + session_token
         ]
-        let httpMethodName = "POST"
-        // Construct the request object
-        let apiRequest = AWSAPIGatewayRequest(httpMethod: httpMethodName,
-                                              urlString: URLString,
-                                              queryParameters: [:],
-                                              headerParameters: headerParameters,
-                                              httpBody: params)
-        // Fetch the Cloud Logic client to be used for invocation
-        let invocationClient = AreveaAPIClient.client(forKey:appDelegate.AWSCognitoIdentityPoolId)
-        invocationClient.invoke(apiRequest).continueWith { (task: AWSTask) -> Any? in
-            if let error = task.error {
-                //print("Error occurred: \(error)")
-                self.showAlert(strMsg: error as? String ?? error.localizedDescription)
-                // Handle error here
-                return nil
-            }
-            // Handle successful result here
-            let result = task.result!
-            let responseString = String(data: result.responseData!, encoding: .utf8)
-            let data = responseString!.data(using: .utf8)!
-            do {
-                let resultObj = try JSONSerialization.jsonObject(with: data, options : .allowFragments)
-                DispatchQueue.main.async {
-                    self.viewActivity.isHidden = true
-                    //print(resultObj)
-                    if let json = resultObj as? [String: Any] {
-                        if (json["statusCode"]as? String == "200"){
-                            ////print(json["message"] ?? "")
-                            print("Mylist JSON:",json)
+        viewActivity.isHidden = false
+        AF.request(url, method: .post,parameters: inputData, encoding: JSONEncoding.default,headers:headers)
+            .responseJSON { response in
+                self.viewActivity.isHidden = true
+                switch response.result {
+                case .success(let value):
+                    if let json = value as? [String: Any] {
+                        print("myList JSON:",json)
+                        if (json["statusCode"]as? String == "200" ){
                             self.aryMyListData  = json["Data"] as? [Any] ?? [Any]();
                             print("Mylist count:",self.aryMyListData.count)
-                            self.tblMain.reloadSections([1], with: .none)
-                        }
-                        else{
-                            let strError = json["message"] as? String
-                            print("Mylist error:",strError ?? "")
-                            self.showAlert(strMsg: strError ?? "")
+                            self.tblMain.reloadSections([2], with: .none)
+                        }else{
+                            let strMsg = json["message"] as? String ?? ""
+                            self.showAlert(strMsg: strMsg)
                         }
                         
                     }
+                case .failure(let error):
+                    let errorDesc = error.localizedDescription.replacingOccurrences(of: "URLSessionTask failed with error:", with: "")
+                    self.showAlert(strMsg: errorDesc)
+                    self.viewActivity.isHidden = true
+                    
                 }
-                
-            } catch let error as NSError {
-                //print(error)
-                self.showAlert(strMsg: error.localizedDescription)
-                self.viewActivity.isHidden = true
-            }
-            return nil
         }
     }
+    
+    
     // MARK: Handler for myList(myList) API
     func trendingChannels(){
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
@@ -289,29 +270,33 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
         
         AF.request(url, method: .post,  parameters: params, encoding: JSONEncoding.default,headers:headers)
             .responseJSON { response in
-                self.viewActivity.isHidden = true
-                switch response.result {
-                case .success(let value):
-                    if let json = value as? [String: Any] {
-                        print("trendingChannels JSON:",json)
-                        if (json["statusCode"]as? String == "200"){
-                            ////print(json["message"] ?? "")
-                            self.aryTrendingChannelsData  = json["Data"] as? [Any] ?? [Any]();
-                            print("trendingChannels count:",self.aryTrendingChannelsData.count)
-                            self.tblMain.reloadSections([2], with: .none)
-                            
+                DispatchQueue.main.async {
+                    self.viewActivity.isHidden = true
+                    switch response.result {
+                    case .success(let value):
+                        if let json = value as? [String: Any] {
+                            print("trendingChannels JSON:",json)
+                            if (json["statusCode"]as? String == "200"){
+                                ////print(json["message"] ?? "")
+                                self.aryTrendingChannelsData  = json["Data"] as? [Any] ?? [Any]();
+                                print("trendingChannels count:",self.aryTrendingChannelsData.count)
+                                self.tblMain.reloadSections([3], with: .none)
+                                
+                            }
+                            else{
+                                let strError = json["message"] as? String
+                                print("Trending channels error:",strError ?? "")
+                                // self.showAlert(strMsg: strError ?? "")
+                            }
                         }
-                        else{
-                            let strError = json["message"] as? String
-                            print("Trending channels error:",strError ?? "")
-                            // self.showAlert(strMsg: strError ?? "")
-                        }
+                    case .failure(let error):
+                        let errorDesc = error.localizedDescription.replacingOccurrences(of: "URLSessionTask failed with error:", with: "")
+                        print("trending channels errorDesc:",errorDesc)
+                        
+                        self.showAlert(strMsg: errorDesc)
+                        self.viewActivity.isHidden = true
+                        
                     }
-                case .failure(let error):
-                  let errorDesc = error.localizedDescription.replacingOccurrences(of: "URLSessionTask failed with error:", with: "")
-                    self.showAlert(strMsg: errorDesc)
-                            self.viewActivity.isHidden = true
-
                 }
         }
     }
@@ -319,216 +304,200 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
     func getEvents(inputData:[String: Any]){
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         let url: String = appDelegate.baseURL +  "/events"
+        print("getEvents input:",inputData)
         viewActivity.isHidden = false
         let headers: HTTPHeaders
         headers = [appDelegate.x_api_key: appDelegate.x_api_value]
+        AF.request(url, method: .post,parameters: inputData, encoding: JSONEncoding.default,headers:headers)
+            .responseJSON { response in
+                DispatchQueue.main.async {
+                    self.viewActivity.isHidden = true
+                    switch response.result {
+                    case .success(let value):
+                        if let json = value as? [String: Any] {
+                            print("events JSON:",json)
+                            let data  = json["Data"] as? [String:Any];
+                            self.aryLiveChannelsData = data?["live_events"] as? [Any] ?? [Any]();
+                            self.aryUpcomingData = data?["upcoming_events"] as? [Any] ?? [Any]();
+                            print("live count:",self.aryLiveChannelsData.count)
+                            print("upcoming count:",self.aryUpcomingData.count)
+                            self.tblMain.reloadSections([0,1], with: .none)
+                            //self.tblMain.reloadSections([1], with: .none)
+                            // self.tblMain.reloadData()
+                        }
+                    case .failure(let error):
+                        let errorDesc = error.localizedDescription.replacingOccurrences(of: "URLSessionTask failed with error:", with: "")
+                        print("getEvents errorDesc:",errorDesc)
+                        self.showAlert(strMsg: errorDesc)
+                        self.viewActivity.isHidden = true
+                        
+                    }
+                }
+        }
+    }
+    // MARK: Handler for events(events) API
+    
+    func getProfile(){
+        let user_id = UserDefaults.standard.string(forKey: "user_id");
+        print("getProfile:",user_id)
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        let url: String = appDelegate.ol_base_url + "/api/2/users/" + user_id!
+        viewActivity.isHidden = false
+        let headers: HTTPHeaders = [
+            "Authorization": "Bearer " + appDelegate.ol_access_token,
+            "Accept": "application/json"
+        ]
+        AF.request(url, method: .get, encoding: JSONEncoding.default,headers:headers)
+            .responseJSON { response in
+                self.viewActivity.isHidden = true
+                switch response.result {
+                case .success(let value):
+                    if let json = value as? [String: Any] {
+                        print("getProfile JSON:",json)
+                        let user = json
+                        let custom_attributes = json["custom_attributes"]as?[String: Any] ?? [:]
+                        
+                        let fn = user["firstname"] as? String
+                        let ln = user["lastname"]as? String
+                        let strName = String((fn?.first ?? "A")) + String((ln?.first ?? "B"))
+                        
+                        let dob = custom_attributes["date_of_birth"]as? String ?? ""
+                        //self.txtDOB.text = dob;
+                        
+                        let dateFormatter = DateFormatter()
+                        dateFormatter.dateFormat = "YYYY-MM-dd"
+                        let date = dateFormatter.date(from: dob)
+                        
+                        let dateFormatterYear = DateFormatter()
+                        dateFormatterYear.dateFormat = "YYYY"
+                        let pastdate = dateFormatterYear.string(from: date ?? Date());
+                        
+                        let todaysDate = Date()
+                        let currentDate = dateFormatterYear.string(from: todaysDate);
+                        //print("currentDate:",currentDate)
+                        //print("pastdate:",pastdate)
+                        guard let currentYear = Int(currentDate), let pastYear = Int(pastdate) else {
+                            //print("Some value is nil")
+                            return
+                        }
+                        let user_age_limit = currentYear - pastYear
+                        UserDefaults.standard.set(user_age_limit, forKey: "user_age_limit")
+                        
+                        self.appDelegate.USER_NAME = strName;
+                        self.appDelegate.USER_NAME_FULL = (fn ?? "") + " " + (ln ?? "")
+                        self.appDelegate.USER_DISPLAY_NAME = custom_attributes["user_display_name"] as? String ?? ""
+                        UserDefaults.standard.set(self.appDelegate.USER_NAME, forKey: "USER_NAME")
+                        UserDefaults.standard.set(self.appDelegate.USER_NAME_FULL, forKey: "USER_NAME_FULL")
+                        self.lblUserName.text = self.appDelegate.USER_DISPLAY_NAME
+                        
+                        let strURL = custom_attributes["profile_pic"]as? String ?? ""
+                        if let url = URL(string: strURL){
+                            self.imgProfilePic.sd_setImage(with: url, placeholderImage: UIImage(named: "user"))
+                        }else{
+                            self.viewActivity.isHidden = true
+                            self.imgProfilePic.image = UIImage.init(named: "user")
+                        }
+                        
+                    }
+                case .failure(let error):
+                    let errorDesc = error.localizedDescription.replacingOccurrences(of: "URLSessionTask failed with error:", with: "")
+                    print("getProfile error:",error)
+                    self.showAlert(strMsg: errorDesc)
+                    
+                }
+        }
+    }
+    func logoutOL(){
+        
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        let user_id = UserDefaults.standard.string(forKey: "user_id");
+        
+        let url: String = appDelegate.ol_base_url + "/api/1/users/" + user_id! + "/logout"
+        viewActivity.isHidden = false
+        let headers: HTTPHeaders = [
+            "Authorization": "Bearer " + appDelegate.ol_access_token,
+            "Accept": "application/json"
+        ]
+        AF.request(url, method:.put, encoding: JSONEncoding.default,headers:headers)
+            .responseJSON { response in
+                self.viewActivity.isHidden = true
+                switch response.result {
+                case .success(let value):
+                    if let json = value as? [String: Any] {
+                        print("logoutOL json:",json)
+                        let status = json["status"] as? [String:Any] ?? [:]
+                        if(status["code"] as? Int == 200){
+                            self.logoutLambda()
+                        }else{
+                            let strMsg = status["message"] as? String ?? ""
+                            self.showAlert(strMsg: strMsg)
+                        }
+                    }
+                case .failure(let error):
+                    let errorDesc = error.localizedDescription.replacingOccurrences(of: "URLSessionTask failed with error:", with: "")
+                    self.showAlert(strMsg: errorDesc)
+                    
+                }
+        }
+    }
+    func logoutLambda(){
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        let url: String = appDelegate.ol_lambda_url +  "/logout"
+        let user_id = UserDefaults.standard.string(forKey: "user_id");
+        let inputData: [String: Any] = ["user_id":user_id ?? ""]
+        let session_token = UserDefaults.standard.string(forKey: "session_token") ?? ""
+        let headers : HTTPHeaders = [
+            "Content-Type": "application/json",
+            appDelegate.x_api_key:appDelegate.x_api_value,
+            "Authorization": "Bearer " + session_token
+        ]
+        viewActivity.isHidden = false
         AF.request(url, method: .post,parameters: inputData, encoding: JSONEncoding.default,headers:headers)
             .responseJSON { response in
                 self.viewActivity.isHidden = true
                 switch response.result {
                 case .success(let value):
                     if let json = value as? [String: Any] {
-                        print("events JSON:",json)
-                        let data  = json["Data"] as? [String:Any];
-                        self.aryLiveChannelsData = data?["live_events"] as? [Any] ?? [Any]();
-                        self.aryUpcomingData = data?["upcoming_events"] as? [Any] ?? [Any]();
-                        print("live count:",self.aryLiveChannelsData.count)
-                        print("upcoming count:",self.aryUpcomingData.count)
-                        self.tblMain.reloadSections([0], with: .none)
-                        // self.tblMain.reloadData()
-                    }
-                case .failure(let error):
-                   let errorDesc = error.localizedDescription.replacingOccurrences(of: "URLSessionTask failed with error:", with: "")
-                    self.showAlert(strMsg: errorDesc)
-                            self.viewActivity.isHidden = true
-
-                }
-        }
-    }
-    
-    
-    // MARK: Handler for performerEvents API, using for upcoming schedules
-    func getProfile(){
-        let netAvailable = appDelegate.isConnectedToInternet()
-        if(!netAvailable){
-            showAlert(strMsg: "Please check your internet connection!")
-            return
-        }
-        viewActivity.isHidden = false
-        let httpMethodName = "POST"
-        let URLString: String = "/getProfile"
-        let user_id = UserDefaults.standard.string(forKey: "user_id");
-        let user_type = UserDefaults.standard.string(forKey: "user_type");
-        let params: [String: Any] = ["user_id":user_id ?? "","user_type":user_type ?? ""]
-        
-        let headerParameters = [
-            "Content-Type": "application/json",
-            "Accept": "application/json"
-        ]
-        // Construct the request object
-        let apiRequest = AWSAPIGatewayRequest(httpMethod: httpMethodName,
-                                              urlString: URLString,
-                                              queryParameters: [:],
-                                              headerParameters: headerParameters,
-                                              httpBody: params)
-        // Fetch the Cloud Logic client to be used for invocation
-        let invocationClient = AreveaAPIClient.client(forKey:appDelegate.AWSCognitoIdentityPoolId)
-        invocationClient.invoke(apiRequest).continueWith { (task: AWSTask) -> Any? in
-            if let error = task.error {
-                //print("Error occurred: \(error)")
-                self.showAlert(strMsg: error as? String ?? error.localizedDescription)
-                // Handle error here
-                return nil
-            }
-            // Handle successful result here
-            let result = task.result!
-            let responseString = String(data: result.responseData!, encoding: .utf8)
-            let data = responseString!.data(using: .utf8)!
-            do {
-                let resultObj = try JSONSerialization.jsonObject(with: data, options : .allowFragments)
-                DispatchQueue.main.async {
-                    
-                    //print(resultObj)
-                    if let json = resultObj as? [String: Any] {
-                        if (json["status"]as? Int == 0){
-                            // //print(json["message"] ?? "")
-                            let profile_data = json["profile_data"] as? [String:Any] ?? [:]
-                            let fn = profile_data["user_first_name"] as? String
-                            let ln = profile_data["user_last_name"]as? String
-                            let strName = String((fn?.first ?? "A")) + String((ln?.first ?? "B"))
-                            
-                            let dob = profile_data["date_of_birth"]as? String ?? ""
-                            //self.txtDOB.text = dob;
-                            
-                            let dateFormatter = DateFormatter()
-                            dateFormatter.dateFormat = "YYYY-MM-dd"
-                            let date = dateFormatter.date(from: dob)
-                            
-                            let dateFormatterYear = DateFormatter()
-                            dateFormatterYear.dateFormat = "YYYY"
-                            let pastdate = dateFormatterYear.string(from: date ?? Date());
-                            
-                            let todaysDate = Date()
-                            let currentDate = dateFormatterYear.string(from: todaysDate);
-                            //print("currentDate:",currentDate)
-                            //print("pastdate:",pastdate)
-                            guard let currentYear = Int(currentDate), let pastYear = Int(pastdate) else {
-                                //print("Some value is nil")
-                                return
+                        print("logoutLambda JSON:",json)
+                        if (json["statusCode"]as? String == "200" ){
+                            UserDefaults.standard.set("0", forKey: "user_id")
+                            var isLoginExists = false
+                            for controller in self.navigationController!.viewControllers as Array {
+                                if controller.isKind(of: LoginVC.self) {
+                                    self.navigationController!.popToViewController(controller, animated: true)
+                                    isLoginExists = true;
+                                    break
+                                }
                             }
-                            let user_age_limit = currentYear - pastYear
-                            UserDefaults.standard.set(user_age_limit, forKey: "user_age_limit")
-                            
-                            self.appDelegate.USER_NAME = strName;
-                            self.appDelegate.USER_NAME_FULL = (fn ?? "") + " " + (ln ?? "")
-                            UserDefaults.standard.set(self.appDelegate.USER_NAME, forKey: "USER_NAME")
-                            UserDefaults.standard.set(self.appDelegate.USER_NAME_FULL, forKey: "USER_NAME_FULL")
-                            self.lblUserName.text = self.appDelegate.USER_NAME_FULL
-                            
-                            let strURL = profile_data["profile_pic"]as? String ?? ""
-                            if let url = URL(string: strURL){
-                                self.imgProfilePic.sd_setImage(with: url, placeholderImage: UIImage(named: "user"))
-                            }else{
-                                self.viewActivity.isHidden = true
-                                self.imgProfilePic.image = UIImage.init(named: "user")
+                            if (!isLoginExists){
+                                let storyboard = UIStoryboard(name: "Main", bundle: nil);
+                                let vc = storyboard.instantiateViewController(withIdentifier: "LoginVC") as! LoginVC
+                                self.navigationController?.pushViewController(vc, animated: true)
                             }
                             
                         }else{
-                            let strError = json["message"] as? String
-                            print("getProfile:",strError ?? "")
-                            self.showAlert(strMsg: strError ?? "")
-                            self.viewActivity.isHidden = true
+                            let strMsg = json["message"] as? String ?? ""
+                            self.showAlert(strMsg: strMsg)
                         }
                         
                     }
-                }
-                
-            } catch let error as NSError {
-                //print(error)
-                self.showAlert(strMsg: error.localizedDescription)
-                self.viewActivity.isHidden = true
-                
-            }
-            return nil
-        }
-    }
-    func logoutAPI(){
-        let netAvailable = appDelegate.isConnectedToInternet()
-        if(!netAvailable){
-            showAlert(strMsg: "Please check your internet connection!")
-            return
-        }
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        let url: String = appDelegate.baseURL +  "/logout"
-        viewActivity.isHidden = false
-        let headers: HTTPHeaders
-        headers = [appDelegate.x_api_key: appDelegate.x_api_value]
-        let user_id = UserDefaults.standard.string(forKey: "user_id");
-        let params: [String: Any] = ["user_id":user_id ?? ""]
-        print("logout params:",params)
-        AF.request(url, method: .post,  parameters: params, encoding: JSONEncoding.default,headers:headers)
-            .responseJSON { response in
-                self.viewActivity.isHidden = true
-                print("--logout response:",response)
-                switch response.result {
-                case .success(let value):
-                    if let json = value as? [String: Any] {
-                        //print("json:",json)
-                        self.viewActivity.isHidden = true
-                        if (json["statusCode"]as? String == "200"){
-                            self.logout()
-                        }
-                        else{
-                            let strError = json["message"] as? String
-                            ////print(strError ?? "")
-                            self.showAlert(strMsg: strError ?? "")
-                        }
-                    }
-                    
                 case .failure(let error):
-                   let errorDesc = error.localizedDescription.replacingOccurrences(of: "URLSessionTask failed with error:", with: "")
+                    let errorDesc = error.localizedDescription.replacingOccurrences(of: "URLSessionTask failed with error:", with: "")
                     self.showAlert(strMsg: errorDesc)
-                            self.viewActivity.isHidden = true
-
+                    self.viewActivity.isHidden = true
                     
                 }
         }
     }
-    func logout()
-    {
-        let netAvailable = appDelegate.isConnectedToInternet()
-        if(!netAvailable){
-            showAlert(strMsg: "Please check your internet connection!")
-            return
-        }
-        
-        AWSMobileClient.default().signOut() { error in
-            if let error = error {
-                //print(error)
-                return
-            }
-        }
-        var isLoginExists = false
-        for controller in self.navigationController!.viewControllers as Array {
-            if controller.isKind(of: LoginVC.self) {
-                self.navigationController!.popToViewController(controller, animated: true)
-                isLoginExists = true;
-                break
-            }
-        }
-        if (!isLoginExists){
-            let storyboard = UIStoryboard(name: "Main", bundle: nil);
-            let vc = storyboard.instantiateViewController(withIdentifier: "LoginVC") as! LoginVC
-            self.navigationController?.pushViewController(vc, animated: true)
-        }
-    }
+    
+    
     func showConfirmation(strMsg: String){
         let alert = UIAlertController(title: "Alert", message: strMsg, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "No", style: .cancel, handler: nil))
         
         alert.addAction(UIAlertAction(title: "Yes", style: .default, handler: { action in
             self.viewSideMenu.isHidden = true
-            self.logoutAPI();
+            self.logoutOL();
         }))
         DispatchQueue.main.async {
             self.present(alert, animated: true)
@@ -559,18 +528,15 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
             lblNoData.isHidden = true
         }
         if (tableView == tblMain){
-            if (section == 0){
-                if(aryLiveChannelsData.count == 0 && aryUpcomingData.count == 0){
-                    return 0;
-                }
-            }else if (section == 1){
-                if(aryMyListData.count == 0){
-                    return 0;
-                }
-            }else if (section == 2){
-                if(aryTrendingChannelsData.count == 0){
-                    return 0;
-                }
+            if (section == 0 && aryLiveChannelsData.count == 0){
+                return 0;
+            }else if (section == 1 && aryUpcomingData.count == 0){
+                return 0;
+            }
+            else if (section == 2 && aryMyListData.count == 0){
+                return 0;
+            }else if (section == 3 && aryTrendingChannelsData.count == 0){
+                return 0;
             }
             return 1;
         }
@@ -596,11 +562,17 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
         if (tableView == tblMain){
             if (indexPath.section == 0){
                 let cell = tblMain.dequeueReusableCell(withIdentifier: "DashBoardCell", for: indexPath) as! DashBoardCell
-                let data = aryLiveChannelsData + aryUpcomingData
+                let data = aryLiveChannelsData
                 cell.updateCellWith(row: data,controller: "dashboard")
                 cell.cellDelegate = self
                 return cell
             }else if (indexPath.section == 1){
+                let cell = tblMain.dequeueReusableCell(withIdentifier: "DashBoardCell", for: indexPath) as! DashBoardCell
+                let data = aryUpcomingData
+                cell.updateCellWith(row: data,controller: "dashboard_up")
+                cell.cellDelegate = self
+                return cell
+            }else if (indexPath.section == 2){
                 let cell = tblMain.dequeueReusableCell(withIdentifier: "DashBoardCell", for: indexPath) as! DashBoardCell
                 cell.updateCellWith(row: aryMyListData,controller: "dashboard_my_list")
                 cell.cellDelegate = self
@@ -702,13 +674,13 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
     }
     // MARK: collectionView Delegate
     func collectionView(collectionviewcell: DBCollectionViewCell?, index: Int,title: String, didTappedInTableViewCell: DashBoardCell) {
-
+        
         hideSideMenu()
         let orgsList = didTappedInTableViewCell.rowWithItems
         let selectedOrg = orgsList[index] as? [String: Any] ?? [:]
-//        print("item:\(String(describing: selectedOrg))")
-//        print("title:",title)
-        if (title == "dashboard" || title == "dashboard_my_list"){
+        //        print("item:\(String(describing: selectedOrg))")
+        //        print("title:",title)
+        if (title == "dashboard" || title == "dashboard_my_list" || title == "dashboard_up"){
             var streamInfo = selectedOrg["stream_info"] as? [String: Any] ?? [:]
             if (title == "dashboard_my_list"){
                 streamInfo = selectedOrg
@@ -727,12 +699,12 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
             appDelegate.isLiveLoad = "1"
             print("number_of_creators:",number_of_creators)
             let vc = storyboard.instantiateViewController(withIdentifier: "StreamDetailVC") as! StreamDetailVC
-                           vc.orgId = orgId
-                           vc.streamId = streamId
-                           vc.delegate = self
-                           vc.performerId = performer_id
-                           vc.strTitle = stream_video_title
-                           self.navigationController?.pushViewController(vc, animated: true)
+            vc.orgId = orgId
+            vc.streamId = streamId
+            vc.delegate = self
+            vc.performerId = performer_id
+            vc.strTitle = stream_video_title
+            self.navigationController?.pushViewController(vc, animated: true)
         }else if(title == "dashboard_trending_channels"){
             let performerDetails = selectedOrg["performer_details"] as? [String: Any] ?? [:]
             let storyboard = UIStoryboard(name: "Main", bundle: nil);

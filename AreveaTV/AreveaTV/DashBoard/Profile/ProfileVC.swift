@@ -18,6 +18,11 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
     @IBOutlet weak var txtEmail: UITextField!
     @IBOutlet weak var txtDisplayName: UITextField!
     @IBOutlet weak var txtDOB: UITextField!
+    var strFirstName = ""
+    var strLastName = ""
+    var strPhone = ""
+    var strDOB = ""
+    var strDisplayName = ""
     
     let appDelegate = UIApplication.shared.delegate as! AppDelegate
     
@@ -40,7 +45,7 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
     @IBOutlet weak var viewChangePWD: UIView!
     @IBOutlet weak var viewNoProfilePic: UIView!
     @IBOutlet weak var viewProfilePic: UIView!
-
+    
     // MARK: - View Life cycle
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -67,10 +72,10 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
         }
         viewChangePWD.layer.borderColor = UIColor.white.cgColor
         viewNoProfilePic.layer.borderColor = UIColor.white.cgColor
-
+        
         viewProfilePic.isHidden = true
         viewNoProfilePic.isHidden = false
-
+        
     }
     override func viewDidAppear(_ animated: Bool) {
         //        scrollView.contentSize = CGSize(width: 320,height: 1000);
@@ -95,7 +100,10 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
             showAlert(strMsg: "Please check your internet connection!")
             return
         }
-        forgotPassword();
+        //forgotPassword();
+        let username = UserDefaults.standard.string(forKey: "user_email");
+        let inputData = ["email": username,"type": "forgot_password"]
+        sendOTP(inputData: inputData as [String : Any])
     }
     @IBAction func updateProfile(_ sender: Any) {
         resignKB(sender)
@@ -105,21 +113,21 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
             return
         }
         
-        let firstName = txtFirstName.text!.trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
-        let lastName = txtLastName.text!.trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
-        let phone = txtPhone.text!.trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
-        let displayName = txtDisplayName.text!.trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
+        strFirstName = txtFirstName.text!.trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
+        strLastName = txtLastName.text!.trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
+        strPhone = txtPhone.text!.trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
+        strDisplayName = txtDisplayName.text!.trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
         let dob = txtDOB.text!
         
-        if (firstName.count == 0){
+        if (strFirstName.count == 0){
             showAlert(strMsg: "Please enter first name");
-        }else if (lastName.count == 0){
+        }else if (strLastName.count == 0){
             showAlert(strMsg: "Please enter last name");
-        }else if (phone.count == 0){
+        }else if (strPhone.count == 0){
             showAlert(strMsg: "Please enter phone number");
-        }else if (phone.count != 12 && phone.count != 13){
+        }else if (strPhone.count != 12 && strPhone.count != 13){
             showAlert(strMsg: "Please enter valid phone number");
-        }else if (displayName.count == 0){
+        }else if (strDisplayName.count == 0){
             showAlert(strMsg: "Please enter display name");
         }else if (dob.count == 0){
             showAlert(strMsg: "Please select age");
@@ -169,139 +177,160 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
             showAlert(strMsg: "Please check your internet connection!")
             return
         }
-        viewActivity.isHidden = false
-        let httpMethodName = "POST"
-        let URLString: String = "/getProfile"
+        
         let user_id = UserDefaults.standard.string(forKey: "user_id");
-        let user_type = UserDefaults.standard.string(forKey: "user_type");
-        let params: [String: Any] = ["user_id":user_id ?? "","user_type":user_type ?? ""]
-        //print("params:",params)
-        let headerParameters = [
-            "Content-Type": "application/json",
+        print("getProfile:",user_id)
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        let url: String = appDelegate.ol_base_url + "/api/2/users/" + user_id!
+        viewActivity.isHidden = false
+        let headers: HTTPHeaders = [
+            "Authorization": "Bearer " + appDelegate.ol_access_token,
             "Accept": "application/json"
         ]
-        // Construct the request object
-        let apiRequest = AWSAPIGatewayRequest(httpMethod: httpMethodName,
-                                              urlString: URLString,
-                                              queryParameters: [:],
-                                              headerParameters: headerParameters,
-                                              httpBody: params)
-        // Fetch the Cloud Logic client to be used for invocation
-        let invocationClient = AreveaAPIClient.client(forKey:appDelegate.AWSCognitoIdentityPoolId)
-        invocationClient.invoke(apiRequest).continueWith { (task: AWSTask) -> Any? in
-            if let error = task.error {
-                //print("Error occurred: \(error)")
-                self.showAlert(strMsg: error as? String ?? error.localizedDescription)
-                // Handle error here
-                return nil
-            }
-            // Handle successful result here
-            let result = task.result!
-            let responseString = String(data: result.responseData!, encoding: .utf8)
-            let data = responseString!.data(using: .utf8)!
-            do {
-                let resultObj = try JSONSerialization.jsonObject(with: data, options : .allowFragments)
-                DispatchQueue.main.async {
+        AF.request(url, method: .get, encoding: JSONEncoding.default,headers:headers)
+            .responseJSON { response in
+                self.viewActivity.isHidden = true
+                switch response.result {
+                case .success(let value):
+                    if let json = value as? [String: Any] {
+                        print("getProfile JSON:",json)
+                        let user = json
+                        let custom_attributes = json["custom_attributes"]as?[String: Any] ?? [:]
+                        
+                        self.txtEmail.text = UserDefaults.standard.string(forKey: "user_email");
+                        
+                        self.txtFirstName.text = user["firstname"] as? String
+                        self.txtLastName.text = user["lastname"]as? String
+                        self.txtPhone.text = user["phone"]as? String
+                        self.txtDisplayName.text = custom_attributes["user_display_name"]as? String
+                        print("txtDIsplay:",self.txtDisplayName.text)
+                        let dob = custom_attributes["date_of_birth"]as? String ?? ""
+                        //self.txtDOB.text = dob;
+                        
+                        let dateFormatter = DateFormatter()
+                        dateFormatter.dateFormat = "YYYY-MM-dd"
+                        let date = dateFormatter.date(from: dob)
+                        
+                        let dateFormatterYear = DateFormatter()
+                        dateFormatterYear.dateFormat = "YYYY"
+                        let pastdate = dateFormatterYear.string(from: date ?? Date());
+                        
+                        let todaysDate = Date()
+                        let currentDate = dateFormatterYear.string(from: todaysDate);
+                        //print("currentDate:",currentDate)
+                        //print("pastdate:",pastdate)
+                        guard let currentYear = Int(currentDate), let pastYear = Int(pastdate) else {
+                            //print("Some value is nil")
+                            return
+                        }
+                        let age = currentYear - pastYear
+                        print("age:",age)
+                        
+                        if (age > 17){
+                            self.txtDOB.text = self.pickerData[2]
+                            //print("second:",self.pickerData[1])
+                            self.selectedAgeIndex = 2
+                            self.pickerView.selectRow(2, inComponent: 0, animated: true)
+                        }
+                        else if (age == 16 || age == 17 ){
+                            self.txtDOB.text = self.pickerData[1]
+                            //print("second:",self.pickerData[1])
+                            self.selectedAgeIndex = 1
+                            self.pickerView.selectRow(1, inComponent: 0, animated: true)
+                        }else{
+                            self.txtDOB.text = self.pickerData[0]
+                            self.selectedAgeIndex = 0
+                            self.pickerView.selectRow(0, inComponent: 0, animated: true)
+                        }
+                        //let diff = Int(currentDate) - Int(pastdate)
+                        
+                        let strURL = custom_attributes["profile_pic"]as? String ?? ""
+                        
+                        self.strProfilePicURL = strURL
+                        self.isDeleteShow = false
+                        self.viewActivity.isHidden = true
+                        
+                        if let url = URL(string: strURL){
+                            print("url:",url)
+                            self.imgProfilePic.sd_setImage(with: url, placeholderImage: UIImage(named: "user"))
+                            self.isDeleteShow = true
+                            self.viewProfilePic.isHidden = false
+                            self.viewNoProfilePic.isHidden = true
+                        }else{
+                            self.viewProfilePic.isHidden = true
+                            self.viewNoProfilePic.isHidden = false
+                        }
+                        
+                    }
+                case .failure(let error):
+                    let errorDesc = error.localizedDescription.replacingOccurrences(of: "URLSessionTask failed with error:", with: "")
+                    self.showAlert(strMsg: errorDesc)
                     
-                    //print(resultObj)
-                    if let json = resultObj as? [String: Any] {
-                        print(json)
-                        if (json["status"]as? Int == 0){
-                            //print(json["message"] ?? "")
-                            let profile_data = json["profile_data"] as? [String:Any] ?? [:]
-                            self.txtEmail.text = UserDefaults.standard.string(forKey: "user_email");
-                            
-                            self.txtFirstName.text = profile_data["user_first_name"] as? String
-                            self.txtLastName.text = profile_data["user_last_name"]as? String
-                            self.txtPhone.text = profile_data["user_phone_number"]as? String
-                            
-                            let dob = profile_data["date_of_birth"]as? String ?? ""
-                            //self.txtDOB.text = dob;
-                            
-                            let dateFormatter = DateFormatter()
-                            dateFormatter.dateFormat = "YYYY-MM-dd"
-                            let date = dateFormatter.date(from: dob)
-                            
-                            let dateFormatterYear = DateFormatter()
-                            dateFormatterYear.dateFormat = "YYYY"
-                            let pastdate = dateFormatterYear.string(from: date ?? Date());
-                            
-                            let todaysDate = Date()
-                            let currentDate = dateFormatterYear.string(from: todaysDate);
-                            //print("currentDate:",currentDate)
-                            //print("pastdate:",pastdate)
-                            guard let currentYear = Int(currentDate), let pastYear = Int(pastdate) else {
-                                //print("Some value is nil")
-                                return
-                            }
-                            let age = currentYear - pastYear
-                            print("age:",age)
-                            
-                            if (age > 17){
-                                self.txtDOB.text = self.pickerData[2]
-                                //print("second:",self.pickerData[1])
-                                self.selectedAgeIndex = 2
-                                self.pickerView.selectRow(2, inComponent: 0, animated: true)
-                            }
-                            else if (age == 16 || age == 17 ){
-                                self.txtDOB.text = self.pickerData[1]
-                                //print("second:",self.pickerData[1])
-                                self.selectedAgeIndex = 1
-                                self.pickerView.selectRow(1, inComponent: 0, animated: true)
-                            }else{
-                                self.txtDOB.text = self.pickerData[0]
-                                self.selectedAgeIndex = 0
-                                self.pickerView.selectRow(0, inComponent: 0, animated: true)
-                            }
-                            //let diff = Int(currentDate) - Int(pastdate)
-                            self.txtDisplayName.text = profile_data["user_display_name"]as? String
-                            
-                            let strURL = profile_data["profile_pic"]as? String ?? ""
-                            
-                            self.strProfilePicURL = strURL
-                            self.isDeleteShow = false
-                            self.viewActivity.isHidden = true
-
-                            if let url = URL(string: strURL){
-                                print("url:",url)
-                                self.imgProfilePic.sd_setImage(with: url, placeholderImage: UIImage(named: "user"))
+                }
+        }
+    }
+    func updateUser(inputData:[String: Any],strValue:String){
+        let user_id = UserDefaults.standard.string(forKey: "user_id");
+        print("updateUser:",inputData)
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        let url: String = appDelegate.ol_base_url + "/api/2/users/" + user_id!
+        viewActivity.isHidden = false
+        let headers: HTTPHeaders = [
+            "Authorization": "Bearer " + appDelegate.ol_access_token,
+            "Accept": "application/json"
+        ]
+        AF.request(url, method: .put,parameters: inputData, encoding: JSONEncoding.default,headers:headers)
+            .responseJSON { response in
+                self.viewActivity.isHidden = true
+                switch response.result {
+                case .success(let value):
+                    if let json = value as? [String: Any] {
+                        print("updateUser JSON:",json)
+                        if (json["status"]as? Int == 1 ){
+                            if(strValue == "set_profile"){
+                                self.showAlert(strMsg:"Profile updated successfully")
+                                let fn = self.txtFirstName.text!
+                                let ln = self.txtLastName.text!
+                                let strName = String((fn.first)!) + String((ln.first)!)
+                                self.appDelegate.USER_NAME = strName;
+                                self.appDelegate.USER_NAME_FULL = fn + " " + ln
+                                self.appDelegate.USER_DISPLAY_NAME = self.txtDisplayName.text!
+                                UserDefaults.standard.set(self.appDelegate.USER_NAME, forKey: "USER_NAME")
+                                UserDefaults.standard.set(self.appDelegate.USER_NAME_FULL, forKey: "USER_NAME_FULL")
+                                self.navigationController?.popViewController(animated: true);
+                            }else if(strValue == "set_profile_pic"){
+                                self.showAlert(strMsg:"Profile picture updated successfully")
+                                UserDefaults.standard.set("false", forKey: "is_profile_pic_loaded_left_menu")
                                 self.isDeleteShow = true
                                 self.viewProfilePic.isHidden = false
                                 self.viewNoProfilePic.isHidden = true
-                            }else{
+                            }else if(strValue == "delete_profile_pic"){
+                                self.showAlert(strMsg:"Profile picture deleted successfully")
+                                self.imgProfilePic.image = UIImage.init(named:"user")
+                                self.isDeleteShow = false
+                                UserDefaults.standard.set("false", forKey: "is_profile_pic_loaded_left_menu")
                                 self.viewProfilePic.isHidden = true
                                 self.viewNoProfilePic.isHidden = false
                             }
                         }else{
-                            let strError = json["message"] as? String
-                            //print(strError ?? "")
-                            self.showAlert(strMsg: strError ?? "")
-                            self.viewActivity.isHidden = true
+                            let strMsg = json["message"] as? String ?? ""
+                            self.showAlert(strMsg: strMsg)
                         }
-                        
                     }
+                case .failure(let error):
+                    let errorDesc = error.localizedDescription.replacingOccurrences(of: "URLSessionTask failed with error:", with: "")
+                    self.showAlert(strMsg: errorDesc)
+                    
                 }
-                
-            } catch let error as NSError {
-                //print(error)
-                self.showAlert(strMsg: error.localizedDescription)
-                self.viewActivity.isHidden = true
-            }
-            return nil
         }
     }
-    // MARK: Handler for performerEvents API, using for upcoming schedules
     func setProfile(){
         let netAvailable = appDelegate.isConnectedToInternet()
         if(!netAvailable){
             showAlert(strMsg: "Please check your internet connection!")
             return
         }
-        viewActivity.isHidden = false
-        let firstName = txtFirstName.text!.trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
-        let lastName = txtLastName.text!.trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
-        let phone = txtPhone.text!.trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
-        let displayName = txtDisplayName.text!.trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
         let dob = txtDOB.text!
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "YYYY-MM-dd"
@@ -323,74 +352,99 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
         //print("currentDate:",currentDate)
         //print("pastDate:",pastDate!)
         let dobPast = dateFormatter.string(from:pastDate!)
+        strDOB = dobPast
         
-        let httpMethodName = "POST"
-        let URLString: String = "/setProfile"
+        let url: String = appDelegate.ol_lambda_url +  "/setProfile"
         let user_id = UserDefaults.standard.string(forKey: "user_id");
         let user_email = UserDefaults.standard.string(forKey: "user_email");
         
-        let params: [String: Any] = ["user_id":user_id ?? "","user_first_name":firstName,"user_last_name":lastName,"user_phone_number":phone,"user_email":user_email!,"user_display_name":displayName,"date_of_birth":dobPast]
-        //print("params:",params)
-        let headerParameters = [
+        let inputData: [String: Any] = ["user_id":user_id ?? "","user_first_name":strFirstName,"user_last_name":strLastName,"user_phone_number":strPhone,"user_email":user_email!,"user_display_name":strDisplayName,"date_of_birth":strDOB]
+        let session_token = UserDefaults.standard.string(forKey: "session_token") ?? ""
+        let headers : HTTPHeaders = [
             "Content-Type": "application/json",
-            "Accept": "application/json"
+            appDelegate.x_api_key:appDelegate.x_api_value,
+            "Authorization": "Bearer " + session_token
         ]
-        // Construct the request object
-        let apiRequest = AWSAPIGatewayRequest(httpMethod: httpMethodName,
-                                              urlString: URLString,
-                                              queryParameters: [:],
-                                              headerParameters: headerParameters,
-                                              httpBody: params)
-        // Fetch the Cloud Logic client to be used for invocation
-        let invocationClient = AreveaAPIClient.client(forKey:appDelegate.AWSCognitoIdentityPoolId)
-        invocationClient.invoke(apiRequest).continueWith { (task: AWSTask) -> Any? in
-            if let error = task.error {
-                //print("Error occurred: \(error)")
-                self.showAlert(strMsg: error as? String ?? error.localizedDescription)
-                // Handle error here
-                return nil
-            }
-            // Handle successful result here
-            let result = task.result!
-            let responseString = String(data: result.responseData!, encoding: .utf8)
-            let data = responseString!.data(using: .utf8)!
-            do {
-                let resultObj = try JSONSerialization.jsonObject(with: data, options : .allowFragments)
-                DispatchQueue.main.async {
-                    
-                    //print(resultObj)
-                    if let json = resultObj as? [String: Any] {
-                        //print(json)
-                        self.viewActivity.isHidden = true
-                        
-                        if (json["status"]as? Int == 0){
-                            //print(json["message"] ?? "")
-                            self.showAlert(strMsg:"Profile updated successfully")
-                            //self.navigationController?.popViewController(animated: true);
-                            let fn = self.txtFirstName.text!
-                            let ln = self.txtLastName.text!
-                            let strName = String((fn.first)!) + String((ln.first)!)
-                            self.appDelegate.USER_NAME = strName;
-                            self.appDelegate.USER_NAME_FULL = fn + " " + ln
-                            UserDefaults.standard.set(self.appDelegate.USER_NAME, forKey: "USER_NAME")
-                            UserDefaults.standard.set(self.appDelegate.USER_NAME_FULL, forKey: "USER_NAME_FULL")
+        viewActivity.isHidden = false
+        AF.request(url, method: .post,parameters: inputData, encoding: JSONEncoding.default,headers:headers)
+            .responseJSON { response in
+                self.viewActivity.isHidden = true
+                switch response.result {
+                case .success(let value):
+                    if let json = value as? [String: Any] {
+                        print("setProfile JSON:",json)
+                        if (json["status"]as? Int == 0  ){
+                            let inputData: [String: Any] = ["firstname":self.strFirstName,"lastname":self.strLastName,"phone":self.strPhone,"custom_attributes":["date_of_birth":self.strDOB,"profile_pic":"","user_display_name":self.strDisplayName]]
+                            self.updateUser(inputData: inputData,strValue: "set_profile")
                         }else{
-                            let strError = json["message"] as? String
-                            //print(strError ?? "")
-                            self.showAlert(strMsg: strError ?? "")
+                            let strMsg = json["message"] as? String ?? ""
+                            self.showAlert(strMsg: strMsg)
                         }
                         
                     }
+                case .failure(let error):
+                    let errorDesc = error.localizedDescription.replacingOccurrences(of: "URLSessionTask failed with error:", with: "")
+                    self.showAlert(strMsg: errorDesc)
+                    self.viewActivity.isHidden = true
+                    
                 }
-                
-            } catch let error as NSError {
-                //print(error)
-                self.showAlert(strMsg: error.localizedDescription)
-            }
-            return nil
         }
     }
     
+    
+    func sendOTP(inputData:[String: Any]){
+        let netAvailable = appDelegate.isConnectedToInternet()
+        if(!netAvailable){
+            showAlert(strMsg: "Please check your internet connection!")
+            return
+        }
+        let username = UserDefaults.standard.string(forKey: "user_email");
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        let url: String = appDelegate.ol_lambda_url +  "/sendOTP"
+        viewActivity.isHidden = false
+        let headers: HTTPHeaders
+        headers = [appDelegate.x_api_key: appDelegate.x_api_value]
+        AF.request(url, method: .post,parameters: inputData, encoding: JSONEncoding.default,headers:headers)
+            .responseJSON { response in
+                self.viewActivity.isHidden = true
+                switch response.result {
+                case .success(let value):
+                    if let json = value as? [String: Any] {
+                        print("sendOTP JSON:",json)
+                        if (json["status"]as? Int == 0 ){
+                            //self.showAlert(strMsg: "Verification code sent via email")
+                            let alert = UIAlertController(title: "Code sent",
+                                                          message: "Confirmation code sent via email",
+                                                          preferredStyle: .alert)
+                            
+                            alert.addAction(UIAlertAction(title: "Dismiss", style: .cancel) { _ in
+                                UserDefaults.standard.set(username, forKey: "user_email")
+                                
+                                let storyboard = UIStoryboard(name: "Main", bundle: nil);
+                                let vc = storyboard.instantiateViewController(withIdentifier: "NewPasswordVC") as! NewPasswordVC
+                                vc.camefrom = "profile"
+                                self.navigationController?.pushViewController(vc, animated: true)
+                            })
+                            
+                            DispatchQueue.main.async {
+                                self.present(alert, animated: true, completion: nil)
+                            }
+                            
+                            
+                        }else{
+                            let strMsg = json["message"] as? String ?? ""
+                            self.showAlert(strMsg: strMsg)
+                        }
+                        
+                    }
+                case .failure(let error):
+                    let errorDesc = error.localizedDescription.replacingOccurrences(of: "URLSessionTask failed with error:", with: "")
+                    self.showAlert(strMsg: errorDesc)
+                    self.viewActivity.isHidden = true
+                    
+                }
+        }
+    }
     
     func forgotPassword(){
         
@@ -524,7 +578,7 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
             
         }))
         actionsheet.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
-       // actionsheet.popoverPresentationController.barButtonItem = button;
+        // actionsheet.popoverPresentationController.barButtonItem = button;
         if let popoverController = actionsheet.popoverPresentationController {
             popoverController.sourceRect = btnProfilePic.bounds
             popoverController.sourceView = btnProfilePic
@@ -551,7 +605,7 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
             }
         }))
         actionsheet.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
-       // actionsheet.popoverPresentationController.barButtonItem = button;
+        // actionsheet.popoverPresentationController.barButtonItem = button;
         if let popoverController = actionsheet.popoverPresentationController {
             popoverController.sourceRect = btnProfilePic.bounds
             popoverController.sourceView = btnProfilePic
@@ -569,7 +623,59 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
         }
         dismiss(animated: true, completion: nil)
     }
-    
+    func updateProfilePic1(){
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        let url: String = appDelegate.ol_lambda_url +  "/uploadFile"
+        let user_id = UserDefaults.standard.string(forKey: "user_id");
+        let inputData: [String: Any] = ["user_id":user_id ?? "","image_for":"profile"]
+        let session_token = UserDefaults.standard.string(forKey: "session_token") ?? ""
+        let headers : HTTPHeaders = [
+            "Content-Type": "multipart/form-data,application/json",
+            appDelegate.x_api_key:appDelegate.x_api_value,
+            "Authorization": "Bearer " + session_token
+        ]
+        viewActivity.isHidden = false
+        AF.upload(multipartFormData: { (multipartFormData) in
+            for (key, value) in inputData {
+                multipartFormData.append("\(value)".data(using: String.Encoding.utf8)!, withName: key as String)
+            }
+            let image1 = self.imgProfilePic.image
+            //let image1 = UIImage.init(named: "charity-img.png")
+            var imageData = image1!.jpegData(compressionQuality: 1.0)
+            if(Double(imageData!.count ) / 1024 > 400)
+            {
+                imageData = image1?.jpegData(compressionQuality: 0.5)
+            }
+            multipartFormData.append(imageData!, withName: "image", fileName: "profile_pic.png", mimeType: "image/png")
+        }, to: url, usingThreshold: UInt64.init(),
+           method: .post,headers: headers).responseJSON{ response in
+            self.viewActivity.isHidden = true
+            switch response.result {
+            case .success(let value):
+                if let json = value as? [String: Any] {
+                    print("updateProfilePic JSON:",json)
+                    if (json["status"]as? Int == 0){
+                        //print(json["message"] ?? "")
+                        let strURL = json["path"]as? String ?? ""
+                        self.strProfilePicURL = strURL
+                        let inputData: [String: Any] = ["custom_attributes":["profile_pic":self.strProfilePicURL]]
+                        print("self.strProfilePicURL:",self.strProfilePicURL)
+                        self.updateUser(inputData: inputData,strValue: "set_profile_pic")
+                    }else{
+                        let strError = json["message"] as? String
+                        //print(strError ?? "")
+                        self.showAlert(strMsg: strError ?? "")
+                    }
+                }
+            case .failure(let error):
+                //print("error:",error)
+                let errorDesc = error.localizedDescription.replacingOccurrences(of: "URLSessionTask failed with error:", with: "")
+                self.showAlert(strMsg: errorDesc)
+                self.viewActivity.isHidden = true
+                
+            }
+        }
+    }
     @IBAction func updateProfilePic(){
         let netAvailable = appDelegate.isConnectedToInternet()
         if(!netAvailable){
@@ -606,16 +712,12 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
             switch response.result {
             case .success(let value):
                 if let json = value as? [String: Any] {
-                    //print(json)
+                    print("updateProfilePic JSON:",json)
                     if (json["status"]as? Int == 0){
-                        //print(json["message"] ?? "")
-                        self.showAlert(strMsg:"Profile picture updated successfully")
                         let strURL = json["path"]as? String ?? ""
                         self.strProfilePicURL = strURL
-                        UserDefaults.standard.set("false", forKey: "is_profile_pic_loaded_left_menu")
-                        self.isDeleteShow = true
-                        self.viewProfilePic.isHidden = false
-                        self.viewNoProfilePic.isHidden = true
+                        let inputData: [String: Any] = ["custom_attributes":["profile_pic":self.strProfilePicURL]]
+                        self.updateUser(inputData: inputData,strValue: "set_profile_pic")
                     }else{
                         let strError = json["message"] as? String
                         //print(strError ?? "")
@@ -648,6 +750,12 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
     }
     // MARK: Handler for deleteSelectedFile API
     func deleteProfilePic(){
+        let netAvailable = appDelegate.isConnectedToInternet()
+        if(!netAvailable){
+            showAlert(strMsg: "Please check your internet connection!")
+            return
+        }
+        
         let url: String = appDelegate.profileURL +  "/deleteSelectedFile"
         viewActivity.isHidden = false
         //print("getCategoryOrganisations input:",inputData)
@@ -670,16 +778,10 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
                     if let json = value as? [String: Any] {
                         //print("deleteSelectedFile json:",json)
                         if (json["status"]as? Int == 0){
-                            self.showAlert(strMsg: "Profile picture deleted successfully")
-                            self.imgProfilePic.image = UIImage.init(named:"user")
-                            self.isDeleteShow = false
-                            UserDefaults.standard.set("false", forKey: "is_profile_pic_loaded_left_menu")
-                            self.viewProfilePic.isHidden = true
-                            self.viewNoProfilePic.isHidden = false
+                            let inputData: [String: Any] = ["custom_attributes":["profile_pic":""]]
+                            self.updateUser(inputData: inputData,strValue: "delete_profile_pic")
                         }else{
                             //this one should hide later once API works
-                            UserDefaults.standard.set("false", forKey: "is_profile_pic_loaded_left_menu")
-                            
                             let strError = json["message"] as? String
                             //print(strError ?? "")
                             self.showAlert(strMsg: strError ?? "")
@@ -688,10 +790,10 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
                         }
                     }
                 case .failure(let error):
-                  let errorDesc = error.localizedDescription.replacingOccurrences(of: "URLSessionTask failed with error:", with: "")
+                    let errorDesc = error.localizedDescription.replacingOccurrences(of: "URLSessionTask failed with error:", with: "")
                     self.showAlert(strMsg: errorDesc)
-                            self.viewActivity.isHidden = true
-
+                    self.viewActivity.isHidden = true
+                    
                 }
         }
     }
@@ -719,7 +821,7 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
             txtDOB.resignFirstResponder()
             showAlert(strMsg: "This operation is restricted")
         }
-       
+        
         
     }
     override func viewWillDisappear(_ animated: Bool) {

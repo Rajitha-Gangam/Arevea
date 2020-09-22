@@ -87,7 +87,7 @@ class DashBoardCell: UITableViewCell, UICollectionViewDataSource, UICollectionVi
             let arySub = rowWithItems[indexPath.row] as? [String: Any] ?? [:]
             cell.imgCategory.image = thumbNail
             cell.imgCategory.contentMode = .scaleAspectFill
-            if (strController == "dashboard" || strController == "dashboard_my_list"){
+            if (strController == "dashboard" || strController == "dashboard_my_list" || strController == "dashboard_up" ){
                 var streamInfo = arySub["stream_info"] as? [String: Any] ?? [:]
                 if (strController == "dashboard_my_list"){
                     streamInfo = arySub
@@ -136,6 +136,8 @@ class DashBoardCell: UITableViewCell, UICollectionViewDataSource, UICollectionVi
             }
             if(strController == "dashboard"){
                 cell.lblHeader.text = "Live Events"
+            }else if(strController == "dashboard_up"){
+                cell.lblHeader.text = "Upcoming Events"
             }else if(strController == "dashboard_my_list"){
                 cell.lblHeader.text = "My List"
             }else if(strController == "dashboard_trending_channels"){

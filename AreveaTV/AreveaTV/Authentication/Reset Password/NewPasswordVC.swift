@@ -7,7 +7,7 @@
 //
 
 import UIKit
-import AWSMobileClient
+import Alamofire
 
 class NewPasswordVC: UIViewController ,UITextFieldDelegate{
     // MARK: - Variables Declaration
@@ -26,7 +26,7 @@ class NewPasswordVC: UIViewController ,UITextFieldDelegate{
         viewActivity.isHidden = true
         txtCode.backgroundColor = .clear
         txtPwd.backgroundColor = .clear
-
+        
         self.assignbackground();
         username = UserDefaults.standard.string(forKey: "user_email");
         // Do any additional setup after loading the view.
@@ -66,6 +66,8 @@ class NewPasswordVC: UIViewController ,UITextFieldDelegate{
             self.present(alert, animated: true)
         }
     }
+    
+    
     @IBAction func verifyCode(_ sender: Any) {
         txtPwd.resignFirstResponder();
         txtCode.resignFirstResponder();
@@ -74,68 +76,100 @@ class NewPasswordVC: UIViewController ,UITextFieldDelegate{
             showAlert(strMsg: "Please check your internet connection!")
             return
         }
-        
         if (txtCode.text?.count == 0){
             showAlert(strMsg: "Please enter verification code");
         }else if (txtPwd.text?.count == 0){
             showAlert(strMsg: "Please enter new password");
         }else{
-            guard let username = username,
-                let newPassword = txtPwd.text,
-                let confirmationCode = txtCode.text else {
-                    return
-            }
-            viewActivity.isHidden = false
-            
-            AWSMobileClient.default().confirmForgotPassword(username: username,
-                                                            newPassword: newPassword,
-                                                            confirmationCode: confirmationCode) { (forgotPasswordResult, error) in
-                                                                DispatchQueue.main.async {
-                                                                    self.viewActivity.isHidden = true
-                                                                    
-                                                                    if let error = error {
-                                                                        self.showAlert(strMsg: "\(error)");
-                                                                        //print("\(error)")
-                                                                        return
-                                                                    }
-                                                                    
-                                                                    if let forgotPasswordResult = forgotPasswordResult {
-                                                                        switch(forgotPasswordResult.forgotPasswordState) {
-                                                                        case .done:
-                                                                            self.dismiss(self)
-                                                                        default:
-                                                                            print("Error: Could not change password.")
-                                                                        }
-                                                                    } else if let error = error {
-                                                                        //print("Error occurred: \(error.localizedDescription)")
-                                                                    }
-                                                                }
-            }
+            //CognitoVerify()
+            let inputData = ["email": username,"type": "email_verification","otp":txtCode.text!]
+            verifyOTP(inputData: inputData)
         }
         
     }
-    
-    @IBAction func dismiss(_ sender: Any) {
-        if (camefrom == "profile"){
-            for controller in self.navigationController!.viewControllers as Array {
-                if controller.isKind(of: DashBoardVC.self) {
-                    self.navigationController!.popToViewController(controller, animated: true)
-                    break
+    // MARK: Handler for events(events) API
+    func verifyOTP(inputData:[String: Any]){
+        print("verifyOTP:",inputData)
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        let url: String = appDelegate.ol_lambda_url +  "/verifyOTP"
+        viewActivity.isHidden = false
+        let headers: HTTPHeaders
+        headers = [appDelegate.x_api_key: appDelegate.x_api_value]
+        AF.request(url, method: .post,parameters: inputData, encoding: JSONEncoding.default,headers:headers)
+            .responseJSON { response in
+                self.viewActivity.isHidden = true
+                switch response.result {
+                case .success(let value):
+                    if let json = value as? [String: Any] {
+                        print("verifyOTP JSON:",json)
+                        if (json["status"]as? Int == 0 ){
+                            let user_id = json["user_id"]
+                            if (user_id != nil){
+                                let userID = json["user_id"]as? String ?? ""
+                                print("userID1:",userID)
+                                self.updatePWD(userId: userID)
+                            }
+                            
+                        }
+                            
+                        else{
+                            let strMsg = json["message"] as? String ?? ""
+                            self.showAlert(strMsg: strMsg)
+                        }
+                        
+                    }
+                case .failure(let error):
+                    let errorDesc = error.localizedDescription.replacingOccurrences(of: "URLSessionTask failed with error:", with: "")
+                    self.showAlert(strMsg: errorDesc)
+                    self.viewActivity.isHidden = true
+                    
                 }
-            }
-        }else{
-            signIn(sender);
         }
     }
-    @IBAction func signIn(_ sender: Any){
-        if (camefrom == "profile"){
-            AWSMobileClient.default().signOut() { error in
-                if let error = error {
-                    //print(error)
-                    return
+    // MARK: Handler for events(events) API
+    func updatePWD(userId: String){
+        print("updatePWD:",userId)
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        let url: String = appDelegate.ol_base_url + "/api/1/users/set_password_clear_text/" + userId
+        let inputData = ["password":txtPwd.text!,"password_confirmation":txtPwd.text!,"validate_policy":false] as [String : Any]
+        viewActivity.isHidden = false
+        let headers: HTTPHeaders = [
+            "Authorization": "Bearer " + appDelegate.ol_access_token,
+            "Accept": "application/json"
+        ]
+        AF.request(url, method: .put,parameters: inputData, encoding: JSONEncoding.default,headers:headers)
+            .responseJSON { response in
+                self.viewActivity.isHidden = true
+                switch response.result {
+                case .success(let value):
+                    if let json = value as? [String: Any] {
+                        print("updateUser JSON:",json)
+                        let status = json["status"]  as? [String: Any] ?? [:]
+                        if (status["error"]as? Int == 0 ){
+                            let strMsg = "Password changed successfully"
+                            let alert = UIAlertController(title: "Alert",
+                                                          message:strMsg ,
+                                                          preferredStyle: .alert)
+                            
+                            alert.addAction(UIAlertAction(title: "Dismiss", style: .cancel) { _ in
+                                self.dismiss(self)
+                            })
+                            DispatchQueue.main.async {
+                                self.present(alert, animated: true, completion: nil)
+                            }
+                        }else{
+                            let strMsg = status["message"] as? String ?? ""
+                            self.showAlert(strMsg: strMsg)
+                        }
+                    }
+                case .failure(let error):
+                    let errorDesc = error.localizedDescription.replacingOccurrences(of: "URLSessionTask failed with error:", with: "")
+                    self.showAlert(strMsg: errorDesc)
+                    
                 }
-            }
         }
+    }
+    func showLoginVC(){
         appDelegate.emailPopulate = username ?? ""
         var isLoginExists = false
         for controller in self.navigationController!.viewControllers as Array {
@@ -151,6 +185,109 @@ class NewPasswordVC: UIViewController ,UITextFieldDelegate{
             self.navigationController?.pushViewController(vc, animated: true)
         }
     }
+    @IBAction func signIn(_ sender: Any){
+        if (camefrom == "profile"){
+            logoutOL()
+        }else{
+            showLoginVC()
+        }
+    }
+    @IBAction func dismiss(_ sender: Any) {
+        if (camefrom == "profile"){
+            showConfirmation(strMsg: "This will return you to the sign in screen")
+        }else{
+            showLoginVC()
+        }
+    }
+    func logoutOL(){
+        
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        let user_id = UserDefaults.standard.string(forKey: "user_id");
+        
+        let url: String = appDelegate.ol_base_url + "/api/1/users/" + user_id! + "/logout"
+        viewActivity.isHidden = false
+        let headers: HTTPHeaders = [
+            "Authorization": "Bearer " + appDelegate.ol_access_token,
+            "Accept": "application/json"
+        ]
+        AF.request(url, method:.put, encoding: JSONEncoding.default,headers:headers)
+            .responseJSON { response in
+                self.viewActivity.isHidden = true
+                switch response.result {
+                case .success(let value):
+                    if let json = value as? [String: Any] {
+                        print("logoutOL json:",json)
+                        let status = json["status"] as? [String:Any] ?? [:]
+                        if(status["code"] as? Int == 200){
+                            self.logoutLambda()
+                        }else{
+                            let strMsg = status["message"] as? String ?? ""
+                            self.showAlert(strMsg: strMsg)
+                        }
+                    }
+                case .failure(let error):
+                    let errorDesc = error.localizedDescription.replacingOccurrences(of: "URLSessionTask failed with error:", with: "")
+                    self.showAlert(strMsg: errorDesc)
+                    
+                }
+        }
+    }
+    func logoutLambda(){
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        let url: String = appDelegate.ol_lambda_url +  "/logout"
+        let user_id = UserDefaults.standard.string(forKey: "user_id");
+        let inputData: [String: Any] = ["user_id":user_id ?? ""]
+        let session_token = UserDefaults.standard.string(forKey: "session_token") ?? ""
+        let headers : HTTPHeaders = [
+            "Content-Type": "application/json",
+            appDelegate.x_api_key:appDelegate.x_api_value,
+            "Authorization": "Bearer " + session_token
+        ]
+        viewActivity.isHidden = false
+        AF.request(url, method: .post,parameters: inputData, encoding: JSONEncoding.default,headers:headers)
+            .responseJSON { response in
+                self.viewActivity.isHidden = true
+                switch response.result {
+                case .success(let value):
+                    if let json = value as? [String: Any] {
+                        print("logoutLambda JSON:",json)
+                        if (json["statusCode"]as? String == "200" ){
+                            UserDefaults.standard.set("0", forKey: "user_id")
+                            self.showLoginVC()
+                        }else{
+                            let strMsg = json["message"] as? String ?? ""
+                            self.showAlert(strMsg: strMsg)
+                        }
+                        
+                    }
+                case .failure(let error):
+                    let errorDesc = error.localizedDescription.replacingOccurrences(of: "URLSessionTask failed with error:", with: "")
+                    self.showAlert(strMsg: errorDesc)
+                    self.viewActivity.isHidden = true
+                    
+                }
+        }
+    }
+    func showConfirmation(strMsg: String){
+        let alert = UIAlertController(title: "Do you want to logout?", message: strMsg, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "No", style: .cancel, handler: { action in
+            for controller in self.navigationController!.viewControllers as Array {
+                if controller.isKind(of: DashBoardVC.self) {
+                    self.navigationController!.popToViewController(controller, animated: true)
+                    break
+                }
+            }
+
+        }))
+        
+        alert.addAction(UIAlertAction(title: "Yes", style: .default, handler: { action in
+            self.logoutOL();
+        }))
+        DispatchQueue.main.async {
+            self.present(alert, animated: true)
+        }
+    }
+    
     // MARK: Text Field Delegate Methods
     
     func textFieldDidBeginEditing(_ textField: UITextField) {
@@ -163,7 +300,7 @@ class NewPasswordVC: UIViewController ,UITextFieldDelegate{
             self.animateTextField(textField: textField, up:false)
         }
         textField.resignFirstResponder();
-
+        
     }
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
@@ -190,8 +327,8 @@ class NewPasswordVC: UIViewController ,UITextFieldDelegate{
         return .lightContent // .default
     }
     override func viewWillAppear(_ animated: Bool) {
-           AppDelegate.AppUtility.lockOrientation(.portrait)
-       }
+        AppDelegate.AppUtility.lockOrientation(.portrait)
+    }
     override func viewWillDisappear(_ animated: Bool) {
         AppDelegate.AppUtility.lockOrientation(.all)
     }

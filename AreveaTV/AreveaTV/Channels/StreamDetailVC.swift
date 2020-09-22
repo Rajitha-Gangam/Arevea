@@ -147,6 +147,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
     var isShowChat = false
     var isAgeAllowed = false
     var amountWithCurrencyType = ""
+    var isVODPlaying = false
     // MARK: - View Life cycle
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -393,11 +394,14 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                     print("htmlString:",htmlString)
                     self.webView.loadHTMLString(htmlString, baseURL: nil)
                     self.webView.isHidden = false
+                    self.viewOverlay?.isHidden = true// controls not working
                     
                     self.viewLiveStream.bringSubviewToFront(self.webView)
+
                     startSession()
                 }else if(value == "stopped"){
-                    lblStreamUnavailable.text = "publisher has unpublished. possibly from background/interrupt"
+                   // lblStreamUnavailable.text = "publisher has unpublished/paused video. Please try again later."
+                    self.lblStreamUnavailable.text = "Stream Ended"
                     self.viewLiveStream.bringSubviewToFront(lblStreamUnavailable)
                     btnPlayStream.setImage(UIImage.init(named: "refresh"), for: .normal)
                     btnPlayStream.isHidden = false;
@@ -412,6 +416,9 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                         lblStreamUnavailable.text = "Video streaming is currently unavailable. Please try again later."
                         btnPlayStream.setImage(UIImage.init(named: "refresh"), for: .normal)
                         btnPlayStream.isHidden = false;
+                        
+                        //self.viewOverlay?.isHidden = true// controls not working
+
                     }
                 }
             }
@@ -463,6 +470,9 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
         
         tblComments.rowHeight = 40
         tblComments.estimatedRowHeight = UITableView.automaticDimension
+        
+        self.viewLiveStream.bringSubviewToFront(self.viewOverlay!)
+
     }
     func showVideo(strURL : String){
         if let url = URL(string: strURL){
@@ -480,18 +490,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
             viewLiveStream.isHidden = true;
             viewVOD.isHidden = false;
             videoPlayer.play()
-            
-            //            let player = AVPlayer(url: url)
-            //            let controller=AVPlayerViewController()
-            //            controller.player=player
-            //            controller.view.frame = self.viewVideo.frame
-            //            self.viewVideo.addSubview(controller.view)
-            //            self.addChild(controller)
-            //            player.play()
-            
-            //388266
-            
-            
+            isVODPlaying = true
             // Environment and player data that persists until the player is destroyed
             let playerData = MUXSDKCustomerPlayerData(environmentKey:"dev")
             playerData?.viewerUserId = "1234"
@@ -565,15 +564,35 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
     @IBAction func viewBGTap() {
         setBtnDefaultBG()
     }
+    func showConfirmation(strMsg: String){
+        let alert = UIAlertController(title: "Alert", message: strMsg, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "No", style: .cancel, handler: nil))
+        
+        alert.addAction(UIAlertAction(title: "Yes", style: .default, handler: { action in
+            self.backPressed = true
+            self.closeStream()
+            self.stopVideo()
+            if(self.isStreamStarted){
+                self.endSession()
+            }
+            AppDelegate.AppUtility.lockOrientation(.portrait)
+            self.navigationController?.popViewController(animated: true)
+        }))
+        DispatchQueue.main.async {
+            self.present(alert, animated: true)
+        }
+    }
     @IBAction func back(_ sender: Any) {
         if (!backPressed){
-            backPressed = true
-            closeStream()
-            stopVideo()
-            if(isStreamStarted){
-                endSession()
+            if(isStreamStarted || isVODPlaying){
+                showConfirmation(strMsg: "Are you sure you want to go back?")
+            }else{
+                backPressed = true
+                closeStream()
+                stopVideo()
+                AppDelegate.AppUtility.lockOrientation(.portrait)
+                self.navigationController?.popViewController(animated: true)
             }
-            self.navigationController?.popViewController(animated: true)
         }
     }
     // MARK: - Button Actions
@@ -610,17 +629,37 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
     }
     @IBAction func tapTips(){
         print("tips")
-        setBtnDefaultBG()
-        let orange = UIColor.init(red: 255, green: 155, blue: 90)
-        btnTips?.layer.borderColor = orange.cgColor
-        proceedToPayment(type: "performer_tip",charityId: 0)
+        if(isShowChat){
+           setBtnDefaultBG()
+           let orange = UIColor.init(red: 255, green: 155, blue: 90)
+            btnTips?.layer.borderColor = orange.cgColor
+            proceedToPayment(type: "performer_tip",charityId: 0)
+        }else{
+            if(isAgeAllowed){
+                let msg = "Please pay " + amountWithCurrencyType
+                showAlert(strMsg: msg)
+            }else{
+                let msg = "Your age is not supported"
+                showAlert(strMsg: msg)
+            }
+        }
     }
     @IBAction func tapDonations(){
-        print("donations")
-        setBtnDefaultBG()
-        let orange = UIColor.init(red: 255, green: 155, blue: 90)
-        btnDonations?.layer.borderColor = orange.cgColor
-        viewDonations.isHidden = false
+        print("Donations")
+        if(isShowChat){
+           setBtnDefaultBG()
+            let orange = UIColor.init(red: 255, green: 155, blue: 90)
+            btnDonations?.layer.borderColor = orange.cgColor
+            viewDonations.isHidden = false
+        }else{
+            if(isAgeAllowed){
+                let msg = "Please pay " + amountWithCurrencyType
+                showAlert(strMsg: msg)
+            }else{
+                let msg = "Your age is not supported"
+                showAlert(strMsg: msg)
+            }
+        }
     }
     @IBAction func tapEmoji(){
         print("emoji")
@@ -1098,7 +1137,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                                 let doubleAmount = Double(strAmount)
                                 let amount = String(format: "%.02f", doubleAmount!)
                                 self.amountWithCurrencyType = currency_type + amount
-                                let titleWatchNow = "WATCH NOW | " + self.amountWithCurrencyType
+                                let titleWatchNow = "PAY | " + self.amountWithCurrencyType
                                 self.btnPayPerView.setTitle(titleWatchNow, for: .normal)
                                 
                                 let streamBannerURL = streamObj["video_banner_image"] as? String ?? ""
@@ -1369,7 +1408,9 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                 self.viewLiveStream.addSubview(r5ViewController!.view)
                 self.addChild(r5ViewController!)
                 self.viewLiveStream.bringSubviewToFront(webView)
+                self.viewLiveStream.bringSubviewToFront(self.viewOverlay!)
                 self.viewLiveStream.bringSubviewToFront(lblStreamUnavailable)
+
             }
         }
         
@@ -2095,7 +2136,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                                 let doubleAmount = Double(strAmount)
                                 let amount = String(format: "%.02f", doubleAmount!)
                                 self.amountWithCurrencyType = currency_type + amount
-                                let titleWatchNow = "WATCH NOW | " + self.amountWithCurrencyType
+                                let titleWatchNow = "PAY | " + self.amountWithCurrencyType
                                 self.btnPayPerView.setTitle(titleWatchNow, for: .normal)
                                 
                                 let streamBannerURL = streamObj["video_banner_image"] as? String ?? ""
@@ -2271,81 +2312,53 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
             print(error)
         }
     }
-    
-    // MARK: Handler for events(events) API
     func startSession(){
-        
-        let netAvailable = appDelegate.isConnectedToInternet()
-        if(!netAvailable){
-            showAlert(strMsg: "Please check your internet connection!")
-            return
-        }
-        viewActivity.isHidden = false
-        let httpMethodName = "POST"
-        let URLString: String = "/startSession"
-        let user_id = UserDefaults.standard.string(forKey: "user_id");
-        var streamIdLocal = "0"
-        if (streamId != 0){
-            streamIdLocal = String(streamId)
-        }
-        let params: [String: Any] = [ "user_id": user_id ?? "0",
-                                      "event_id": streamIdLocal,
-                                      "organization_id" : orgId,
-                                      "performer_id" : performerId,
-                                      "filekey": "stream_metrics/" + streamVideoCode + "/"]
-        print("params:",params)
-        
-        //print("performerEvents params:",params);
-        let headerParameters = [
-            "Content-Type": "application/json",
-            "Accept": "application/json"
-        ]
-        // Construct the request object
-        let apiRequest = AWSAPIGatewayRequest(httpMethod: httpMethodName,
-                                              urlString: URLString,
-                                              queryParameters: [:],
-                                              headerParameters: headerParameters,
-                                              httpBody: params)
-        // Fetch the Cloud Logic client to be used for invocation
-        let invocationClient = AreveaAPIClient.client(forKey:appDelegate.AWSCognitoIdentityPoolId)
-        invocationClient.invoke(apiRequest).continueWith { (task: AWSTask) -> Any? in
-            if let error = task.error {
-                //print("Error occurred: \(error)")
-                self.showAlert(strMsg: error as? String ?? error.localizedDescription)
-                // Handle error here
-                return nil
-            }
-            // Handle successful result here
-            let result = task.result!
-            let responseString = String(data: result.responseData!, encoding: .utf8)
-            let data = responseString!.data(using: .utf8)!
-            do {
-                let resultObj = try JSONSerialization.jsonObject(with: data, options : .allowFragments)
-                DispatchQueue.main.async {
-                    self.viewActivity.isHidden = true
-                    // //print(resultObj)
-                    if let json = resultObj as? [String: Any] {
-                        print("startSession json:",json);
-                        if (json["statusCode"]as? String == "200"){
-                            //print(json["message"] as? String ?? "")
-                            //let data  = json["Data"] as? [String:Any] ?? [:];
-                            self.startSessionResponse = json
-                            self.isViewerCountcall = 1;
-                        }else{
-                            let strError = json["message"] as? String
-                            //print("strError2:",strError ?? "")
-                            self.showAlert(strMsg: strError ?? "")
-                        }
-                    }
-                }
-            } catch let error as NSError {
-                //print(error)
-                self.showAlert(strMsg: error.localizedDescription)
-            }
-            return nil
-        }
-    }
-    
+                 let appDelegate = UIApplication.shared.delegate as! AppDelegate
+                 let url: String = appDelegate.ol_lambda_url +  "/startSession"
+                  let user_id = UserDefaults.standard.string(forKey: "user_id");
+           var streamIdLocal = "0"
+           if (streamId != 0){
+               streamIdLocal = String(streamId)
+           }
+           let inputData: [String: Any] = [ "user_id": user_id ?? "0",
+                                         "event_id": streamIdLocal,
+                                         "organization_id" : orgId,
+                                         "performer_id" : performerId,
+                                         "filekey": "stream_metrics/" + streamVideoCode + "/"]
+
+           let session_token = UserDefaults.standard.string(forKey: "session_token") ?? ""
+           let headers : HTTPHeaders = [
+               "Content-Type": "application/json",
+               appDelegate.x_api_key:appDelegate.x_api_value,
+               "Authorization": "Bearer " + session_token
+           ]
+                 viewActivity.isHidden = false
+                 AF.request(url, method: .post,parameters: inputData, encoding: JSONEncoding.default,headers:headers)
+                     .responseJSON { response in
+                         self.viewActivity.isHidden = true
+                         switch response.result {
+                         case .success(let value):
+                             if let json = value as? [String: Any] {
+                                 print("startSession JSON:",json)
+                                 if (json["statusCode"]as? String == "200" ){
+                                   self.startSessionResponse = json
+                                   self.isViewerCountcall = 1;
+                                 }else{
+                                     let strMsg = json["message"] as? String ?? ""
+                                     self.showAlert(strMsg: strMsg)
+                                 }
+                                
+                             }
+                         case .failure(let error):
+                            let errorDesc = error.localizedDescription.replacingOccurrences(of: "URLSessionTask failed with error:", with: "")
+                             self.showAlert(strMsg: errorDesc)
+                                     self.viewActivity.isHidden = true
+
+                         }
+                 }
+             }
+       
+   
     
     // MARK: Handler for endSession API
     func endSession(){

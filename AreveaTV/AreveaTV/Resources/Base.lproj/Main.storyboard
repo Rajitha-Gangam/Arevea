@@ -4276,7 +4276,7 @@
                                     <constraint firstItem="APK-bW-g4X" firstAttribute="height" secondItem="7BX-Q3-CEM" secondAttribute="height" multiplier="0.5" id="rkV-Wm-lyf"/>
                                 </constraints>
                             </view>
-                            <view alpha="0.0" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="QDM-EL-qjE" userLabel="View Overlay" customClass="UIControl">
+                            <view alpha="0.14999999999999999" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="QDM-EL-qjE" userLabel="View Overlay" customClass="UIControl">
                                 <rect key="frame" x="0.0" y="0.0" width="414" height="736"/>
                                 <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <connections>
@@ -4343,7 +4343,7 @@
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="TD9-Aq-Ikf" customClass="UIControl">
                                         <rect key="frame" x="-108.00000000000003" y="8.6666666666666643" width="35" height="35"/>
                                         <subviews>
-                                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="ms-info-icon" translatesAutoresizingMaskIntoConstraints="NO" id="XJ8-PO-ZuX">
+                                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="mcs-info-icon.jpg" translatesAutoresizingMaskIntoConstraints="NO" id="XJ8-PO-ZuX">
                                                 <rect key="frame" x="6" y="6" width="23" height="23"/>
                                                 <color key="tintColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                 <userDefinedRuntimeAttributes>
@@ -4373,7 +4373,7 @@
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="4zn-K6-bXD" customClass="UIControl">
                                         <rect key="frame" x="-68.000000000000028" y="8.6666666666666643" width="35" height="35"/>
                                         <subviews>
-                                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="ms-share" translatesAutoresizingMaskIntoConstraints="NO" id="yJ7-4O-Ohi">
+                                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="mcs-share.png" translatesAutoresizingMaskIntoConstraints="NO" id="yJ7-4O-Ohi">
                                                 <rect key="frame" x="8" y="6" width="19" height="23"/>
                                             </imageView>
                                         </subviews>
@@ -4397,7 +4397,7 @@
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="RqK-7r-DsQ" customClass="UIControl">
                                         <rect key="frame" x="-28.000000000000028" y="8.6666666666666643" width="35" height="35"/>
                                         <subviews>
-                                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="ms-emoji" translatesAutoresizingMaskIntoConstraints="NO" id="COg-jt-JUd">
+                                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="mcs-emoji.png" translatesAutoresizingMaskIntoConstraints="NO" id="COg-jt-JUd">
                                                 <rect key="frame" x="8.0000000000000284" y="6" width="19" height="23"/>
                                             </imageView>
                                             <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="bDU-9e-6eT">
@@ -4433,7 +4433,7 @@
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="fMT-vg-KDO" customClass="UIControl">
                                         <rect key="frame" x="12" y="8.6666666666666643" width="35" height="35"/>
                                         <subviews>
-                                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="ms-donations" translatesAutoresizingMaskIntoConstraints="NO" id="mkx-Sy-MYn">
+                                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="mcs-donations.png" translatesAutoresizingMaskIntoConstraints="NO" id="mkx-Sy-MYn">
                                                 <rect key="frame" x="8" y="6" width="19" height="23"/>
                                             </imageView>
                                         </subviews>
@@ -4457,7 +4457,7 @@
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="r5s-MM-Ed6" customClass="UIControl">
                                         <rect key="frame" x="52" y="8.6666666666666643" width="35" height="35"/>
                                         <subviews>
-                                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="ms-tips" translatesAutoresizingMaskIntoConstraints="NO" id="JCX-vn-ZuJ">
+                                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="mcs-tips.png" translatesAutoresizingMaskIntoConstraints="NO" id="JCX-vn-ZuJ">
                                                 <rect key="frame" x="8" y="6" width="19" height="23"/>
                                             </imageView>
                                         </subviews>
@@ -4481,7 +4481,7 @@
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Et9-cW-9em" customClass="UIControl">
                                         <rect key="frame" x="92" y="8.6666666666666643" width="35" height="35"/>
                                         <subviews>
-                                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="ms-chat" translatesAutoresizingMaskIntoConstraints="NO" id="cyY-NK-Gts">
+                                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="mcs-chat.png" translatesAutoresizingMaskIntoConstraints="NO" id="cyY-NK-Gts">
                                                 <rect key="frame" x="8" y="6" width="19" height="23"/>
                                             </imageView>
                                         </subviews>
@@ -4534,7 +4534,7 @@
                                             <constraint firstAttribute="width" constant="20" id="FfH-v9-nBM"/>
                                             <constraint firstAttribute="height" constant="20" id="PrM-SV-Uo9"/>
                                         </constraints>
-                                        <state key="normal" image="play"/>
+                                        <state key="normal" image="pause"/>
                                         <connections>
                                             <action selector="pauseVideo" destination="oyk-xr-EhX" eventType="touchUpInside" id="ds6-3q-B9f"/>
                                         </connections>
@@ -4576,11 +4576,11 @@
                                 <constraints>
                                     <constraint firstAttribute="height" constant="36" id="cVz-lp-jJd"/>
                                 </constraints>
-                                <fontDescription key="fontDescription" name="Poppins-Regular" family="Poppins" pointSize="15"/>
+                                <fontDescription key="fontDescription" name="Poppins-Regular" family="Poppins" pointSize="16"/>
                                 <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <nil key="highlightedColor"/>
                                 <variation key="heightClass=regular-widthClass=regular">
-                                    <fontDescription key="fontDescription" name="Poppins-Regular" family="Poppins" pointSize="21"/>
+                                    <fontDescription key="fontDescription" name="Poppins-Regular" family="Poppins" pointSize="23"/>
                                 </variation>
                             </label>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="VVT-D1-AwA">
@@ -4588,7 +4588,7 @@
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <state key="normal" image="refresh"/>
                                 <connections>
-                                    <action selector="playStream:" destination="6dO-ux-6cR" eventType="touchUpInside" id="rD8-kV-KcK"/>
+                                    <action selector="playStream:" destination="oyk-xr-EhX" eventType="touchUpInside" id="0FT-0U-YfO"/>
                                 </connections>
                             </button>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="7V9-Vc-nW5">
@@ -5274,21 +5274,21 @@
                                     <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="sample_vod_square" translatesAutoresizingMaskIntoConstraints="NO" id="XOe-Lm-VIa">
                                         <rect key="frame" x="0.0" y="0.0" width="414" height="736"/>
                                     </imageView>
-                                    <view alpha="0.25" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="fUJ-rc-hAo" customClass="UIControl">
-                                        <rect key="frame" x="0.0" y="0.0" width="414" height="736"/>
-                                        <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                        <connections>
-                                            <action selector="viewBGTap" destination="bDf-IW-UuP" eventType="touchDown" id="jgU-99-H7g"/>
-                                        </connections>
-                                    </view>
                                     <wkWebView contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="7c5-Sc-WrU">
-                                        <rect key="frame" x="0.0" y="0.0" width="414" height="736"/>
+                                        <rect key="frame" x="0.0" y="50" width="414" height="630"/>
                                         <color key="backgroundColor" red="0.36078431370000003" green="0.38823529410000002" blue="0.4039215686" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                         <wkWebViewConfiguration key="configuration">
                                             <audiovisualMediaTypes key="mediaTypesRequiringUserActionForPlayback" none="YES"/>
                                             <wkPreferences key="preferences"/>
                                         </wkWebViewConfiguration>
                                     </wkWebView>
+                                    <view alpha="0.14999999999999999" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="fUJ-rc-hAo" customClass="UIControl">
+                                        <rect key="frame" x="0.0" y="0.0" width="414" height="736"/>
+                                        <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <connections>
+                                            <action selector="viewBGTap" destination="bDf-IW-UuP" eventType="touchDown" id="jgU-99-H7g"/>
+                                        </connections>
+                                    </view>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Ftg-8C-107">
                                         <rect key="frame" x="0.0" y="359" width="414" height="70"/>
                                         <constraints>
@@ -5311,13 +5311,13 @@
                                     <constraint firstAttribute="trailing" secondItem="fUJ-rc-hAo" secondAttribute="trailing" id="GOA-iM-Aul"/>
                                     <constraint firstAttribute="bottom" secondItem="fUJ-rc-hAo" secondAttribute="bottom" id="K36-Ru-b2w"/>
                                     <constraint firstItem="Ftg-8C-107" firstAttribute="leading" secondItem="XI8-tp-SHH" secondAttribute="leading" id="O9p-8t-9Bf"/>
-                                    <constraint firstAttribute="bottom" secondItem="7c5-Sc-WrU" secondAttribute="bottom" id="YUZ-Ls-7Rj"/>
+                                    <constraint firstAttribute="bottom" secondItem="7c5-Sc-WrU" secondAttribute="bottom" constant="56" id="YUZ-Ls-7Rj"/>
                                     <constraint firstItem="Ftg-8C-107" firstAttribute="centerY" secondItem="XI8-tp-SHH" secondAttribute="centerY" constant="26" id="Z6d-4X-fdu"/>
                                     <constraint firstItem="fUJ-rc-hAo" firstAttribute="leading" secondItem="XI8-tp-SHH" secondAttribute="leading" id="ZDk-MX-daz"/>
                                     <constraint firstItem="XOe-Lm-VIa" firstAttribute="leading" secondItem="XI8-tp-SHH" secondAttribute="leading" id="Zl0-LQ-mz9"/>
                                     <constraint firstAttribute="bottom" secondItem="XOe-Lm-VIa" secondAttribute="bottom" id="c5M-9X-9RQ"/>
                                     <constraint firstItem="Ftg-8C-107" firstAttribute="centerX" secondItem="XI8-tp-SHH" secondAttribute="centerX" id="dmn-EV-1pB"/>
-                                    <constraint firstItem="7c5-Sc-WrU" firstAttribute="top" secondItem="XI8-tp-SHH" secondAttribute="top" id="ivd-OP-HrA"/>
+                                    <constraint firstItem="7c5-Sc-WrU" firstAttribute="top" secondItem="XI8-tp-SHH" secondAttribute="top" constant="50" id="ivd-OP-HrA"/>
                                     <constraint firstItem="7c5-Sc-WrU" firstAttribute="leading" secondItem="XI8-tp-SHH" secondAttribute="leading" id="tdJ-iS-UBw"/>
                                     <constraint firstItem="fUJ-rc-hAo" firstAttribute="top" secondItem="XI8-tp-SHH" secondAttribute="top" id="wM4-0H-B0w"/>
                                 </constraints>
@@ -5456,7 +5456,7 @@
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="bbg-sy-93z" customClass="UIControl">
                                         <rect key="frame" x="-101.66666666666669" y="8.6666666666666643" width="35" height="35"/>
                                         <subviews>
-                                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="ms-info-icon" translatesAutoresizingMaskIntoConstraints="NO" id="hbX-tl-Js7">
+                                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="mcs-info-icon.jpg" translatesAutoresizingMaskIntoConstraints="NO" id="hbX-tl-Js7">
                                                 <rect key="frame" x="6" y="6" width="23" height="23"/>
                                                 <color key="tintColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                 <userDefinedRuntimeAttributes>
@@ -5486,7 +5486,7 @@
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Db4-KF-Fc8" customClass="UIControl">
                                         <rect key="frame" x="-61.666666666666686" y="8.6666666666666643" width="35" height="35"/>
                                         <subviews>
-                                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="ms-share" translatesAutoresizingMaskIntoConstraints="NO" id="A10-Me-Dpd">
+                                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="mcs-share.png" translatesAutoresizingMaskIntoConstraints="NO" id="A10-Me-Dpd">
                                                 <rect key="frame" x="8" y="6" width="19" height="23"/>
                                             </imageView>
                                         </subviews>
@@ -5510,7 +5510,7 @@
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="BU5-Qt-RhO" customClass="UIControl">
                                         <rect key="frame" x="-21.666666666666686" y="8.6666666666666643" width="35" height="35"/>
                                         <subviews>
-                                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="ms-emoji" translatesAutoresizingMaskIntoConstraints="NO" id="JoX-3D-9sg">
+                                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="mcs-emoji.png" translatesAutoresizingMaskIntoConstraints="NO" id="JoX-3D-9sg">
                                                 <rect key="frame" x="8" y="6" width="19" height="23"/>
                                             </imageView>
                                             <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="Vhc-Ub-v1Q">
@@ -5546,7 +5546,7 @@
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Ioi-FW-dZh" customClass="UIControl">
                                         <rect key="frame" x="18.333333333333314" y="8.6666666666666643" width="35" height="35"/>
                                         <subviews>
-                                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="ms-donations" translatesAutoresizingMaskIntoConstraints="NO" id="jy9-VA-msT">
+                                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="mcs-donations.png" translatesAutoresizingMaskIntoConstraints="NO" id="jy9-VA-msT">
                                                 <rect key="frame" x="8" y="6" width="19" height="23"/>
                                             </imageView>
                                         </subviews>
@@ -5570,7 +5570,7 @@
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="foJ-Gd-Hwu" customClass="UIControl">
                                         <rect key="frame" x="58.333333333333314" y="8.6666666666666643" width="35" height="35"/>
                                         <subviews>
-                                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="ms-tips" translatesAutoresizingMaskIntoConstraints="NO" id="lLw-R5-NcL">
+                                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="mcs-tips.png" translatesAutoresizingMaskIntoConstraints="NO" id="lLw-R5-NcL">
                                                 <rect key="frame" x="8" y="6" width="19" height="23"/>
                                             </imageView>
                                         </subviews>
@@ -5594,7 +5594,7 @@
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="oc8-I6-5si" customClass="UIControl">
                                         <rect key="frame" x="98.333333333333314" y="8.6666666666666643" width="35" height="35"/>
                                         <subviews>
-                                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="ms-chat" translatesAutoresizingMaskIntoConstraints="NO" id="Kah-LR-X3b">
+                                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="mcs-chat.png" translatesAutoresizingMaskIntoConstraints="NO" id="Kah-LR-X3b">
                                                 <rect key="frame" x="8" y="6" width="19" height="23"/>
                                             </imageView>
                                         </subviews>
@@ -5739,7 +5739,7 @@
                                         <rect key="frame" x="0.0" y="617.66666666666663" width="300" height="54"/>
                                         <subviews>
                                             <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" placeholder="Send a message" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="AMm-9U-UOj">
-                                                <rect key="frame" x="10" y="12" width="240" height="26"/>
+                                                <rect key="frame" x="10" y="12.000000000000002" width="240" height="25.666666666666671"/>
                                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                 <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                 <fontDescription key="fontDescription" name="Poppins-Regular" family="Poppins" pointSize="17"/>
@@ -6242,14 +6242,14 @@
         <image name="full-view" width="44" height="44"/>
         <image name="info" width="30" height="30"/>
         <image name="logo" width="280" height="47.666667938232422"/>
+        <image name="mcs-chat.png" width="132" height="132"/>
+        <image name="mcs-donations.png" width="132" height="132"/>
+        <image name="mcs-emoji.png" width="132" height="132"/>
+        <image name="mcs-info-icon.jpg" width="132" height="132"/>
+        <image name="mcs-share.png" width="132" height="132"/>
+        <image name="mcs-tips.png" width="132" height="132"/>
         <image name="menu" width="60" height="60"/>
-        <image name="ms-chat" width="44" height="44"/>
-        <image name="ms-donations" width="44" height="44"/>
-        <image name="ms-emoji" width="44" height="44"/>
-        <image name="ms-info-icon" width="44" height="44"/>
-        <image name="ms-share" width="44" height="44"/>
-        <image name="ms-tips" width="44" height="44"/>
-        <image name="play" width="44" height="44"/>
+        <image name="pause" width="44" height="44"/>
         <image name="refresh" width="44" height="44"/>
         <image name="right-arrow" width="44" height="44"/>
         <image name="sample_vod_square" width="130" height="130"/>
