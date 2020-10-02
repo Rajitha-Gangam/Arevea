@@ -134,6 +134,13 @@ class DashBoardCell: UITableViewCell, UICollectionViewDataSource, UICollectionVi
                 cell.btnLeft.isHidden = false
                 cell.btnRight.isHidden = false
             }
+            if(rowWithItems.count == 1){
+                cell.btnLeft.isEnabled = false
+                cell.btnRight.isEnabled = false
+            }else{
+                cell.btnLeft.isEnabled = true
+                cell.btnRight.isEnabled = true
+            }
             if(strController == "dashboard"){
                 cell.lblHeader.text = "Live Events"
             }else if(strController == "dashboard_up"){

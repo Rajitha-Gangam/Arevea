@@ -94,7 +94,11 @@ class MyPurchasesVC: UIViewController , UITableViewDelegate,UITableViewDataSourc
         }else if (charity["transaction_user_paid_amount"] as? String) != nil {
             amount = String(charity["transaction_user_paid_amount"] as? String ?? "0.0")
         }
-        cell.lblAmount.text = currency_type + amount
+        if(amount == "0.0"){
+            cell.lblAmount.text = "Free"
+        }else{
+            cell.lblAmount.text = currency_type + amount
+        }
         
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd HH:mm:ss"

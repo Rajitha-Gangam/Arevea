@@ -131,7 +131,7 @@ class SignUpVC: UIViewController ,UITextFieldDelegate,UIPickerViewDelegate, UIPi
         }
     }
     @IBAction func termsAndCond(){
-        let urlOpen = appDelegate.termsURL + "/termsandconditions"
+        let urlOpen = appDelegate.websiteURL + "/termsandconditions"
         guard let url = URL(string: urlOpen) else { return }
         print("url to open:",url)
         UIApplication.shared.open(url)
@@ -248,13 +248,14 @@ class SignUpVC: UIViewController ,UITextFieldDelegate,UIPickerViewDelegate, UIPi
                                     self.present(alert, animated: true, completion: nil)
                                 }
                             }else{
-                                if (json["statusCode"]as? Int == 422 )  {
                                     //An account with the given email already exists.
-                                    self.showAlert(strMsg: "An account with the given email already exists.")
-                                }else{
+                                    //self.showAlert(strMsg: "An account with the given email already exists.")
                                     let strMsg = json["message"] as? String ?? ""
-                                    self.showAlert(strMsg: strMsg)
-                                }
+                                    if(strMsg.lowercased().contains("email must be unique")){
+                                        self.showAlert(strMsg: "An account with the given email already exists.")
+                                    }else{
+                                        self.showAlert(strMsg: strMsg)
+                                    }
                             }
                         }
                     case .failure(let error):

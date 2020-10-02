@@ -29,6 +29,12 @@ class SplashVC: UIViewController {
         self.navigationController?.isNavigationBarHidden = true
         isLoad = true
         delayWithSeconds(2.0){}
+        let netAvailable = appDelegate.isConnectedToInternet()
+        appDelegate.appLoaded = true
+        if(!netAvailable){
+            showAlert(strMsg: "Please check your internet connection!")
+            return
+        }
         getToken()
         
         var timer = Timer()
@@ -38,6 +44,7 @@ class SplashVC: UIViewController {
             let value = UIInterfaceOrientation.portrait.rawValue
             UIDevice.current.setValue(value, forKey: "orientation")
         }
+
     }
     @objc func repeatMethod(){
         isLoad = false

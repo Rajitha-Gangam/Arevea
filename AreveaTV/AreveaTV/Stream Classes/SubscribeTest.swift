@@ -26,6 +26,7 @@ class SubscribeTest: BaseTest {
     var serverAddress = ""
     var viewControls = UIView()
     var viewOverlay = UIView()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
@@ -315,7 +316,7 @@ class SubscribeTest: BaseTest {
             let hasVideo = !(self.subscribeStream?.pauseVideo)!;
             if (hasVideo) {
                 self.subscribeStream?.pauseVideo = true
-                ALToastView.toast(in: self.view, withText:"Playing Video")
+                ALToastView.toast(in: self.view, withText:"Pausing Video")
 
             }
             }
@@ -329,7 +330,7 @@ class SubscribeTest: BaseTest {
             let hasVideo = !(self.subscribeStream?.pauseVideo)!;
             if (hasVideo) {
                 self.subscribeStream?.pauseVideo = false
-                ALToastView.toast(in: self.view, withText:"Pausing Video")
+                ALToastView.toast(in: self.view, withText:"Playing Video")
             }
             }
         }

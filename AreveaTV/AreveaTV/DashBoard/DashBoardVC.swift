@@ -29,6 +29,7 @@ extension UIColor {
         )
     }
 }
+
 class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,CollectionViewCellDelegate,UITextFieldDelegate,OpenChanannelChatDelegate{
     
     //MARK: Variables Declaration
@@ -65,6 +66,15 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
     @IBOutlet weak var viewActivity: UIView!
     @IBOutlet weak var heightTopView: NSLayoutConstraint?
     @IBOutlet weak var viewTop: UIView!
+    
+    lazy var refreshControl: UIRefreshControl = {
+        let refreshControl = UIRefreshControl()
+        refreshControl.addTarget(self, action: #selector(handleRefresh(_:)), for: UIControl.Event.valueChanged)
+        refreshControl.tintColor = UIColor.white
+        
+        return refreshControl
+    }()
+    
     // MARK: - View Life cycle
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -98,7 +108,24 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
         lblVersion.text = "v" + getAppversion()
         self.imgProfilePic.layer.borderColor = UIColor.gray.cgColor
         self.imgProfilePic.layer.borderWidth = 2.0
+        
+        self.tblMain.addSubview(self.refreshControl)//pull to refresh handled
+
     }
+    @objc func handleRefresh(_ refreshControl: UIRefreshControl) {
+        // Do some reloading of data and update the table view's data source
+        // Fetch more objects from a web service, for example...
+        // Simply adding an object to the data source for this example
+        if (appDelegate.strCategory != ""){
+            getEvents(inputData: ["category_name":appDelegate.strCategory]);
+        }else{
+            // onGoingEvents()
+            getEvents(inputData: [:]);
+        }
+        refreshControl.endRefreshing()
+    }
+    
+    
     func getAppversion() -> String {
         let dictionary = Bundle.main.infoDictionary!
         let version = dictionary["CFBundleShortVersionString"] as! String

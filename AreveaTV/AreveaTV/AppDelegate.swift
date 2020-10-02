@@ -29,10 +29,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate,CLLocationManagerDelegate 
     var USER_DISPLAY_NAME = "";
     var isLiveLoad = "0";
     var locationManager:CLLocationManager!
-    
+    var appLoaded = false
     // MARK: - Dev Environmet Variables Declaration
-     /*var baseURL = "https://dev-apis.arevea.tv";
-     var termsURL = "https://dev.arevea.tv"
+     var baseURL = "https://dev-apis.arevea.tv";
+     var websiteURL = "https://dev.arevea.tv"
      var sendBirdAppId = "AE94EB49-0A01-43BF-96B4-8297EBB47F12";
      var profileURL = "https://dev.arevea.tv/api/user/v1";
      var uploadURL = "https://dev-uploads.arevea.tv/dev"//need to test in dev
@@ -50,14 +50,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate,CLLocationManagerDelegate 
      var ol_client_id = "4e42c39db6ada915afaf60448254cd10033604c982128c55d1548e218b983279"
      var ol_client_secret = "67795bdcf01b42caeb145988f7e64bd71d00191e2abab99dc7e43bf86da3e50c"
      var ol_access_token = ""
-     var ol_lambda_url = "https://dev-apis.arevea.tv"*/
+     var ol_lambda_url = "https://dev-apis.arevea.tv"
         
     
     //Dev Variables END
     
     // MARK: - QA Environmet Variables Declaration
-    var baseURL = "https://qa-apis.arevea.tv"
-    var termsURL = "https://qa.arevea.tv"
+    /*var baseURL = "https://qa-apis.arevea.tv"
+    var websiteURL = "https://qa.arevea.tv"
     var sendBirdAppId = "7AF38850-F099-4C47-BD19-F7F84DAFECF8";
     var profileURL = "https://qa.arevea.tv/api/user/v1"
     var uploadURL = "https://qa-uploads.arevea.tv"
@@ -76,11 +76,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate,CLLocationManagerDelegate 
     var ol_client_secret = "67795bdcf01b42caeb145988f7e64bd71d00191e2abab99dc7e43bf86da3e50c"
     var ol_access_token = ""
     var ol_lambda_url = "https://qa-apis.arevea.tv"
+    */
     //QA Variables END
     
     // MARK: - Pre-prod Environmet Variables Declaration
    /* var baseURL = "https://preprod-apis.arevea.tv"
-     var termsURL = "https://preprod.arevea.tv"
+     var websiteURL = "https://preprod.arevea.tv"
      var sendBirdAppId = "2115A8A2-36D7-4ABC-A8CE-758500A54DFD";
      var profileURL = "https://preprod.arevea.tv/api/user/v1"
      var uploadURL = "https://preprod-uploads.arevea.tv"
@@ -105,7 +106,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate,CLLocationManagerDelegate 
     
     // MARK: - prod Environmet Variables Declaration
      /*var baseURL = "https://apis.arevea.tv"
-     var termsURL = "https://www.arevea.tv"
+     var websiteURL = "https://www.arevea.tv"
      var sendBirdAppId = "ED4D2A9B-A140-40FD-83BF-6D240903C5BF";
      var profileURL = "https://www.arevea.tv/api/user/v1"
      var uploadURL = "https://prod-uploads.arevea.tv"
@@ -202,7 +203,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate,CLLocationManagerDelegate 
         let actual: [[String: Any]] = [["id": "12345", "name": "Aar"]]
         let expected: [[String: Any]] = [["id": "12345", "name": "Aar"]]
         //print(NSDictionary(dictionary: actual).isEqual(to: expected))//False
-        
+        appLoaded = true
         return true
     }
    
@@ -234,6 +235,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate,CLLocationManagerDelegate 
     
     func applicationDidBecomeActive(_ application: UIApplication) {
         // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
+        // print("===applicationDidBecomeActive:",appLoaded)
+        if(appLoaded){
+            
+        }
     }
     
     func applicationWillTerminate(_ application: UIApplication) {

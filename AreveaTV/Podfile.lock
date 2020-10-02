@@ -748,6 +748,7 @@ DEPENDENCIES:
   - Firebase/Crashlytics
   - MaterialComponents
   - Mux-Stats-AVPlayer (~> 1.3.0)
+  - ReachabilitySwift
   - SDWebImage
   - SendBirdSDK
 
@@ -835,6 +836,6 @@ SPEC CHECKSUMS:
   SQLite.swift: d2b4642190917051ce6bd1d49aab565fe794eea3
   Starscream: 4bb2f9942274833f7b4d296a55504dcfc7edb7b0
 
-PODFILE CHECKSUM: fcdbfd4f0b27869f3abedb48092295e7ab34aa80
+PODFILE CHECKSUM: aa34e4dd57a2d28ed903c25c6e0294713aed754b
 
 COCOAPODS: 1.9.3

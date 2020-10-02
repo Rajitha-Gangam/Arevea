@@ -124,7 +124,7 @@
             let username = self.txtUserName.text!.trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
             
             let appDelegate = UIApplication.shared.delegate as! AppDelegate
-            let url: String = appDelegate.termsURL + "/api/user/v1/fanLogin"
+            let url: String = appDelegate.websiteURL + "/api/user/v1/fanLogin"
             viewActivity.isHidden = false
             let headers: HTTPHeaders = [
                 "Authorization": "Bearer " + appDelegate.ol_access_token,
