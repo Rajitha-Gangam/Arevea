@@ -66,7 +66,7 @@ class SplashVC: UIViewController {
                 switch response.result {
                 case .success(let value):
                     if let json = value as? [String: Any] {
-                        print("getToken JSON:",json)
+                        //print("getToken JSON:",json)
                         self.appDelegate.ol_access_token = json["access_token"] as? String ?? ""
                         UserDefaults.standard.set(self.appDelegate.ol_access_token, forKey: "ol_access_token")
                         if(self.isLoad){
@@ -126,7 +126,7 @@ class SplashVC: UIViewController {
         
         AWSMobileClient.default().initialize { (userState, error) in
             if let error = error {
-                //print("error: \(error.localizedDescription)")
+                ////print("error: \(error.localizedDescription)")
                 return
             }
             
@@ -135,7 +135,7 @@ class SplashVC: UIViewController {
             }
             //self.viewActivity.isHidden = true
             
-            //print("The user is \(userState.rawValue).")
+            ////print("The user is \(userState.rawValue).")
             
             
             // Check if user availability
@@ -148,7 +148,7 @@ class SplashVC: UIViewController {
                     //if user is in signed in state, but app deleted, then we do not user values
                     AWSMobileClient.default().signOut() { error in
                         if let error = error {
-                            //print(error)
+                            ////print(error)
                             return
                         }
                     }
@@ -186,7 +186,7 @@ class SplashVC: UIViewController {
                 //                }
                 self.sendBirdConnect()
             }
-            //print("sendBirdConnect disconnect")
+            ////print("sendBirdConnect disconnect")
         }
         else {
             // viewActivity.isHidden = false
@@ -213,7 +213,7 @@ class SplashVC: UIViewController {
                 
                 DispatchQueue.main.async {
                     // self.setUIsForDefault()
-                    //print("Logged In With SendBird Successfully")
+                    ////print("Logged In With SendBird Successfully")
                     let storyboard = UIStoryboard(name: "Main", bundle: nil);
                     let vc = storyboard.instantiateViewController(withIdentifier: "DashBoardVC") as! DashBoardVC
                     self.navigationController?.pushViewController(vc, animated: true)

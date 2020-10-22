@@ -26,7 +26,7 @@ class SubscribeTest: BaseTest {
     var serverAddress = ""
     var viewControls = UIView()
     var viewOverlay = UIView()
-    
+    var streamName = ""
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
@@ -51,14 +51,14 @@ class SubscribeTest: BaseTest {
         let accessToken = appDelegate.red5_acc_token
         // https://livestream.arevea.tv/streammanager/api/4.0/admin/event/meta/live/<stream_video_code>/?accessToken=YEOkGmERp08V
         let url = "https://" + host  + "/streammanager/api/" + version + "/admin/event/meta/live/" + stream1 + "?accessToken=" + accessToken
-        print("metaLive url:",url)
+        //print("metaLive url:",url)
         //let stream = "1588832196500_taylorswiftevent"
         AF.request(url,method: .get, encoding: JSONEncoding.default)
             .responseJSON { response in
                 switch response.result {
                 case .success(let value):
                     DispatchQueue.main.async {
-                        //print("metaLive Response:",value)
+                        ////print("metaLive Response:",value)
                         if let json = value as? [String: Any] {
                             if json["errorMessage"] != nil{
                                 // ALToastView.toast(in: self.view, withText:errorMsg as? String ?? "")
@@ -73,7 +73,7 @@ class SubscribeTest: BaseTest {
                                 if (stream.count > 0){
                                     let lastStreamObj = stream[stream.count - 1] as? [String:Any]
                                     let strName = lastStreamObj?["name"] as? String ?? ""
-                                    //print("lastStreamObj name:",strName)
+                                    ////print("lastStreamObj name:",strName)
                                     self.findStream(streamName: strName)
                                     
                                 }else{
@@ -87,7 +87,7 @@ class SubscribeTest: BaseTest {
                     
                     
                 case .failure(let error):
-                    print("error occured in metaLive:",error)
+                    //print("error occured in metaLive:",error)
                     let streamInfo = ["Stream": "not_available"]
                     NotificationCenter.default.post(name: .didReceiveStreamData, object: self, userInfo: streamInfo)
                 }
@@ -109,9 +109,9 @@ class SubscribeTest: BaseTest {
         let url = "https://" + host  + "/streammanager/api/" + version + "/event/" +
             context + "/" + streamName + "?action=subscribe&region=" + appDelegate.strRegionCode;
         
-        print("url:",url)
+        //print("url:",url)
         //let url = "https://livestream.arevea.tv/streammanager/api/4.0/event/live/1588788669277_somethingnew?action=subscribe"
-        //print("findStream url:",url)
+        ////print("findStream url:",url)
         //let stream = "1588832196500_taylorswiftevent"
         
         AF.request(url,method: .get, encoding: JSONEncoding.default)
@@ -119,7 +119,7 @@ class SubscribeTest: BaseTest {
                 switch response.result {
                 case .success(let value):
                     DispatchQueue.main.async {
-                        //print(value)
+                        ////print(value)
                     }
                     if let json = value as? [String: Any] {
                         if json["errorMessage"] != nil{
@@ -132,7 +132,7 @@ class SubscribeTest: BaseTest {
                             }
                         }else{
                             self.serverAddress = json["serverAddress"] as? String ?? ""
-                            self.config(url: self.serverAddress,stream:streamName)
+                            self.config(url: self.serverAddress,stream:streamName,start: true)
                         }
                     }
                     
@@ -141,7 +141,7 @@ class SubscribeTest: BaseTest {
                 }
         }
     }
-    func config(url:String,stream:String){
+    func config(url:String,stream:String,start:Bool){
         let streamInfo = ["Stream": "started"]
         NotificationCenter.default.post(name: .didReceiveStreamData, object: self, userInfo: streamInfo)
         
@@ -151,14 +151,16 @@ class SubscribeTest: BaseTest {
         self.subscribeStream = R5Stream(connection: connection)
         
         let stats = self.subscribeStream?.getDebugStats()
-        print("---stats:",stats as Any)
+        //print("---stats:",stats as Any)
         self.subscribeStream!.delegate = self
         self.subscribeStream?.client = self;
         // self.subscribeStream.subscribeToAudio = YES;
         
         currentView?.attach(subscribeStream)
-        addControls()
-        
+        if(start){
+            addControls()
+        }
+        streamName = stream
         self.subscribeStream!.play(stream, withHardwareAcceleration:false)
         
     }
@@ -180,19 +182,19 @@ class SubscribeTest: BaseTest {
     }
     @objc func orientationHandler(_ notification:Notification) {
         // Do something now
-        //print("====StreamNotificationHandler")
+        ////print("====StreamNotificationHandler")
         if let data = notification.userInfo as? [String: String]
         {
             for (_,value) in data
             {
                 //key orientation
                 //value portrait/landscape
-                //print("key: \(key)")
-                //print("value: \(value)")
+                ////print("key: \(key)")
+                ////print("value: \(value)")
                 if (value == "portrait"){
-                   // print("==portrait")
+                   // //print("==portrait")
                 }else{
-                  //  print("==landscape")
+                  //  //print("==landscape")
                 }
                 var frameControls = viewControls.frame
                 let viewHeight = self.view.frame.size.height - 40
@@ -309,30 +311,17 @@ class SubscribeTest: BaseTest {
         if ((imgBtn?.isEqual(UIImage.init(named: "pause")))!)
         {
             videoBtn?.setImage(UIImage.init(named: "play"), for: .normal);
-            if( self.subscribeStream != nil && self.subscribeStream?.audioController != nil) {
-                self.subscribeStream?.audioController.volume = 0
-            }
-            if(self.subscribeStream?.pauseVideo != nil){
-            let hasVideo = !(self.subscribeStream?.pauseVideo)!;
-            if (hasVideo) {
-                self.subscribeStream?.pauseVideo = true
+            if( self.subscribeStream != nil) {
                 ALToastView.toast(in: self.view, withText:"Pausing Video")
-
+                self.subscribeStream?.deactivate_display()
             }
-            }
+            
         }
         else{
             videoBtn?.setImage(UIImage.init(named: "pause"), for: .normal);
-            if(self.subscribeStream != nil && self.subscribeStream?.audioController != nil) {
-                self.subscribeStream?.audioController.volume = slider.value / 100
-            }
-            if(self.subscribeStream?.pauseVideo != nil){
-            let hasVideo = !(self.subscribeStream?.pauseVideo)!;
-            if (hasVideo) {
-                self.subscribeStream?.pauseVideo = false
                 ALToastView.toast(in: self.view, withText:"Playing Video")
-            }
-            }
+            self.subscribeStream?.activate_display()
+
         }
     }
     
@@ -423,12 +412,12 @@ class SubscribeTest: BaseTest {
             // }
             
         } else if ((Int(statusCode) == Int(r5_status_netstatus.rawValue) && msg == "NetStream.Play.SufficientBW")) {
-            //print("=======sufficient band Width")
+            ////print("=======sufficient band Width")
         }else if ((Int(statusCode) == Int(r5_status_netstatus.rawValue) && msg == "NetStream.Play.InSufficientBW")) {
             ALToastView.toast(in: self.view, withText:"Poor internet connection")
         }else if (Int(statusCode) == Int(r5_status_audio_mute.rawValue))
         {
-            //print("=======r5_status_audio_mute")
+            ////print("=======r5_status_audio_mute")
             /*let hasAudio = !(self.subscribeStream?.pauseAudio)!;
             if (hasAudio) {
                 self.subscribeStream?.pauseAudio = true
@@ -438,7 +427,7 @@ class SubscribeTest: BaseTest {
         }
         else if (Int(statusCode) == Int(r5_status_audio_unmute.rawValue))
         {
-            //print("=======r5_status_audio_unmute")
+            ////print("=======r5_status_audio_unmute")
             /*let hasAudio = !(self.subscribeStream?.pauseAudio)!;
             if (hasAudio) {
                 self.subscribeStream?.pauseAudio = false
@@ -448,7 +437,7 @@ class SubscribeTest: BaseTest {
             
         }else if (Int(statusCode) == Int(r5_status_video_mute.rawValue))
         {
-            //print("=======r5_status_video_mute")
+            ////print("=======r5_status_video_mute")
             /*let hasAudio = !(self.subscribeStream?.pauseAudio)!;
             if (hasAudio) {
                 self.subscribeStream?.pauseAudio = true
@@ -458,7 +447,7 @@ class SubscribeTest: BaseTest {
         }
         else if (Int(statusCode) == Int(r5_status_video_unmute.rawValue))
         {
-            //print("=======r5_status_video_unmute")
+            ////print("=======r5_status_video_unmute")
             /*let hasAudio = !(self.subscribeStream?.pauseAudio)!;
             if (hasAudio) {
                 self.subscribeStream?.pauseAudio = false
@@ -468,13 +457,13 @@ class SubscribeTest: BaseTest {
         }
         else if (Int(statusCode) == Int(r5_status_disconnected.rawValue))
         {
-            //print("=======r5_status_disconnected")
+            ////print("=======r5_status_disconnected")
             ALToastView.toast(in: self.view, withText:"Video Disconnected")
 
         }
         else if (Int(statusCode) == Int(r5_status_stop_streaming.rawValue))
         {
-            //print("=======r5_status_stop_streaming")
+            ////print("=======r5_status_stop_streaming")
             ALToastView.toast(in: self.view, withText:"Stream Stopped")
         }
     }

@@ -83,9 +83,9 @@
             super.viewWillTransition(to: size, with: coordinator)
             
             if UIDevice.current.orientation.isLandscape {
-                print("Landscape")
+                //print("Landscape")
             } else {
-                print("Portrait")
+                //print("Portrait")
             }
             collectionView.reloadData()
         }
@@ -158,7 +158,7 @@
             // If it is in the second section, indicate that no item is selected now
             let tag = (50 * indexPath.section) + (indexPath.row + 1)
             let checkImg = tblFilter.viewWithTag(tag) as? UIImageView
-            //print("tag:",tag)
+            ////print("tag:",tag)
             if ((checkImg?.image?.isEqual(UIImage.init(named: "check-icon.png")))!)
             {
                 checkImg?.image = UIImage.init(named: "uncheck-icon.png")
@@ -192,8 +192,8 @@
                     selectedGenres.append(strItem)
                 }
             }
-            print("selectedSubCategories:",selectedSubCategories)
-            print("selectedGenres:",selectedGenres)
+            //print("selectedSubCategories:",selectedSubCategories)
+            //print("selectedGenres:",selectedGenres)
             prepareQueryForCloudSearch()
             
         }
@@ -242,7 +242,7 @@
             query += "&q.parser=structured";
             query += "&size=500";
             
-            print("query_category:",query);
+            //print("query_category:",query);
             getSearchResults(searchString: query, isQuery: true)
         }
         // MARK: Handler for getCategoryOrganisations API
@@ -261,9 +261,9 @@
             }
             
             
-            print("url:",url)
+            //print("url:",url)
             viewActivity.isHidden = false
-            //print("getCategoryOrganisations input:",inputData)
+            ////print("getCategoryOrganisations input:",inputData)
             let headers: HTTPHeaders
             headers = [appDelegate.x_api_key: appDelegate.x_api_value]
             AF.request(url, method: .get,encoding: JSONEncoding.default,headers:headers)
@@ -278,10 +278,10 @@
                     switch response.result {
                     case .success(let value):
                         if let json = value as? [String: Any] {
-                            print("getSearchResults json:",json)
+                            //print("getSearchResults json:",json)
                             let resultObj = json["hits"] as? [String: Any]
                             let hitArray = resultObj?["hit"] as? [Any] ?? [Any]();
-                            //print("--count:",self.searchList.count )
+                            ////print("--count:",self.searchList.count )
                             self.searchList = []
                             for (index,_) in hitArray.enumerated(){
                                 let element = hitArray[index] as? [String: Any]
@@ -399,7 +399,7 @@
             if (searchString.count > 0){
                 searchActive = true;
                 getSearchResults(searchString: searchString, isQuery: false)
-                //print("--count:",aryFilteredSubCategories.count)
+                ////print("--count:",aryFilteredSubCategories.count)
                 // tblMain.reloadData()
             }else{
                 showAlert(strMsg: "Please enter search keyword")
@@ -419,8 +419,8 @@
             _ = collectionView.cellForItem(at: indexPath) as? DBCollectionViewCell
             let searchItem = searchList[indexPath.item] as! [String: Any]
             let type = searchItem["type"]as? String;
-            print("searchItem:",searchItem)
-            print("type:",type ?? "")
+            //print("searchItem:",searchItem)
+            //print("type:",type ?? "")
             switch type {
             case "stream":
                 let storyboard = UIStoryboard(name: "Main", bundle: nil);
@@ -496,7 +496,7 @@
                 if (subcategories.count > 0){
                     appDelegate.strCategory = subcategories[0] as? String ?? ""
                 }
-                //print("genreId:",appDelegate.genreId)
+                ////print("genreId:",appDelegate.genreId)
                 for controller in self.navigationController!.viewControllers as Array {
                     if controller.isKind(of: DashBoardVC.self) {
                         self.navigationController!.popToViewController(controller, animated: true)
@@ -523,7 +523,7 @@
                 cell.imgCategory.contentMode = .scaleAspectFill
                 cell.nameLabel.text = searchItem["name"]as? String;
                 let type = searchItem["type"]as? String;
-                //print("type:",type)
+                ////print("type:",type)
                 switch type {
                 case "stream":
                     cell.imgType.image = UIImage.init(named: "sr_stream.png")
@@ -549,7 +549,7 @@
         }
         func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
             let width = self.view.frame.size.width/2 - 10
-            //print("width:",width)
+            ////print("width:",width)
             if(UIDevice.current.userInterfaceIdiom == .pad){
                 return CGSize(width: width, height: 230.0)
             }else{

@@ -110,6 +110,8 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
         self.imgProfilePic.layer.borderWidth = 2.0
         
         self.tblMain.addSubview(self.refreshControl)//pull to refresh handled
+        let arn = UserDefaults.standard.string(forKey: "arn");
+        print("==arn:",arn)
 
     }
     @objc func handleRefresh(_ refreshControl: UIRefreshControl) {
@@ -138,12 +140,12 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
      self.viewSideMenu.isHidden = true
      self.tblMain.reloadData()
      if UIDevice.current.orientation.isLandscape {
-     print("DB Landscape")
+     //print("DB Landscape")
      DispatchQueue.main.async {
      //AppDelegate.AppUtility.lockOrientation(.portrait)
      }
      } else {
-     print("DB Portrait")
+     //print("DB Portrait")
      }
      }*/
     override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
@@ -153,13 +155,13 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
         AppDelegate.AppUtility.lockOrientation(.portrait, andRotateTo: .portrait)
         
         if UIDevice.current.orientation.isLandscape {
-            print("DB Landscape")
+            //print("DB Landscape")
             DispatchQueue.main.async {
                 //  AppDelegate.AppUtility.lockOrientation(.portrait)
             }
         } else {
             // AppDelegate.AppUtility.lockOrientation(.portrait)
-            print("DB Portrait")
+            //print("DB Portrait")
         }
     }
     
@@ -233,9 +235,9 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
                 switch response.result {
                 case .success(let value):
                     if let json = value as? [String: Any] {
-                        //print("onGoingEvents JSON:",json)
+                        ////print("onGoingEvents JSON:",json)
                         self.aryLiveChannelsData  = json["Data"] as? [Any] ?? [Any]();
-                        print("live count:",self.aryLiveChannelsData.count)
+                        //print("live count:",self.aryLiveChannelsData.count)
                         self.tblMain.reloadSections([0], with: .none)
                     }
                 case .failure(let error):
@@ -265,10 +267,10 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
                 switch response.result {
                 case .success(let value):
                     if let json = value as? [String: Any] {
-                        print("myList JSON:",json)
+                        //print("myList JSON:",json)
                         if (json["statusCode"]as? String == "200" ){
                             self.aryMyListData  = json["Data"] as? [Any] ?? [Any]();
-                            print("Mylist count:",self.aryMyListData.count)
+                            //print("Mylist count:",self.aryMyListData.count)
                             self.tblMain.reloadSections([2], with: .none)
                         }else{
                             let strMsg = json["message"] as? String ?? ""
@@ -304,21 +306,21 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
                         if let json = value as? [String: Any] {
                             print("trendingChannels JSON:",json)
                             if (json["statusCode"]as? String == "200"){
-                                ////print(json["message"] ?? "")
+                                //////print(json["message"] ?? "")
                                 self.aryTrendingChannelsData  = json["Data"] as? [Any] ?? [Any]();
-                                print("trendingChannels count:",self.aryTrendingChannelsData.count)
+                                //print("trendingChannels count:",self.aryTrendingChannelsData.count)
                                 self.tblMain.reloadSections([3], with: .none)
                                 
                             }
                             else{
                                 let strError = json["message"] as? String
-                                print("Trending channels error:",strError ?? "")
+                                //print("Trending channels error:",strError ?? "")
                                 // self.showAlert(strMsg: strError ?? "")
                             }
                         }
                     case .failure(let error):
                         let errorDesc = error.localizedDescription.replacingOccurrences(of: "URLSessionTask failed with error:", with: "")
-                        print("trending channels errorDesc:",errorDesc)
+                        //print("trending channels errorDesc:",errorDesc)
                         
                         self.showAlert(strMsg: errorDesc)
                         self.viewActivity.isHidden = true
@@ -331,7 +333,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
     func getEvents(inputData:[String: Any]){
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         let url: String = appDelegate.baseURL +  "/events"
-        print("getEvents input:",inputData)
+        //print("getEvents input:",inputData)
         viewActivity.isHidden = false
         let headers: HTTPHeaders
         headers = [appDelegate.x_api_key: appDelegate.x_api_value]
@@ -346,15 +348,15 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
                             let data  = json["Data"] as? [String:Any];
                             self.aryLiveChannelsData = data?["live_events"] as? [Any] ?? [Any]();
                             self.aryUpcomingData = data?["upcoming_events"] as? [Any] ?? [Any]();
-                            print("live count:",self.aryLiveChannelsData.count)
-                            print("upcoming count:",self.aryUpcomingData.count)
+                            //print("live count:",self.aryLiveChannelsData.count)
+                            //print("upcoming count:",self.aryUpcomingData.count)
                             self.tblMain.reloadSections([0,1], with: .none)
                             //self.tblMain.reloadSections([1], with: .none)
                             // self.tblMain.reloadData()
                         }
                     case .failure(let error):
                         let errorDesc = error.localizedDescription.replacingOccurrences(of: "URLSessionTask failed with error:", with: "")
-                        print("getEvents errorDesc:",errorDesc)
+                        //print("getEvents errorDesc:",errorDesc)
                         self.showAlert(strMsg: errorDesc)
                         self.viewActivity.isHidden = true
                         
@@ -366,7 +368,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
     
     func getProfile(){
         let user_id = UserDefaults.standard.string(forKey: "user_id");
-        print("getProfile:",user_id)
+        //print("getProfile:",user_id)
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         let url: String = appDelegate.ol_base_url + "/api/2/users/" + user_id!
         viewActivity.isHidden = false
@@ -380,7 +382,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
                 switch response.result {
                 case .success(let value):
                     if let json = value as? [String: Any] {
-                        print("getProfile JSON:",json)
+                        //print("getProfile JSON:",json)
                         let user = json
                         let custom_attributes = json["custom_attributes"]as?[String: Any] ?? [:]
                         
@@ -401,10 +403,10 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
                         
                         let todaysDate = Date()
                         let currentDate = dateFormatterYear.string(from: todaysDate);
-                        //print("currentDate:",currentDate)
-                        //print("pastdate:",pastdate)
+                        ////print("currentDate:",currentDate)
+                        ////print("pastdate:",pastdate)
                         guard let currentYear = Int(currentDate), let pastYear = Int(pastdate) else {
-                            //print("Some value is nil")
+                            ////print("Some value is nil")
                             return
                         }
                         let user_age_limit = currentYear - pastYear
@@ -428,7 +430,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
                     }
                 case .failure(let error):
                     let errorDesc = error.localizedDescription.replacingOccurrences(of: "URLSessionTask failed with error:", with: "")
-                    print("getProfile error:",error)
+                    //print("getProfile error:",error)
                     self.showAlert(strMsg: errorDesc)
                     
                 }
@@ -451,7 +453,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
                 switch response.result {
                 case .success(let value):
                     if let json = value as? [String: Any] {
-                        print("logoutOL json:",json)
+                        //print("logoutOL json:",json)
                         let status = json["status"] as? [String:Any] ?? [:]
                         if(status["code"] as? Int == 200){
                             self.logoutLambda()
@@ -485,7 +487,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
                 switch response.result {
                 case .success(let value):
                     if let json = value as? [String: Any] {
-                        print("logoutLambda JSON:",json)
+                        //print("logoutLambda JSON:",json)
                         if (json["statusCode"]as? String == "200" ){
                             UserDefaults.standard.set("0", forKey: "user_id")
                             var isLoginExists = false
@@ -705,8 +707,8 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
         hideSideMenu()
         let orgsList = didTappedInTableViewCell.rowWithItems
         let selectedOrg = orgsList[index] as? [String: Any] ?? [:]
-        //        print("item:\(String(describing: selectedOrg))")
-        //        print("title:",title)
+                print("item:\(String(describing: selectedOrg))")
+        //        //print("title:",title)
         if (title == "dashboard" || title == "dashboard_my_list" || title == "dashboard_up"){
             var streamInfo = selectedOrg["stream_info"] as? [String: Any] ?? [:]
             if (title == "dashboard_my_list"){
@@ -724,7 +726,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
                 streamId = streamInfo["id"] as? Int ?? 0
             }
             appDelegate.isLiveLoad = "1"
-            print("number_of_creators:",number_of_creators)
+            //print("number_of_creators:",number_of_creators)
             let vc = storyboard.instantiateViewController(withIdentifier: "StreamDetailVC") as! StreamDetailVC
             vc.orgId = orgId
             vc.streamId = streamId
@@ -737,6 +739,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
             let storyboard = UIStoryboard(name: "Main", bundle: nil);
             let vc = storyboard.instantiateViewController(withIdentifier: "ChannelDetailVC") as! ChannelDetailVC
             vc.orgId = performerDetails["id"] as? Int ?? 0
+            vc.channel_name = performerDetails["channel_name"] as? String ?? ""
             if (performerDetails["user_id"] as? Int) != nil {
                 vc.performerId = performerDetails["user_id"] as! Int
             }

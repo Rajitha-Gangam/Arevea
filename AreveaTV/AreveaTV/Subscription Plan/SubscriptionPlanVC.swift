@@ -71,7 +71,7 @@ class SubscriptionPlanVC: UIViewController {
                 switch response.result {
                 case .success(let value):
                     if let json = value as? [String: Any] {
-                        //print("json:",json)
+                        ////print("json:",json)
                         if (json["status"]as? Int == 0){
                                     self.viewActivity.isHidden = true
 
@@ -152,7 +152,7 @@ class SubscriptionPlanVC: UIViewController {
                     if let json = value as? [String: Any] {
                         if (json["status"]as? Int == 0){
                             self.viewActivity.isHidden = true
-                            //print(json["message"] as? String ?? "")
+                            ////print(json["message"] as? String ?? "")
                             self.arySubscriptionsData = json["subscriptionsData"] as? [Any] ?? [Any]();
                             NSLog("plans count:%d", self.arySubscriptionsData.count);
                             if (self.arySubscriptionsData.count > 0){
@@ -192,7 +192,7 @@ class SubscriptionPlanVC: UIViewController {
                             
                         }else{
                             let strError = json["message"] as? String
-                            //print(strError ?? "")
+                            ////print(strError ?? "")
                             self.showAlert(strMsg: strError ?? "")
                             self.viewActivity.isHidden = true
 

@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="17156" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17125"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <customFonts key="customFonts">
+        <array key="Poppins-SemiBold.ttf">
+            <string>Poppins-SemiBold</string>
+        </array>
+    </customFonts>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="MultiStreamGuestsCVC" id="9Jj-yE-LaY" userLabel="MultiStreamGuestsCVC" customClass="MultiStreamGuestsCVC" customModule="AreveaTV" customModuleProvider="target">
+            <rect key="frame" x="0.0" y="0.0" width="240" height="240"/>
+            <autoresizingMask key="autoresizingMask"/>
+            <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center">
+                <rect key="frame" x="0.0" y="0.0" width="240" height="240"/>
+                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                <subviews>
+                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ZF2-jV-8Ga" userLabel="Content View">
+                        <rect key="frame" x="0.0" y="0.0" width="240" height="240"/>
+                        <subviews>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ogo-if-gMF">
+                                <rect key="frame" x="0.0" y="0.0" width="240" height="240"/>
+                                <subviews>
+                                    <label opaque="NO" userInteractionEnabled="NO" tag="10" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Md8-RO-hp3">
+                                        <rect key="frame" x="5" y="182" width="230" height="48"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="48" id="SWa-Xh-iEk"/>
+                                        </constraints>
+                                        <fontDescription key="fontDescription" name="Poppins-SemiBold" family="Poppins" pointSize="17"/>
+                                        <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                </subviews>
+                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <constraints>
+                                    <constraint firstItem="Md8-RO-hp3" firstAttribute="leading" secondItem="ogo-if-gMF" secondAttribute="leading" constant="5" id="cIg-UE-nEq"/>
+                                    <constraint firstAttribute="bottom" secondItem="Md8-RO-hp3" secondAttribute="bottom" constant="10" id="cMc-vM-3PN"/>
+                                    <constraint firstAttribute="trailing" secondItem="Md8-RO-hp3" secondAttribute="trailing" constant="5" id="fa4-KE-2qH"/>
+                                </constraints>
+                            </view>
+                        </subviews>
+                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <constraints>
+                            <constraint firstItem="ogo-if-gMF" firstAttribute="top" secondItem="ZF2-jV-8Ga" secondAttribute="top" id="51y-eH-993"/>
+                            <constraint firstItem="ogo-if-gMF" firstAttribute="leading" secondItem="ZF2-jV-8Ga" secondAttribute="leading" id="9eA-oM-4Tf"/>
+                            <constraint firstAttribute="bottom" secondItem="ogo-if-gMF" secondAttribute="bottom" id="DuO-2U-Gzr"/>
+                            <constraint firstAttribute="trailing" secondItem="ogo-if-gMF" secondAttribute="trailing" id="uz3-Ch-rta"/>
+                        </constraints>
+                    </view>
+                </subviews>
+            </view>
+            <viewLayoutGuide key="safeArea" id="0RM-9H-6iA"/>
+            <color key="backgroundColor" red="0.14901960780000001" green="0.14901960780000001" blue="0.14901960780000001" alpha="1" colorSpace="calibratedRGB"/>
+            <constraints>
+                <constraint firstItem="ZF2-jV-8Ga" firstAttribute="top" secondItem="9Jj-yE-LaY" secondAttribute="top" id="1b3-Nx-fpK"/>
+                <constraint firstItem="ZF2-jV-8Ga" firstAttribute="centerY" secondItem="9Jj-yE-LaY" secondAttribute="centerY" id="62L-fD-mw0"/>
+                <constraint firstItem="ZF2-jV-8Ga" firstAttribute="centerX" secondItem="9Jj-yE-LaY" secondAttribute="centerX" id="6P1-Ai-gGe"/>
+                <constraint firstItem="ZF2-jV-8Ga" firstAttribute="leading" secondItem="9Jj-yE-LaY" secondAttribute="leading" id="uZ0-fQ-OBU"/>
+            </constraints>
+            <connections>
+                <outlet property="lblUserName" destination="Md8-RO-hp3" id="Oj7-yo-BYC"/>
+                <outlet property="viewLiveStream" destination="ogo-if-gMF" id="SWC-NX-YR8"/>
+            </connections>
+            <point key="canvasLocation" x="137.68115942028987" y="120.53571428571428"/>
+        </collectionViewCell>
+    </objects>
+</document>

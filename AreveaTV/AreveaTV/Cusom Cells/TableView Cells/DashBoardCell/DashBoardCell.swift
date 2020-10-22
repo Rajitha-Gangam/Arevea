@@ -65,7 +65,7 @@ class DashBoardCell: UITableViewCell, UICollectionViewDataSource, UICollectionVi
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let cell = collectionView.cellForItem(at: indexPath) as? DBCollectionViewCell
-        //print("I'm tapping the \(indexPath.item)")
+        ////print("I'm tapping the \(indexPath.item)")
         
         self.cellDelegate?.collectionView(collectionviewcell: cell, index: indexPath.item,title: strController,  didTappedInTableViewCell: self)
         
@@ -107,7 +107,7 @@ class DashBoardCell: UITableViewCell, UICollectionViewDataSource, UICollectionVi
             else if(strController == "dashboard_search"){
                 cell.nameLabel.text = arySub["name"]as? String;
             }else if (strController == "channels" || strController == "dashboard_trending_channels"){
-                // //print("arySub:",arySub)
+                // ////print("arySub:",arySub)
                 let performerDetails = arySub["performer_details"] as? [String: Any] ?? [:]
                 cell.nameLabel.text = performerDetails["performer_display_name"]as? String ?? "";
                 let strURL = performerDetails["performer_profile_pic"]as? String ?? "";
@@ -164,7 +164,7 @@ class DashBoardCell: UITableViewCell, UICollectionViewDataSource, UICollectionVi
     // Add spaces at the beginning and the end of the collection view
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        //print("width:",width)
+        ////print("width:",width)
         let screenRect = UIScreen.main.bounds
         let screenWidth = screenRect.size.width
         var screenHeight = screenRect.size.height/2 - 90
@@ -175,8 +175,8 @@ class DashBoardCell: UITableViewCell, UICollectionViewDataSource, UICollectionVi
     }
     
     @objc func btnLeftPress(_ sender: UIButton) {
-//        print("btnLeftPress called")
-//        print("sender.tag",sender.tag)
+//        //print("btnLeftPress called")
+//        //print("sender.tag",sender.tag)
         if (sender.tag == 0){
             let indexPath = IndexPath(row: rowWithItems.count - 1, section: 0)
             collectionView.scrollToItem(at: indexPath, at: .centeredHorizontally, animated: true)
@@ -187,9 +187,9 @@ class DashBoardCell: UITableViewCell, UICollectionViewDataSource, UICollectionVi
         
     }
     @objc func btnRightPress(_ sender: UIButton) {
-//        print("btnRightPress called")
-//        print("sender.tag",sender.tag)
-//        print("last index",rowWithItems.count - 1)
+//        //print("btnRightPress called")
+//        //print("sender.tag",sender.tag)
+//        //print("last index",rowWithItems.count - 1)
         if (sender.tag < rowWithItems.count - 1){
             let indexPath = IndexPath(row: sender.tag  + 1, section: 0)
             collectionView.scrollToItem(at: indexPath, at: .centeredHorizontally, animated: true)

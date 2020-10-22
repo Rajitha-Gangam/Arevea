@@ -63,10 +63,10 @@ class MyEventsVC: UIViewController,OpenChanannelChatDelegate,UITableViewDelegate
                       switch response.result {
                       case .success(let value):
                           if let json = value as? [String: Any] {
-                              print("myList JSON:",json)
+                              //print("myList JSON:",json)
                               if (json["statusCode"]as? String == "200" ){
                                 self.aryMyListData  = json["Data"] as? [Any] ?? [Any]();
-                                print("Mylist count:",self.aryMyListData.count)
+                                //print("Mylist count:",self.aryMyListData.count)
                                 self.tblMain.reloadData()
                               }else{
                                   let strMsg = json["message"] as? String ?? ""
@@ -128,7 +128,7 @@ class MyEventsVC: UIViewController,OpenChanannelChatDelegate,UITableViewDelegate
         
        /* let orgsList = didTappedInTableViewCell.rowWithItems
         let selectedOrg = orgsList[index] as? [String: Any] ?? [:]
-        //print("item:\(String(describing: selectedOrg))")
+        ////print("item:\(String(describing: selectedOrg))")
         
         let streamInfo = selectedOrg
        let storyboard = UIStoryboard(name: "Main", bundle: nil);
@@ -143,7 +143,7 @@ class MyEventsVC: UIViewController,OpenChanannelChatDelegate,UITableViewDelegate
            streamId = streamInfo["id"] as? Int ?? 0
        }
        appDelegate.isLiveLoad = "1"
-       print("number_of_creators:",number_of_creators)
+       //print("number_of_creators:",number_of_creators)
        let vc = storyboard.instantiateViewController(withIdentifier: "StreamDetailVC") as! StreamDetailVC
                       vc.orgId = orgId
                       vc.streamId = streamId

@@ -250,7 +250,7 @@ class PaymentVC: UIViewController,UITextFieldDelegate {
     func makePayment(params:[String:Any]){
         let url = appDelegate.paymentBaseURL + "/makePayment"
         let params = params;
-        //print("params:",params)
+        ////print("params:",params)
         let session_token = UserDefaults.standard.string(forKey: "session_token") ?? ""
         let headers: HTTPHeaders = [
             "Authorization": "Bearer " + session_token,
@@ -264,7 +264,7 @@ class PaymentVC: UIViewController,UITextFieldDelegate {
                     if let json = value as? [String: Any] {
                         if (json["status"]as? Int == 0){
                             self.viewActivity.isHidden = true
-                            ////print(json["message"] as? String ?? "")
+                            //////print(json["message"] as? String ?? "")
                             self.showAlert(strMsg: "Paid amount successfully")
                             if(self.details == "pay_per_view"){
                                 self.appDelegate.isLiveLoad = "1"
@@ -272,7 +272,7 @@ class PaymentVC: UIViewController,UITextFieldDelegate {
                             self.navigationController?.popViewController(animated: true)
                         }else{
                             let strError = json["message"] as? String
-                            ////print(strError ?? "")
+                            //////print(strError ?? "")
                             self.showAlert(strMsg: strError ?? "")
                             self.viewActivity.isHidden = true
                         }

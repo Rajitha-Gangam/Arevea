@@ -48,7 +48,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
     var player:AVPlayer?
     var slider: UISlider?
     var isLoaded = 0;
-    
+    var channel_name = ""
     var videoUrl = ""
     var backPressed = false
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
@@ -83,7 +83,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
         viewActivity.isHidden = true
         // Do any additional setup after loading the view.
         registerNibs();
-        //print("detail item in channnel page:\(detailItem)")
+        ////print("detail item in channnel page:\(detailItem)")
         
         lblNoDataUpcoming.text = "No results found"
         lblNoDataVideos.text = "No results found"
@@ -217,7 +217,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
             let lblLine = self.buttonCVC.viewWithTag(lineTag) as? UILabel
             let btnText = self.buttonCVC.viewWithTag(btnTag) as? UIButton
             if (name == title){
-                print("btnTag:",btnTag)
+                //print("btnTag:",btnTag)
                 let orange = UIColor(red: 255, green: 139, blue: 50);
                 lblLine?.backgroundColor = orange;
                 lblLine?.isHidden = false;
@@ -374,7 +374,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
             let strURL = streamInfo?["video_thumbnail_image"] as? String ?? "";
             let videoTitle = streamInfo?["stream_video_title"] as? String ?? "";
             cell.lblTitle.text = videoTitle
-            print("--vod strURL:",strURL);
+            //print("--vod strURL:",strURL);
             if let urlVideoThumbImage = URL(string: strURL){
                 var imagePlaceHolder = "sample-details"
                 if(UIDevice.current.userInterfaceIdiom == .pad){
@@ -396,7 +396,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
             let cell = tableView.dequeueReusableCell(withIdentifier: "UpcomingCell") as! UpcomingCell
             //2020-04-26T19:28:49.000Z
             let upcoming = self.aryUpcoming[indexPath.row] as? [String : Any];
-            //print("--upcoming:",item)
+            ////print("--upcoming:",item)
             let streamInfo = upcoming?["stream_info"] as? [String : Any];
             
             cell.lblTitle.text = streamInfo?["stream_video_title"] as? String;
@@ -503,7 +503,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
         let performerId = streamInfo?["performer_id"]as? Int ?? 0
         let streamId = streamInfo?["id"] as? Int ?? 0
         let orgId = streamInfo?["organization_id"]as? Int ?? 0
-        //print("self.streamVideoCode:",self.streamVideoCode)
+        ////print("self.streamVideoCode:",self.streamVideoCode)
         let url = streamInfo?["video_url"] as? String ?? ""
         videoUrl = url
         isVOD = true;
@@ -524,7 +524,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
         let performerId = streamInfo?["performer_id"]as? Int ?? 0
         let streamId = streamInfo?["id"] as? Int ?? 0
         let orgId = streamInfo?["organization_id"]as? Int ?? 0
-        //print("self.streamVideoCode:",self.streamVideoCode)
+        ////print("self.streamVideoCode:",self.streamVideoCode)
         let url = streamInfo?["video_url"] as? String ?? ""
         videoUrl = url
         let storyboard = UIStoryboard(name: "Main", bundle: nil);
@@ -537,7 +537,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
         vc.isAudio = true;
         vc.orgId = orgId
         let  videoUrl = streamInfo?["video_url"] as? String ?? ""
-        print("videoUrl:",videoUrl)
+        //print("videoUrl:",videoUrl)
         vc.strAudioSource = videoUrl
         self.navigationController?.pushViewController(vc, animated: true)
     }
@@ -564,7 +564,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
     func videoThumbNail(from url: URL, button: UIButton) {
         getData(from: url) { data, response, error in
             guard let data = data, error == nil else { return }
-            //print(response?.suggestedFilename ?? url.lastPathComponent)
+            ////print(response?.suggestedFilename ?? url.lastPathComponent)
             DispatchQueue.main.async() { [weak self] in
                 button.setImage(UIImage(data: data), for: .normal)
                 button.imageView?.contentMode = .scaleAspectFill
@@ -590,11 +590,11 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
                       switch response.result {
                       case .success(let value):
                           if let json = value as? [String: Any] {
-                              print("performerEvents JSON:",json)
+                              //print("performerEvents JSON:",json)
                               if (json["statusCode"]as? String == "200" ){
-                               //print(json["message"] as? String ?? "")
+                               ////print(json["message"] as? String ?? "")
                                self.aryUpcoming = json["Data"] as? [Any] ?? [Any]() ;
-                               //print("upcoming count:",self.aryUpcoming.count);
+                               ////print("upcoming count:",self.aryUpcoming.count);
                                self.tblUpcoming.reloadData();
                               }else{
                                   let strMsg = json["message"] as? String ?? ""
@@ -613,7 +613,8 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
     func performerVideos(){
           let appDelegate = UIApplication.shared.delegate as! AppDelegate
           let url: String = appDelegate.ol_lambda_url +  "/performerVideos"
-    let inputData: [String: Any] = ["performerId":performerId,"orgId": orgId,"type": "video"]
+        
+    let inputData: [String: Any] = ["channel_name": self.channel_name,"orgId": orgId,"type": "video"]
     let session_token = UserDefaults.standard.string(forKey: "session_token") ?? ""
     let headers : HTTPHeaders = [
         "Content-Type": "application/json",
@@ -627,11 +628,11 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
                   switch response.result {
                   case .success(let value):
                       if let json = value as? [String: Any] {
-                          print("performerVideos JSON:",json)
+                          //print("performerVideos JSON:",json)
                           if (json["statusCode"]as? String == "200" ){
-                           //print(json["message"] as? String ?? "")
+                           ////print(json["message"] as? String ?? "")
                            self.aryVideos = json["Data"] as? [Any] ?? [Any]() ;
-                           //print("videos:",self.aryVideos)
+                           ////print("videos:",self.aryVideos)
                            self.tblVideos.reloadData();
                           }else{
                               let strMsg = json["message"] as? String ?? ""
@@ -642,7 +643,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
                   case .failure(let error):
                      let errorDesc = error.localizedDescription.replacingOccurrences(of: "URLSessionTask failed with error:", with: "")
                       self.showAlert(strMsg: errorDesc)
-                              self.viewActivity.isHidden = true
+                      self.viewActivity.isHidden = true
 
                   }
           }
@@ -650,7 +651,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
     func performerAudios(){
           let appDelegate = UIApplication.shared.delegate as! AppDelegate
           let url: String = appDelegate.ol_lambda_url +  "/performerVideos"
-    let inputData: [String: Any] = ["performerId": performerId,"orgId": orgId,"type": "audio"]
+    let inputData: [String: Any] = ["channel_name": self.channel_name,"orgId": orgId,"type": "audio"]
     let session_token = UserDefaults.standard.string(forKey: "session_token") ?? ""
     let headers : HTTPHeaders = [
         "Content-Type": "application/json",
@@ -664,11 +665,11 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
                   switch response.result {
                   case .success(let value):
                       if let json = value as? [String: Any] {
-                          print("performerAudios JSON:",json)
+                          //print("performerAudios JSON:",json)
                           if (json["statusCode"]as? String == "200" ){
-                           //print(json["message"] as? String ?? "")
+                           ////print(json["message"] as? String ?? "")
                            self.aryAudios = json["Data"] as? [Any] ?? [Any]() ;
-                           //print("audios count:",self.aryVideos.count)
+                           ////print("audios count:",self.aryVideos.count)
                            self.tblAudios.reloadData();
                           }else{
                               let strMsg = json["message"] as? String ?? ""
@@ -707,7 +708,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
                         print("getPerformerInfo JSON:",json)
                         if (json["statusCode"]as? String == "200"){
                             
-                            //print(json["message"] as? String ?? "")
+                            ////print(json["message"] as? String ?? "")
                             let data = json["Data"] as? [Any] ?? [Any]()
                             if(data.count > 0){
                                 let obj = data[0] as? [String:Any] ?? [:]
@@ -715,12 +716,14 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
                                 if(performer_info){
                                     self.dicPerformerInfo = obj["performer_details"] as? [String : Any] ?? [String:Any]()
                                     let performerName = self.dicPerformerInfo["performer_display_name"] as? String ?? ""
+                                    self.channel_name = self.dicPerformerInfo["channel_name"] as? String ?? ""
+
                                     var performer_bio = self.dicPerformerInfo["performer_bio"] as? String ?? ""
                                     performer_bio = performer_bio.htmlToString
                                     
                                     self.txtProfile.text = performerName + "\n" + performer_bio
                                     
-                                    //print("self.app_id_for_adds:",self.app_id_for_adds)
+                                    ////print("self.app_id_for_adds:",self.app_id_for_adds)
                                     let strURL = self.dicPerformerInfo["performer_profile_pic"]as? String ?? ""
                                     if let urlPerformer = URL(string: strURL){
                                         self.downloadImage(from:urlPerformer )
@@ -735,7 +738,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
                             
                         }else{
                             let strError = json["message"] as? String
-                            //print("strError1:",strError ?? "")
+                            ////print("strError1:",strError ?? "")
                             self.showAlert(strMsg: strError ?? "")
                         }
                         
@@ -784,16 +787,16 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
     }
     
     deinit {
-        print("Remove NotificationCenter Deinit")
+        //print("Remove NotificationCenter Deinit")
         NotificationCenter.default.removeObserver(self)
     }
     
     func downloadImage(from url: URL) {
-        print("Download Started")
+        //print("Download Started")
         getData(from: url) { data, response, error in
             guard let data = data, error == nil else { return }
-            print(response?.suggestedFilename ?? url.lastPathComponent)
-            print("Download Finished")
+            //print(response?.suggestedFilename ?? url.lastPathComponent)
+            //print("Download Finished")
             DispatchQueue.main.async() { [weak self] in
                 self?.imgPerformerProfile.image = UIImage(data: data)
                 self?.imgPerformerProfile.contentMode = .scaleToFill

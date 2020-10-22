@@ -12,10 +12,11 @@ import SendBirdSDK
 import CoreLocation
 import AWSAppSync
 import UIKit
-import  AVKit
+import AVKit
 import FirebaseCore
 import Alamofire
-
+import Firebase
+import UserNotifications
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate,CLLocationManagerDelegate {
@@ -30,8 +31,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate,CLLocationManagerDelegate 
     var isLiveLoad = "0";
     var locationManager:CLLocationManager!
     var appLoaded = false
+    let gcmMessageIDKey = "com.prod.arevea"
+    let deviceToken = ""
+    var strFCMToken = ""
     // MARK: - Dev Environmet Variables Declaration
-     var baseURL = "https://dev-apis.arevea.tv";
+     /*var baseURL = "https://dev-apis.arevea.tv";
      var websiteURL = "https://dev.arevea.tv"
      var sendBirdAppId = "AE94EB49-0A01-43BF-96B4-8297EBB47F12";
      var profileURL = "https://dev.arevea.tv/api/user/v1";
@@ -51,12 +55,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate,CLLocationManagerDelegate 
      var ol_client_secret = "67795bdcf01b42caeb145988f7e64bd71d00191e2abab99dc7e43bf86da3e50c"
      var ol_access_token = ""
      var ol_lambda_url = "https://dev-apis.arevea.tv"
-        
+     var FCMBaseURL = "https://r5ibd3yzp7.execute-api.us-west-2.amazonaws.com/devel"
+*/
     
     //Dev Variables END
     
     // MARK: - QA Environmet Variables Declaration
-    /*var baseURL = "https://qa-apis.arevea.tv"
+    var baseURL = "https://qa-apis.arevea.tv"
     var websiteURL = "https://qa.arevea.tv"
     var sendBirdAppId = "7AF38850-F099-4C47-BD19-F7F84DAFECF8";
     var profileURL = "https://qa.arevea.tv/api/user/v1"
@@ -76,11 +81,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate,CLLocationManagerDelegate 
     var ol_client_secret = "67795bdcf01b42caeb145988f7e64bd71d00191e2abab99dc7e43bf86da3e50c"
     var ol_access_token = ""
     var ol_lambda_url = "https://qa-apis.arevea.tv"
-    */
+    var FCMBaseURL = "https://eku2g4rzxl.execute-api.us-west-2.amazonaws.com/dev"
+
     //QA Variables END
     
     // MARK: - Pre-prod Environmet Variables Declaration
-   /* var baseURL = "https://preprod-apis.arevea.tv"
+    /*var baseURL = "https://preprod-apis.arevea.tv"
      var websiteURL = "https://preprod.arevea.tv"
      var sendBirdAppId = "2115A8A2-36D7-4ABC-A8CE-758500A54DFD";
      var profileURL = "https://preprod.arevea.tv/api/user/v1"
@@ -99,13 +105,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate,CLLocationManagerDelegate 
      var ol_client_id = "4e42c39db6ada915afaf60448254cd10033604c982128c55d1548e218b983279"
      var ol_client_secret = "67795bdcf01b42caeb145988f7e64bd71d00191e2abab99dc7e43bf86da3e50c"
      var ol_access_token = ""
-     var ol_lambda_url = "https://preprod-apis.arevea.tv" */
-     
+     var ol_lambda_url = "https://preprod-apis.arevea.tv"
+    var FCMBaseURL = "https://preprod-apis.arevea.tv"
+*/
+    
     
     //Pre-prod Variables END
     
     // MARK: - prod Environmet Variables Declaration
-     /*var baseURL = "https://apis.arevea.tv"
+    /*var baseURL = "https://apis.arevea.tv"
      var websiteURL = "https://www.arevea.tv"
      var sendBirdAppId = "ED4D2A9B-A140-40FD-83BF-6D240903C5BF";
      var profileURL = "https://www.arevea.tv/api/user/v1"
@@ -117,15 +125,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate,CLLocationManagerDelegate 
      var x_api_key = "x-api-key"
      var x_api_value = "42aCyQg9Cj7yWDuXTCwEL7Ll3j2YojHrablYoCYs"
      var AWSCognitoIdentityPoolId = "us-west-2:c239b0d1-5cd5-4fcf-86a1-e812eb6d4777"
-     var red5_pro_host = "livestream2.arevea.tv";
+     var red5_pro_host = "livestream1.arevea.tv";
      var red5_acc_token = "Ck2jUK49JIEp"
      var ol_base_url = "https://api.us.onelogin.com";
      var ol_sub_domain = "areveatv-sandbox"
      var ol_client_id = "4f4a70d46e9cb24ce5f723837402343a1b622bca17dc041df218991c1f5eb247"
      var ol_client_secret = "d5c29333a8e9e5164d203cd7540b17e4c1d7bf2c2f52d15a01460c506a60dbca"
      var ol_access_token = ""
-     var ol_lambda_url = "https://apis.arevea.tv"*/
-     
+     var ol_lambda_url = "https://apis.arevea.tv"
+    var FCMBaseURL = "https://apis.arevea.tv"
+
+    */
     //prod Variables END
     
     
@@ -164,6 +174,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate,CLLocationManagerDelegate 
         self.window?.makeKeyAndVisible()
         // Use Firebase library to configure APIs
         FirebaseApp.configure()
+        Messaging.messaging().delegate = self
+        
         //SBDMain.initWithApplicationId("9308C3B1-A36D-47E2-BA3C-8F6F362C35AF")
         SBDMain.initWithApplicationId(sendBirdAppId)
         /*locationManager = CLLocationManager()
@@ -185,28 +197,34 @@ class AppDelegate: UIResponder, UIApplicationDelegate,CLLocationManagerDelegate 
             // set id as the cache key for objects
             appSyncClient?.apolloClient?.cacheKeyForObject = { $0["id"] }
             
-            print("AppSyncClient initialized with cacheConfiguration: \(cacheConfiguration)")
+            //print("AppSyncClient initialized with cacheConfiguration: \(cacheConfiguration)")
         } catch {
-            print("Error initializing AppSync client. \(error)")
+            //print("Error initializing AppSync client. \(error)")
         }
         /*ol_access_token = UserDefaults.standard.string(forKey: "ol_access_token") ?? "";
-        if (ol_access_token == ""){
-            getToken()
-        }*/
-       let streamlist = [["user_type": "creator1", "auth_code": "bd6d55f6-7ec6-4ca1-93eb-6cdf6ed44d0f", "last_name": "vknl", "onlineStatus": 0, "first_name": "Meena", "full_name": "Meena vknl", "liveStatus": 0, "useAudio": 1, "useVideo": 1], ["first_name": "meena", "auth_code": "dd3d2c16-b5a4-4b00-826b-f5d6b5642768", "full_name": "meena vaddadi", "useVideo": 1, "onlineStatus": 0, "useAudio": 1, "liveStatus": 0, "user_type": "guest", "last_name": "vaddadi"]]
-        let duplicateList = [["user_type": "creator", "auth_code": "bd6d55f6-7ec6-4ca1-93eb-6cdf6ed44d0f", "last_name": "vknl", "onlineStatus": 0, "first_name": "Meena", "full_name": "Meena vknl", "liveStatus": 0, "useAudio": 1, "useVideo": 1], ["first_name": "meena", "auth_code": "dd3d2c16-b5a4-4b00-826b-f5d6b5642768", "full_name": "meena vaddadi", "useVideo": 1, "onlineStatus": 0, "useAudio": 1, "liveStatus": 0, "user_type": "guest", "last_name": "vaddadi"]]
-        if (streamlist as AnyObject).isEqual(duplicateList as AnyObject) {
-            print("equal")
-        }else{
-            print("not equal")
-        }
-        let actual: [[String: Any]] = [["id": "12345", "name": "Aar"]]
-        let expected: [[String: Any]] = [["id": "12345", "name": "Aar"]]
-        //print(NSDictionary(dictionary: actual).isEqual(to: expected))//False
+         if (ol_access_token == ""){
+         getToken()
+         }*/
         appLoaded = true
+        if #available(iOS 10.0, *) {
+            // For iOS 10 display notification (sent via APNS)
+            UNUserNotificationCenter.current().delegate = self
+            
+            let authOptions: UNAuthorizationOptions = [.alert, .badge, .sound]
+            UNUserNotificationCenter.current().requestAuthorization(
+                options: authOptions,
+                completionHandler: {_, _ in })
+        } else {
+            let settings: UIUserNotificationSettings =
+                UIUserNotificationSettings(types: [.alert, .badge, .sound], categories: nil)
+            application.registerUserNotificationSettings(settings)
+        }
+        
+        application.registerForRemoteNotifications()
+        
         return true
     }
-   
+    
     func isConnectedToInternet() -> Bool {
         let hostname = "google.com"
         let hostinfo = gethostbyname(hostname)
@@ -216,7 +234,74 @@ class AppDelegate: UIResponder, UIApplicationDelegate,CLLocationManagerDelegate 
         }
         return false // no internet
     }
+    // [START receive_message]
+    func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable: Any]) {
+        // If you are receiving a notification message while your app is in the background,
+        // this callback will not be fired till the user taps on the notification launching the application.
+        // TODO: Handle data of notification
+        
+        // With swizzling disabled you must let Messaging know about the message, for Analytics
+        // Messaging.messaging().appDidReceiveMessage(userInfo)
+        showAlert(userInfo: userInfo)
+        
+        // Print message ID.
+        if let messageID = userInfo[gcmMessageIDKey] {
+            print("Message ID: \(messageID)")
+        }
+        
+        // Print full message.
+        print(userInfo)
+    }
+    func showAlert(userInfo: [AnyHashable: Any])
+    {
+        print("===showAlert")
+        let str = "\(userInfo)"
+        let alert = UIAlertController(title: "Alert", message:str , preferredStyle: UIAlertController.Style.alert)
+        alert.addAction(UIAlertAction(title: "Click", style: UIAlertAction.Style.default, handler: nil))
+        //self.window?.rootViewController?.present(alert, animated: true, completion: nil)
+        let activeVc = UIApplication.shared.keyWindow?.rootViewController
+        activeVc?.present(alert, animated: true, completion: nil)
+        
+    }
+    func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable: Any],
+                     fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
+        // If you are receiving a notification message while your app is in the background,
+        // this callback will not be fired till the user taps on the notification launching the application.
+        // TODO: Handle data of notification
+        
+        // With swizzling disabled you must let Messaging know about the message, for Analytics
+        // Messaging.messaging().appDidReceiveMessage(userInfo)
+        print("didReceiveRemoteNotification: \(userInfo)")
+        //showAlert(userInfo: userInfo)
+        
+        // Print message ID.
+        if let messageID = userInfo[gcmMessageIDKey] {
+            print("Message ID: \(messageID)")
+        }
+        
+        // Print ful l message.
+        print(userInfo)
+
+
+        completionHandler(UIBackgroundFetchResult.newData)
+    }
+    // [END receive_message]
     
+    func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
+        print("Unable to register for remote notifications: \(error.localizedDescription)")
+    }
+    
+    // This function is added here only for debugging purposes, and can be removed if swizzling is enabled.
+    // If swizzling is disabled then this function must be implemented so that the APNs token can be paired to
+    // the FCM registration token.
+    func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+        //showAlert(userInfo: ["deviceToken":deviceToken])
+        let strToken = String(decoding: deviceToken, as: UTF8.self)
+        
+        print("APNs token retrieved: \(deviceToken)")
+        // With swizzling disabled you must set the APNs token here.
+        // Messaging.messaging().apnsToken = deviceToken
+    }
     // MARK: UISceneSession Lifecycle
     
     func applicationWillResignActive(_ application: UIApplication) {
@@ -235,7 +320,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate,CLLocationManagerDelegate 
     
     func applicationDidBecomeActive(_ application: UIApplication) {
         // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
-        // print("===applicationDidBecomeActive:",appLoaded)
+        // //print("===applicationDidBecomeActive:",appLoaded)
         if(appLoaded){
             
         }
@@ -244,11 +329,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate,CLLocationManagerDelegate 
     func applicationWillTerminate(_ application: UIApplication) {
         // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
     }
-    
-    
-    
-    
-    
     //MARK: - location delegate methods
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         let netAvailable = self.isConnectedToInternet()
@@ -259,12 +339,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate,CLLocationManagerDelegate 
         let geocoder = CLGeocoder()
         geocoder.reverseGeocodeLocation(userLocation) { (placemarks, error) in
             if (error != nil){
-                //print("error in reverseGeocode")
+                ////print("error in reverseGeocode")
             }
             let placemark = placemarks! as [CLPlacemark]
             if placemark.count>0{
                 let placemark = placemarks![0]
-                //print("country:",placemark.country!)
+                ////print("country:",placemark.country!)
                 self.strCountry = placemark.country!
                 self.getRegion()
             }
@@ -278,7 +358,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate,CLLocationManagerDelegate 
             for (j,_) in countryNames.enumerated() {
                 let country = countryNames[j] as! String
                 if(country.lowercased() == strCountry.lowercased()){
-                    //print("equal:",country)
+                    ////print("equal:",country)
                     strRegionCode = element["region_code"]as! String
                     return
                 }
@@ -286,7 +366,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate,CLLocationManagerDelegate 
         }
     }
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
-        //print("Error \(error)")
+        ////print("Error \(error)")
     }
     func application(_ application: UIApplication, shouldSaveApplicationState coder: NSCoder) -> Bool {
         return true
@@ -314,6 +394,64 @@ class AppDelegate: UIResponder, UIApplicationDelegate,CLLocationManagerDelegate 
         }
         
     }
+}
+// [START ios_10_message_handling]
+@available(iOS 10, *)
+extension AppDelegate : UNUserNotificationCenterDelegate {
+    
+    // Receive displayed notifications for iOS 10 devices.
+    func userNotificationCenter(_ center: UNUserNotificationCenter,
+                                willPresent notification: UNNotification,
+                                withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
+        let userInfo = notification.request.content.userInfo
+        
+        // With swizzling disabled you must let Messaging know about the message, for Analytics
+        // Messaging.messaging().appDidReceiveMessage(userInfo)
+        
+        // Print message ID.
+        if let messageID = userInfo[gcmMessageIDKey] {
+            print("Message ID: \(messageID)")
+        }
+        
+        // Print full message.
+        print("---ui:",userInfo)
+        NotificationCenter.default.post(name: Notification.Name("PushNotification"), object: nil, userInfo: userInfo)
+
+        // Change this to your preferred presentation option
+        completionHandler([[.alert, .sound]])
+    }
+    
+    func userNotificationCenter(_ center: UNUserNotificationCenter,
+                                didReceive response: UNNotificationResponse,
+                                withCompletionHandler completionHandler: @escaping () -> Void) {
+        let userInfo = response.notification.request.content.userInfo
+        // Print message ID.
+        if let messageID = userInfo[gcmMessageIDKey] {
+            print("Message ID: \(messageID)")
+        }
+        
+        // With swizzling disabled you must let Messaging know about the message, for Analytics
+        // Messaging.messaging().appDidReceiveMessage(userInfo)
+        
+        // Print full message.
+        print(userInfo)
+
+        completionHandler()
+    }
+}
+// [END ios_10_message_handling]
+
+
+extension AppDelegate : MessagingDelegate {
+    // [START refresh_token]
+    func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String) {
+        print("Firebase registration token: \(String(describing: fcmToken))")
+        strFCMToken = fcmToken
+        
+        // TODO: If necessary send token to application server.
+        // Note: This callback is fired at each app startup and whenever a new token is generated.
+    }
+    // [END refresh_token]
 }
 // MARK: - Extensions
 

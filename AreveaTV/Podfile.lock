@@ -50,6 +50,9 @@ PODS:
   - Firebase/Crashlytics (6.31.1):
     - Firebase/CoreOnly
     - FirebaseCrashlytics (~> 4.5.0)
+  - Firebase/Messaging (6.31.1):
+    - Firebase/CoreOnly
+    - FirebaseMessaging (~> 4.6.2)
   - FirebaseAnalytics (6.8.0):
     - FirebaseCore (~> 6.10)
     - FirebaseInstallations (~> 1.6)
@@ -79,6 +82,22 @@ PODS:
     - GoogleUtilities/Environment (~> 6.7)
     - GoogleUtilities/UserDefaults (~> 6.7)
     - PromisesObjC (~> 1.2)
+  - FirebaseInstanceID (4.8.0):
+    - FirebaseCore (~> 6.10)
+    - FirebaseInstallations (~> 1.6)
+    - GoogleUtilities/Environment (~> 6.7)
+    - GoogleUtilities/UserDefaults (~> 6.7)
+  - FirebaseMessaging (4.6.2):
+    - FirebaseCore (~> 6.10)
+    - FirebaseInstanceID (~> 4.6)
+    - GoogleUtilities/AppDelegateSwizzler (~> 6.7)
+    - GoogleUtilities/Environment (~> 6.7)
+    - GoogleUtilities/Reachability (~> 6.7)
+    - GoogleUtilities/UserDefaults (~> 6.7)
+    - Protobuf (>= 3.9.2, ~> 3.9)
+  - FlagPhoneNumber (0.8.0):
+    - FlagPhoneNumber/libPhoneNumberiOS (= 0.8.0)
+  - FlagPhoneNumber/libPhoneNumberiOS (0.8.0)
   - GoogleAppMeasurement (6.8.0):
     - GoogleUtilities/AppDelegateSwizzler (~> 6.7)
     - GoogleUtilities/MethodSwizzler (~> 6.7)
@@ -722,6 +741,7 @@ PODS:
   - nanopb/decode (1.30906.0)
   - nanopb/encode (1.30906.0)
   - PromisesObjC (1.2.10)
+  - Protobuf (3.13.0)
   - ReachabilitySwift (5.0.0)
   - SDWebImage (5.8.4):
     - SDWebImage/Core (= 5.8.4)
@@ -746,6 +766,8 @@ DEPENDENCIES:
   - EasyTipView (~> 2.0.4)
   - Firebase/Analytics
   - Firebase/Crashlytics
+  - Firebase/Messaging
+  - FlagPhoneNumber
   - MaterialComponents
   - Mux-Stats-AVPlayer (~> 1.3.0)
   - ReachabilitySwift
@@ -785,11 +807,15 @@ SPEC REPOS:
     - FirebaseCoreDiagnostics
     - FirebaseCrashlytics
     - FirebaseInstallations
+    - FirebaseInstanceID
+    - FirebaseMessaging
+    - FlagPhoneNumber
     - GoogleAppMeasurement
     - GoogleDataTransport
     - GoogleUtilities
     - nanopb
     - PromisesObjC
+    - Protobuf
     - ReachabilitySwift
     - SDWebImage
     - SQLite.swift
@@ -818,6 +844,9 @@ SPEC CHECKSUMS:
   FirebaseCoreDiagnostics: 7415bfb3883b3500c5a95c42b6ba66baae78f600
   FirebaseCrashlytics: d2a350ec7fd4a332031b906b0802a7a73697630b
   FirebaseInstallations: 466c7b4d1f58fe16707693091da253726a731ed2
+  FirebaseInstanceID: bd3ffc24367f901a43c063b36c640b345a4a5dd1
+  FirebaseMessaging: 82d75b3770a78bbce470769a6980429608b4c407
+  FlagPhoneNumber: 3712455b95f66cb0f2016fef7d9e34cddf8c7f9a
   GoogleAppMeasurement: ecc30d0ab5b66d7d18e85ce1b8e2b345db60626d
   GoogleDataTransport: e85fb700c9b027079ce182c3d08e12e0f9618bb4
   GoogleUtilities: 7f2f5a07f888cdb145101d6042bc4422f57e70b3
@@ -830,12 +859,13 @@ SPEC CHECKSUMS:
   Mux-Stats-Core: 16b58f39b40a5277ab0742f2efaf544cee98792d
   nanopb: 59317e09cf1f1a0af72f12af412d54edf52603fc
   PromisesObjC: b14b1c6b68e306650688599de8a45e49fae81151
+  Protobuf: 3dac39b34a08151c6d949560efe3f86134a3f748
   ReachabilitySwift: 985039c6f7b23a1da463388634119492ff86c825
   SDWebImage: cf6922231e95550934da2ada0f20f2becf2ceba9
   SendBirdSDK: c16c053159760122a553e40ffe7c6d7c4cda368b
   SQLite.swift: d2b4642190917051ce6bd1d49aab565fe794eea3
   Starscream: 4bb2f9942274833f7b4d296a55504dcfc7edb7b0
 
-PODFILE CHECKSUM: aa34e4dd57a2d28ed903c25c6e0294713aed754b
+PODFILE CHECKSUM: 1ace506ca766b9c6efe4a81baa7a966df1432b12
 
 COCOAPODS: 1.9.3

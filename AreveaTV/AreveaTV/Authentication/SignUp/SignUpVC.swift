@@ -8,14 +8,17 @@
 
 import UIKit
 import Alamofire
+import FlagPhoneNumber
 
 class SignUpVC: UIViewController ,UITextFieldDelegate,UIPickerViewDelegate, UIPickerViewDataSource{
-    
+    var listController: FPNCountryListViewController = FPNCountryListViewController(style: .grouped)
+    var repository: FPNCountryRepository = FPNCountryRepository()
+    var countryCode = "+1"
     // MARK: - Variables Declaration
     @IBOutlet weak var txtFirstName: UITextField!
     @IBOutlet weak var txtLastName: UITextField!
     @IBOutlet weak var txtEmail: UITextField!
-    @IBOutlet weak var txtPhone: UITextField!
+    @IBOutlet weak var txtPhone: FPNTextField!
     @IBOutlet weak var txtPassword: UITextField!
     @IBOutlet weak var txtCfrmPassword: UITextField!
     @IBOutlet weak var txtDOB: UITextField!
@@ -45,18 +48,30 @@ class SignUpVC: UIViewController ,UITextFieldDelegate,UIPickerViewDelegate, UIPi
         //self.assignbackground();
         self.navigationController?.isNavigationBarHidden = true
         /*txtEmail.text = "grajitha2009@gmail.com"
-        txtFirstName.text = "Rajitha";
-        txtLastName.text = "Gangam"
-        txtPassword.text = "V@rshitha12345";
-        txtCfrmPassword.text =  "V@rshitha12345";
-        txtPhone.text = "+918096823214";*/
+         txtFirstName.text = "Rajitha";
+         txtLastName.text = "Gangam"
+         txtPassword.text = "V@rshitha12345";
+         txtCfrmPassword.text =  "V@rshitha12345";
+         txtPhone.text = "+918096823214";*/
         addDoneButton()
         pickerView.delegate = self
         
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
+        txtPhone.displayMode = .list
+        txtPhone.textColor = .white
+        txtPhone.delegate = self
+        //phoneNumberTextField.flagButtonSize = CGSize(width: 44, height: 44)
+
+        listController.setup(repository: txtPhone.countryRepository)
         
-        
+        listController.didSelect = { [weak self] country in
+            self?.txtPhone.setFlag(countryCode: country.code)
+        }
+
+    }
+    @objc func dismissCountries() {
+        listController.dismiss(animated: true, completion: nil)
     }
     @objc func keyboardWillShow(notification: NSNotification) {
         if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
@@ -111,7 +126,7 @@ class SignUpVC: UIViewController ,UITextFieldDelegate,UIPickerViewDelegate, UIPi
         self.view.sendSubviewToBack(imageView)
     }
     
-   
+    
     func showAlert(strMsg: String){
         let alert = UIAlertController(title: "Alert", message: strMsg, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
@@ -133,7 +148,7 @@ class SignUpVC: UIViewController ,UITextFieldDelegate,UIPickerViewDelegate, UIPi
     @IBAction func termsAndCond(){
         let urlOpen = appDelegate.websiteURL + "/termsandconditions"
         guard let url = URL(string: urlOpen) else { return }
-        print("url to open:",url)
+        //print("url to open:",url)
         UIApplication.shared.open(url)
     }
     @IBAction func checkTermsAndCond(){
@@ -160,10 +175,9 @@ class SignUpVC: UIViewController ,UITextFieldDelegate,UIPickerViewDelegate, UIPi
             showAlert(strMsg: "Please check your internet connection!")
             return
         }
-        
         let firstName = txtFirstName.text!.trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
         let lastName = txtLastName.text!.trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
-        let phone = txtPhone.text!.trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
+        let phone = txtPhone.getRawPhoneNumber() ?? "0"// if its valid, number returns, else 0 assigning
         let email = txtEmail.text!.trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
         let pwd = txtPassword.text!.trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
         let cfrmPwd = txtCfrmPassword.text!.trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
@@ -178,7 +192,7 @@ class SignUpVC: UIViewController ,UITextFieldDelegate,UIPickerViewDelegate, UIPi
             showAlert(strMsg: "Please enter valid email");
         }else if (phone.count == 0){
             showAlert(strMsg: "Please enter phone number");
-        }else if (phone.count != 12 && phone.count != 13){
+        }else if (phone == "0"){
             showAlert(strMsg: "Please enter valid phone number");
         }else if(dob.count == 0){
             showAlert(strMsg: "Please select age");
@@ -205,13 +219,14 @@ class SignUpVC: UIViewController ,UITextFieldDelegate,UIPickerViewDelegate, UIPi
                 dateComponent.year = -18 // currentdate -18 years
             }
             let pastDate = Calendar.current.date(byAdding: dateComponent, to: currentDate)
-            //print("currentDate:",currentDate)
-            //print("pastDate:",pastDate!)
+            ////print("currentDate:",currentDate)
+            ////print("pastDate:",pastDate!)
             let dobPast = dateFormatter.string(from:pastDate!)
             
             let appDelegate = UIApplication.shared.delegate as! AppDelegate
+            let phoneWithCC = countryCode + phone
             let url: String = appDelegate.ol_base_url + "/api/2/users"
-            let inputData = ["firstname" : firstName,"lastname" : lastName,"email" : email,"username" : email,"phone" : phone,"password" : pwd,"password_confirmation" : pwd,"custom_attributes" : ["date_of_birth" : dobPast,"plan" : planID,"profile_pic" : "","user_display_name" : firstName + " " + lastName,"user_type" : 3,"is_user_verify" : 0]
+            let inputData = ["firstname" : firstName,"lastname" : lastName,"email" : email,"username" : email,"phone" : phoneWithCC,"password" : pwd,"password_confirmation" : pwd,"custom_attributes" : ["date_of_birth" : dobPast,"plan" : planID,"profile_pic" : "","user_display_name" : firstName + " " + lastName,"user_type" : 3,"is_user_verify" : 0]
                 ] as [String : Any]
             
             
@@ -226,7 +241,7 @@ class SignUpVC: UIViewController ,UITextFieldDelegate,UIPickerViewDelegate, UIPi
                     switch response.result {
                     case .success(let value):
                         if let json = value as? [String: Any] {
-                            print("signUP JSON:",json)
+                            //print("signUP JSON:",json)
                             if (json["status"]as? Int == 1 ){
                                 let strMsg = "Confirmation code sent via email to " + email
                                 let alert = UIAlertController(title: "Code Sent",
@@ -248,14 +263,14 @@ class SignUpVC: UIViewController ,UITextFieldDelegate,UIPickerViewDelegate, UIPi
                                     self.present(alert, animated: true, completion: nil)
                                 }
                             }else{
-                                    //An account with the given email already exists.
-                                    //self.showAlert(strMsg: "An account with the given email already exists.")
-                                    let strMsg = json["message"] as? String ?? ""
-                                    if(strMsg.lowercased().contains("email must be unique")){
-                                        self.showAlert(strMsg: "An account with the given email already exists.")
-                                    }else{
-                                        self.showAlert(strMsg: strMsg)
-                                    }
+                                //An account with the given email already exists.
+                                //self.showAlert(strMsg: "An account with the given email already exists.")
+                                let strMsg = json["message"] as? String ?? ""
+                                if(strMsg.lowercased().contains("email must be unique")){
+                                    self.showAlert(strMsg: "An account with the given email already exists.")
+                                }else{
+                                    self.showAlert(strMsg: strMsg)
+                                }
                             }
                         }
                     case .failure(let error):
@@ -285,17 +300,6 @@ class SignUpVC: UIViewController ,UITextFieldDelegate,UIPickerViewDelegate, UIPi
     }
     
     func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
-        if (textField == txtPhone){
-            let maxLength = 13
-            let currentString: NSString = textField.text! as NSString
-            let newString: NSString =
-                currentString.replacingCharacters(in: range, with: string) as NSString
-            if range.length>0  && range.location == 0 {
-                return false
-            }
-            
-            return newString.length <= maxLength
-        }
         return true;
     }
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
@@ -327,11 +331,42 @@ class SignUpVC: UIViewController ,UITextFieldDelegate,UIPickerViewDelegate, UIPi
         txtDOB.text = selectedItem
     }
     deinit {
-        print("Remove NotificationCenter Deinit")
+        //print("Remove NotificationCenter Deinit")
         NotificationCenter.default.removeObserver(self)
     }
     
     override func viewWillAppear(_ animated: Bool) {
         AppDelegate.AppUtility.lockOrientation(.portrait)
+    }
+}
+extension SignUpVC: FPNTextFieldDelegate {
+    
+    func fpnDisplayCountryList() {
+        let navigationViewController = UINavigationController(rootViewController: listController)
+        
+        listController.navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .stop, target: self, action: #selector(dismissCountries))
+        listController.title = "Countries"
+
+        self.present(navigationViewController, animated: true, completion: nil)
+    }
+    
+    func fpnDidValidatePhoneNumber(textField: FPNTextField, isValid: Bool) {
+        textField.rightViewMode = .always
+        textField.rightView = UIImageView(image: isValid ? #imageLiteral(resourceName: "success") : #imageLiteral(resourceName: "error"))
+        
+        print(
+            isValid,
+            textField.getFormattedPhoneNumber(format: .E164) ?? "E164: nil",
+            textField.getFormattedPhoneNumber(format: .International) ?? "International: nil",
+            textField.getFormattedPhoneNumber(format: .National) ?? "National: nil",
+            textField.getFormattedPhoneNumber(format: .RFC3966) ?? "RFC3966: nil",
+            textField.getRawPhoneNumber() ?? "Raw: nil"
+        )
+    }
+    
+    func fpnDidSelectCountry(name: String, dialCode: String, code: String) {
+        txtPhone.text = ""
+        countryCode = dialCode
+        //print(name, dialCode, code)
     }
 }

@@ -31,7 +31,7 @@ import AVFoundation
 
 class VideoEditor {
   func makeBirthdayCard(fromVideoAt videoURL: URL, forName name: String, onComplete: @escaping (URL?) -> Void) {
-    //print(videoURL)
+    ////print(videoURL)
     let asset = AVURLAsset(url: videoURL)
     let composition = AVMutableComposition()
     
@@ -40,7 +40,7 @@ class VideoEditor {
         withMediaType: .video, preferredTrackID: kCMPersistentTrackID_Invalid),
       let assetTrack = asset.tracks(withMediaType: .video).first
       else {
-        //print("Something is wrong with the asset.")
+        ////print("Something is wrong with the asset.")
         onComplete(nil)
         return
     }
@@ -59,7 +59,7 @@ class VideoEditor {
           at: .zero)
       }
     } catch {
-      //print(error)
+      ////print(error)
       onComplete(nil)
       return
     }
@@ -132,7 +132,7 @@ class VideoEditor {
       asset: composition,
       presetName: AVAssetExportPresetHighestQuality)
       else {
-        //print("Cannot create export session.")
+        ////print("Cannot create export session.")
         onComplete(nil)
         return
     }
@@ -152,8 +152,8 @@ class VideoEditor {
         case .completed:
           onComplete(exportURL)
         default:
-          //print("Something went wrong during export.")
-          //print(export.error ?? "unknown error")
+          ////print("Something went wrong during export.")
+          ////print(export.error ?? "unknown error")
           onComplete(nil)
           break
         }

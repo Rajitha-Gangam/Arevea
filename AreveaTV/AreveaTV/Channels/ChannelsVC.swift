@@ -121,7 +121,7 @@ class ChannelsVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Col
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         let url: String = appDelegate.baseURL +  "/organizationChannels"
         let params: [String: Any] = ["organization_id": orgId]
-        //print("organizationChannels params:",params)
+        ////print("organizationChannels params:",params)
         viewActivity.isHidden = false
         let headers: HTTPHeaders
         headers = [appDelegate.x_api_key: appDelegate.x_api_value]
@@ -144,7 +144,7 @@ class ChannelsVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Col
                             let arrayGenres = arySub?["genres"] as? [Any] ?? [Any]()
                             self.aryFilterGenresData += arrayGenres
                         }
-                        //print("aryData:",aryData)
+                        ////print("aryData:",aryData)
                         if (aryData.count > 0){
                             self.lblNoData.isHidden = true;
                         }else{
@@ -152,8 +152,8 @@ class ChannelsVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Col
                             self.lblNoData.isHidden = false;
                         }
                         
-                        //print("subcate:",self.aryFilterSubCategoriesData.count)
-                        //print("genre:",self.aryFilterGenresData.count)
+                        ////print("subcate:",self.aryFilterSubCategoriesData.count)
+                        ////print("genre:",self.aryFilterGenresData.count)
                         
                         self.collectionViewFilter.reloadData()
                         self.tblMain.reloadData()
@@ -235,19 +235,19 @@ class ChannelsVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Col
             }else{
                 let aryGenreIds = channelObj?["genre_ids"] as? [Any] ?? [Any]();
                 for (index1,_) in aryGenreIds.enumerated(){
-                   // //print("--for 2")
+                   // ////print("--for 2")
                     let genreId = aryGenreIds[index1] as? Int ?? 0
                     if(self.genreId == genreId){
                         aryFilterChannels.append(channelObj ?? [:])
-                       // //print("--for 2 break")
+                       // ////print("--for 2 break")
                         break
                     }
                 }
             }
             
         }
-        //print("aryFilteredChannels:",aryFilteredChannels)
-        //print("aryFilterChannels count:",aryFilterChannels.count)
+        ////print("aryFilteredChannels:",aryFilteredChannels)
+        ////print("aryFilterChannels count:",aryFilterChannels.count)
         tblMain.reloadData()
     }
     // MARK: Handler for allCategories API, using for filters
@@ -265,16 +265,16 @@ class ChannelsVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Col
                 case .success(let value):
                     if let json = value as? [String: Any] {
                         if (json["statusCode"]as? String == "200"){
-                            //print(json["message"] as? String ?? "")
+                            ////print(json["message"] as? String ?? "")
                             self.aryFilterCategoriesData = json["Data"] as? [Any] ?? [Any]();
-                            //print("--ary:",self.aryFilterCategoriesData.count)
+                            ////print("--ary:",self.aryFilterCategoriesData.count)
                             //self.tblFilter.reloadData();
                             let indexSet = IndexSet(integer: 0)//reloading first section
                             self.collectionViewFilter.reloadSections(indexSet)
                             
                         }else{
                             let strError = json["message"] as? String
-                            //print(strError ?? "")
+                            ////print(strError ?? "")
                             self.showAlert(strMsg: strError ?? "")
                         }
                         
@@ -353,13 +353,13 @@ class ChannelsVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Col
         
         let orgsList = didTappedInTableViewCell.rowWithItems
         let selectedOrg = orgsList[index] as? [String: Any]
-        //print("selected channel:",selectedOrg)
+        ////print("selected channel:",selectedOrg)
         let storyboard = UIStoryboard(name: "Main", bundle: nil);
         let vc = storyboard.instantiateViewController(withIdentifier: "ChannelDetailVC") as! ChannelDetailVC
         vc.delegate = self
         vc.orgId = orgId;
         appDelegate.isLiveLoad = "1"
-        //        //print("userId:",selectedOrg?["user_id"] as Any)
+        //        ////print("userId:",selectedOrg?["user_id"] as Any)
         if (selectedOrg?["user_id"] as? Int) != nil {
             vc.performerId = selectedOrg?["user_id"] as! Int
         }
@@ -423,7 +423,7 @@ extension ChannelsVC: UICollectionViewDataSource , UICollectionViewDelegateFlowL
             cell.chipView.titleLabel.text = selectedItem["genre_name"] as? String
             
         default:
-            //print("")
+            ////print("")
             break
         }
         
@@ -444,8 +444,8 @@ extension ChannelsVC: UICollectionViewDataSource , UICollectionViewDelegateFlowL
         return cell
     }
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        //print("section:",indexPath.section)
-        //print("row:",indexPath.row)
+        ////print("section:",indexPath.section)
+        ////print("row:",indexPath.row)
         if (indexPath.section == 0){
             let selectedItem = aryFilterSubCategoriesData[indexPath.row] as? [String : Any];
             let catId = selectedItem?["id"] as? Int ?? 0;
@@ -463,7 +463,7 @@ extension ChannelsVC: UICollectionViewDataSource , UICollectionViewDelegateFlowL
     
     
     @objc func categoryPress(_ sender: UIButton) {
-        //print("tag:",sender.tag)
+        ////print("tag:",sender.tag)
         //        if (self.aryFilterCategoriesData.count > sender.tag){
         //            let selectedItem = self.aryFilterCategoriesData[sender.tag] as? [String : Any];
         //            self.aryFilterSubCategoriesData = selectedItem?["subcategory"] as? [Any] ?? [Any]();

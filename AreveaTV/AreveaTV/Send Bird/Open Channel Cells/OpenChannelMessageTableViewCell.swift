@@ -127,7 +127,7 @@ class OpenChannelMessageTableViewCell: UITableViewCell {
                     self.profileImageView.isHidden = false
                     self.userName.isHidden = true
                 }else{
-                    print("else:",profileUrl)
+                    //print("else:",profileUrl)
                     self.profileImageView.isHidden = true
                     self.userName.isHidden = false
                 }

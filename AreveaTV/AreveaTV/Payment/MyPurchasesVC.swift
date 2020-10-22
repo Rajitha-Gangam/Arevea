@@ -157,10 +157,10 @@ class MyPurchasesVC: UIViewController , UITableViewDelegate,UITableViewDataSourc
                       switch response.result {
                       case .success(let value):
                           if let json = value as? [String: Any] {
-                              print("myList JSON:",json)
+                              //print("myList JSON:",json)
                               if (json["statusCode"]as? String == "200" ){
                                 self.aryPaymentInfo = json["Data"] as? [[String: Any]] ?? [[String:Any]]()
-                                print("Mylist count:",self.aryPaymentInfo.count)
+                                //print("Mylist count:",self.aryPaymentInfo.count)
                                 self.tblView.reloadData()
                               }else{
                                   let strMsg = json["message"] as? String ?? ""

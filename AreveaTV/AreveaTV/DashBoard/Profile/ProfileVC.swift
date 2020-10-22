@@ -9,12 +9,16 @@
 import UIKit
 import AWSMobileClient
 import Alamofire
+import FlagPhoneNumber
 
 class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDelegate,UINavigationControllerDelegate,UIPickerViewDelegate, UIPickerViewDataSource {
     // MARK: - Variables Declaration
+    var listController: FPNCountryListViewController = FPNCountryListViewController(style: .grouped)
+    var repository: FPNCountryRepository = FPNCountryRepository()
+    var countryCode = "+1"
     @IBOutlet weak var txtFirstName: UITextField!
     @IBOutlet weak var txtLastName: UITextField!
-    @IBOutlet weak var txtPhone: UITextField!
+    @IBOutlet weak var txtPhone: FPNTextField!
     @IBOutlet weak var txtEmail: UITextField!
     @IBOutlet weak var txtDisplayName: UITextField!
     @IBOutlet weak var txtDOB: UITextField!
@@ -45,7 +49,7 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
     @IBOutlet weak var viewChangePWD: UIView!
     @IBOutlet weak var viewNoProfilePic: UIView!
     @IBOutlet weak var viewProfilePic: UIView!
-    
+    var isFlagLoad = false
     // MARK: - View Life cycle
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -76,7 +80,22 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
         viewProfilePic.isHidden = true
         viewNoProfilePic.isHidden = false
         
+        txtPhone.displayMode = .list
+        txtPhone.textColor = .white
+        txtPhone.delegate = self
+        //phoneNumberTextField.flagButtonSize = CGSize(width: 44, height: 44)
+
+        listController.setup(repository: txtPhone.countryRepository)
+        
+        listController.didSelect = { [weak self] country in
+            self?.txtPhone.setFlag(countryCode: country.code)
+        }
+
+
     }
+    @objc func dismissCountries() {
+           listController.dismiss(animated: true, completion: nil)
+       }
     override func viewDidAppear(_ animated: Bool) {
         //        scrollView.contentSize = CGSize(width: 320,height: 1000);
         //        scrollView.contentInset = UIEdgeInsets(top: 64.0,left: 0.0,bottom: 44.0,right: 0.0);
@@ -115,17 +134,17 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
         
         strFirstName = txtFirstName.text!.trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
         strLastName = txtLastName.text!.trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
-        strPhone = txtPhone.text!.trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
+        let phone = txtPhone.getRawPhoneNumber() ?? "0"// if its valid, number returns, else 0 assigning
         strDisplayName = txtDisplayName.text!.trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
         let dob = txtDOB.text!
-        
+        strPhone = countryCode + phone
         if (strFirstName.count == 0){
             showAlert(strMsg: "Please enter first name");
         }else if (strLastName.count == 0){
             showAlert(strMsg: "Please enter last name");
         }else if (strPhone.count == 0){
             showAlert(strMsg: "Please enter phone number");
-        }else if (strPhone.count != 12 && strPhone.count != 13){
+        }else if (phone == "0"){
             showAlert(strMsg: "Please enter valid phone number");
         }else if (strDisplayName.count == 0){
             showAlert(strMsg: "Please enter display name");
@@ -179,7 +198,7 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
         }
         
         let user_id = UserDefaults.standard.string(forKey: "user_id");
-        print("getProfile:",user_id)
+        //print("getProfile:",user_id)
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         let url: String = appDelegate.ol_base_url + "/api/2/users/" + user_id!
         viewActivity.isHidden = false
@@ -193,7 +212,7 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
                 switch response.result {
                 case .success(let value):
                     if let json = value as? [String: Any] {
-                        print("getProfile JSON:",json)
+                        //print("getProfile JSON:",json)
                         let user = json
                         let custom_attributes = json["custom_attributes"]as?[String: Any] ?? [:]
                         
@@ -201,9 +220,14 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
                         
                         self.txtFirstName.text = user["firstname"] as? String
                         self.txtLastName.text = user["lastname"]as? String
-                        self.txtPhone.text = user["phone"]as? String
+                        let phone1 = user["phone"]as? String ?? ""
+                        //print("==phone1:",phone1)
+                        self.isFlagLoad = true
+                        self.txtPhone.set(phoneNumber:phone1)
+                        self.isFlagLoad = false
+
                         self.txtDisplayName.text = custom_attributes["user_display_name"]as? String
-                        print("txtDIsplay:",self.txtDisplayName.text)
+                        //print("txtDIsplay:",self.txtDisplayName.text)
                         let dob = custom_attributes["date_of_birth"]as? String ?? ""
                         //self.txtDOB.text = dob;
                         
@@ -217,24 +241,24 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
                         
                         let todaysDate = Date()
                         let currentDate = dateFormatterYear.string(from: todaysDate);
-                        //print("currentDate:",currentDate)
-                        //print("pastdate:",pastdate)
+                        ////print("currentDate:",currentDate)
+                        ////print("pastdate:",pastdate)
                         guard let currentYear = Int(currentDate), let pastYear = Int(pastdate) else {
-                            //print("Some value is nil")
+                            ////print("Some value is nil")
                             return
                         }
                         let age = currentYear - pastYear
-                        print("age:",age)
+                        //print("age:",age)
                         
                         if (age > 17){
                             self.txtDOB.text = self.pickerData[2]
-                            //print("second:",self.pickerData[1])
+                            ////print("second:",self.pickerData[1])
                             self.selectedAgeIndex = 2
                             self.pickerView.selectRow(2, inComponent: 0, animated: true)
                         }
                         else if (age == 16 || age == 17 ){
                             self.txtDOB.text = self.pickerData[1]
-                            //print("second:",self.pickerData[1])
+                            ////print("second:",self.pickerData[1])
                             self.selectedAgeIndex = 1
                             self.pickerView.selectRow(1, inComponent: 0, animated: true)
                         }else{
@@ -251,7 +275,7 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
                         self.viewActivity.isHidden = true
                         
                         if let url = URL(string: strURL){
-                            print("url:",url)
+                            //print("url:",url)
                             self.imgProfilePic.sd_setImage(with: url, placeholderImage: UIImage(named: "user"))
                             self.isDeleteShow = true
                             self.viewProfilePic.isHidden = false
@@ -271,7 +295,7 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
     }
     func updateUser(inputData:[String: Any],strValue:String){
         let user_id = UserDefaults.standard.string(forKey: "user_id");
-        print("updateUser:",inputData)
+        //print("updateUser:",inputData)
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         let url: String = appDelegate.ol_base_url + "/api/2/users/" + user_id!
         viewActivity.isHidden = false
@@ -285,7 +309,7 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
                 switch response.result {
                 case .success(let value):
                     if let json = value as? [String: Any] {
-                        print("updateUser JSON:",json)
+                        //print("updateUser JSON:",json)
                         if (json["status"]as? Int == 1 ){
                             if(strValue == "set_profile"){
                                 self.showAlert(strMsg:"Profile updated successfully")
@@ -349,8 +373,8 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
             dateComponent.year = -18 // currentdate -18 years
         }
         let pastDate = Calendar.current.date(byAdding: dateComponent, to: currentDate)
-        //print("currentDate:",currentDate)
-        //print("pastDate:",pastDate!)
+        ////print("currentDate:",currentDate)
+        ////print("pastDate:",pastDate!)
         let dobPast = dateFormatter.string(from:pastDate!)
         strDOB = dobPast
         
@@ -372,7 +396,7 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
                 switch response.result {
                 case .success(let value):
                     if let json = value as? [String: Any] {
-                        print("setProfile JSON:",json)
+                        //print("setProfile JSON:",json)
                         if (json["status"]as? Int == 0  ){
                             let inputData: [String: Any] = ["firstname":self.strFirstName,"lastname":self.strLastName,"phone":self.strPhone,"custom_attributes":["date_of_birth":self.strDOB,"profile_pic":"","user_display_name":self.strDisplayName]]
                             self.updateUser(inputData: inputData,strValue: "set_profile")
@@ -410,7 +434,7 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
                 switch response.result {
                 case .success(let value):
                     if let json = value as? [String: Any] {
-                        print("sendOTP JSON:",json)
+                        //print("sendOTP JSON:",json)
                         if (json["status"]as? Int == 0 ){
                             //self.showAlert(strMsg: "Verification code sent via email")
                             let alert = UIAlertController(title: "Code sent",
@@ -457,7 +481,7 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
             }
             if let error = error {
                 self.showAlert(strMsg: "\(error)");
-                //print("\(error)")
+                ////print("\(error)")
                 return
             }
             if let forgotPasswordResult = forgotPasswordResult {
@@ -488,7 +512,7 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
                     break
                 }
             } else if let error = error {
-                print("Error occurred: \(error.localizedDescription)")
+                //print("Error occurred: \(error.localizedDescription)")
             }
         }
         
@@ -531,17 +555,6 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
         return true;
     }
     func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
-        if (textField == txtPhone){
-            let maxLength = 13
-            let currentString: NSString = textField.text! as NSString
-            let newString: NSString =
-                currentString.replacingCharacters(in: range, with: string) as NSString
-            if range.length>0  && range.location == 0 {
-                return false
-            }
-            
-            return newString.length <= maxLength
-        }
         return true;
     }
     // MARK: Keyboard  Delegate Methods
@@ -594,7 +607,7 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
                 self.present(self.imagePickerController, animated: true, completion: nil)
             }else
             {
-                //print("Camera is Not Available")
+                ////print("Camera is Not Available")
             }
         }))
         actionsheet.addAction(UIAlertAction(title: "Photo Library", style: .default, handler: { (action:UIAlertAction)in
@@ -616,7 +629,7 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
     
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         if let pickedImage = info[UIImagePickerController.InfoKey.originalImage] as? UIImage {
-            //print("didFinishPickingImage")
+            ////print("didFinishPickingImage")
             imgProfilePic.contentMode = .scaleAspectFill
             imgProfilePic.image = pickedImage
             updateProfilePic()
@@ -653,22 +666,22 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
             switch response.result {
             case .success(let value):
                 if let json = value as? [String: Any] {
-                    print("updateProfilePic JSON:",json)
+                    //print("updateProfilePic JSON:",json)
                     if (json["status"]as? Int == 0){
-                        //print(json["message"] ?? "")
+                        ////print(json["message"] ?? "")
                         let strURL = json["path"]as? String ?? ""
                         self.strProfilePicURL = strURL
                         let inputData: [String: Any] = ["custom_attributes":["profile_pic":self.strProfilePicURL]]
-                        print("self.strProfilePicURL:",self.strProfilePicURL)
+                        //print("self.strProfilePicURL:",self.strProfilePicURL)
                         self.updateUser(inputData: inputData,strValue: "set_profile_pic")
                     }else{
                         let strError = json["message"] as? String
-                        //print(strError ?? "")
+                        ////print(strError ?? "")
                         self.showAlert(strMsg: strError ?? "")
                     }
                 }
             case .failure(let error):
-                //print("error:",error)
+                ////print("error:",error)
                 let errorDesc = error.localizedDescription.replacingOccurrences(of: "URLSessionTask failed with error:", with: "")
                 self.showAlert(strMsg: errorDesc)
                 self.viewActivity.isHidden = true
@@ -712,7 +725,7 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
             switch response.result {
             case .success(let value):
                 if let json = value as? [String: Any] {
-                    print("updateProfilePic JSON:",json)
+                    //print("updateProfilePic JSON:",json)
                     if (json["status"]as? Int == 0){
                         let strURL = json["path"]as? String ?? ""
                         self.strProfilePicURL = strURL
@@ -720,12 +733,12 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
                         self.updateUser(inputData: inputData,strValue: "set_profile_pic")
                     }else{
                         let strError = json["message"] as? String
-                        //print(strError ?? "")
+                        ////print(strError ?? "")
                         self.showAlert(strMsg: strError ?? "")
                     }
                 }
             case .failure(let error):
-                //print("error:",error)
+                ////print("error:",error)
                 let errorDesc = error.localizedDescription.replacingOccurrences(of: "URLSessionTask failed with error:", with: "")
                 self.showAlert(strMsg: errorDesc)
                 self.viewActivity.isHidden = true
@@ -758,14 +771,14 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
         
         let url: String = appDelegate.profileURL +  "/deleteSelectedFile"
         viewActivity.isHidden = false
-        //print("getCategoryOrganisations input:",inputData)
+        ////print("getCategoryOrganisations input:",inputData)
         let session_token = UserDefaults.standard.string(forKey: "session_token") ?? ""
         
         //let headers: HTTPHeaders = ["access_token": session_token]
         let user_id = UserDefaults.standard.string(forKey: "user_id");
         //appDelegate.uploadURL/profile/1590754622840_profile_pic.png
         let profile_pic_name = self.strProfilePicURL.replacingOccurrences(of:appDelegate.uploadURL, with: "")//profile/1590754622840_profile_pic.png
-        //print("profile_pic_name:",profile_pic_name)
+        ////print("profile_pic_name:",profile_pic_name)
         let params: [String: Any] = ["delete_for":"profile_pic","image_name":profile_pic_name,"user_id":user_id ?? ""]
         let headers: HTTPHeaders
         headers = ["access_token": session_token]
@@ -776,14 +789,14 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
                 switch response.result {
                 case .success(let value):
                     if let json = value as? [String: Any] {
-                        //print("deleteSelectedFile json:",json)
+                        ////print("deleteSelectedFile json:",json)
                         if (json["status"]as? Int == 0){
                             let inputData: [String: Any] = ["custom_attributes":["profile_pic":""]]
                             self.updateUser(inputData: inputData,strValue: "delete_profile_pic")
                         }else{
                             //this one should hide later once API works
                             let strError = json["message"] as? String
-                            //print(strError ?? "")
+                            ////print(strError ?? "")
                             self.showAlert(strMsg: strError ?? "")
                             self.viewProfilePic.isHidden = false
                             self.viewNoProfilePic.isHidden = true
@@ -829,5 +842,40 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
     }
     override func viewWillAppear(_ animated: Bool) {
         AppDelegate.AppUtility.lockOrientation(.portrait)
+    }
+}
+extension ProfileVC: FPNTextFieldDelegate {
+    
+    func fpnDisplayCountryList() {
+        let navigationViewController = UINavigationController(rootViewController: listController)
+        
+        listController.navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .stop, target: self, action: #selector(dismissCountries))
+        listController.title = "Countries"
+
+        self.present(navigationViewController, animated: true, completion: nil)
+    }
+    
+    func fpnDidValidatePhoneNumber(textField: FPNTextField, isValid: Bool) {
+        textField.rightViewMode = .always
+        textField.rightView = UIImageView(image: isValid ? #imageLiteral(resourceName: "success") : #imageLiteral(resourceName: "error"))
+        
+        print(
+            isValid,
+            textField.getFormattedPhoneNumber(format: .E164) ?? "E164: nil",
+            textField.getFormattedPhoneNumber(format: .International) ?? "International: nil",
+            textField.getFormattedPhoneNumber(format: .National) ?? "National: nil",
+            textField.getFormattedPhoneNumber(format: .RFC3966) ?? "RFC3966: nil",
+            textField.getRawPhoneNumber() ?? "Raw: nil"
+        )
+    }
+    
+    func fpnDidSelectCountry(name: String, dialCode: String, code: String) {
+        if(isFlagLoad){
+            
+        }else{
+            txtPhone.text = ""
+        }
+        countryCode = dialCode
+        //print(name, dialCode, code)
     }
 }

@@ -27,7 +27,7 @@
         @IBOutlet weak var txtPassword: ACFloatingTextfield!
         @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
         @IBOutlet weak var viewActivity: UIView!
-        
+        var strFCMToken = ""
         // MARK: View Life Cycle Methods
         override func viewDidLoad() {
             super.viewDidLoad()
@@ -42,7 +42,6 @@
             addDoneButton()
             // dismissPickerView()
             //self.assignbackground();
-            
         }
         
         
@@ -57,6 +56,45 @@
         override func viewWillDisappear(_ animated: Bool) {
             appDelegate.emailPopulate = ""
         }
+            func createDeviceToken(){
+                print("===createDeviceToken")
+                let appDelegate = UIApplication.shared.delegate as! AppDelegate
+                let url: String = appDelegate.FCMBaseURL + "/createDeviceToken"
+                //print("getEvents input:",inputData)
+                //viewActivity.isHidden = false
+               let user_id = UserDefaults.standard.string(forKey: "user_id");
+                let inputData: [String: Any] = ["user_id":user_id,"device_token":appDelegate.strFCMToken]
+                print("inputData of createDeviceToken:",inputData)
+                let headers: HTTPHeaders
+                headers = [appDelegate.x_api_key: appDelegate.x_api_value]
+                AF.request(url, method: .post,parameters: inputData, encoding: JSONEncoding.default,headers:headers)
+                    .responseJSON { response in
+                        DispatchQueue.main.async {
+                            //self.viewActivity.isHidden = true
+                            switch response.result {
+                            case .success(let value):
+                                if let json = value as? [String: Any] {
+                                    print("createDeviceToken JSON:",json)
+                                    if (json["statusCode"]as? String == "200" ){
+                                        let arn  = json["data"] as? String ?? "";
+                                        print("arn:",arn)
+                                        UserDefaults.standard.set(arn, forKey: "arn")
+                                    }else{
+                                        
+                                    }
+                                    //self.tblMain.reloadSections([1], with: .none)
+                                    // self.tblMain.reloadData()
+                                }
+                            case .failure(let error):
+                                let errorDesc = error.localizedDescription.replacingOccurrences(of: "URLSessionTask failed with error:", with: "")
+                                //print("getEvents errorDesc:",errorDesc)
+        //                        self.showAlert(strMsg: errorDesc)
+        //                        self.viewActivity.isHidden = true
+                                
+                            }
+                        }
+                }
+            }
         @IBAction func resignKB(_ sender: Any) {
             txtUserName.resignFirstResponder();
             txtPassword.resignFirstResponder();
@@ -136,10 +174,10 @@
                     switch response.result {
                     case .success(let value):
                         if let json = value as? [String: Any] {
-                            print("OLLogin JSON:",json)
+                            //print("OLLogin JSON:",json)
                             if(json["status"] as? Int == 0){
                                 let user = json["user"] as? [String:Any] ?? [:]
-                                print("user:",user)
+                                //print("user:",user)
                                 let custom_attributes = user["custom_attributes"] as? [String:Any] ?? [:]
                                 
                                 if (custom_attributes["is_user_verify"] as? String == "0"){
@@ -154,25 +192,25 @@
                                      self.getUser();
                                      }*/
                                     let userID = user["id"]as? String ?? ""
-                                    print("====userId:",userID)
+                                    //print("====userId:",userID)
                                     UserDefaults.standard.set(userID, forKey: "user_id")
                                     
                                     UserDefaults.standard.set(user["id"], forKey: "user_id")
                                     UserDefaults.standard.set(user["user_type"], forKey: "user_type")
                                     UserDefaults.standard.set(user["session_token"], forKey: "session_token")
-                                    let fn = user["user_first_name"] as? String
-                                    let ln = user["user_last_name"]as? String
-                                    let displayName = user["user_display_name"]as? String
+                                    let fn = user["user_first_name"] as? String ?? ""
+                                    let ln = user["user_last_name"]as? String ?? ""
+                                    let displayName = user["user_display_name"]as? String ?? ""
                                     
-                                    let strName = String((fn?.first ?? "A")) + String((ln?.first ?? "B"))
+                                    let strName = String((fn.first ?? "A")) + String((ln.first ?? "B"))
                                     self.appDelegate.USER_NAME = strName;
                                     self.appDelegate.USER_NAME_FULL = (fn ?? "") + " " + (ln ?? "")
-                                    self.appDelegate.USER_DISPLAY_NAME = displayName!
+                                    self.appDelegate.USER_DISPLAY_NAME = displayName
                                     
                                     UserDefaults.standard.set(self.appDelegate.USER_NAME, forKey: "USER_NAME")
                                     UserDefaults.standard.set(self.appDelegate.USER_NAME_FULL, forKey: "USER_NAME_FULL")
                                     UserDefaults.standard.set(displayName, forKey: "user_display_name")
-                                    
+                                    self.createDeviceToken()
                                     self.sendBirdConnect()
                                     
                                 }
@@ -191,6 +229,7 @@
                     }
             }
         }
+        
         @IBAction func signUp(_ sender: Any) {
             let netAvailable = appDelegate.isConnectedToInternet()
             if(!netAvailable){
@@ -213,10 +252,10 @@
             self.navigationController?.pushViewController(vc, animated: true)
         }
         
-        
         // MARK: Text Field Delegate Methods
         
         func textFieldDidBeginEditing(_ textField: UITextField) {
+            
         }
         func textFieldDidEndEditing(_ textField: UITextField) {
             textField.resignFirstResponder();
@@ -246,7 +285,7 @@
                     switch response.result {
                     case .success(let value):
                         if let json = value as? [String: Any] {
-                            print("logoutOL json:",json)
+                            //print("logoutOL json:",json)
                             let status = json["status"] as? [String:Any] ?? [:]
                             if(status["code"] as? Int == 200){
                                 self.logoutLambda()
@@ -280,7 +319,7 @@
                     switch response.result {
                     case .success(let value):
                         if let json = value as? [String: Any] {
-                            print("logoutLambda JSON:",json)
+                            //print("logoutLambda JSON:",json)
                             if (json["statusCode"]as? String == "200" ){
                                 UserDefaults.standard.set("0", forKey: "user_id")
                             }else{
@@ -301,7 +340,7 @@
         
         // MARK: Handler for events(events) API
         func getUserById(inputData:[String: Any]){
-            print("getUserById:",inputData)
+            //print("getUserById:",inputData)
             let appDelegate = UIApplication.shared.delegate as! AppDelegate
             let url: String = appDelegate.ol_lambda_url +  "/getUserById"
             viewActivity.isHidden = false
@@ -313,7 +352,7 @@
                     switch response.result {
                     case .success(let value):
                         if let json = value as? [String: Any] {
-                            print("getUserById JSON:",json)
+                            //print("getUserById JSON:",json)
                             if (json["status"]as? Int == 0 ){
                                 let user = json["user"] as? [String: Any] ?? [:]
                                 UserDefaults.standard.set(user["id"], forKey: "user_id")
@@ -368,7 +407,7 @@
                     //                    }
                     self.sendBirdConnect()
                 }
-                //print("sendBirdConnect disconnect")
+                ////print("sendBirdConnect disconnect")
             }
             else {
                 viewActivity.isHidden = false
@@ -393,7 +432,7 @@
                     
                     DispatchQueue.main.async {
                         // self.setUIsForDefault()
-                        //print("Logged In With SendBird Successfully")
+                        ////print("Logged In With SendBird Successfully")
                         let storyboard = UIStoryboard(name: "Main", bundle: nil);
                         let vc = storyboard.instantiateViewController(withIdentifier: "DashBoardVC") as! DashBoardVC
                         self.navigationController?.pushViewController(vc, animated: true)
@@ -404,6 +443,6 @@
     }
     extension LoginVC: AWSSignInDelegate {
         func onLogin(signInProvider: AWSSignInProvider, result: Any?, error: Error?) {
-            //print(result)
+            ////print(result)
         }
     }

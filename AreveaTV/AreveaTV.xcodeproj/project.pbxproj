@@ -10,6 +10,7 @@
 		180A78C82464243A0013AB0B /* ConnectionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 180A78C72464243A0013AB0B /* ConnectionManager.swift */; };
 		180A8BDB24AF74500022FFE4 /* ButtonsCVC-iPad.xib in Resources */ = {isa = PBXBuildFile; fileRef = 180A8BDA24AF74500022FFE4 /* ButtonsCVC-iPad.xib */; };
 		180A8BDD24AF92340022FFE4 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 180A8BDC24AF92340022FFE4 /* Images.xcassets */; };
+		180E003B253F404B00DDFD2D /* payload.apns in Resources */ = {isa = PBXBuildFile; fileRef = 180E003A253F404A00DDFD2D /* payload.apns */; };
 		181026872514B72F00D5CC93 /* mcs-chat.png in Resources */ = {isa = PBXBuildFile; fileRef = 181026802514B72600D5CC93 /* mcs-chat.png */; };
 		181026882514B72F00D5CC93 /* mcs-donations.png in Resources */ = {isa = PBXBuildFile; fileRef = 181026812514B72800D5CC93 /* mcs-donations.png */; };
 		181026892514B72F00D5CC93 /* mcs-info-icon.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 181026822514B72900D5CC93 /* mcs-info-icon.jpg */; };
@@ -18,6 +19,10 @@
 		1810268C2514B72F00D5CC93 /* mcs-custom-emoji.png in Resources */ = {isa = PBXBuildFile; fileRef = 181026852514B72E00D5CC93 /* mcs-custom-emoji.png */; };
 		1810268D2514B72F00D5CC93 /* mcs-tips.png in Resources */ = {isa = PBXBuildFile; fileRef = 181026862514B72F00D5CC93 /* mcs-tips.png */; };
 		1810E6F624C84BCA003EAF91 /* StreamDetailVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1810E6F524C84BCA003EAF91 /* StreamDetailVC.swift */; };
+		18122C9D252B0CCC00C28926 /* MultiStreamGuestsCVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18122C9B252B0CCC00C28926 /* MultiStreamGuestsCVC.swift */; };
+		18122C9E252B0CCC00C28926 /* MultiStreamGuestsCVC.xib in Resources */ = {isa = PBXBuildFile; fileRef = 18122C9C252B0CCC00C28926 /* MultiStreamGuestsCVC.xib */; };
+		18122CA1252B0E0A00C28926 /* MultiStreamGuestsCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18122C9F252B0E0A00C28926 /* MultiStreamGuestsCell.swift */; };
+		18122CA2252B0E0A00C28926 /* MultiStreamGuestsCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 18122CA0252B0E0A00C28926 /* MultiStreamGuestsCell.xib */; };
 		1822F8A324CF266E009E8E1A /* MyPurchasesVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1822F8A224CF266E009E8E1A /* MyPurchasesVC.swift */; };
 		1822F8A824D03364009E8E1A /* MyEventsCVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1822F8A624D03364009E8E1A /* MyEventsCVC.swift */; };
 		1822F8A924D03364009E8E1A /* MyEventsCVC.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1822F8A724D03364009E8E1A /* MyEventsCVC.xib */; };
@@ -127,7 +132,7 @@
 		18EB81CC244ACC5B008EB09A /* NewPasswordVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18EB81CA244ACC5B008EB09A /* NewPasswordVC.swift */; };
 		18EB81CE244ACC86008EB09A /* DashBoardVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18EB81CD244ACC86008EB09A /* DashBoardVC.swift */; };
 		18EB81DE244B4341008EB09A /* awsconfiguration.json in Resources */ = {isa = PBXBuildFile; fileRef = 18EB81DD244B4340008EB09A /* awsconfiguration.json */; };
-		18FE073C24D1CFB90011FDE3 /* SubscribeTwoStreams.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18FE073B24D1CFB90011FDE3 /* SubscribeTwoStreams.swift */; };
+		18FE073C24D1CFB90011FDE3 /* MultiStreamVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18FE073B24D1CFB90011FDE3 /* MultiStreamVC.swift */; };
 		C8D0A372F8CE8663D84930A1 /* Pods_AreveaTV.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9290EFE9F47E13554D29A225 /* Pods_AreveaTV.framework */; };
 /* End PBXBuildFile section */
 
@@ -135,6 +140,7 @@
 		180A78C72464243A0013AB0B /* ConnectionManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConnectionManager.swift; sourceTree = "<group>"; };
 		180A8BDA24AF74500022FFE4 /* ButtonsCVC-iPad.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = "ButtonsCVC-iPad.xib"; sourceTree = "<group>"; };
 		180A8BDC24AF92340022FFE4 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
+		180E003A253F404A00DDFD2D /* payload.apns */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = payload.apns; sourceTree = "<group>"; };
 		181026802514B72600D5CC93 /* mcs-chat.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "mcs-chat.png"; sourceTree = "<group>"; };
 		181026812514B72800D5CC93 /* mcs-donations.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "mcs-donations.png"; sourceTree = "<group>"; };
 		181026822514B72900D5CC93 /* mcs-info-icon.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "mcs-info-icon.jpg"; sourceTree = "<group>"; };
@@ -143,6 +149,10 @@
 		181026852514B72E00D5CC93 /* mcs-custom-emoji.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "mcs-custom-emoji.png"; sourceTree = "<group>"; };
 		181026862514B72F00D5CC93 /* mcs-tips.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "mcs-tips.png"; sourceTree = "<group>"; };
 		1810E6F524C84BCA003EAF91 /* StreamDetailVC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StreamDetailVC.swift; sourceTree = "<group>"; };
+		18122C9B252B0CCC00C28926 /* MultiStreamGuestsCVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultiStreamGuestsCVC.swift; sourceTree = "<group>"; };
+		18122C9C252B0CCC00C28926 /* MultiStreamGuestsCVC.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MultiStreamGuestsCVC.xib; sourceTree = "<group>"; };
+		18122C9F252B0E0A00C28926 /* MultiStreamGuestsCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultiStreamGuestsCell.swift; sourceTree = "<group>"; };
+		18122CA0252B0E0A00C28926 /* MultiStreamGuestsCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MultiStreamGuestsCell.xib; sourceTree = "<group>"; };
 		1822F8A224CF266E009E8E1A /* MyPurchasesVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyPurchasesVC.swift; sourceTree = "<group>"; };
 		1822F8A624D03364009E8E1A /* MyEventsCVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyEventsCVC.swift; sourceTree = "<group>"; };
 		1822F8A724D03364009E8E1A /* MyEventsCVC.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MyEventsCVC.xib; sourceTree = "<group>"; };
@@ -230,6 +240,7 @@
 		18D480C52454552200640C1A /* ProfileVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileVC.swift; sourceTree = "<group>"; };
 		18D4AA2224F56D5C005B0FD4 /* TestVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestVC.swift; sourceTree = "<group>"; };
 		18D4AA2424F5713B005B0FD4 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
+		18D53FE7253D87C30099CA40 /* AreveaTV.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; path = AreveaTV.entitlements; sourceTree = "<group>"; };
 		18DA10CE2455F8D400E5C9EB /* DBCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DBCollectionViewCell.swift; sourceTree = "<group>"; };
 		18DA10CF2455F8D400E5C9EB /* DBCollectionViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = DBCollectionViewCell.xib; sourceTree = "<group>"; };
 		18DAF975248FA98000A6693A /* CheckMarkCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckMarkCell.swift; sourceTree = "<group>"; };
@@ -257,7 +268,7 @@
 		18EB81CA244ACC5B008EB09A /* NewPasswordVC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NewPasswordVC.swift; sourceTree = "<group>"; };
 		18EB81CD244ACC86008EB09A /* DashBoardVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashBoardVC.swift; sourceTree = "<group>"; };
 		18EB81DD244B4340008EB09A /* awsconfiguration.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = awsconfiguration.json; sourceTree = "<group>"; };
-		18FE073B24D1CFB90011FDE3 /* SubscribeTwoStreams.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubscribeTwoStreams.swift; sourceTree = "<group>"; };
+		18FE073B24D1CFB90011FDE3 /* MultiStreamVC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MultiStreamVC.swift; sourceTree = "<group>"; };
 		783C47A52DE81D11826FBA5C /* Pods-AreveaTV.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AreveaTV.release.xcconfig"; path = "Target Support Files/Pods-AreveaTV/Pods-AreveaTV.release.xcconfig"; sourceTree = "<group>"; };
 		9290EFE9F47E13554D29A225 /* Pods_AreveaTV.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_AreveaTV.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		A548ED8DA0ABEB1FF1BF009E /* Pods-AreveaTV.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AreveaTV.debug.xcconfig"; path = "Target Support Files/Pods-AreveaTV/Pods-AreveaTV.debug.xcconfig"; sourceTree = "<group>"; };
@@ -313,6 +324,15 @@
 				181026862514B72F00D5CC93 /* mcs-tips.png */,
 			);
 			path = stream;
+			sourceTree = "<group>";
+		};
+		18122C98252B0C5800C28926 /* MultiStreamGuests */ = {
+			isa = PBXGroup;
+			children = (
+				18122C9F252B0E0A00C28926 /* MultiStreamGuestsCell.swift */,
+				18122CA0252B0E0A00C28926 /* MultiStreamGuestsCell.xib */,
+			);
+			path = MultiStreamGuests;
 			sourceTree = "<group>";
 		};
 		1822FED324F9619300AE57EA /* TextFieldFlaoting */ = {
@@ -395,6 +415,8 @@
 		1891CA61244AC82B00EE1E45 /* AreveaTV */ = {
 			isa = PBXGroup;
 			children = (
+				18D53FE7253D87C30099CA40 /* AreveaTV.entitlements */,
+				180E003A253F404A00DDFD2D /* payload.apns */,
 				1822FED324F9619300AE57EA /* TextFieldFlaoting */,
 				1869F50A24659CC3003153B1 /* Send Bird */,
 				189EBF4A245B382E00C52B0E /* Cusom Cells */,
@@ -469,6 +491,8 @@
 				18DAF9A3248FDE8300A6693A /* DBSearchCVC.xib */,
 				1822F8A624D03364009E8E1A /* MyEventsCVC.swift */,
 				1822F8A724D03364009E8E1A /* MyEventsCVC.xib */,
+				18122C9B252B0CCC00C28926 /* MultiStreamGuestsCVC.swift */,
+				18122C9C252B0CCC00C28926 /* MultiStreamGuestsCVC.xib */,
 			);
 			path = "Collection View Cells";
 			sourceTree = "<group>";
@@ -485,6 +509,7 @@
 		189EBF4B245B385700C52B0E /* TableView Cells */ = {
 			isa = PBXGroup;
 			children = (
+				18122C98252B0C5800C28926 /* MultiStreamGuests */,
 				1860DFBA24D40B8800ACB899 /* MyEventsCell */,
 				184A0B502472CBEA006EDDA3 /* Payment History Cell */,
 				182A5F02246166B700FF6147 /* CharityCell */,
@@ -539,7 +564,7 @@
 				18D480AC24519DA300640C1A /* R5options.plist */,
 				18D4805E244EDDA200640C1A /* BaseTest.swift */,
 				18D480A924519D1100640C1A /* SubscribeTest.swift */,
-				18FE073B24D1CFB90011FDE3 /* SubscribeTwoStreams.swift */,
+				18FE073B24D1CFB90011FDE3 /* MultiStreamVC.swift */,
 			);
 			path = "Stream Classes";
 			sourceTree = "<group>";
@@ -788,6 +813,7 @@
 				18DAF98F248FBA1D00A6693A /* sr_music.png in Resources */,
 				1826035D24D2A7CC00248E8B /* Poppins-Medium.ttf in Resources */,
 				1860DFBE24D40BA900ACB899 /* MyEventsCell.xib in Resources */,
+				18122CA2252B0E0A00C28926 /* MultiStreamGuestsCell.xib in Resources */,
 				1810268A2514B72F00D5CC93 /* mcs-share.png in Resources */,
 				189E325024DAAF8700E63674 /* Default-Portrait-750h@2x.png in Resources */,
 				18D2717D24A382A400F958BC /* search.png in Resources */,
@@ -824,11 +850,13 @@
 				189E324F24DAAF8700E63674 /* Default-Portrait-2436h@3x.png in Resources */,
 				1826035C24D2A7CC00248E8B /* Poppins-SemiBold.ttf in Resources */,
 				189EBED7245752B800C52B0E /* AudioCell.xib in Resources */,
+				18122C9E252B0CCC00C28926 /* MultiStreamGuestsCVC.xib in Resources */,
 				18DAF98E248FBA1D00A6693A /* sr_entertainment.png in Resources */,
 				180A8BDD24AF92340022FFE4 /* Images.xcassets in Resources */,
 				182A5EF8245F057800FF6147 /* FilterCVCell.xib in Resources */,
 				18EB81DE244B4341008EB09A /* awsconfiguration.json in Resources */,
 				182A5F06246166D700FF6147 /* CharityCell.xib in Resources */,
+				180E003B253F404B00DDFD2D /* payload.apns in Resources */,
 				1826035E24D2A7CC00248E8B /* Poppins-Bold.ttf in Resources */,
 				1826035A24D2A7CC00248E8B /* Poppins-Light.ttf in Resources */,
 				1810268B2514B72F00D5CC93 /* mcs-emoji.png in Resources */,
@@ -942,13 +970,14 @@
 				184B86D324D302C8003F4D3D /* OpenChannelMessageTableViewCell.swift in Sources */,
 				189EBED6245752B800C52B0E /* AudioCell.swift in Sources */,
 				18EB81CB244ACC5B008EB09A /* ResetPasswordVC.swift in Sources */,
-				18FE073C24D1CFB90011FDE3 /* SubscribeTwoStreams.swift in Sources */,
+				18FE073C24D1CFB90011FDE3 /* MultiStreamVC.swift in Sources */,
 				188B0EA5248E8F7A0062EB1D /* VideoEditor.swift in Sources */,
 				18D48060244EDDA300640C1A /* BaseTest.swift in Sources */,
 				18D4AA2324F56D5C005B0FD4 /* TestVC.swift in Sources */,
 				1864AFCD2454A999004F3AED /* ChannelDetailVC.swift in Sources */,
 				184A0B532472CC20006EDDA3 /* PaymentHistoryCell.swift in Sources */,
 				189EBF44245ACD3400C52B0E /* FilterCell.swift in Sources */,
+				18122C9D252B0CCC00C28926 /* MultiStreamGuestsCVC.swift in Sources */,
 				187D7B14246D615C0041D5AA /* AreveaAPIClient.swift in Sources */,
 				1891CA63244AC82B00EE1E45 /* AppDelegate.swift in Sources */,
 				18EB81C4244ACC40008EB09A /* LoginVC.swift in Sources */,
@@ -961,6 +990,7 @@
 				18D480A724509F7700640C1A /* SideMenuCell.swift in Sources */,
 				1860DFBD24D40BA900ACB899 /* MyEventsCell.swift in Sources */,
 				18D48069244EDF9800640C1A /* Testbed.swift in Sources */,
+				18122CA1252B0E0A00C28926 /* MultiStreamGuestsCell.swift in Sources */,
 				184A0B4F2472CA9E006EDDA3 /* PaymentHistoryVC.swift in Sources */,
 				182A5EF3245C59C700FF6147 /* StickyHeadersCollectionViewFlowLayout.swift in Sources */,
 				180A78C82464243A0013AB0B /* ConnectionManager.swift in Sources */,
@@ -1113,11 +1143,12 @@
 			baseConfigurationReference = A548ED8DA0ABEB1FF1BF009E /* Pods-AreveaTV.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = AreveaTV/AreveaTV.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 1.35;
+				CURRENT_PROJECT_VERSION = 1.41;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = M6U48XKJMW;
+				DEVELOPMENT_TEAM = J7XKYVP7J4;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",
@@ -1129,9 +1160,9 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1;
-				PRODUCT_BUNDLE_IDENTIFIER = com.techvedika.arevea;
+				PRODUCT_BUNDLE_IDENTIFIER = com.prod.arevea;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "Arevea Development";
+				PROVISIONING_PROFILE_SPECIFIER = "Arevea Development New";
 				SWIFT_OBJC_BRIDGING_HEADER = "AreveaTV-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
@@ -1143,10 +1174,11 @@
 			baseConfigurationReference = 783C47A52DE81D11826FBA5C /* Pods-AreveaTV.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = AreveaTV/AreveaTV.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 1.35;
-				DEVELOPMENT_TEAM = M6U48XKJMW;
+				CURRENT_PROJECT_VERSION = 1.41;
+				DEVELOPMENT_TEAM = J7XKYVP7J4;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",
@@ -1158,9 +1190,9 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1;
-				PRODUCT_BUNDLE_IDENTIFIER = com.techvedika.arevea;
+				PRODUCT_BUNDLE_IDENTIFIER = com.prod.arevea;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "Arevea Development";
+				PROVISIONING_PROFILE_SPECIFIER = "Arevea Development New";
 				SWIFT_OBJC_BRIDGING_HEADER = "AreveaTV-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;

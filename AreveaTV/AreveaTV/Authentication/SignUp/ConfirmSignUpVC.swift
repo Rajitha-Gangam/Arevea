@@ -70,7 +70,7 @@ class ConfirmSignUpVC: UIViewController,UITextFieldDelegate {
                }
         
         guard let username = self.username else {
-            //print("No username")
+            ////print("No username")
             return
         }
         let inputData = ["email": username,"type": "email_verification"]
@@ -89,7 +89,7 @@ class ConfirmSignUpVC: UIViewController,UITextFieldDelegate {
                 switch response.result {
                 case .success(let value):
                     if let json = value as? [String: Any] {
-                        print("sendOTP JSON:",json)
+                        //print("sendOTP JSON:",json)
                         if (json["status"]as? Int == 0 ){
                             self.showAlert(strMsg: "Verification code sent via email")
                         }else{
@@ -109,7 +109,7 @@ class ConfirmSignUpVC: UIViewController,UITextFieldDelegate {
     
     // MARK: Handler for events(events) API
     func verifyOTP(inputData:[String: Any]){
-        print("verifyOTP:",inputData)
+        //print("verifyOTP:",inputData)
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         let url: String = appDelegate.ol_lambda_url +  "/verifyOTP"
         viewActivity.isHidden = false
@@ -121,7 +121,7 @@ class ConfirmSignUpVC: UIViewController,UITextFieldDelegate {
                 switch response.result {
                 case .success(let value):
                     if let json = value as? [String: Any] {
-                        print("verifyOTP JSON:",json)
+                        //print("verifyOTP JSON:",json)
                         let msg = json["message"] as? String ?? ""
                         if (json["status"]as? Int == 1 && msg.lowercased() == "wrong otp"){
                             let strMsg = json["message"] as? String ?? ""
@@ -129,7 +129,7 @@ class ConfirmSignUpVC: UIViewController,UITextFieldDelegate {
                         }
                        else{
                             let userID = json["user_id"]as? String ?? ""
-                            print("userID1:",userID)
+                            //print("userID1:",userID)
                             self.updateUser(userId: userID)
                         }
                        
@@ -145,7 +145,7 @@ class ConfirmSignUpVC: UIViewController,UITextFieldDelegate {
     
     // MARK: Handler for events(events) API
     func updateUser(userId: String){
-        print("updateUser:",userId)
+        //print("updateUser:",userId)
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
                    let url: String = appDelegate.ol_base_url + "/api/2/users/" + userId
         let inputData = ["custom_attributes":["is_user_verify":1]]
@@ -160,7 +160,7 @@ class ConfirmSignUpVC: UIViewController,UITextFieldDelegate {
                            switch response.result {
                            case .success(let value):
                                if let json = value as? [String: Any] {
-                                   print("updateUser JSON:",json)
+                                   //print("updateUser JSON:",json)
                                    if (json["status"]as? Int == 1 ){
                                        let strMsg = "Verified successfully"
                                        let alert = UIAlertController(title: "Alert",
@@ -200,7 +200,7 @@ class ConfirmSignUpVC: UIViewController,UITextFieldDelegate {
         }else{
             guard let verificationCode = txtCode.text,
                 let username = self.username else {
-                    //print("No username")
+                    ////print("No username")
                     return
             }
             let inputData = ["email": username,"type": "email_verification","otp":verificationCode]

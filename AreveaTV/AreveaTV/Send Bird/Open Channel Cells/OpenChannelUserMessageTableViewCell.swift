@@ -42,8 +42,8 @@ class OpenChannelUserMessageTableViewCell: OpenChannelMessageTableViewCell {
     }
     
     func showElementsForFailure() {
-        self.resendButtonContainerView.isHidden = false
-        self.resendButton.isEnabled = true
+        //self.resendButtonContainerView.isHidden = false
+        //self.resendButton.isEnabled = true
         self.sendingFailureContainerView.isHidden = false
         //self.messageContainerViewBottomMargin.constant = OpenChannelUserMessageTableViewCell.kMessageContainerViewBottomMarginNormal
     }

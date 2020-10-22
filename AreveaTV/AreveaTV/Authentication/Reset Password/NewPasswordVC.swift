@@ -89,7 +89,7 @@ class NewPasswordVC: UIViewController ,UITextFieldDelegate{
     }
     // MARK: Handler for events(events) API
     func verifyOTP(inputData:[String: Any]){
-        print("verifyOTP:",inputData)
+        //print("verifyOTP:",inputData)
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         let url: String = appDelegate.ol_lambda_url +  "/verifyOTP"
         viewActivity.isHidden = false
@@ -101,12 +101,12 @@ class NewPasswordVC: UIViewController ,UITextFieldDelegate{
                 switch response.result {
                 case .success(let value):
                     if let json = value as? [String: Any] {
-                        print("verifyOTP JSON:",json)
+                        //print("verifyOTP JSON:",json)
                         if (json["status"]as? Int == 0 ){
                             let user_id = json["user_id"]
                             if (user_id != nil){
                                 let userID = json["user_id"]as? String ?? ""
-                                print("userID1:",userID)
+                                //print("userID1:",userID)
                                 self.updatePWD(userId: userID)
                             }
                             
@@ -128,7 +128,7 @@ class NewPasswordVC: UIViewController ,UITextFieldDelegate{
     }
     // MARK: Handler for events(events) API
     func updatePWD(userId: String){
-        print("updatePWD:",userId)
+        //print("updatePWD:",userId)
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         let url: String = appDelegate.ol_base_url + "/api/1/users/set_password_clear_text/" + userId
         let inputData = ["password":txtPwd.text!,"password_confirmation":txtPwd.text!,"validate_policy":false] as [String : Any]
@@ -143,7 +143,7 @@ class NewPasswordVC: UIViewController ,UITextFieldDelegate{
                 switch response.result {
                 case .success(let value):
                     if let json = value as? [String: Any] {
-                        print("updateUser JSON:",json)
+                        //print("updateUser JSON:",json)
                         let status = json["status"]  as? [String: Any] ?? [:]
                         if (status["error"]as? Int == 0 ){
                             let strMsg = "Password changed successfully"
@@ -216,7 +216,7 @@ class NewPasswordVC: UIViewController ,UITextFieldDelegate{
                 switch response.result {
                 case .success(let value):
                     if let json = value as? [String: Any] {
-                        print("logoutOL json:",json)
+                        //print("logoutOL json:",json)
                         let status = json["status"] as? [String:Any] ?? [:]
                         if(status["code"] as? Int == 200){
                             self.logoutLambda()
@@ -250,7 +250,7 @@ class NewPasswordVC: UIViewController ,UITextFieldDelegate{
                 switch response.result {
                 case .success(let value):
                     if let json = value as? [String: Any] {
-                        print("logoutLambda JSON:",json)
+                        //print("logoutLambda JSON:",json)
                         if (json["statusCode"]as? String == "200" ){
                             UserDefaults.standard.set("0", forKey: "user_id")
                             self.showLoginVC()

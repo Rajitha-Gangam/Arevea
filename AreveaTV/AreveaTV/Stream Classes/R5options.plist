@@ -65,7 +65,7 @@
 			<key>name</key>
 			<string>Subscribe - Two Streams</string>
 			<key>class</key>
-			<string>SubscribeTwoStreams</string>
+			<string>MultiStreamVC</string>
 		</dict>
 	</dict>
 </dict>

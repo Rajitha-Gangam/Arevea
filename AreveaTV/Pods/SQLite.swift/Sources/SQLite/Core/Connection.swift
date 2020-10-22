@@ -413,7 +413,7 @@ public final class Connection {
     /// - Parameter callback: This block is invoked when a statement is executed
     ///   with the compiled SQL as its argument.
     ///
-    ///       db.trace { SQL in print(SQL) }
+    ///       db.trace { SQL in //print(SQL) }
     public func trace(_ callback: ((String) -> Void)?) {
         #if SQLITE_SWIFT_SQLCIPHER || os(Linux)
             trace_v1(callback)

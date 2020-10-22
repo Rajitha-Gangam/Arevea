@@ -70,7 +70,7 @@
             fatalError("Unable to Dequeue Reusable Supplementary View")
         }
         func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-           // //print("---rows count:",self.rowWithItems.count)
+           // ////print("---rows count:",self.rowWithItems.count)
             return self.rowWithItems.count
         }
         
@@ -100,11 +100,11 @@
         }
         func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
             _ = collectionView.cellForItem(at: indexPath) as? DBCollectionViewCell
-            //print("I'm tapping the \(indexPath.item)")
+            ////print("I'm tapping the \(indexPath.item)")
             
         }
         @objc func categoryPress(_ sender: UIButton) {
-           // //print("tag:",sender.tag)
+           // ////print("tag:",sender.tag)
             if (self.aryFilterCategoriesData.count > sender.tag){
                 let selectedItem = self.aryFilterCategoriesData[sender.tag] as? [String : Any];
                 self.aryFilterSubCategoriesData = selectedItem?["subcategory"] as? [Any] ?? [Any]();

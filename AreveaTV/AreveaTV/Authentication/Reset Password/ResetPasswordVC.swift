@@ -74,7 +74,7 @@ class ResetPasswordVC: UIViewController ,UITextFieldDelegate{
     // MARK: Handler for events(events) API
        func sendOTP(inputData:[String: Any]){
         guard let username = txtEmail.text else {
-            //print("No username")
+            ////print("No username")
             return
         }
         
@@ -89,7 +89,7 @@ class ResetPasswordVC: UIViewController ,UITextFieldDelegate{
                    switch response.result {
                    case .success(let value):
                        if let json = value as? [String: Any] {
-                           print("sendOTP JSON:",json)
+                           //print("sendOTP JSON:",json)
                            if (json["status"]as? Int == 0 ){
                                //self.showAlert(strMsg: "Verification code sent via email")
                             let alert = UIAlertController(title: "Code sent",
@@ -137,7 +137,7 @@ class ResetPasswordVC: UIViewController ,UITextFieldDelegate{
         }else{
             //forgotPWDCognito()
             guard let username = txtEmail.text else {
-                //print("No username")
+                ////print("No username")
                 return
             }
             let inputData = ["email": username,"type": "forgot_password"]

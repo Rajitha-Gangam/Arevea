@@ -172,7 +172,7 @@ class PaymentHistoryVC: UIViewController, UITableViewDelegate,UITableViewDataSou
                 }
                 
             }
-            print("selectedFilters:",selectedFilters)
+            //print("selectedFilters:",selectedFilters)
         }
         
     }
@@ -197,7 +197,7 @@ class PaymentHistoryVC: UIViewController, UITableViewDelegate,UITableViewDataSou
             let predicate = NSPredicate(format:"donation_mode == %@", donation_mode)
             //let filteredArray = aryPaymentInfo1.filtered(using: predicate)
             aryFilterData = (self.aryPaymentInfo as NSArray).filtered(using: predicate) as! [[String:Any]]
-            print("aryFilterData:",aryFilterData)
+            //print("aryFilterData:",aryFilterData)
         }else{
             isFilter = false
         }
@@ -237,7 +237,7 @@ class PaymentHistoryVC: UIViewController, UITableViewDelegate,UITableViewDataSou
                       switch response.result {
                       case .success(let value):
                           if let json = value as? [String: Any] {
-                              print("userDonations JSON:",json)
+                              //print("userDonations JSON:",json)
                               if (json["statusCode"]as? String == "200" ){
                                 let paymentData = json["Data"] as? [[String: Any]] ?? [[String:Any]]()
                                 self.aryPaymentInfo = paymentData
