@@ -35,14 +35,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate,CLLocationManagerDelegate 
     let deviceToken = ""
     var strFCMToken = ""
     // MARK: - Dev Environmet Variables Declaration
-     /*var baseURL = "https://dev-apis.arevea.tv";
-     var websiteURL = "https://dev.arevea.tv"
+     var baseURL = "https://dev1-apis.arevea.com";
+     var websiteURL = "https://dev1.arevea.com"
      var sendBirdAppId = "AE94EB49-0A01-43BF-96B4-8297EBB47F12";
-     var profileURL = "https://dev.arevea.tv/api/user/v1";
-     var uploadURL = "https://dev-uploads.arevea.tv/dev"//need to test in dev
-     var shareURL = "https://dev.arevea.tv/channel";
-     var paymentBaseURL = "https://dev.arevea.tv/api/payment/v1";
-     var paymentRedirectionURL = "https://dev.arevea.tv/payment";
+     var profileURL = "https://dev1.arevea.com/api/user/v1";
+     var uploadURL = "https://dev1-uploads.arevea.com/dev"//need to test in dev
+     var shareURL = "https://dev1.arevea.com/channel";
+     var paymentBaseURL = "https://dev1.arevea.com/api/payment/v1";
+     var paymentRedirectionURL = "https://dev1.arevea.com/payment";
      var cloudSearchURL = "https://r5ibd3yzp7.execute-api.us-west-2.amazonaws.com/devel/search";
      var x_api_key = "x-api-key"
      var x_api_value = "ORnphwUvEBoqHaoIDBIA2GOhYF0HHQ53JPkLwFM5";
@@ -54,14 +54,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate,CLLocationManagerDelegate 
      var ol_client_id = "4e42c39db6ada915afaf60448254cd10033604c982128c55d1548e218b983279"
      var ol_client_secret = "67795bdcf01b42caeb145988f7e64bd71d00191e2abab99dc7e43bf86da3e50c"
      var ol_access_token = ""
-     var ol_lambda_url = "https://dev-apis.arevea.tv"
+     var ol_lambda_url = "https://dev1-apis.arevea.com"
      var FCMBaseURL = "https://r5ibd3yzp7.execute-api.us-west-2.amazonaws.com/devel"
-*/
+
     
     //Dev Variables END
     
     // MARK: - QA Environmet Variables Declaration
-    var baseURL = "https://qa-apis.arevea.tv"
+    /*var baseURL = "https://qa-apis.arevea.tv"
     var websiteURL = "https://qa.arevea.tv"
     var sendBirdAppId = "7AF38850-F099-4C47-BD19-F7F84DAFECF8";
     var profileURL = "https://qa.arevea.tv/api/user/v1"
@@ -82,7 +82,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate,CLLocationManagerDelegate 
     var ol_access_token = ""
     var ol_lambda_url = "https://qa-apis.arevea.tv"
     var FCMBaseURL = "https://eku2g4rzxl.execute-api.us-west-2.amazonaws.com/dev"
-
+*/
     //QA Variables END
     
     // MARK: - Pre-prod Environmet Variables Declaration

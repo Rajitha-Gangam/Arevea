@@ -66,7 +66,7 @@ class SplashVC: UIViewController {
                 switch response.result {
                 case .success(let value):
                     if let json = value as? [String: Any] {
-                        //print("getToken JSON:",json)
+                        print("getToken JSON:",json)
                         self.appDelegate.ol_access_token = json["access_token"] as? String ?? ""
                         UserDefaults.standard.set(self.appDelegate.ol_access_token, forKey: "ol_access_token")
                         if(self.isLoad){
