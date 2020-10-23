@@ -2579,9 +2579,10 @@ class MultiStreamVC: UIViewController , R5StreamDelegate, UITableViewDelegate,UI
         let user_id = UserDefaults.standard.string(forKey: "user_id");
         let streamInfo = "stream_metrics/" + self.streamVideoCode + "/" + String(self.streamId)
         let session_start_time = self.startSessionResponse["session_start_time"] as? String ?? ""
+        let idData = self.startSessionResponse["data"] as? String ?? ""
         let arn = UserDefaults.standard.string(forKey: "arn");
-
-        let params: [String: Any] = ["id":user_id ?? "","image_for": streamInfo,"session_start_time":session_start_time,"is_final":"true","event_id": String(self.streamId),"is_mobile":true,"subscription_arn":arn ?? ""]
+        
+        let params: [String: Any] = ["id":idData,"image_for": streamInfo,"session_start_time":session_start_time,"is_final":"true","event_id": String(self.streamId),"is_mobile":true,"subscription_arn":arn ?? ""]
         print("endSession multi params:",params)
 
         let session_token = UserDefaults.standard.string(forKey: "session_token") ?? ""
@@ -2597,7 +2598,7 @@ class MultiStreamVC: UIViewController , R5StreamDelegate, UITableViewDelegate,UI
                 switch response.result {
                 case .success(let value):
                     if let json = value as? [String: Any] {
-                        //print("startSession JSON:",json)
+                        //print("endSession JSON:",json)
                         if (json["statusCode"]as? String == "200" ){
                            
                         }else{
