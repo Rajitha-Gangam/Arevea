@@ -13,7 +13,7 @@
 		<key>host</key>
 		<string>livestream.arevea.tv</string>
 		<key>buffer_time</key>
-		<real>0.5</real>
+		<integer>2</integer>
 		<key>port</key>
 		<real>8554</real>
 		<key>stream1</key>

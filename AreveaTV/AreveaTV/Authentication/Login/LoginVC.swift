@@ -63,7 +63,7 @@
                 //print("getEvents input:",inputData)
                 //viewActivity.isHidden = false
                let user_id = UserDefaults.standard.string(forKey: "user_id");
-                let inputData: [String: Any] = ["user_id":user_id,"device_token":appDelegate.strFCMToken]
+                let inputData: [String: Any] = ["user_id":user_id ?? "","device_token":appDelegate.strFCMToken]
                 print("inputData of createDeviceToken:",inputData)
                 let headers: HTTPHeaders
                 headers = [appDelegate.x_api_key: appDelegate.x_api_value]
@@ -440,6 +440,28 @@
                 }
             }
         }
+        @IBAction func loginWithGoogle(_ sender: Any) {
+            print("loginWithGoogle")
+            let storyboard = UIStoryboard(name: "Main", bundle: nil);
+            let vc = storyboard.instantiateViewController(withIdentifier: "FBLoginVC") as! FBLoginVC
+            vc.strSocialMedia = "google"
+            self.navigationController?.pushViewController(vc, animated: true)
+        }
+        @IBAction func loginWithFB(_ sender: Any) {
+            print("loginWithFB")
+            let storyboard = UIStoryboard(name: "Main", bundle: nil);
+            let vc = storyboard.instantiateViewController(withIdentifier: "FBLoginVC") as! FBLoginVC
+            vc.strSocialMedia = "fb"
+            self.navigationController?.pushViewController(vc, animated: true)
+        }
+        @IBAction func loginWithLinkedIn(_ sender: Any) {
+            print("loginWithLinkedIn")
+            let storyboard = UIStoryboard(name: "Main", bundle: nil);
+            let vc = storyboard.instantiateViewController(withIdentifier: "FBLoginVC") as! FBLoginVC
+            vc.strSocialMedia = "linkedin"
+            self.navigationController?.pushViewController(vc, animated: true)
+        }
+        
     }
     extension LoginVC: AWSSignInDelegate {
         func onLogin(signInProvider: AWSSignInProvider, result: Any?, error: Error?) {

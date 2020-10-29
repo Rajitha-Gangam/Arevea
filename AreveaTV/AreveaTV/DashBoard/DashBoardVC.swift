@@ -644,6 +644,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
                 hideSideMenu()
                 let storyboard = UIStoryboard(name: "Main", bundle: nil);
                 let vc = storyboard.instantiateViewController(withIdentifier: "ProfileVC") as! ProfileVC
+                vc.isCameFrom = "db"
                 self.navigationController?.pushViewController(vc, animated: true)
             case "my payments":
                 hideSideMenu()

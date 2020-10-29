@@ -15,9 +15,9 @@ import UIKit
 import AVKit
 import FirebaseCore
 import Alamofire
-import Firebase
+import FirebaseMessaging
 import UserNotifications
-
+import Firebase
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate,CLLocationManagerDelegate {
     // MARK: - Variables Declaration
@@ -174,7 +174,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate,CLLocationManagerDelegate 
         self.window?.makeKeyAndVisible()
         // Use Firebase library to configure APIs
         FirebaseApp.configure()
-        Messaging.messaging().delegate = self
+       Messaging.messaging().delegate = self
         
         //SBDMain.initWithApplicationId("9308C3B1-A36D-47E2-BA3C-8F6F362C35AF")
         SBDMain.initWithApplicationId(sendBirdAppId)

@@ -36,7 +36,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
     @IBOutlet weak var lblAmount: UILabel!
     @IBOutlet weak var lblDate: UILabel!
     @IBOutlet weak var lblTime: UILabel!
-
+    
     @IBOutlet weak var webView: WKWebView!
     var txtTopOfToolBar : UITextField!
     var r5ViewController : BaseTest? = nil
@@ -161,6 +161,8 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
     var saleStarts = false
     var checkSale = false
     var saleCompleted = false
+    var timer : Timer?
+
     // MARK: - View Life cycle
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -258,7 +260,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
         }
         lblNetStatus.isHidden = true
         self.viewActions?.isHidden = true
-
+        
     }
     func delayWithSeconds(_ seconds: Double, completion: @escaping () -> ()) {
         DispatchQueue.main.asyncAfter(deadline: .now() + seconds) {
@@ -280,8 +282,8 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                     self.configureStreamView();//need to refresh stream
                     
                     delayWithSeconds(10.0){
-                     self.lblNetStatus.isHidden = true
-                     }
+                        self.lblNetStatus.isHidden = true
+                    }
                 }
             }else{
                 if(isNetConnected){
@@ -380,7 +382,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                     self.lblNoDataComments.text = "Channel is not available, Please try again later."
                 default:
                     self.lblNoDataComments.text = "Channel is not available, Please try again later."
-                    //              showAlert(strMsg: "\(self.sbdError)")
+                //              showAlert(strMsg: "\(self.sbdError)")
                 }
                 // return
                 self.messages.removeAll()
@@ -471,6 +473,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                 ////print("value: \(value)")
                 
                 if (value == "started"){
+                    self.lblStreamUnavailable.text = ""
                     viewActivity.isHidden = true
                     isStreamStarted = true
                     btnPlayStream.isHidden = true;
@@ -480,30 +483,40 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                     self.webView.loadHTMLString(htmlString, baseURL: nil)
                     self.webView.isHidden = false
                     self.viewOverlay?.isHidden = true// controls not working
-                    
                     self.viewLiveStream.bringSubviewToFront(self.webView)
-                    
+                    if (self.timer != nil)
+                    {
+                        self.timer!.invalidate()
+                        self.timer = nil
+                    }
                     startSession()
                 }else if(value == "stopped"){
                     // lblStreamUnavailable.text = "publisher has unpublished/paused video. Please try again later."
-                    self.lblStreamUnavailable.text = "The stream has ended."
+                    /*self.lblStreamUnavailable.text = "The stream has ended."
                     self.viewLiveStream.bringSubviewToFront(lblStreamUnavailable)
                     btnPlayStream.setImage(UIImage.init(named: "refresh"), for: .normal)
                     btnPlayStream.isHidden = false;
                     //unload Webview
                     self.webView.loadHTMLString("", baseURL: nil)
-                    self.webView.isHidden = true
-                    isStreamStarted = false
-                    endSession()
+                    self.webView.isHidden = true*/
+                    self.viewLiveStream.bringSubviewToFront(lblStreamUnavailable)
+                    self.repeatMethod()
+                    self.timer = Timer.scheduledTimer(timeInterval: 15.0, target: self, selector: #selector(self.repeatMethod), userInfo: nil, repeats: true)
+                    
+                    //isStreamStarted = false
+                    //endSession()
                 }else if(value == "not_available"){
                     viewActivity.isHidden = true
                     if (viewLiveStream.isHidden == false){
-                        lblStreamUnavailable.text = "Video streaming is currently unavailable. Please try again later."
-                        btnPlayStream.setImage(UIImage.init(named: "refresh"), for: .normal)
-                        btnPlayStream.isHidden = false;
-                        
+                        if(isStreamStarted){
+                            lblStreamUnavailable.text = "We are working on the issue. We will be back shortly."
+                            btnPlayStream.isHidden = true;
+                        }else{
+                            lblStreamUnavailable.text = "Video streaming is currently unavailable. Please try again later."
+                            btnPlayStream.setImage(UIImage.init(named: "refresh"), for: .normal)
+                            btnPlayStream.isHidden = false;
+                        }
                         //self.viewOverlay?.isHidden = true// controls not working
-                        
                     }
                 }
             }
@@ -660,6 +673,11 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
             self.stopVideo()
             if(self.isStreamStarted){
                 self.endSession()
+            }
+            if (self.timer != nil)
+            {
+                self.timer!.invalidate()
+                self.timer = nil
             }
             AppDelegate.AppUtility.lockOrientation(.portrait)
             self.navigationController?.popViewController(animated: true)
@@ -862,7 +880,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
             
             if self.messages[indexPath.row] is SBDAdminMessage {
                 if let adminMessage = self.messages[indexPath.row] as? SBDAdminMessage,
-                    let adminMessageCell = tableView.dequeueReusableCell(withIdentifier: "OpenChannelUserMessageTableViewCell") as? OpenChannelUserMessageTableViewCell {
+                   let adminMessageCell = tableView.dequeueReusableCell(withIdentifier: "OpenChannelUserMessageTableViewCell") as? OpenChannelUserMessageTableViewCell {
                     adminMessageCell.setMessage(adminMessage)
                     adminMessageCell.delegate = self
                     //adminMessageCell.profileImageView
@@ -876,7 +894,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
             else if self.messages[indexPath.row] is SBDUserMessage {
                 let userMessage = self.messages[indexPath.row] as! SBDUserMessage
                 if let userMessageCell = tableView.dequeueReusableCell(withIdentifier: "OpenChannelUserMessageTableViewCell") as? OpenChannelUserMessageTableViewCell,
-                    let sender = userMessage.sender {
+                   let sender = userMessage.sender {
                     userMessageCell.setMessage(userMessage)
                     userMessageCell.delegate = self
                     
@@ -1171,7 +1189,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                     self.viewActivity.isHidden = true
                     
                 }
-        }
+            }
     }
     // MARK: Handler for getCategoryOrganisations API
     func registerEvent(){
@@ -1238,21 +1256,91 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                     self.viewActivity.isHidden = true
                     
                 }
-        }
+            }
     }
+    //this will be called when stream has ended due to tab close or any error occured
+    @objc func repeatMethod(){
+        print("====repeatMethod")
+        LiveEventByIdStatus()
+    }
+    func LiveEventByIdStatus(){
+        // let params: [String: Any] = ["userid":user_id ?? "","performer_id":"101","stream_id": "0"]
+        let url: String = appDelegate.baseURL +  "/LiveEventById"
+        let user_id = UserDefaults.standard.string(forKey: "user_id");
+        var streamIdLocal = "0"
+        if (streamId != 0){
+            streamIdLocal = String(streamId)
+        }
+        let headers: HTTPHeaders
+        headers = [appDelegate.x_api_key: appDelegate.x_api_value]
+        
+        let params: [String: Any] = ["userid":user_id ?? "","performer_id":performerId,"stream_id": streamIdLocal]
+        print("liveEvents params:",params)
+        
+        AF.request(url, method: .post,parameters: params, encoding: JSONEncoding.default,headers:headers)
+            .responseJSON { [self] response in
+                switch response.result {
+                case .success(let value):
+                    if let json = value as? [String: Any] {
+                        //print("startSession JSON:",json)
+                        if (json["statusCode"]as? String == "200" ){
+                            let data = json["Data"] as? [String:Any]
+                            let aryStreamInfo = data?["stream_info"] as? [String:Any] ?? [:]
+                            let stream_info_key_exists = aryStreamInfo["id"]
+                            if (stream_info_key_exists != nil){
+                                let streamObj = aryStreamInfo
+                                let stream_status = streamObj["stream_status"] as? String ?? ""
+                                if(stream_status == "completed"){
+                                    self.lblStreamUnavailable.text = "The stream has ended."
+                                    if (self.timer != nil)
+                                    {
+                                        self.timer!.invalidate()
+                                        self.timer = nil
+                                    }
+                                    closeStream()
+                                    self.endSession()
+                                    AppDelegate.AppUtility.lockOrientation(.portrait)
+                                    self.navigationController?.popViewController(animated: true)
+                                }else{
+                                    r5ViewController?.closeTest()
+                                    self.viewLiveStream.isHidden = false;
+                                    self.btnPayPerView.isHidden = true
+                                    self.lblStreamUnavailable.text = "We are working on the issue. We will be back shortly."
+                                    self.viewActions?.isHidden = true
+                                    self.LiveEventById()
+                                }
+                            }
+                        }else{
+                            let strMsg = json["message"] as? String ?? ""
+                            //self.showAlert(strMsg: strMsg)
+                        }
+                        
+                    }
+                case .failure(let error):
+                    let errorDesc = error.localizedDescription.replacingOccurrences(of: "URLSessionTask failed with error:", with: "")
+                    //self.showAlert(strMsg: errorDesc)
+                    self.viewActivity.isHidden = true
+                    
+                }
+            }
+    }
+    
     func LiveEventById() {
         /*viewVOD.isHidden = false
          viewLiveStream.isHidden = true
          lblAmount.text = ""
          self.showVideo(strURL: "http://demo.unified-streaming.com/video/tears-of-steel/tears-of-steel.ism/.m3u8");
          return*/
-        
-        let netAvailable = appDelegate.isConnectedToInternet()
-        if(!netAvailable){
-            showAlert(strMsg: "Please check your internet connection!")
-            return
+        if(isStreamStarted){
+            viewActivity.isHidden = true
+        }else{
+            viewActivity.isHidden = false
+            let netAvailable = appDelegate.isConnectedToInternet()
+            if(!netAvailable){
+                showAlert(strMsg: "Please check your internet connection!")
+                return
+            }
         }
-        viewActivity.isHidden = false
         self.btnPlayStream.isUserInteractionEnabled = true
         
         let url: String = appDelegate.baseURL +  "/LiveEventById"
@@ -1355,7 +1443,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                                         //print("timeFull:",timeFull)
                                         //print("dateFull:",dateFull)
                                         self.lblDate.text = dateFull
-                                       //self.lblTime.text = timeFull
+                                        //self.lblTime.text = timeFull
                                     }
                                 }
                                 let stream_amounts = streamObj["stream_amounts"] as? String ?? "";
@@ -1430,12 +1518,12 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                                     }
                                     print("==currency_type:",currency_type)
                                     print("==subCurrencyType:",subCurrencyType)
-
+                                    
                                     if(subCurrencyType == "USD"){
                                         let firstValue = USDPrice[0]
                                         let lastValue = USDPrice[USDPrice.count - 1];
                                         let amountDisplay = "$" + firstValue + " - " + "$" + lastValue;
-                                       // //print("====amount in Dollars:",amountDisplay)
+                                        // //print("====amount in Dollars:",amountDisplay)
                                         self.lblAmount.text = amountDisplay
                                         if(firstValue == lastValue){
                                             self.amountWithCurrencyType = "$" + firstValue
@@ -1446,7 +1534,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                                         let firstValue = GBPPrice[0]
                                         let lastValue = GBPPrice[GBPPrice.count - 1];
                                         let amountDisplay = "£" + firstValue + " - " + "£" + lastValue;
-                                       // //print("====amount in Euros:",amountDisplay)
+                                        // //print("====amount in Euros:",amountDisplay)
                                         self.lblAmount.text = amountDisplay
                                         if(firstValue == lastValue){
                                             self.amountWithCurrencyType = "£" + firstValue
@@ -1455,8 +1543,8 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                                         }
                                         
                                     }
-                                   // //print("===eventStartDates:",eventStartDates)
-                                   // //print("===eventEndDates:",eventEndDates)
+                                    // //print("===eventStartDates:",eventStartDates)
+                                    // //print("===eventEndDates:",eventEndDates)
                                     
                                     if(eventStartDates.count > 0 && eventEndDates.count > 0){
                                         let currentDate = Date()
@@ -1481,13 +1569,13 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                                             //print("==saleStarts")
                                             self.saleStarts = true;
                                         }
-                                            //today >= start date && today <= end date
+                                        //today >= start date && today <= end date
                                         else if(today! >= startDate && today! <= endDate)
                                         {
                                             //print("==checkSale")
                                             self.checkSale = true;
                                         }
-                                            //If today is > endDate
+                                        //If today is > endDate
                                         else if(today! > endDate)
                                         {
                                             //print("==saleCompleted")
@@ -1561,7 +1649,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                                     self.lblAmount.isHidden = true
                                     self.lblDate.isHidden = true
                                     self.lblTime.isHidden = true
-
+                                    
                                     if (stream_info_key_exists != nil){
                                         let streamObj = self.aryStreamInfo
                                         if (streamObj["stream_vod"]as? String == "stream" && self.isVOD == false && self.isAudio == false){
@@ -1592,7 +1680,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                                                 self.btnPayPerView.isHidden = true
                                                 self.lblStreamUnavailable.text = "Sale is completed!"
                                                 self.viewActions?.isHidden = true
-
+                                                
                                             }
                                             if(!self.checkSale && !self.saleStarts && !self.saleCompleted && self.streamPaymentMode == "free"){
                                                 self.setLiveStreamConfig()
@@ -1729,7 +1817,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                     self.viewActivity.isHidden = true
                     
                 }
-        }
+            }
     }
     
     
@@ -1741,7 +1829,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
             showAlert(strMsg: "Please check your internet connection!")
         }
         self.viewActions?.isHidden = false
-
+        
         let session_token = UserDefaults.standard.string(forKey: "session_token");
         let user_email = UserDefaults.standard.string(forKey: "user_email");
         
@@ -1804,7 +1892,9 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
             vc.streamId = self.streamId
             self.navigationController?.pushViewController(vc, animated: false)
         }else{
-            viewActivity.isHidden = false
+            if(!isStreamStarted){
+                viewActivity.isHidden = false
+            }
             _ = Testbed.sharedInstance
             self.detailStreamItem = Testbed.testAtIndex(index: 0)
             if(self.detailStreamItem != nil){
@@ -2076,7 +2166,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                 showAlert(strMsg: "Channel is not available, Please try again later.")
             default:
                 showAlert(strMsg: "Channel is not available, Please try again later.")
-                //              showAlert(strMsg: "\(self.sbdError)")
+            //              showAlert(strMsg: "\(self.sbdError)")
             }
             return
         }
@@ -2158,7 +2248,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                 showAlert(strMsg: "Channel is not available, Please try again later.")
             default:
                 showAlert(strMsg: "Channel is not available, Please try again later.")
-                //showAlert(strMsg: "\(self.sbdError_emoji)")
+            //showAlert(strMsg: "\(self.sbdError_emoji)")
             }
             return
         }
@@ -2587,7 +2677,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                                         //print("timeFull:",timeFull)
                                         //print("dateFull:",dateFull)
                                         self.lblDate.text = dateFull
-                                       //self.lblTime.text = timeFull
+                                        //self.lblTime.text = timeFull
                                     }
                                 }
                                 
@@ -2665,7 +2755,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                                         let firstValue = USDPrice[0]
                                         let lastValue = USDPrice[USDPrice.count - 1];
                                         let amountDisplay = "$" + firstValue + " - " + "$" + lastValue;
-                                       // //print("====amount in Dollars:",amountDisplay)
+                                        // //print("====amount in Dollars:",amountDisplay)
                                         self.lblAmount.text = amountDisplay
                                         if(firstValue == lastValue){
                                             self.amountWithCurrencyType = "$" + firstValue
@@ -2676,7 +2766,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                                         let firstValue = GBPPrice[0]
                                         let lastValue = GBPPrice[GBPPrice.count - 1];
                                         let amountDisplay = "£" + firstValue + " - " + "£" + lastValue;
-                                       // //print("====amount in Euros:",amountDisplay)
+                                        // //print("====amount in Euros:",amountDisplay)
                                         self.lblAmount.text = amountDisplay
                                         if(firstValue == lastValue){
                                             self.amountWithCurrencyType = "£" + firstValue
@@ -2684,8 +2774,8 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                                             self.amountWithCurrencyType = "£" + firstValue + " - " + "£" + lastValue;
                                         }
                                     }
-                                   // //print("===eventStartDates:",eventStartDates)
-                                   // //print("===eventEndDates:",eventEndDates)
+                                    // //print("===eventStartDates:",eventStartDates)
+                                    // //print("===eventEndDates:",eventEndDates)
                                 }
                             }
                             let user_subscription_info = data?["user_subscription_info"] != nil
@@ -2699,18 +2789,18 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                                 self.lblAmount.text = ""//Free
                             }
                             if (self.age_limit <= user_age_limit || self.age_limit == 0){
-                            if (self.aryUserSubscriptionInfo.count == 0 && self.isVOD){
+                                if (self.aryUserSubscriptionInfo.count == 0 && self.isVOD){
                                     //if user does not pay amount
                                     self.btnPayPerView.isHidden = false
                                     self.viewVOD.isHidden = false
                                     self.isChannelAvailable = false
                                     self.viewActions?.isHidden = true
                                 }else{
-                                self.viewActions?.isHidden = false
+                                    self.viewActions?.isHidden = false
                                     self.btnPayPerView.isHidden = true
-                                                                   self.lblAmount.isHidden = true
-                                                                   self.lblDate.isHidden = true
-                                                                   self.lblTime.isHidden = true
+                                    self.lblAmount.isHidden = true
+                                    self.lblDate.isHidden = true
+                                    self.lblTime.isHidden = true
                                     if (stream_info_key_exists != nil){
                                         let streamObj = self.aryStreamInfo
                                         self.lblVODUnavailable.text = ""
@@ -2759,7 +2849,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                                                 self.showVideo(strURL:videoUrl)
                                             }else{
                                                 self.showVideo(strURL: self.strAudioSource)
-
+                                                
                                             }
                                         }
                                     }
@@ -2835,7 +2925,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                     self.showAlert(strMsg: errorDesc)
                     self.viewActivity.isHidden = true
                 }
-        }
+            }
     }
     func saveToJsonFile() {
         // Get the url of Persons.json in document directory
@@ -2870,7 +2960,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                                          "performer_id" : performerId,
                                          "filekey": "stream_metrics/" + streamVideoCode + "/"]
         print("startSession single params:",inputData)
-
+        
         let session_token = UserDefaults.standard.string(forKey: "session_token") ?? ""
         let headers : HTTPHeaders = [
             "Content-Type": "application/json",
@@ -2900,7 +2990,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                     self.viewActivity.isHidden = true
                     
                 }
-        }
+            }
     }
     
     
@@ -2913,7 +3003,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
         let user_id = UserDefaults.standard.string(forKey: "user_id");
         let streamInfo = "stream_metrics/" + self.streamVideoCode + "/" + String(self.streamId)
         let session_start_time = self.startSessionResponse["session_start_time"] as? String ?? ""
-
+        
         let params: [String: Any] = ["id":user_id ?? "","image_for": streamInfo,"session_start_time":session_start_time,"is_final":"true","event_id": String(self.streamId)]
         print("endSession single params:",params)
         let session_token = UserDefaults.standard.string(forKey: "session_token") ?? ""
@@ -2931,7 +3021,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                     if let json = value as? [String: Any] {
                         //print("startSession JSON:",json)
                         if (json["statusCode"]as? String == "200" ){
-                           
+                            
                         }else{
                             let strMsg = json["message"] as? String ?? ""
                             self.showAlert(strMsg: strMsg)
@@ -2944,7 +3034,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                     self.viewActivity.isHidden = true
                     
                 }
-        }
+            }
     }
     func endSession1(){
         let netAvailable = appDelegate.isConnectedToInternet()
@@ -2982,14 +3072,10 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                     
                 case .failure(let error):
                     let errorDesc = error.localizedDescription.replacingOccurrences(of: "URLSessionTask failed with error:", with: "")
-                    
-                    
-                    
                     self.showAlert(strMsg: errorDesc)
                     self.viewActivity.isHidden = true
-                    
                 }
-        }
+            }
     }
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated);

@@ -22,6 +22,7 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
     @IBOutlet weak var txtEmail: UITextField!
     @IBOutlet weak var txtDisplayName: UITextField!
     @IBOutlet weak var txtDOB: UITextField!
+    var isCameFrom = ""
     var strFirstName = ""
     var strLastName = ""
     var strPhone = ""
@@ -107,7 +108,12 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
     }
     
     @IBAction func back(_ sender: Any) {
-        self.navigationController?.popViewController(animated: true)
+        if(isCameFrom == "db"){
+            self.navigationController?.popViewController(animated: true)
+        }else{
+            updateProfile(self)
+            //self.navigationController?.popViewController(animated: true)
+        }
     }
     @IBAction func cancel(_ sender: Any) {
         self.navigationController?.popViewController(animated: true)
@@ -131,7 +137,6 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
             showAlert(strMsg: "Please check your internet connection!")
             return
         }
-        
         strFirstName = txtFirstName.text!.trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
         strLastName = txtLastName.text!.trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
         let phone = txtPhone.getRawPhoneNumber() ?? "0"// if its valid, number returns, else 0 assigning
@@ -212,7 +217,7 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
                 switch response.result {
                 case .success(let value):
                     if let json = value as? [String: Any] {
-                        //print("getProfile JSON:",json)
+                        print("getProfile JSON:",json)
                         let user = json
                         let custom_attributes = json["custom_attributes"]as?[String: Any] ?? [:]
                         
@@ -304,7 +309,7 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
             "Accept": "application/json"
         ]
         AF.request(url, method: .put,parameters: inputData, encoding: JSONEncoding.default,headers:headers)
-            .responseJSON { response in
+            .responseJSON { [self] response in
                 self.viewActivity.isHidden = true
                 switch response.result {
                 case .success(let value):
@@ -321,7 +326,13 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
                                 self.appDelegate.USER_DISPLAY_NAME = self.txtDisplayName.text!
                                 UserDefaults.standard.set(self.appDelegate.USER_NAME, forKey: "USER_NAME")
                                 UserDefaults.standard.set(self.appDelegate.USER_NAME_FULL, forKey: "USER_NAME_FULL")
-                                self.navigationController?.popViewController(animated: true);
+                                if(self.isCameFrom == "db"){
+                                    self.navigationController?.popViewController(animated: true);
+                                }else{
+                                    let storyboard = UIStoryboard(name: "Main", bundle: nil);
+                                    let vc = storyboard.instantiateViewController(withIdentifier: "DashBoardVC") as! DashBoardVC
+                                    self.navigationController?.pushViewController(vc, animated: true)
+                                }
                             }else if(strValue == "set_profile_pic"){
                                 self.showAlert(strMsg:"Profile picture updated successfully")
                                 UserDefaults.standard.set("false", forKey: "is_profile_pic_loaded_left_menu")

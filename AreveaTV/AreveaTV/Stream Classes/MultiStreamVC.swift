@@ -721,7 +721,7 @@ class MultiStreamVC: UIViewController , R5StreamDelegate, UITableViewDelegate,UI
         }*/
     }
     func getGuestDetailInGraphql(_ cachePolicy: CachePolicy,showLoader:Bool) {
-        //print("====streamVideoCode:",streamVideoCode)
+        print("====streamVideoCode:",streamVideoCode)
         if(showLoader){
             viewActivity.isHidden = false
         }
@@ -737,9 +737,9 @@ class MultiStreamVC: UIViewController , R5StreamDelegate, UITableViewDelegate,UI
                 return
             }
             
-            // //print("--result:",result)
+            print("--result:",result)
             if((result != nil)  && (result?.data != nil)){
-                // //print("--data:",result?.data)
+                print("--data:",result?.data)
                 let data = result?.data
                 let multiData = data?.getMulticreatorshareddata
                 if(multiData != nil){
