@@ -848,6 +848,8 @@ extension Array where Element : Equatable  {
 }
 extension Notification.Name {
     static let didReceiveStreamData = Notification.Name("didReceiveStreamData")
+    static let didReceiveScreenShareData = Notification.Name("didReceiveScreenShareData")
+
     static let StreamOrienationChange = Notification.Name("StreamOrienationChange")
     
 }

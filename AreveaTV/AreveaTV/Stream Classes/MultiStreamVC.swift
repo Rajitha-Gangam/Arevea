@@ -349,6 +349,10 @@ class MultiStreamVC: UIViewController , R5StreamDelegate, UITableViewDelegate,UI
         //viewArrows.isHidden = true
         NotificationCenter.default.addObserver(self, selector: #selector(self.ReceivedPN(notification:)),
         name: Notification.Name("PushNotification"), object: nil)
+        collectionView.isHidden = true
+        webView.isUserInteractionEnabled = false
+        self.webView.backgroundColor = .clear
+        self.webView.isOpaque = false
 
     }
     @objc func ReceivedPN(notification: NSNotification){
@@ -970,8 +974,8 @@ class MultiStreamVC: UIViewController , R5StreamDelegate, UITableViewDelegate,UI
             let url = "https://" + host  + "/streammanager/api/" + version + "/event/" +
                 context + "/" + streamName + "?action=subscribe&region=" + appDelegate.strRegionCode;
             
-            //print("url:",url)
-            //let url = "https://livestream.arevea.tv/streammanager/api/4.0/event/live/1588788669277_somethingnew?action=subscribe"
+            print("url:",url)
+            //let url = "https:// livestream.arevea.com/streammanager/api/4.0/event/live/1588788669277_somethingnew?action=subscribe"
             ////print("findStream url:",url)
             //let stream = "1588832196500_taylorswiftevent"
             
@@ -980,7 +984,7 @@ class MultiStreamVC: UIViewController , R5StreamDelegate, UITableViewDelegate,UI
                     switch response.result {
                     case .success(let value):
                         DispatchQueue.main.async {
-                            ////print(value)
+                            print(value)
                         }
                         if let json = value as? [String: Any] {
                             if json["errorMessage"] != nil{
@@ -1016,6 +1020,7 @@ class MultiStreamVC: UIViewController , R5StreamDelegate, UITableViewDelegate,UI
                                  }else if(index == 3){
                                  self.lblNoStream4.text = ""
                                  }*/
+                                collectionView.isHidden = false
                                 let serverAddress = json["serverAddress"] as? String ?? ""
                                 //print("serverAddress:",serverAddress)
                                 self.lblLive.isHidden = false
@@ -1047,14 +1052,13 @@ class MultiStreamVC: UIViewController , R5StreamDelegate, UITableViewDelegate,UI
                         self.lblStreamUnavailable.text = "Please wait for the host to start the live stream."
                         self.btnPlayStream.isHidden = false
                         viewControls?.isHidden = true
-                        
+                        self.collectionView.isHidden = true
                         if (self.timer != nil)
                         {
                             //print("stoptimer executed")
                             self.timer!.invalidate()
                             self.timer = nil
                         }
-                        
                     }
             }
         
@@ -1069,7 +1073,7 @@ class MultiStreamVC: UIViewController , R5StreamDelegate, UITableViewDelegate,UI
         let userName = Testbed.getParameter(param: "username") as! String
         let password = Testbed.getParameter(param: "password") as! String
         config.parameters = "username=" + userName + ";password=" + password + ";"
-        config.host = url;//"livestream.arevea.tv";
+        config.host = url;//" livestream.arevea.com";
         config.port = Int32(Testbed.getParameter(param: "port") as! Int);
         config.contextName = (Testbed.getParameter(param: "context") as! String)
         config.`protocol` = Int32(r5_rtsp.rawValue);
@@ -2505,16 +2509,20 @@ class MultiStreamVC: UIViewController , R5StreamDelegate, UITableViewDelegate,UI
         selectedCreatorForTip = row
     }
     func addOverLay(){
+        //uncomment
+        //self.app_id_for_adds = "409938"
+        
         let htmlString = "<html>\n" +
             "<body style='margin:0;padding:0;background:transparent;'>\n" +
             "<iframe width=\"100%\" height=\"100%\" src=\"https://app.singular.live/appinstances/" + self.app_id_for_adds + "/outputs/Output/onair\" frameborder=\"0\" allow=\"accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture\" allowfullscreen>\n" +
             "</iframe>\n" +
             "</body>\n" +
         "</html>";
-        //print("htmlString:",htmlString)
+        print("htmlString22:",htmlString)
         self.webView.loadHTMLString(htmlString, baseURL: nil)
         self.webView.isHidden = false
         self.viewStream.bringSubviewToFront(self.webView)
+        viewOverlay?.isHidden = true
     }
     
     
@@ -2554,7 +2562,7 @@ class MultiStreamVC: UIViewController , R5StreamDelegate, UITableViewDelegate,UI
                 switch response.result {
                 case .success(let value):
                     if let json = value as? [String: Any] {
-                        //print("startSession JSON:",json)
+                        print("startSession JSON:",json)
                         if (json["statusCode"]as? String == "200" ){
                             self.startSessionResponse = json
                             self.isViewerCountcall = 1;
@@ -2578,11 +2586,18 @@ class MultiStreamVC: UIViewController , R5StreamDelegate, UITableViewDelegate,UI
         let url: String = appDelegate.ol_lambda_url +  "/endSession"
         let user_id = UserDefaults.standard.string(forKey: "user_id");
         let streamInfo = "stream_metrics/" + self.streamVideoCode + "/" + String(self.streamId)
-        let session_start_time = self.startSessionResponse["session_start_time"] as? String ?? ""
-        let idData = self.startSessionResponse["data"] as? String ?? ""
-        let arn = UserDefaults.standard.string(forKey: "arn");
-        
-        let params: [String: Any] = ["id":idData,"image_for": streamInfo,"session_start_time":session_start_time,"is_final":"true","event_id": String(self.streamId),"is_mobile":true,"subscription_arn":arn ?? ""]
+        print("self.startSessionResponse:",self.startSessionResponse)
+        var session_start_time = self.startSessionResponse["session_start_time"] as? String ?? ""
+        if (session_start_time == ""){
+             session_start_time = String(self.startSessionResponse["session_start_time"] as? Int ?? 0)//if it comes as timestamp
+        }
+        let idData = self.startSessionResponse["Data"] as? String ?? ""
+        var arn = self.startSessionResponse["subscription_arn"] as? String ?? ""
+        if(arn == ""){
+            //if startSessionResponse subscription_arn empty
+            arn = UserDefaults.standard.string(forKey: "arn")!;
+        }
+        let params: [String: Any] = ["id":idData,"image_for": streamInfo,"session_start_time":session_start_time,"is_final":"true","event_id": String(self.streamId),"is_mobile":true,"subscription_arn":arn]
         print("endSession multi params:",params)
 
         let session_token = UserDefaults.standard.string(forKey: "session_token") ?? ""
@@ -2598,7 +2613,7 @@ class MultiStreamVC: UIViewController , R5StreamDelegate, UITableViewDelegate,UI
                 switch response.result {
                 case .success(let value):
                     if let json = value as? [String: Any] {
-                        //print("endSession JSON:",json)
+                        print("endSession JSON:",json)
                         if (json["statusCode"]as? String == "200" ){
                            
                         }else{
@@ -2615,52 +2630,6 @@ class MultiStreamVC: UIViewController , R5StreamDelegate, UITableViewDelegate,UI
                 }
         }
     }
-    
-    
-    // MARK: Handler for endSession API
-    func endSession1(){
-        NSLog("==endSession")
-        let netAvailable = appDelegate.isConnectedToInternet()
-        if(!netAvailable){
-            showAlert(strMsg: "Please check your internet connection!")
-            return
-        }
-        viewActivity.isHidden = false
-        let url: String = appDelegate.baseURL +  "/endSession"
-        let session_token = UserDefaults.standard.string(forKey: "session_token") ?? ""
-        let user_id = UserDefaults.standard.string(forKey: "user_id");
-        let streamInfo = "stream_metrics/" + self.streamVideoCode + "/" + String(self.streamId)
-        let session_start_time = self.startSessionResponse["session_start_time"] as? String ?? ""
-        let params: [String: Any] = ["id":user_id ?? "","image_for": streamInfo,"session_start_time":session_start_time,"is_final":"true","event_id": String(self.streamId)]
-        //print("endSession params:",params)
-        
-        let headers: HTTPHeaders = ["Content-type": "multipart/form-data","access_token": session_token,appDelegate.x_api_key: appDelegate.x_api_value]
-        
-        AF.request(url, method: .post,parameters: params, encoding: JSONEncoding.default,headers:headers)
-            .responseJSON { response in
-                self.viewActivity.isHidden = true
-                switch response.result {
-                case .success(let value):
-                    if let json = value as? [String: Any] {
-                        //print("endSession JSON:",json)
-                        if (json["statusCode"]as? String == "200"){
-                            
-                        }else{
-                            let strError = json["message"] as? String
-                            ////print("strError1:",strError ?? "")
-                            self.showAlert(strMsg: strError ?? "")
-                        }
-                        
-                    }
-                    
-                case .failure(let error):
-                    ////print(error)
-                    self.showAlert(strMsg: error.localizedDescription)
-                }
-        }
-    }
-    
-    
     
     override func viewWillAppear(_ animated: Bool) {
         if(UIDevice.current.userInterfaceIdiom == .phone){
@@ -2713,6 +2682,7 @@ class MultiStreamVC: UIViewController , R5StreamDelegate, UITableViewDelegate,UI
             viewArrows.isHidden = true
             btnLeftArrow.isEnabled = false
         }
+        collectionView.isHidden = true
         errorCount = 0
         return streamlist.count
     }

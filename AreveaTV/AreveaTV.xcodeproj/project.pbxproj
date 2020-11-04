@@ -82,6 +82,7 @@
 		189EBF3A2459D25700C52B0E /* UpcomingCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 189EBF382459D25700C52B0E /* UpcomingCell.xib */; };
 		189EBF44245ACD3400C52B0E /* FilterCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 189EBF42245ACD3400C52B0E /* FilterCell.swift */; };
 		189EBF45245ACD3400C52B0E /* FilterCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 189EBF43245ACD3400C52B0E /* FilterCell.xib */; };
+		18B11E3425505C95006ECB9C /* ScreenShareVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18B11E3325505C95006ECB9C /* ScreenShareVC.swift */; };
 		18D2717D24A382A400F958BC /* search.png in Resources */ = {isa = PBXBuildFile; fileRef = 18D2717C24A382A300F958BC /* search.png */; };
 		18D48042244E8F2B00640C1A /* libc++.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 18D48041244E8F2B00640C1A /* libc++.tbd */; };
 		18D48044244E8F4500640C1A /* libz.1.2.11.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 18D48043244E8F4500640C1A /* libz.1.2.11.tbd */; };
@@ -216,6 +217,7 @@
 		189EBF382459D25700C52B0E /* UpcomingCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = UpcomingCell.xib; sourceTree = "<group>"; };
 		189EBF42245ACD3400C52B0E /* FilterCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterCell.swift; sourceTree = "<group>"; };
 		189EBF43245ACD3400C52B0E /* FilterCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = FilterCell.xib; sourceTree = "<group>"; };
+		18B11E3325505C95006ECB9C /* ScreenShareVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenShareVC.swift; sourceTree = "<group>"; };
 		18D2717C24A382A300F958BC /* search.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = search.png; sourceTree = "<group>"; };
 		18D48041244E8F2B00640C1A /* libc++.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libc++.tbd"; path = "usr/lib/libc++.tbd"; sourceTree = SDKROOT; };
 		18D48043244E8F4500640C1A /* libz.1.2.11.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.1.2.11.tbd; path = usr/lib/libz.1.2.11.tbd; sourceTree = SDKROOT; };
@@ -566,6 +568,7 @@
 				18D480AC24519DA300640C1A /* R5options.plist */,
 				18D4805E244EDDA200640C1A /* BaseTest.swift */,
 				18D480A924519D1100640C1A /* SubscribeTest.swift */,
+				18B11E3325505C95006ECB9C /* ScreenShareVC.swift */,
 				18FE073B24D1CFB90011FDE3 /* MultiStreamVC.swift */,
 			);
 			path = "Stream Classes";
@@ -964,6 +967,7 @@
 				1858EAD22484F51C00A69D10 /* HelpVC.swift in Sources */,
 				18D480C02452E00500640C1A /* PaymentVC.swift in Sources */,
 				182A5EF7245F057800FF6147 /* FilterCVCell.swift in Sources */,
+				18B11E3425505C95006ECB9C /* ScreenShareVC.swift in Sources */,
 				18EB81CE244ACC86008EB09A /* DashBoardVC.swift in Sources */,
 				18D48066244EDE4000640C1A /* ALToastView.m in Sources */,
 				184B86D624D302C8003F4D3D /* OpenChannelUserMessageTableViewCell.swift in Sources */,
@@ -1150,7 +1154,7 @@
 				CODE_SIGN_ENTITLEMENTS = AreveaTV/AreveaTV.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 1.43;
+				CURRENT_PROJECT_VERSION = 1.50;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = J7XKYVP7J4;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -1181,7 +1185,7 @@
 				CODE_SIGN_ENTITLEMENTS = AreveaTV/AreveaTV.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 1.43;
+				CURRENT_PROJECT_VERSION = 1.50;
 				DEVELOPMENT_TEAM = J7XKYVP7J4;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",

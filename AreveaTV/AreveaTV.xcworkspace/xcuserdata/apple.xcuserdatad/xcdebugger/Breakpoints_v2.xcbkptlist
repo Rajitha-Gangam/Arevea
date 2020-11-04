@@ -3,4 +3,22 @@
    uuid = "1E35D4F6-65CB-4D20-AF70-61E065A2075C"
    type = "0"
    version = "2.0">
+   <Breakpoints>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "89EE2A7A-52AD-40BB-BF07-2F74B3FD6BB2"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "AreveaTV/Channels/StreamDetailVC.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "3255"
+            endingLineNumber = "3255"
+            landmarkName = "hideShowScreenShare()"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+   </Breakpoints>
 </Bucket>

@@ -92,6 +92,8 @@ class BaseTest: UIViewController , R5StreamDelegate {
         
         if( self.subscribeStream != nil ){
             self.subscribeStream!.stop()
+            self.subscribeStream!.client = nil
+            self.subscribeStream?.delegate = nil
         }
         
         // Moved to status disconnect, due to publisher emptying queue buffer on bad connections.
@@ -107,7 +109,7 @@ class BaseTest: UIViewController , R5StreamDelegate {
         let password = Testbed.getParameter(param: "password") as! String
         config.parameters = "username=" + userName + ";password=" + password + ";"
         
-        config.host = url;//"livestream.arevea.tv";
+        config.host = url;//" livestream.arevea.com";
         config.port = Int32(Testbed.getParameter(param: "port") as! Int);
         config.contextName = (Testbed.getParameter(param: "context") as! String)
         config.`protocol` = Int32(r5_rtsp.rawValue);

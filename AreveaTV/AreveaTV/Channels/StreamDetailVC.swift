@@ -17,10 +17,11 @@ import EasyTipView
 import SDWebImage
 import WebKit
 import Reachability
-class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate,UITextFieldDelegate,OpenChanannelChatDelegate,OpenChannelMessageTableViewCellDelegate,AGEmojiKeyboardViewDelegate,SBDChannelDelegate, AGEmojiKeyboardViewDataSource,CLLocationManagerDelegate{
+import AWSAppSync
+import R5Streaming
+
+class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate,UITextFieldDelegate,OpenChanannelChatDelegate,OpenChannelMessageTableViewCellDelegate,AGEmojiKeyboardViewDelegate,SBDChannelDelegate, AGEmojiKeyboardViewDataSource,CLLocationManagerDelegate,R5StreamDelegate{
     // MARK: - Variables Declaration
-    
-    
     
     @IBOutlet weak var viewBottom: UIView!
     @IBOutlet weak var viewComments: UIView!
@@ -36,11 +37,16 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
     @IBOutlet weak var lblAmount: UILabel!
     @IBOutlet weak var lblDate: UILabel!
     @IBOutlet weak var lblTime: UILabel!
+    @IBOutlet weak var lblLive: UILabel!
+    @IBOutlet weak var lblLiveLeft: NSLayoutConstraint!
     
     @IBOutlet weak var webView: WKWebView!
     var txtTopOfToolBar : UITextField!
     var r5ViewController : BaseTest? = nil
+    var r5ViewControllerScreenShare : BaseTest? = nil
+    
     @IBOutlet weak var viewLiveStream: UIView!
+    @IBOutlet weak var viewStream: UIView!
     var dicPerformerInfo = [String: Any]()
     var aryCharityInfo = [Any]()
     var aryStreamInfo = [String: Any]()
@@ -61,6 +67,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
             // self.configureView()
         }
     }
+    var isShareScreenConfigured = false
     var backPressed = false
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     @IBOutlet weak var lblVideoDesc_info: UILabel!
@@ -70,6 +77,9 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
     
     @IBOutlet weak var lblNoDataComments: UILabel!
     @IBOutlet weak var lblNoDataDonations: UILabel!
+    
+    var subscribeStream1 : R5Stream? = nil
+    
     
     // MARK: - Live Chat Inputs
     var channel: SBDOpenChannel?
@@ -104,6 +114,8 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
     @IBOutlet weak var imgStreamThumbNail: UIImageView!
     @IBOutlet weak var btnPlayStream: UIButton!
     @IBOutlet weak var lblStreamUnavailable: UILabel!
+    @IBOutlet weak var lblScreenShareUnavailable: UILabel!
+    
     var toolTipView = EasyTipView(text: "");
     var isChannelAvailable = false;
     var isChannelAvailable_emoji = false;
@@ -138,6 +150,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
     var startSessionResponse =  [String:Any]()
     var isViewerCountcall = 0;
     var isStreamStarted = false
+    var isStreamStartedAlias = false
     @IBOutlet weak var btnInfo: UIView!
     @IBOutlet weak var btnShare: UIView!
     @IBOutlet weak var btnTips: UIView!
@@ -162,7 +175,25 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
     var checkSale = false
     var saleCompleted = false
     var timer : Timer?
-
+    var appSyncClient: AWSAppSyncClient?
+    var isSharedScreen = false;
+    var isSubscribeScreenShare = false;
+    var stream_status = ""
+    var graphQLStartupCall = 0;
+    var isCurrentPinScreen = "";
+    @IBOutlet weak var viewShareScreen: UIView!
+    @IBOutlet weak var viewStreamWidth: NSLayoutConstraint!
+    @IBOutlet weak var viewControlsLeft: NSLayoutConstraint!
+    
+    var serverAddress = ""
+    @IBOutlet weak var btnAudio: UIButton!
+    @IBOutlet weak var btnVideo: UIButton!
+    @IBOutlet weak var sliderVolume: UISlider!
+    @IBOutlet weak var viewControls: UIView?
+    var publisherIsInBackground = false
+    var publisherIsDisconnected = false
+    var viewR5StreamingLive : R5VideoViewController? = nil
+    var streamNameOfLive = ""
     // MARK: - View Life cycle
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -260,6 +291,17 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
         }
         lblNetStatus.isHidden = true
         self.viewActions?.isHidden = true
+        appSyncClient = appDelegate.appSyncClient
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(self.ReceivedPN(notification:)),
+                                               name: Notification.Name("PushNotification"), object: nil)
+        viewShareScreen.isHidden = true
+        btnAudio?.setImage(UIImage.init(named: "unmute"), for: .normal);
+        btnVideo?.setImage(UIImage.init(named: "pause"), for: .normal);
+        self.viewControls?.isHidden = true
+        self.lblLive.isHidden = true
+        
+        self.viewStream?.isHidden = false
         
     }
     func delayWithSeconds(_ seconds: Double, completion: @escaping () -> ()) {
@@ -459,10 +501,55 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
     }
     
     
-    
-    @objc func StreamNotificationHandler(_ notification:Notification) {
+    func streamInfoUpdate(strValue: String){
+        if(strValue == "started"){
+            self.lblStreamUnavailable.text = ""
+            viewActivity.isHidden = true
+            isStreamStarted = true
+            isStreamStartedAlias = true
+            btnPlayStream.isHidden = true;
+            let htmlString = "<html>\n" + "<body style='margin:0;padding:0;background:transparent;'>\n" +
+                "<iframe width=\"100%\" height=\"100%\" src=\"https://app.singular.live/appinstances/" + self.app_id_for_adds + "/outputs/Output/onair\" frameborder=\"0\" allow=\"accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture\" allowfullscreen>\n" + "</iframe>\n" + "</body>\n" + "</html>";
+            //print("htmlString:",htmlString)
+            self.webView.loadHTMLString(htmlString, baseURL: nil)
+            self.webView.isHidden = false
+            self.viewOverlay?.isHidden = true// controls not working
+            self.viewLiveStream.bringSubviewToFront(self.webView)
+            if (self.timer != nil)
+            {
+                self.timer!.invalidate()
+                self.timer = nil
+            }
+            //if screen share already happened from creator before comes to this screen, so we do not get PN Refresh
+            getGuestDetailInGraphql(.returnCacheDataAndFetch)//need to refresh stream
+            startSession()
+        }
+        if(strValue == "stopped"){
+            if(self.subscribeStream1 != nil) {
+                self.subscribeStream1?.delegate = nil;
+                self.subscribeStream1!.stop()
+            }
+            self.viewLiveStream.bringSubviewToFront(lblStreamUnavailable)
+            self.repeatMethod()
+            self.timer = Timer.scheduledTimer(timeInterval: 15.0, target: self, selector: #selector(self.repeatMethod), userInfo: nil, repeats: true)
+            isStreamStartedAlias = false
+        }else if(strValue == "not_available"){
+            viewActivity.isHidden = true
+            if (viewLiveStream.isHidden == false){
+                if(isStreamStarted){
+                    lblStreamUnavailable.text = "We are working on the issue. We will be back shortly."
+                    btnPlayStream.isHidden = true;
+                }else{
+                    lblStreamUnavailable.text = "Video streaming is currently unavailable. Please try again later."
+                    btnPlayStream.setImage(UIImage.init(named: "refresh"), for: .normal)
+                    btnPlayStream.isHidden = false;
+                }
+            }
+        }
+    }
+    @objc func ScreenShareNotificationHandler(_ notification:Notification) {
         // Do something now
-        ////print("====StreamNotificationHandler")
+        ////print("====ScreenShareNotificationHandler")
         if let data = notification.userInfo as? [String: String]
         {
             for (key,value) in data
@@ -473,51 +560,16 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                 ////print("value: \(value)")
                 
                 if (value == "started"){
-                    self.lblStreamUnavailable.text = ""
-                    viewActivity.isHidden = true
-                    isStreamStarted = true
-                    btnPlayStream.isHidden = true;
-                    let htmlString = "<html>\n" + "<body style='margin:0;padding:0;background:transparent;'>\n" +
-                        "<iframe width=\"100%\" height=\"100%\" src=\"https://app.singular.live/appinstances/" + self.app_id_for_adds + "/outputs/Output/onair\" frameborder=\"0\" allow=\"accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture\" allowfullscreen>\n" + "</iframe>\n" + "</body>\n" + "</html>";
-                    //print("htmlString:",htmlString)
-                    self.webView.loadHTMLString(htmlString, baseURL: nil)
-                    self.webView.isHidden = false
-                    self.viewOverlay?.isHidden = true// controls not working
-                    self.viewLiveStream.bringSubviewToFront(self.webView)
-                    if (self.timer != nil)
-                    {
-                        self.timer!.invalidate()
-                        self.timer = nil
-                    }
-                    startSession()
-                }else if(value == "stopped"){
-                    // lblStreamUnavailable.text = "publisher has unpublished/paused video. Please try again later."
-                    /*self.lblStreamUnavailable.text = "The stream has ended."
-                    self.viewLiveStream.bringSubviewToFront(lblStreamUnavailable)
-                    btnPlayStream.setImage(UIImage.init(named: "refresh"), for: .normal)
-                    btnPlayStream.isHidden = false;
-                    //unload Webview
-                    self.webView.loadHTMLString("", baseURL: nil)
-                    self.webView.isHidden = true*/
-                    self.viewLiveStream.bringSubviewToFront(lblStreamUnavailable)
-                    self.repeatMethod()
-                    self.timer = Timer.scheduledTimer(timeInterval: 15.0, target: self, selector: #selector(self.repeatMethod), userInfo: nil, repeats: true)
+                    self.lblScreenShareUnavailable.text = ""
+                    ALToastView.toast(in: self.view, withText:"Creator has started screen share.")
                     
-                    //isStreamStarted = false
-                    //endSession()
+                }else if(value == "stopped"){
+                    self.lblScreenShareUnavailable.text = ""
+                    ALToastView.toast(in: self.view, withText:"Creator has stopped screen share")
+                    
                 }else if(value == "not_available"){
-                    viewActivity.isHidden = true
-                    if (viewLiveStream.isHidden == false){
-                        if(isStreamStarted){
-                            lblStreamUnavailable.text = "We are working on the issue. We will be back shortly."
-                            btnPlayStream.isHidden = true;
-                        }else{
-                            lblStreamUnavailable.text = "Video streaming is currently unavailable. Please try again later."
-                            btnPlayStream.setImage(UIImage.init(named: "refresh"), for: .normal)
-                            btnPlayStream.isHidden = false;
-                        }
-                        //self.viewOverlay?.isHidden = true// controls not working
-                    }
+                    self.lblScreenShareUnavailable.text = "Unable to locate screen share. Please try again later"
+                    // ALToastView.toast(in: self.view, withText:"")
                 }
             }
         }
@@ -980,6 +1032,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
     // MARK: Comments Methods
     
     @objc func resignKB(_ sender: Any) {
+        print("resignKB")
         txtTopOfToolBar.text = ""
         txtComment.text = ""
         txtComment.resignFirstResponder();
@@ -1289,9 +1342,12 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                             let stream_info_key_exists = aryStreamInfo["id"]
                             if (stream_info_key_exists != nil){
                                 let streamObj = aryStreamInfo
-                                let stream_status = streamObj["stream_status"] as? String ?? ""
+                                stream_status = streamObj["stream_status"] as? String ?? ""
                                 if(stream_status == "completed"){
                                     self.lblStreamUnavailable.text = "The stream has ended."
+                                    self.viewControls?.isHidden = true
+                                    self.lblLive.isHidden = true
+                                    
                                     if (self.timer != nil)
                                     {
                                         self.timer!.invalidate()
@@ -1356,7 +1412,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
         print("liveEvents params:",params)
         // let params: [String: Any] = ["userid":user_id ?? "","performer_id":"101","stream_id": "0"]
         AF.request(url, method: .post,parameters: params, encoding: JSONEncoding.default,headers:headers)
-            .responseJSON { response in
+            .responseJSON { [self] response in
                 self.viewActivity.isHidden = true
                 switch response.result {
                 case .success(let value):
@@ -1625,7 +1681,6 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                                 self.lblAmount.text = "Free"
                             }
                             let streamObj = self.aryStreamInfo
-                            let stream_status = streamObj["stream_status"] as? String ?? ""
                             if(stream_status == "completed"){
                                 //uncomment below line
                                 //self.setLiveStreamConfig()
@@ -1634,6 +1689,8 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                                 self.btnPayPerView.isHidden = true
                                 self.lblStreamUnavailable.text = "Sale is completed!"
                                 self.viewActions?.isHidden = true
+                                self.lblLive.isHidden = true
+                                
                                 return
                             }
                             if (self.age_limit <= user_age_limit || self.age_limit == 0){
@@ -1874,6 +1931,11 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
         Testbed.setRecordAppend(on: true)
         // Testbed.parameters = Testbed.dictionary!.value(forKey: "GlobalProperties") as? NSMutableDictionary
         self.configureStreamView()
+        
+        //need to delete below line
+        //getGuestDetailInGraphql(.returnCacheDataAndFetch)//need to refresh stream
+        
+        
     }
     func configureStreamView() {
         
@@ -1904,10 +1966,11 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                 let className = self.detailStreamItem!["class"] as! String
                 let mClass = NSClassFromString(className) as! BaseTest.Type;
                 
-                r5ViewController  = mClass.init()
-                r5ViewController?.view.frame = self.viewLiveStream.bounds
-                self.viewLiveStream.addSubview(r5ViewController!.view)
-                self.addChild(r5ViewController!)
+                /*r5ViewController  = mClass.init()
+                 r5ViewController?.view.frame = self.viewLiveStream.bounds
+                 self.viewLiveStream.addSubview(r5ViewController!.view)
+                 self.addChild(r5ViewController!)*/
+                metaLive()
                 self.viewLiveStream.bringSubviewToFront(webView)
                 self.viewLiveStream.bringSubviewToFront(self.viewOverlay!)
                 self.viewLiveStream.bringSubviewToFront(lblStreamUnavailable)
@@ -1926,12 +1989,21 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
     
     
     
+    
     func closeStream(){
         self.viewLiveStream.isHidden = true;
-        // if( r5ViewController != nil ){
-        r5ViewController?.closeTest()
-        //     r5ViewController = nil
-        // }
+        if( self.subscribeStream1 != nil ){
+            //NSLog("==subscribeStream1 != nil")
+            self.subscribeStream1!.stop()
+            self.subscribeStream1!.client = nil
+            self.subscribeStream1?.delegate = nil
+            self.subscribeStream1 = nil
+
+        }
+        if( self.r5ViewControllerScreenShare != nil ){
+            //NSLog("==subscribeStream1 != nil")
+            self.r5ViewControllerScreenShare?.closeTest()
+        }
     }
     var shouldClose:Bool{
         get{
@@ -2954,12 +3026,17 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
         if (streamId != 0){
             streamIdLocal = String(streamId)
         }
+        let arn = UserDefaults.standard.string(forKey: "arn");
+
         let inputData: [String: Any] = [ "user_id": user_id ?? "0",
                                          "event_id": streamIdLocal,
                                          "organization_id" : orgId,
                                          "performer_id" : performerId,
+                                         "stream_code":streamVideoCode,
+                                         "is_mobile":true,
+                                         "EndpointArn":arn ?? "",
                                          "filekey": "stream_metrics/" + streamVideoCode + "/"]
-        print("startSession single params:",inputData)
+        print("startSession multi params:",inputData)
         
         let session_token = UserDefaults.standard.string(forKey: "session_token") ?? ""
         let headers : HTTPHeaders = [
@@ -2974,7 +3051,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                 switch response.result {
                 case .success(let value):
                     if let json = value as? [String: Any] {
-                        //print("startSession JSON:",json)
+                        print("startSession JSON:",json)
                         if (json["statusCode"]as? String == "200" ){
                             self.startSessionResponse = json
                             self.isViewerCountcall = 1;
@@ -2990,22 +3067,28 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                     self.viewActivity.isHidden = true
                     
                 }
-            }
+        }
     }
-    
-    
-    
-    // MARK: Handler for endSession API
     func endSession(){
         NSLog("==endSession")
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         let url: String = appDelegate.ol_lambda_url +  "/endSession"
         let user_id = UserDefaults.standard.string(forKey: "user_id");
         let streamInfo = "stream_metrics/" + self.streamVideoCode + "/" + String(self.streamId)
-        let session_start_time = self.startSessionResponse["session_start_time"] as? String ?? ""
-        
-        let params: [String: Any] = ["id":user_id ?? "","image_for": streamInfo,"session_start_time":session_start_time,"is_final":"true","event_id": String(self.streamId)]
-        print("endSession single params:",params)
+        print("self.startSessionResponse:",self.startSessionResponse)
+        var session_start_time = self.startSessionResponse["session_start_time"] as? String ?? ""
+        if (session_start_time == ""){
+             session_start_time = String(self.startSessionResponse["session_start_time"] as? Int ?? 0)//if it comes as timestamp
+        }
+        let idData = self.startSessionResponse["Data"] as? String ?? ""
+        var arn = self.startSessionResponse["subscription_arn"] as? String ?? ""
+        if(arn == ""){
+            //if startSessionResponse subscription_arn empty
+            arn = UserDefaults.standard.string(forKey: "arn")!;
+        }
+        let params: [String: Any] = ["id":idData,"image_for": streamInfo,"session_start_time":session_start_time,"is_final":"true","event_id": String(self.streamId),"is_mobile":true,"subscription_arn":arn]
+        print("endSession multi params:",params)
+
         let session_token = UserDefaults.standard.string(forKey: "session_token") ?? ""
         let headers : HTTPHeaders = [
             "Content-Type": "application/json",
@@ -3019,9 +3102,9 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                 switch response.result {
                 case .success(let value):
                     if let json = value as? [String: Any] {
-                        //print("startSession JSON:",json)
+                        print("endSession JSON:",json)
                         if (json["statusCode"]as? String == "200" ){
-                            
+                           
                         }else{
                             let strMsg = json["message"] as? String ?? ""
                             self.showAlert(strMsg: strMsg)
@@ -3034,55 +3117,16 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                     self.viewActivity.isHidden = true
                     
                 }
-            }
-    }
-    func endSession1(){
-        let netAvailable = appDelegate.isConnectedToInternet()
-        if(!netAvailable){
-            showAlert(strMsg: "Please check your internet connection!")
-            return
         }
-        viewActivity.isHidden = false
-        let url: String = appDelegate.baseURL +  "/endSession"
-        let session_token = UserDefaults.standard.string(forKey: "session_token") ?? ""
-        let user_id = UserDefaults.standard.string(forKey: "user_id");
-        let streamInfo = "stream_metrics/" + self.streamVideoCode + "/" + String(self.streamId)
-        let session_start_time = self.startSessionResponse["session_start_time"] as? String ?? ""
-        let params: [String: Any] = ["id":user_id ?? "","image_for": streamInfo,"session_start_time":session_start_time,"is_final":"true","event_id": String(self.streamId)]
-        //print("endSession params:",params)
-        
-        let headers: HTTPHeaders = ["Content-type": "multipart/form-data","access_token": session_token,appDelegate.x_api_key: appDelegate.x_api_value]
-        
-        AF.request(url, method: .post,parameters: params, encoding: JSONEncoding.default,headers:headers)
-            .responseJSON { response in
-                self.viewActivity.isHidden = true
-                switch response.result {
-                case .success(let value):
-                    if let json = value as? [String: Any] {
-                        //print("endSession JSON:",json)
-                        if (json["statusCode"]as? String == "200"){
-                            
-                        }else{
-                            let strError = json["message"] as? String
-                            ////print("strError1:",strError ?? "")
-                            self.showAlert(strMsg: strError ?? "")
-                        }
-                        
-                    }
-                    
-                case .failure(let error):
-                    let errorDesc = error.localizedDescription.replacingOccurrences(of: "URLSessionTask failed with error:", with: "")
-                    self.showAlert(strMsg: errorDesc)
-                    self.viewActivity.isHidden = true
-                }
-            }
     }
+    
+    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated);
         //adding observer
         NotificationCenter.default.addObserver(self, selector: #selector(applicationDidBecomeActive), name: UIApplication.didBecomeActiveNotification, object: nil)
         
-        NotificationCenter.default.addObserver(self, selector: #selector(StreamNotificationHandler(_:)), name: .didReceiveStreamData, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(ScreenShareNotificationHandler(_:)), name: .didReceiveScreenShareData, object: nil)
         
         if(UIDevice.current.userInterfaceIdiom == .phone){
             let value = UIInterfaceOrientation.landscapeRight.rawValue
@@ -3106,6 +3150,418 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
             timerNet = nil
         }
     }
+    //MARK: - Screen Share Start
+    
+    @objc func ReceivedPN(notification: NSNotification){
+        guard let userInfo = notification.userInfo else {
+            return
+        }
+        print("==ReceivedPN userInfo:",userInfo)
+        let gcm = userInfo["GCM"] as? [String:Any] ?? [:]
+        if(gcm["data"] != nil){
+            getGuestDetailInGraphql(.returnCacheDataAndFetch)//need to refresh stream
+        }
+        /*let gcm = userInfo["GCM"] as? [String:Any] ?? [:]
+         let data = gcm["data"]as? [String:Any] ?? [:]
+         let message = data["message"]as? [String:Any] ?? [:]
+         let innerData = message["data"]as? [String:Any] ?? [:]
+         let idKey = innerData["id"]as? [String:Any] ?? [:]
+         let skey = idKey["S"] as? String ?? ""
+         print("skey:",skey)
+         if(skey != ""){
+         //streamVideoCode = skey //stream video key and skey both are same
+         getGuestDetailInGraphql(.returnCacheDataAndFetch,showLoader: false)//need to refresh stream
+         }*/
+        
+    }
+    func getGuestDetailInGraphql(_ cachePolicy: CachePolicy) {
+        print("====streamVideoCode1:",streamVideoCode)
+        //viewActivity.isHidden = false
+        let listQuery = GetMulticreatorshareddataQuery(id:streamVideoCode)
+        //1872_1595845007395_mc2
+        //58_1594894849561_multi_creator_test_event
+        appSyncClient?.fetch(query: listQuery, cachePolicy: cachePolicy) { result, error in
+            self.viewActivity.isHidden = true
+            if let error = error {
+                print("Error fetching data: \(error)")
+                return
+            }
+            print("--result:",result)
+            if((result != nil)  && (result?.data != nil)){
+                // print("--data:",result?.data)
+                let data = result?.data
+                let multiData = data?.getMulticreatorshareddata
+                if(multiData != nil){
+                    let multiDataJSON = self.convertToDictionary(text: multiData?.data ?? "")
+                    print("multiDataJSON:",multiDataJSON)
+                    let liveStatus = multiDataJSON?["liveStatus"] as? Bool ?? false;
+                    self.isSharedScreen = (multiDataJSON?["isSharedScreen"]as? Bool ?? false) ? true : false;
+                    let isLive = (multiDataJSON?["isLive"]as? Bool ?? false) ? true : false;
+                    print("self.isSharedScreen:",self.isSharedScreen)
+                    print("self.isStreamStartedAlias:",self.isStreamStartedAlias)
+                    print("isLive:",isLive)
+
+                    if (isLive == true && self.isSharedScreen == true && self.isStreamStartedAlias == true) {
+                        self.SS_startup();
+                    } else {
+                        self.isCurrentPinScreen = "";
+                        self.isSubscribeScreenShare = false;
+                        self.SS_shutdown();
+                    }
+                    self.hideShowScreenShare();
+                    
+                }else{
+                    print("GetMulticreatorshareddataQuery nil:")
+                    
+                }
+            }
+            // Remove existing records if we're either loading from cache, or loading fresh (e.g., from a refresh)
+        }
+    }
+   
+    func SS_startup() {
+        print("==SS_startup")
+        //screenshare
+        //viewActivity.isHidden = false
+        _ = Testbed.sharedInstance
+        self.detailStreamItem = Testbed.testAtIndex(index: 0)
+        if(self.detailStreamItem != nil){
+            ////print("props:",self.detailStreamItem!["LocalProperties"] as? NSMutableDictionary)
+            
+            Testbed.setLocalOverrides(params: self.detailStreamItem!["LocalProperties"] as? NSMutableDictionary)
+            let className = "ScreenShareVC"
+            let mClass = NSClassFromString(className) as! BaseTest.Type;
+            
+            r5ViewControllerScreenShare  = mClass.init()
+            r5ViewControllerScreenShare?.view.frame = self.viewShareScreen.bounds
+            self.viewShareScreen.addSubview(r5ViewControllerScreenShare!.view)
+            self.addChild(r5ViewControllerScreenShare!)
+        }
+    }
+    func SS_shutdown(){
+        r5ViewControllerScreenShare?.closeTest()
+        
+    }
+    func hideShowScreenShare() {
+        isShareScreenConfigured = true
+        print("self1.isSharedScreen",self.isSharedScreen)
+        print("self1.isStreamStartedAlias",self.isStreamStartedAlias)
+        //uncomment this and comment before
+        //if (self.isSharedScreen == true && self.isStreamStartedAlias == true)
+        
+        if (self.isSharedScreen == true && self.isStreamStartedAlias == true)
+        {
+            //show screen share view
+            NSLayoutConstraint.setMultiplier(0.45, of: &(viewStreamWidth)!)
+            
+            viewShareScreen.isHidden = false
+            self.viewStream.layoutIfNeeded()
+            viewControlsLeft.constant = (self.view.frame.size.width * 0.55)
+            viewControls?.layoutIfNeeded()
+            lblLiveLeft.constant = self.viewLiveStream.frame.size.width - 90 //live btn width 80
+            lblLive?.layoutIfNeeded()
+            
+            /*viewR5StreamingLive = getNewR5VideoViewController(rect: viewStream.frame)
+            viewR5StreamingLive?.attach(nil)
+            viewR5StreamingLive?.attach(subscribeStream1)
+            viewStream.addSubview((viewR5StreamingLive?.view)!)*/
+            
+            
+            viewR5StreamingLive?.view.frame = CGRect(x: 0, y: 0, width:(self.viewLiveStream.frame.size.width * 0.45) , height: self.viewStream.bounds.height)
+            self.viewR5StreamingLive?.view.layoutIfNeeded()
+            print("--stream Liveframe:",viewStream.frame)
+            print("--viewR5Streaming Liveframe:",viewR5StreamingLive?.view.frame)
+        }else{
+            //hide screen share view
+            NSLayoutConstraint.setMultiplier(1.0, of: &(viewStreamWidth)!)
+            viewShareScreen.isHidden = true
+            self.viewStream.layoutIfNeeded()
+            viewControlsLeft.constant = 0
+            viewControls?.layoutIfNeeded()
+            lblLiveLeft.constant = 10
+            lblLive?.layoutIfNeeded()
+            viewR5StreamingLive?.view.frame = self.viewStream.bounds
+            self.viewR5StreamingLive?.view.layoutIfNeeded()
+
+            print("--viewR5Streaming Liveframe:",viewR5StreamingLive?.view.frame)
+        }
+        
+    }
+    //MARK: - Screen Share End
+    
+    //MARK: - Live Stream Methods  Start
+    func metaLive(){
+        let netAvailable = appDelegate.isConnectedToInternet()
+        if(!netAvailable){
+            showAlert(strMsg: "Please check your internet connection!")
+            return
+        }
+        let host = Testbed.getParameter(param:"host") as! String;
+        let version = Testbed.getParameter(param:"sm_version") as! String;
+        let stream1 = Testbed.getParameter(param:"stream1") as! String;
+        let accessToken = appDelegate.red5_acc_token
+        // https:// livestream.arevea.com/streammanager/api/4.0/admin/event/meta/live/<stream_video_code>/?accessToken=YEOkGmERp08V
+        let url = "https://" + host  + "/streammanager/api/" + version + "/admin/event/meta/live/" + stream1 + "?accessToken=" + accessToken
+        //print("metaLive url:",url)
+        //let stream = "1588832196500_taylorswiftevent"
+        AF.request(url,method: .get, encoding: JSONEncoding.default)
+            .responseJSON { response in
+                switch response.result {
+                case .success(let value):
+                    DispatchQueue.main.async {
+                        ////print("metaLive Response:",value)
+                        if let json = value as? [String: Any] {
+                            if json["errorMessage"] != nil{
+                                // ALToastView.toast(in: self.view, withText:errorMsg as? String ?? "")
+                                //let error = "Unable to locate stream. Broadcast has probably not started for this stream: " + stream1
+                                // ALToastView.toast(in: self.view, withText: error)
+                                self.streamInfoUpdate(strValue: "not_available")
+                                
+                            }else{
+                                let data = json["data"] as? [String:Any]
+                                let meta = data?["meta"] as? [String:Any]
+                                let stream = meta?["stream"] as? [Any] ?? [Any]()
+                                if (stream.count > 0){
+                                    let lastStreamObj = stream[stream.count - 1] as? [String:Any]
+                                    let strName = lastStreamObj?["name"] as? String ?? ""
+                                    ////print("lastStreamObj name:",strName)
+                                    self.findStream(streamName: strName)
+                                    
+                                }else{
+                                    self.streamInfoUpdate(strValue: "not_available")
+                                    
+                                }
+                            }
+                        }
+                    }
+                    
+                    
+                case .failure(let error):
+                    //print("error occured in metaLive:",error)
+                    self.streamInfoUpdate(strValue: "not_available")
+                    
+                    
+                }
+            }
+        
+    }
+    func findStream(streamName: String){
+        let netAvailable = appDelegate.isConnectedToInternet()
+        if(!netAvailable){
+            showAlert(strMsg: "Please check your internet connection!")
+            return
+        }
+        _ = String(Testbed.getParameter(param:"port") as! Int);
+        let host = Testbed.getParameter(param:"host") as! String;
+        let version = Testbed.getParameter(param:"sm_version") as! String;
+        let context = Testbed.getParameter(param:"context") as! String;
+        //let stream1 = Testbed.getParameter(param:"stream1") as! String;
+        
+        let url = "https://" + host  + "/streammanager/api/" + version + "/event/" +
+            context + "/" + streamName + "?action=subscribe&region=" + appDelegate.strRegionCode;
+        
+        print("stream url:",url)
+        //let url = "https:// livestream.arevea.com/streammanager/api/4.0/event/live/1588788669277_somethingnew?action=subscribe"
+        ////print("findStream url:",url)
+        //let stream = "1588832196500_taylorswiftevent"
+        
+        AF.request(url,method: .get, encoding: JSONEncoding.default)
+            .responseJSON { response in
+                switch response.result {
+                case .success(let value):
+                    DispatchQueue.main.async {
+                        print("stream manager API res:",value)
+                    }
+                    if let json = value as? [String: Any] {
+                        if json["errorMessage"] != nil{
+                            DispatchQueue.main.async {
+                                self.viewActivity.isHidden = true
+                                if (self.viewLiveStream.isHidden == false){
+                                    if(self.isStreamStarted){
+                                        self.lblStreamUnavailable.text = "We are working on the issue. We will be back shortly."
+                                        self.btnPlayStream.isHidden = true;
+                                    }else{
+                                        self.lblStreamUnavailable.text = "We are working on the issue. We will be back shortly."
+                                        self.btnPlayStream.setImage(UIImage.init(named: "refresh"), for: .normal)
+                                        self.btnPlayStream.isHidden = false;
+                                    }
+                                    //self.viewOverlay?.isHidden = true// controls not working
+                                }
+                            }
+                        }else{
+                            self.viewControls?.isHidden = false
+                            self.imgStreamThumbNail.isHidden = true
+                            self.lblLive.isHidden = false
+                            self.streamNameOfLive = streamName
+                            self.serverAddress = json["serverAddress"] as? String ?? ""
+                            self.config(url: self.serverAddress,stream:streamName,start: true)
+                        }
+                    }
+                    
+                case .failure(let error):
+                    print(error)
+                }
+            }
+    }
+    func config(url:String,stream:String,start:Bool){
+        
+        
+        let config = getConfig(url: url)
+        // Set up the connection and stream
+        let connection = R5Connection(config: config)
+        self.subscribeStream1 = R5Stream(connection: connection)
+        
+        let stats = self.subscribeStream1?.getDebugStats()
+        //print("---stats:",stats as Any)
+        self.subscribeStream1!.delegate = self
+        self.subscribeStream1?.client = self;
+        // self.subscribeStream.subscribeToAudio = YES;
+        viewR5StreamingLive = getNewR5VideoViewController(rect: viewStream.frame)
+        viewR5StreamingLive?.attach(subscribeStream1)
+        viewStream.addSubview((viewR5StreamingLive?.view)!)
+        //streamName = stream
+        self.subscribeStream1!.play(stream, withHardwareAcceleration:false)
+        if(start){
+            streamInfoUpdate(strValue: "started")
+        }
+        
+        
+    }
+    func getConfig(url:String)->R5Configuration{
+        // Set up the configuration
+        let config = R5Configuration()
+        let userName = Testbed.getParameter(param: "username") as! String
+        let password = Testbed.getParameter(param: "password") as! String
+        config.parameters = "username=" + userName + ";password=" + password + ";"
+        config.host = url;//" livestream.arevea.com";
+        config.port = Int32(Testbed.getParameter(param: "port") as! Int);
+        config.contextName = (Testbed.getParameter(param: "context") as! String)
+        config.`protocol` = Int32(r5_rtsp.rawValue);
+        config.buffer_time = Testbed.getParameter(param: "buffer_time") as! Float
+        config.licenseKey = (Testbed.getParameter(param: "license_key") as! String)
+        return config
+    }
+    func getNewR5VideoViewController(rect : CGRect) -> R5VideoViewController {
+        let view : UIView = UIView(frame: rect)
+        var r5View : R5VideoViewController
+        r5View = R5VideoViewController.init()
+        r5View.view = view;
+        return r5View;
+    }
+    @IBAction func pauseAudio() {
+        let imgBtn = btnAudio.image(for: .normal)
+        if ((imgBtn?.isEqual(UIImage.init(named: "unmute")))!)
+        {
+            btnAudio?.setImage(UIImage.init(named: "mute"), for: .normal);
+            if( self.subscribeStream1 != nil && self.subscribeStream1?.audioController != nil) {
+                self.subscribeStream1?.audioController.volume = 0
+                ALToastView.toast(in: self.view, withText:"Pausing Audio")
+            }
+        }
+        else{
+            btnAudio?.setImage(UIImage.init(named: "unmute"), for: .normal);
+            if(self.subscribeStream1 != nil && self.subscribeStream1?.audioController != nil) {
+                self.subscribeStream1?.audioController.volume = sliderVolume.value / 100
+                ALToastView.toast(in: self.view, withText:"Playing Audio")
+            }
+        }
+    }
+    @IBAction func pauseVideo() {
+        
+        let imgBtn = btnVideo?.image(for: .normal)
+        if ((imgBtn?.isEqual(UIImage.init(named: "pause")))!)
+        {
+            btnVideo?.setImage(UIImage.init(named: "play"), for: .normal);
+            if( self.subscribeStream1 != nil) {
+                ALToastView.toast(in: self.view, withText:"Pausing Video")
+                self.subscribeStream1?.deactivate_display()
+            }
+        }
+        else{
+            btnVideo?.setImage(UIImage.init(named: "pause"), for: .normal);
+            if( self.subscribeStream1 != nil) {
+                ALToastView.toast(in: self.view, withText:"Playing Video")
+                self.subscribeStream1?.activate_display()
+            }
+        }
+    }
+    
+    @IBAction func sliderValueDidChange() {
+        if(self.subscribeStream1 != nil && self.subscribeStream1?.audioController != nil){
+            self.subscribeStream1?.audioController.volume = sliderVolume.value / 100
+        }
+        
+    }
+    // MARK: Handler for Stream Events
+    func onR5StreamStatus(_ stream: R5Stream!, withStatus statusCode: Int32, withMessage msg: String!) {
+        // MARK: Customising
+        
+        NSLog("Status: %s ", r5_string_for_status(statusCode))
+        let s =  String(format: "Status: %s (%@)",  r5_string_for_status(statusCode), msg)
+        //ALToastView.toast(in: self.view, withText:s)
+        if (Int(statusCode) == Int(r5_status_disconnected.rawValue)) {
+            //self.closeStream()
+        } else if ((Int(statusCode) == Int(r5_status_netstatus.rawValue) && msg == "NetStream.Play.UnpublishNotify") || ((Int(statusCode) == Int(r5_status_netstatus.rawValue) && msg == "NetStream.Play.StreamDry"))){
+            
+            streamInfoUpdate(strValue: "stopped")
+            
+        } else if ((Int(statusCode) == Int(r5_status_netstatus.rawValue) && msg == "NetStream.Play.SufficientBW")) {
+            ////print("=======sufficient band Width")
+        }else if ((Int(statusCode) == Int(r5_status_netstatus.rawValue) && msg == "NetStream.Play.InSufficientBW")) {
+            ALToastView.toast(in: self.view, withText:"Poor internet connection")
+        }else if (Int(statusCode) == Int(r5_status_audio_mute.rawValue))
+        {
+            ////print("=======r5_status_audio_mute")
+            /*let hasAudio = !(self.subscribeStream?.pauseAudio)!;
+             if (hasAudio) {
+             self.subscribeStream?.pauseAudio = true
+             }*/
+            ALToastView.toast(in: self.view, withText:"Audio Muted")
+            
+        }
+        else if (Int(statusCode) == Int(r5_status_audio_unmute.rawValue))
+        {
+            ////print("=======r5_status_audio_unmute")
+            /*let hasAudio = !(self.subscribeStream?.pauseAudio)!;
+             if (hasAudio) {
+             self.subscribeStream?.pauseAudio = false
+             }*/
+            ALToastView.toast(in: self.view, withText:"Audio Unmuted")
+            
+            
+        }else if (Int(statusCode) == Int(r5_status_video_mute.rawValue))
+        {
+            ////print("=======r5_status_video_mute")
+            /*let hasAudio = !(self.subscribeStream?.pauseAudio)!;
+             if (hasAudio) {
+             self.subscribeStream?.pauseAudio = true
+             }*/
+            ALToastView.toast(in: self.view, withText:"Video Muted")
+            
+        }
+        else if (Int(statusCode) == Int(r5_status_video_unmute.rawValue))
+        {
+            ////print("=======r5_status_video_unmute")
+            /*let hasAudio = !(self.subscribeStream?.pauseAudio)!;
+             if (hasAudio) {
+             self.subscribeStream?.pauseAudio = false
+             }*/
+            ALToastView.toast(in: self.view, withText:"Video Unmuted")
+            
+        }
+        else if (Int(statusCode) == Int(r5_status_disconnected.rawValue))
+        {
+            ////print("=======r5_status_disconnected")
+            ALToastView.toast(in: self.view, withText:"Video Disconnected")
+            
+        }
+        else if (Int(statusCode) == Int(r5_status_stop_streaming.rawValue))
+        {
+            ////print("=======r5_status_stop_streaming")
+            ALToastView.toast(in: self.view, withText:"Stream Stopped")
+        }
+    }
+    //MARK: - Live Stream Methods  end
     
 }
 

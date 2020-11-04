@@ -10,6 +10,7 @@ import UIKit
 import AWSMobileClient
 import Alamofire
 import MaterialComponents.MaterialCollections
+import CoreLocation
 
 
 extension UIColor {
@@ -30,7 +31,7 @@ extension UIColor {
     }
 }
 
-class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,CollectionViewCellDelegate,UITextFieldDelegate,OpenChanannelChatDelegate{
+class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,CollectionViewCellDelegate,UITextFieldDelegate,OpenChanannelChatDelegate,CLLocationManagerDelegate{
     
     //MARK: Variables Declaration
     
@@ -61,6 +62,8 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
     
     var arySideMenu : [[String: String]] = [["name":"Home","icon":"home"],["name":"My Profile","icon":"user-white"],["name":"My Events","icon":"event"],["name":"My Payments","icon":"donation"],["name":"My Purchases","icon":"purchase"],["name":"Help","icon":"help"],["name":"Logout","icon":"logout"]];
     var sectionTitles = ["Live Events","Upcoming Events","My List","Trending Channels"]
+    var locationManager:CLLocationManager!
+
     //MARK:View Life Cycle Methods
     
     @IBOutlet weak var viewActivity: UIView!
@@ -112,6 +115,15 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
         self.tblMain.addSubview(self.refreshControl)//pull to refresh handled
         let arn = UserDefaults.standard.string(forKey: "arn");
         print("==arn:",arn)
+        
+        locationManager = CLLocationManager()
+         locationManager.delegate = self
+         locationManager.desiredAccuracy = kCLLocationAccuracyBest
+         locationManager.requestAlwaysAuthorization()
+         
+         if CLLocationManager.locationServicesEnabled(){
+         locationManager.startUpdatingLocation()
+         }
 
     }
     @objc func handleRefresh(_ refreshControl: UIRefreshControl) {
@@ -211,7 +223,59 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
         if(is_profile_pic_loaded_left_menu == "false"){
             getProfile()
         }
+        let current = UNUserNotificationCenter.current()
+
+        current.getNotificationSettings(completionHandler: { [self] (settings) in
+            if settings.authorizationStatus == .notDetermined {
+                // Notification permission has not been asked yet, go for it!
+                current.requestAuthorization(options: []) { granted, error in
+                    if error != nil {
+                        // Handle the error here.
+                    }
+                    // Enable or disable features based on the authorization.
+                }
+            } else if settings.authorizationStatus == .denied {
+                // Notification permission was previously denied, go to settings & privacy to re-enable
+                //self.showAlert(strMsg: "Disabled PN")
+                self.enablePN()
+            } else if settings.authorizationStatus == .authorized {
+                // Notification permission was already granted
+               // self.showAlert(strMsg: "Enabled PN")
+                
+            }
+        })
         
+        
+        
+        //test()
+    }
+    func enablePN(){
+        let alertController = UIAlertController(title: "Alert", message: "Please enable push notifictaions for this app, as it impacts more on app", preferredStyle: .alert)
+
+           // Setting button action
+           let settingsAction = UIAlertAction(title: "Go to Settings", style: .default) { (_) -> Void in
+            guard let settingsUrl = URL(string: UIApplication.openSettingsURLString) else {
+                   return
+               }
+               
+               if UIApplication.shared.canOpenURL(settingsUrl) {
+                   UIApplication.shared.open(settingsUrl, completionHandler: { (success) in
+                       // Checking for setting is opened or not
+                       print("Setting is opened: \(success)")
+                   })
+               }
+           }
+           
+           alertController.addAction(settingsAction)
+           // Cancel button action
+           let cancelAction = UIAlertAction(title: "Cancel", style: .default){ (_) -> Void in
+               // Magic is here for cancel button
+           }
+           alertController.addAction(cancelAction)
+           // This part is important to show the alert controller ( You may delete "self." from present )
+        DispatchQueue.main.async {
+           self.present(alertController, animated: true, completion: nil)
+        }
     }
     func showAlert(strMsg: String){
         let alert = UIAlertController(title: "Alert", message: strMsg, preferredStyle: .alert)
@@ -333,7 +397,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
     func getEvents(inputData:[String: Any]){
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         let url: String = appDelegate.baseURL +  "/events"
-        //print("getEvents input:",inputData)
+        print("getEvents input:",inputData)
         viewActivity.isHidden = false
         let headers: HTTPHeaders
         headers = [appDelegate.x_api_key: appDelegate.x_api_value]
@@ -764,6 +828,45 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
         let vc = storyboard.instantiateViewController(withIdentifier: "HelpVC") as! HelpVC
         self.navigationController?.pushViewController(vc, animated: true)
     }
-    
+    //MARK: - location delegate methods
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        let netAvailable = appDelegate.isConnectedToInternet()
+        if(!netAvailable){
+            return
+        }
+        let userLocation :CLLocation = locations[0] as CLLocation
+        //print("userLocation:",userLocation)
+        let geocoder = CLGeocoder()
+        geocoder.reverseGeocodeLocation(userLocation) { [self] (placemarks, error) in
+            if (error != nil){
+                ////print("error in reverseGeocode")
+            }
+            let placemark = placemarks! as [CLPlacemark]
+            if placemark.count>0{
+                let placemark = placemarks![0]
+               // print("country:",placemark.country!)
+                self.appDelegate.strCountry = placemark.country!
+                self.getRegion()
+            }
+        }
+        
+    }
+    func getRegion(){
+        for (i,_) in appDelegate.aryCountries.enumerated(){
+            let element = appDelegate.aryCountries[i]
+            let countryNames = element["countries"] as! [Any];
+            for (j,_) in countryNames.enumerated() {
+                let country = countryNames[j] as! String
+                if(country.lowercased() == appDelegate.strCountry.lowercased()){
+                    ////print("equal:",country)
+                    appDelegate.strRegionCode = element["region_code"]as! String
+                    return
+                }
+            }
+        }
+    }
+    func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
+        print("locationManager Error: \(error)")
+    }
     
 }

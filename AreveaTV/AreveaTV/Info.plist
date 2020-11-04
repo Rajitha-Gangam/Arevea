@@ -58,8 +58,12 @@
 	</dict>
 	<key>NSCameraUsageDescription</key>
 	<string>Camera access required for take user profile picture.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>This app requires user’s location to see live streams near by.</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>This app requires user’s location to see live streams near by.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>We need to know your location to get country</string>
+	<string>This app requires user’s location to see live streams near by.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Microphone access required for publishing.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
@@ -77,6 +81,7 @@
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>audio</string>
+		<string>remote-notification</string>
 	</array>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>

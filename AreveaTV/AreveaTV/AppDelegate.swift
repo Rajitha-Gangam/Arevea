@@ -9,7 +9,6 @@
 import UIKit
 //import Firebase
 import SendBirdSDK
-import CoreLocation
 import AWSAppSync
 import UIKit
 import AVKit
@@ -19,7 +18,7 @@ import FirebaseMessaging
 import UserNotifications
 import Firebase
 @UIApplicationMain
-class AppDelegate: UIResponder, UIApplicationDelegate,CLLocationManagerDelegate {
+class AppDelegate: UIResponder, UIApplicationDelegate {
     // MARK: - Variables Declaration
     var window: UIWindow? // <-- Here
     
@@ -29,7 +28,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate,CLLocationManagerDelegate 
     var USER_NAME_FULL = "";
     var USER_DISPLAY_NAME = "";
     var isLiveLoad = "0";
-    var locationManager:CLLocationManager!
     var appLoaded = false
     let gcmMessageIDKey = "com.prod.arevea"
     let deviceToken = ""
@@ -47,7 +45,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate,CLLocationManagerDelegate 
      var x_api_key = "x-api-key"
      var x_api_value = "ORnphwUvEBoqHaoIDBIA2GOhYF0HHQ53JPkLwFM5";
      var AWSCognitoIdentityPoolId = "us-west-2:2f173740-e6a4-4fc5-a37a-3064ac25e1bc"
-     var red5_pro_host = "livestream.arevea.tv";
+     var red5_pro_host = "livestream.arevea.com";
      var red5_acc_token = "YEOkGmERp08V"
      var ol_base_url = "https://api.us.onelogin.com";
      var ol_sub_domain = "areveatv-sandbox"
@@ -73,7 +71,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate,CLLocationManagerDelegate 
     var x_api_key = "x-api-key"
     var x_api_value = "gq78SwjuLY539BLW5G3dN88IXjVtWPLB1YHL1omd"
     var AWSCognitoIdentityPoolId = "us-west-2:00b71663-b151-44a1-9164-246be7970493"
-    var red5_pro_host = "livestream.arevea.tv";
+    var red5_pro_host = "livestream.arevea.com";
     var red5_acc_token = "YEOkGmERp08V"
     var ol_base_url = "https://api.us.onelogin.com";
     var ol_sub_domain = "areveatv-sandbox"
@@ -98,7 +96,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate,CLLocationManagerDelegate 
      var x_api_key = "x-api-key"
      var x_api_value = "xeer4W0Zt47sQ09C9OYBz3AfoYMiCaQe7gu5mEeZ"
      var AWSCognitoIdentityPoolId = "us-west-2:e1389653-813a-4f76-8af3-b15157a6ffd8"
-     var red5_pro_host = "livestream1.arevea.tv";
+     var red5_pro_host = "livestream.arevea.com";
      var red5_acc_token = "Ck2jUK49JIEp"
      var ol_base_url = "https://api.us.onelogin.com";
      var ol_sub_domain = "areveatv-sandbox"
@@ -125,7 +123,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate,CLLocationManagerDelegate 
      var x_api_key = "x-api-key"
      var x_api_value = "42aCyQg9Cj7yWDuXTCwEL7Ll3j2YojHrablYoCYs"
      var AWSCognitoIdentityPoolId = "us-west-2:c239b0d1-5cd5-4fcf-86a1-e812eb6d4777"
-     var red5_pro_host = "livestream1.arevea.tv";
+     var red5_pro_host = "livestream.arevea.com";
      var red5_acc_token = "Ck2jUK49JIEp"
      var ol_base_url = "https://api.us.onelogin.com";
      var ol_sub_domain = "areveatv-sandbox"
@@ -178,14 +176,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate,CLLocationManagerDelegate 
         
         //SBDMain.initWithApplicationId("9308C3B1-A36D-47E2-BA3C-8F6F362C35AF")
         SBDMain.initWithApplicationId(sendBirdAppId)
-        /*locationManager = CLLocationManager()
-         locationManager.delegate = self
-         locationManager.desiredAccuracy = kCLLocationAccuracyBest
-         locationManager.requestAlwaysAuthorization()
-         
-         if CLLocationManager.locationServicesEnabled(){
-         locationManager.startUpdatingLocation()
-         }*/
+        
         do {
             // initialize the AppSync client configuration configuration
             let cacheConfiguration = try AWSAppSyncCacheConfiguration()
@@ -206,21 +197,30 @@ class AppDelegate: UIResponder, UIApplicationDelegate,CLLocationManagerDelegate 
          getToken()
          }*/
         appLoaded = true
-        if #available(iOS 10.0, *) {
+        /*if #available(iOS 10.0, *) {
             // For iOS 10 display notification (sent via APNS)
             UNUserNotificationCenter.current().delegate = self
             
-            let authOptions: UNAuthorizationOptions = [.alert, .badge, .sound]
+            let authOptions: UNAuthorizationOptions = []
             UNUserNotificationCenter.current().requestAuthorization(
                 options: authOptions,
                 completionHandler: {_, _ in })
         } else {
             let settings: UIUserNotificationSettings =
-                UIUserNotificationSettings(types: [.alert, .badge, .sound], categories: nil)
+                UIUserNotificationSettings(types: [], categories: nil)
             application.registerUserNotificationSettings(settings)
         }
         
-        application.registerForRemoteNotifications()
+        application.registerForRemoteNotifications()*/
+        let center = UNUserNotificationCenter.current()
+        center.requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
+            
+            if let error = error {
+                // Handle the error here.
+            }
+            
+            // Enable or disable features based on the authorization.
+        }
         
         return true
     }
@@ -282,7 +282,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate,CLLocationManagerDelegate 
         // Print ful l message.
         print(userInfo)
 
-
+        NotificationCenter.default.post(name: Notification.Name("PushNotification"), object: nil, userInfo: userInfo)
         completionHandler(UIBackgroundFetchResult.newData)
     }
     // [END receive_message]
@@ -329,45 +329,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate,CLLocationManagerDelegate 
     func applicationWillTerminate(_ application: UIApplication) {
         // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
     }
-    //MARK: - location delegate methods
-    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        let netAvailable = self.isConnectedToInternet()
-        if(!netAvailable){
-            return
-        }
-        let userLocation :CLLocation = locations[0] as CLLocation
-        let geocoder = CLGeocoder()
-        geocoder.reverseGeocodeLocation(userLocation) { (placemarks, error) in
-            if (error != nil){
-                ////print("error in reverseGeocode")
-            }
-            let placemark = placemarks! as [CLPlacemark]
-            if placemark.count>0{
-                let placemark = placemarks![0]
-                ////print("country:",placemark.country!)
-                self.strCountry = placemark.country!
-                self.getRegion()
-            }
-        }
-        
-    }
-    func getRegion(){
-        for (i,_) in aryCountries.enumerated(){
-            let element = aryCountries[i]
-            let countryNames = element["countries"] as! [Any];
-            for (j,_) in countryNames.enumerated() {
-                let country = countryNames[j] as! String
-                if(country.lowercased() == strCountry.lowercased()){
-                    ////print("equal:",country)
-                    strRegionCode = element["region_code"]as! String
-                    return
-                }
-            }
-        }
-    }
-    func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
-        ////print("Error \(error)")
-    }
+   
     func application(_ application: UIApplication, shouldSaveApplicationState coder: NSCoder) -> Bool {
         return true
     }
@@ -396,7 +358,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate,CLLocationManagerDelegate 
     }
 }
 // [START ios_10_message_handling]
-@available(iOS 10, *)
 extension AppDelegate : UNUserNotificationCenterDelegate {
     
     // Receive displayed notifications for iOS 10 devices.
@@ -415,7 +376,7 @@ extension AppDelegate : UNUserNotificationCenterDelegate {
         
         // Print full message.
         print("---ui:",userInfo)
-        NotificationCenter.default.post(name: Notification.Name("PushNotification"), object: nil, userInfo: userInfo)
+       // NotificationCenter.default.post(name: Notification.Name("PushNotification"), object: nil, userInfo: userInfo)
 
         // Change this to your preferred presentation option
         completionHandler([[.alert, .sound]])

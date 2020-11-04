@@ -11,7 +11,7 @@
 		<key>bitrate</key>
 		<integer>750</integer>
 		<key>host</key>
-		<string>livestream.arevea.tv</string>
+		<string> livestream.arevea.com</string>
 		<key>buffer_time</key>
 		<integer>2</integer>
 		<key>port</key>

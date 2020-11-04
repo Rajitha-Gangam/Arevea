@@ -27,6 +27,7 @@ class SubscribeTest: BaseTest {
     var viewControls = UIView()
     var viewOverlay = UIView()
     var streamName = ""
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
@@ -49,7 +50,7 @@ class SubscribeTest: BaseTest {
         let version = Testbed.getParameter(param:"sm_version") as! String;
         let stream1 = Testbed.getParameter(param:"stream1") as! String;
         let accessToken = appDelegate.red5_acc_token
-        // https://livestream.arevea.tv/streammanager/api/4.0/admin/event/meta/live/<stream_video_code>/?accessToken=YEOkGmERp08V
+        // https:// livestream.arevea.com/streammanager/api/4.0/admin/event/meta/live/<stream_video_code>/?accessToken=YEOkGmERp08V
         let url = "https://" + host  + "/streammanager/api/" + version + "/admin/event/meta/live/" + stream1 + "?accessToken=" + accessToken
         //print("metaLive url:",url)
         //let stream = "1588832196500_taylorswiftevent"
@@ -94,6 +95,55 @@ class SubscribeTest: BaseTest {
         }
         
     }
+    func screenShare(streamName: String){
+        let netAvailable = appDelegate.isConnectedToInternet()
+        if(!netAvailable){
+            showAlert(strMsg: "Please check your internet connection!")
+            return
+        }
+        let port = String(Testbed.getParameter(param:"port") as! Int);
+        let host = Testbed.getParameter(param:"host") as! String;
+        let version = Testbed.getParameter(param:"sm_version") as! String;
+        let context = Testbed.getParameter(param:"context") as! String;
+        let stream1 = streamName + "_shared_screen";
+        let url = "https://" + host + ":" + port + "/streammanager/api/" + version + "/event/" +
+            context + "/" + stream1 + "?action=subscribe&region=" + appDelegate.strRegionCode;
+
+        //let url = "https://" + host  + "/streammanager/api/" + version + "/event/" +
+           // context + "/" + streamName + "?action=subscribe&region=" + appDelegate.strRegionCode;
+        
+        //print("url:",url)
+        //let url = "https:// livestream.arevea.com/streammanager/api/4.0/event/live/1588788669277_somethingnew?action=subscribe"
+        ////print("findStream url:",url)
+        //let stream = "1588832196500_taylorswiftevent"
+        
+        AF.request(url,method: .get, encoding: JSONEncoding.default)
+            .responseJSON { response in
+                switch response.result {
+                case .success(let value):
+                    DispatchQueue.main.async {
+                        print("screenShare res:",value)
+                    }
+                    if let json = value as? [String: Any] {
+                        if json["errorMessage"] != nil{
+                            // ALToastView.toast(in: self.view, withText:errorMsg as? String ?? "")
+                            //let error = "Unable to locate stream. Broadcast has probably not started for this stream: " + stream1
+                            DispatchQueue.main.async {
+                                // ALToastView.toast(in: self.view, withText: error)
+                                let streamInfo = ["Stream": "not_available"]
+                                NotificationCenter.default.post(name: .didReceiveStreamData, object: self, userInfo: streamInfo)
+                            }
+                        }else{
+                            self.serverAddress = json["serverAddress"] as? String ?? ""
+                            self.config(url: self.serverAddress,stream:streamName,start: true)
+                        }
+                    }
+                    
+                case .failure(let error):
+                    print(error)
+                }
+        }
+    }
     func findStream(streamName: String){
         let netAvailable = appDelegate.isConnectedToInternet()
         if(!netAvailable){
@@ -110,7 +160,7 @@ class SubscribeTest: BaseTest {
             context + "/" + streamName + "?action=subscribe&region=" + appDelegate.strRegionCode;
         
         //print("url:",url)
-        //let url = "https://livestream.arevea.tv/streammanager/api/4.0/event/live/1588788669277_somethingnew?action=subscribe"
+        //let url = "https:// livestream.arevea.com/streammanager/api/4.0/event/live/1588788669277_somethingnew?action=subscribe"
         ////print("findStream url:",url)
         //let stream = "1588832196500_taylorswiftevent"
         
@@ -164,6 +214,7 @@ class SubscribeTest: BaseTest {
         self.subscribeStream!.play(stream, withHardwareAcceleration:false)
         
     }
+    
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         
@@ -187,29 +238,56 @@ class SubscribeTest: BaseTest {
         {
             for (_,value) in data
             {
-                //key orientation
-                //value portrait/landscape
+                //key screen_share
+                //value true/false
                 ////print("key: \(key)")
                 ////print("value: \(value)")
-                if (value == "portrait"){
-                   // //print("==portrait")
+                if (value == "true"){
+                   // //print("==screens share true")
+                    currentView?.view.frame = self.view.frame
+
+                    var frameControls = viewControls.frame
+                    let viewHeight = self.view.frame.size.height - 40
+                    frameControls.origin.y = viewHeight
+                    viewControls.frame = frameControls
+                    
+                    var frameSlider = slider.frame
+                    let sliderWidth = self.view.frame.size.width/2
+                    frameSlider.size.width = sliderWidth
+                    slider.frame = frameSlider
+                    
+                    var frameLive = lblLive.frame
+                    let liveX = self.view.frame.size.width - 100
+                    frameLive.origin.x = liveX
+                    lblLive.frame = frameLive
+                    
+                    
                 }else{
-                  //  //print("==landscape")
+                    // //print("==screens share false")
+                    var frameView = self.view.frame
+                    frameView.size.width = (self.view.frame.size.width * 0.45)
+                    
+                    currentView?.view.frame = frameView
+                    currentView?.view.layer.borderWidth = 1.0
+                    currentView?.view.layer.borderColor = UIColor.gray.cgColor
+                    
+                    var frameControls = viewControls.frame
+                    let viewHeight = (currentView?.view.frame.size.height)! - 40
+                    frameControls.origin.y = viewHeight
+                    viewControls.frame = frameControls
+                    
+                    var frameSlider = slider.frame
+                    let sliderWidth = (currentView?.view.frame.size.width ?? 0)/2
+                    frameSlider.size.width = sliderWidth
+                    slider.frame = frameSlider
+                    
+                    var frameLive = lblLive.frame
+                    let liveX = (currentView?.view.frame.size.width)!  - 100
+                    frameLive.origin.x = liveX
+                    lblLive.frame = frameLive
+
                 }
-                var frameControls = viewControls.frame
-                let viewHeight = self.view.frame.size.height - 40
-                frameControls.origin.y = viewHeight
-                viewControls.frame = frameControls
-                
-                var frameSlider = slider.frame
-                let sliderWidth = self.view.frame.size.width/2
-                frameSlider.size.width = sliderWidth
-                slider.frame = frameSlider
-                
-                var frameLive = lblLive.frame
-                let liveX = self.view.frame.size.width - 100
-                frameLive.origin.x = liveX
-                lblLive.frame = frameLive
+               
             }
         }
     }
