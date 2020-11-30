@@ -259,14 +259,14 @@ class SBOpenChatVC: UIViewController,UITableViewDelegate,UITableViewDataSource,O
                 
                 if sender.userId == SBDMain.getCurrentUser()!.userId {
                     // Outgoing message
-                    if let requestId = userMessage.requestId {
+                    let requestId = userMessage.requestId
                         if self.resendableMessages[requestId] != nil {
                             userMessageCell.showElementsForFailure()
                         }
                         else {
                             userMessageCell.hideElementsForFailure()
                         }
-                    }
+                    
                 }
                 else {
                     // Incoming message
@@ -351,7 +351,7 @@ class SBOpenChatVC: UIViewController,UITableViewDelegate,UITableViewDataSource,O
             if error != nil {
                 DispatchQueue.main.async {
                     guard let preSendMsg = preSendMessage else { return }
-                    guard let requestId = preSendMsg.requestId else { return }
+                    let requestId = preSendMsg.requestId
                     
                     self.preSendMessages.removeValue(forKey: requestId)
                     self.resendableMessages[requestId] = preSendMsg
@@ -363,7 +363,7 @@ class SBOpenChatVC: UIViewController,UITableViewDelegate,UITableViewDataSource,O
             }
             
             guard let message = userMessage else { return }
-            guard let requestId = message.requestId else { return }
+            let requestId = message.requestId
             
             DispatchQueue.main.async {
                 self.determineScrollLock()
@@ -382,12 +382,12 @@ class SBOpenChatVC: UIViewController,UITableViewDelegate,UITableViewDataSource,O
         DispatchQueue.main.async {
             self.determineScrollLock()
             if let preSendMsg = preSendMessage {
-                if let requestId = preSendMsg.requestId {
+                let requestId = preSendMsg.requestId
                     self.preSendMessages[requestId] = preSendMsg
                     self.messages.append(preSendMsg)
                     self.messageTableView.reloadData()
                     self.scrollToBottom(force: false)
-                }
+                
             }
         }
     }

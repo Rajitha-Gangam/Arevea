@@ -33,7 +33,7 @@ struct JSONHelper {
             let dict = try JSONDecoder().decode([String: String].self, from: dictionaryAsData)
             return dict
         } catch {
-            //print("Could not read map from data")
+            print("Could not read map from data")
         }
         return nil
     }
@@ -50,7 +50,7 @@ struct JSONHelper {
             let data = try Data.init(base64Encoded: JSONEncoder().encode(dictionary).base64EncodedData())
             return data
         } catch {
-            //print("Could not create data from map")
+            print("Could not create data from map")
         }
         return nil
     }
@@ -63,7 +63,7 @@ struct JSONHelper {
             let array = try JSONDecoder().decode([String].self, from: arrayAsData)
             return array
         } catch {
-            //print("Could not read array from data")
+            print("Could not read array from data")
         }
         return nil
     }
@@ -76,7 +76,7 @@ struct JSONHelper {
             let data = try Data.init(base64Encoded: JSONEncoder().encode(array).base64EncodedData())
             return data
         } catch {
-            //print("Could not create data from array")
+            print("Could not create data from array")
         }
         return nil
     }

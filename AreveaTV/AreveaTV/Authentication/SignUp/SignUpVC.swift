@@ -167,8 +167,9 @@ class SignUpVC: UIViewController ,UITextFieldDelegate,UIPickerViewDelegate, UIPi
         let emailPred = NSPredicate(format:"SELF MATCHES %@", emailRegEx)
         return emailPred.evaluate(with: txtEmail.text)
     }
+    
     @IBAction func signUp(_ sender: Any) {
-        
+        //oneloginHook(user_id: "115506315")
         resignKB(sender)
         let netAvailable = appDelegate.isConnectedToInternet()
         if(!netAvailable){
@@ -178,7 +179,7 @@ class SignUpVC: UIViewController ,UITextFieldDelegate,UIPickerViewDelegate, UIPi
         let firstName = txtFirstName.text!.trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
         let lastName = txtLastName.text!.trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
         let phone = txtPhone.getRawPhoneNumber() ?? "0"// if its valid, number returns, else 0 assigning
-        let email = txtEmail.text!.trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
+        let email = txtEmail.text!.lowercased().trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
         let pwd = txtPassword.text!.trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
         let cfrmPwd = txtCfrmPassword.text!.trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
         let dob = txtDOB.text!;
@@ -225,7 +226,7 @@ class SignUpVC: UIViewController ,UITextFieldDelegate,UIPickerViewDelegate, UIPi
             
             let appDelegate = UIApplication.shared.delegate as! AppDelegate
             let phoneWithCC = countryCode + phone
-            let url: String = appDelegate.ol_base_url + "/api/2/users"
+            let url: String = appDelegate.profileURL + "/fanSignup"
             let inputData = ["firstname" : firstName,"lastname" : lastName,"email" : email,"username" : email,"phone" : phoneWithCC,"password" : pwd,"password_confirmation" : pwd,"custom_attributes" : ["date_of_birth" : dobPast,"plan" : planID,"profile_pic" : "","user_display_name" : firstName + " " + lastName,"user_type" : 3,"is_user_verify" : 0]
                 ] as [String : Any]
             
@@ -236,24 +237,22 @@ class SignUpVC: UIViewController ,UITextFieldDelegate,UIPickerViewDelegate, UIPi
                 "Accept": "application/json"
             ]
             AF.request(url, method: .post,parameters: inputData, encoding: JSONEncoding.default,headers:headers)
-                .responseJSON { response in
+                .responseJSON { [self] response in
                     self.viewActivity.isHidden = true
                     switch response.result {
                     case .success(let value):
                         if let json = value as? [String: Any] {
-                            //print("signUP JSON:",json)
+                            print("signUP JSON:",json)
                             if (json["status"]as? Int == 1 ){
+                                //let user_id = json["id"] as? Int ?? 0
                                 let strMsg = "Confirmation code sent via email to " + email
                                 let alert = UIAlertController(title: "Code Sent",
                                                               message:strMsg ,
                                                               preferredStyle: .alert)
                                 
                                 alert.addAction(UIAlertAction(title: "Dismiss", style: .cancel) { _ in
-                                    guard let username = self.txtEmail.text else {
-                                        return
-                                    }
+                                     let username = self.txtEmail.text!.lowercased()
                                     UserDefaults.standard.set(username, forKey: "user_email")
-                                    
                                     let storyboard = UIStoryboard(name: "Main", bundle: nil);
                                     let vc = storyboard.instantiateViewController(withIdentifier: "ConfirmSignUpVC") as! ConfirmSignUpVC
                                     self.navigationController?.pushViewController(vc, animated: true)
@@ -262,6 +261,7 @@ class SignUpVC: UIViewController ,UITextFieldDelegate,UIPickerViewDelegate, UIPi
                                 DispatchQueue.main.async {
                                     self.present(alert, animated: true, completion: nil)
                                 }
+                                
                             }else{
                                 //An account with the given email already exists.
                                 //self.showAlert(strMsg: "An account with the given email already exists.")
@@ -282,7 +282,57 @@ class SignUpVC: UIViewController ,UITextFieldDelegate,UIPickerViewDelegate, UIPi
             
         }
     }
-    
+    func oneloginHook(user_id:Int){
+        
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        let url: String = appDelegate.baseURL +  "/oneloginHook"
+        //101059776
+        let params: [String: Any] = ["user_id":user_id,"event_type_id":13]
+        print("oneloginHook params:",params)
+        viewActivity.isHidden = false
+        let headers: HTTPHeaders
+        headers = [appDelegate.x_api_key: appDelegate.x_api_value]
+        
+        AF.request(url, method: .post,  parameters: params, encoding: JSONEncoding.default,headers:headers)
+            .responseJSON { response in
+                self.viewActivity.isHidden = true
+                switch response.result {
+                case .success(let value):
+                    if let json = value as? [String: Any] {
+                       print("oneloginHook json:",json)
+                        
+                        if (json["statusCode"]as? String == "200" ){
+                            let email = self.txtEmail.text!.lowercased().trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
+
+                            let strMsg = "Confirmation code sent via email to " + email
+                            let alert = UIAlertController(title: "Code Sent",
+                                                          message:strMsg ,
+                                                          preferredStyle: .alert)
+                            
+                            alert.addAction(UIAlertAction(title: "Dismiss", style: .cancel) { _ in
+                                 let username = self.txtEmail.text!.lowercased()
+                                UserDefaults.standard.set(username, forKey: "user_email")
+                                let storyboard = UIStoryboard(name: "Main", bundle: nil);
+                                let vc = storyboard.instantiateViewController(withIdentifier: "ConfirmSignUpVC") as! ConfirmSignUpVC
+                                self.navigationController?.pushViewController(vc, animated: true)
+                            })
+                            
+                            DispatchQueue.main.async {
+                                self.present(alert, animated: true, completion: nil)
+                            }
+                        }else{
+                            let strMsg = json["message"] as? String ?? ""
+                            self.showAlert(strMsg: strMsg)
+                        }
+                    }
+                case .failure(let error):
+                  let errorDesc = error.localizedDescription.replacingOccurrences(of: "URLSessionTask failed with error:", with: "")
+                    self.showAlert(strMsg: errorDesc)
+                            self.viewActivity.isHidden = true
+
+                }
+        }
+    }
     @IBAction func dismissModal(_ sender: Any) {
         self.navigationController?.dismiss(animated: true, completion: nil)
     }

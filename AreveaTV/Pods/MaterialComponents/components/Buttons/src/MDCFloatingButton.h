@@ -90,6 +90,13 @@ typedef NS_ENUM(NSInteger, MDCFloatingButtonImageLocation) {
 @property(nonatomic, assign) MDCFloatingButtonMode mode;
 
 /**
+ The shape of the floating button.
+
+ The default value is decided by the @c -initWithFrame:shape: initializer.
+ */
+@property(nonatomic, assign) MDCFloatingButtonShape shape;
+
+/**
  Changes the mode (with animation, if desired).
 
  If animated, the floating button's size will be updated automatically as part of the animation.
@@ -236,5 +243,17 @@ typedef NS_ENUM(NSInteger, MDCFloatingButtonImageLocation) {
 - (void)setHitAreaInsets:(UIEdgeInsets)hitAreaInsets
                 forShape:(MDCFloatingButtonShape)shape
                   inMode:(MDCFloatingButtonMode)mode UI_APPEARANCE_SELECTOR;
+
+/**
+ Sets the @c centerVisibleArea value when the button has the specified @c shape and @c mode.
+
+ @param centerVisibleArea The boolean value that determines whether the visible area is centered in
+ the bounds of the view.
+ @param shape The floating action button's shape (Default, Mini).
+ @param mode The floating action button's mode (Normal, Expanded).
+ */
+- (void)setCenterVisibleArea:(BOOL)centerVisibleArea
+                    forShape:(MDCFloatingButtonShape)shape
+                      inMode:(MDCFloatingButtonMode)mode;
 
 @end

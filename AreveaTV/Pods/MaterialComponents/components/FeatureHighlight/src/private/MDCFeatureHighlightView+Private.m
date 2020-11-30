@@ -19,13 +19,11 @@
 #import "MDCFeatureHighlightLayer.h"
 
 #import "MaterialAvailability.h"
-#import "MaterialFeatureHighlightStrings.h"
-#import "MaterialFeatureHighlightStrings_table.h"
 #import "MaterialMath.h"
 #import "MaterialTypography.h"
 
 static inline CGFloat CGPointDistanceToPoint(CGPoint a, CGPoint b) {
-  return MDCHypot(a.x - b.x, a.y - b.y);
+  return hypot(a.x - b.x, a.y - b.y);
 }
 
 const CGFloat kMDCFeatureHighlightMinimumInnerRadius = 44;

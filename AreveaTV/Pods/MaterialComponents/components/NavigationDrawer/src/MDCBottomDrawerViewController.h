@@ -45,6 +45,11 @@
 @property(nonatomic, nullable) UIViewController<MDCBottomDrawerHeader> *headerViewController;
 
 /**
+ A scroll view contained within the contentViewController.
+
+ If the contentViewController contains a UIScrollView or UIScrollView subclass it is recommended to
+ set that scroll view as the tracking scroll view.
+
  Setting the tracking scroll view allows the drawer scroll the content seamlessly as part of
  the drawer movement. This allows the provided scroll view to load the visible
  content as the drawer moves, and therefore not load all the content at once
@@ -90,11 +95,34 @@
 @property(nonatomic, assign) CGFloat maximumInitialDrawerHeight;
 
 /**
+ The absolute height in points to which the drawer may expand when a user scrolls.
+
+ Defaults to 0, indicating no value has been set and it should use the default behavior of 100% of
+ the screen's height.
+
+ Once the maximumDrawerHeight is reached the drawer state will return @c
+ MDCBottomDrawerStateExpanded.
+
+ If the value is larger than the container's height, this will allow the drawer to be scrolled to
+ the full height of the container.
+ */
+@property(nonatomic, assign) CGFloat maximumDrawerHeight;
+
+/**
  A flag allowing clients to opt-out of the drawer closing when the user taps outside the content.
 
  @default YES The drawer should dismiss on tap.
  */
 @property(nonatomic, assign) BOOL dismissOnBackgroundTap;
+
+/**
+ A flag allowing clients to opt-out of the drawer closing when user uses accessibility escape
+ gesture. If set to NO, you can alternatively set an accessibility escape action by implementing the
+ @c accessibilityPerformEscape method in your provided contentViewController.
+
+ @default YES The drawer dismisses on z-gesture.
+ */
+@property(nonatomic, assign) BOOL shouldDismissOnAccessibilityPerformEscape;
 
 /**
  A flag allowing clients to opt-in to handling background touch events.
@@ -168,6 +196,23 @@
  Defaults to NO.
  */
 @property(nonatomic, assign) BOOL shouldAdjustOnContentSizeChange;
+
+/**
+ Whether layout adjustments should be made to support iPad Slide Over.
+
+ Defaults to NO to maintain the same behavior that existed before this property
+ was added and to allow apps to migrate on their own schedule.
+ */
+@property(nonatomic) BOOL adjustLayoutForIPadSlideOver;
+
+/**
+ Whether to display mobile landscape view as fullscreen.
+
+ When enabled, the drawer will fill the screen in landscape on mobile devices.
+
+ Defaults to YES.
+*/
+@property(nonatomic) BOOL shouldDisplayMobileLandscapeFullscreen;
 
 /**
  Sets the top corners radius for an MDCBottomDrawerState drawerState

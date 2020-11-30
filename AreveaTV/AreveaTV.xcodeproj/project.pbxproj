@@ -83,6 +83,10 @@
 		189EBF44245ACD3400C52B0E /* FilterCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 189EBF42245ACD3400C52B0E /* FilterCell.swift */; };
 		189EBF45245ACD3400C52B0E /* FilterCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 189EBF43245ACD3400C52B0E /* FilterCell.xib */; };
 		18B11E3425505C95006ECB9C /* ScreenShareVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18B11E3325505C95006ECB9C /* ScreenShareVC.swift */; };
+		18B1BEE925594AF6003E96FF /* EventRegistrationVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18B1BEE825594AF6003E96FF /* EventRegistrationVC.swift */; };
+		18B1BEF3255955C6003E96FF /* SubscriptionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18B1BEF1255955C6003E96FF /* SubscriptionCell.swift */; };
+		18B1BEF4255955C6003E96FF /* SubscriptionCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 18B1BEF2255955C6003E96FF /* SubscriptionCell.xib */; };
+		18C4072C255AE5910087BD53 /* MultiStreamVCBackUp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18C4072B255AE5900087BD53 /* MultiStreamVCBackUp.swift */; };
 		18D2717D24A382A400F958BC /* search.png in Resources */ = {isa = PBXBuildFile; fileRef = 18D2717C24A382A300F958BC /* search.png */; };
 		18D48042244E8F2B00640C1A /* libc++.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 18D48041244E8F2B00640C1A /* libc++.tbd */; };
 		18D48044244E8F4500640C1A /* libz.1.2.11.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 18D48043244E8F4500640C1A /* libz.1.2.11.tbd */; };
@@ -218,6 +222,10 @@
 		189EBF42245ACD3400C52B0E /* FilterCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterCell.swift; sourceTree = "<group>"; };
 		189EBF43245ACD3400C52B0E /* FilterCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = FilterCell.xib; sourceTree = "<group>"; };
 		18B11E3325505C95006ECB9C /* ScreenShareVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenShareVC.swift; sourceTree = "<group>"; };
+		18B1BEE825594AF6003E96FF /* EventRegistrationVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventRegistrationVC.swift; sourceTree = "<group>"; };
+		18B1BEF1255955C6003E96FF /* SubscriptionCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionCell.swift; sourceTree = "<group>"; };
+		18B1BEF2255955C6003E96FF /* SubscriptionCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = SubscriptionCell.xib; sourceTree = "<group>"; };
+		18C4072B255AE5900087BD53 /* MultiStreamVCBackUp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultiStreamVCBackUp.swift; sourceTree = "<group>"; };
 		18D2717C24A382A300F958BC /* search.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = search.png; sourceTree = "<group>"; };
 		18D48041244E8F2B00640C1A /* libc++.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libc++.tbd"; path = "usr/lib/libc++.tbd"; sourceTree = SDKROOT; };
 		18D48043244E8F4500640C1A /* libz.1.2.11.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.1.2.11.tbd; path = usr/lib/libz.1.2.11.tbd; sourceTree = SDKROOT; };
@@ -513,6 +521,7 @@
 		189EBF4B245B385700C52B0E /* TableView Cells */ = {
 			isa = PBXGroup;
 			children = (
+				18B1BEEB2559557E003E96FF /* SubscriptionCell */,
 				18122C98252B0C5800C28926 /* MultiStreamGuests */,
 				1860DFBA24D40B8800ACB899 /* MyEventsCell */,
 				184A0B502472CBEA006EDDA3 /* Payment History Cell */,
@@ -539,6 +548,15 @@
 				18DAF976248FA98000A6693A /* CheckMarkCell.xib */,
 			);
 			path = "Filter Cell";
+			sourceTree = "<group>";
+		};
+		18B1BEEB2559557E003E96FF /* SubscriptionCell */ = {
+			isa = PBXGroup;
+			children = (
+				18B1BEF1255955C6003E96FF /* SubscriptionCell.swift */,
+				18B1BEF2255955C6003E96FF /* SubscriptionCell.xib */,
+			);
+			path = SubscriptionCell;
 			sourceTree = "<group>";
 		};
 		18D48059244EA5A600640C1A /* DashBoardCell */ = {
@@ -570,6 +588,7 @@
 				18D480A924519D1100640C1A /* SubscribeTest.swift */,
 				18B11E3325505C95006ECB9C /* ScreenShareVC.swift */,
 				18FE073B24D1CFB90011FDE3 /* MultiStreamVC.swift */,
+				18C4072B255AE5900087BD53 /* MultiStreamVCBackUp.swift */,
 			);
 			path = "Stream Classes";
 			sourceTree = "<group>";
@@ -591,6 +610,7 @@
 				18D480B02451A30E00640C1A /* ChannelsVC.swift */,
 				1864AFCC2454A999004F3AED /* ChannelDetailVC.swift */,
 				1810E6F524C84BCA003EAF91 /* StreamDetailVC.swift */,
+				18B1BEE825594AF6003E96FF /* EventRegistrationVC.swift */,
 				188B0EA4248E8F7A0062EB1D /* VideoEditor.swift */,
 				18DDD1AF24C0A4A500CF0F1A /* Multi Stream */,
 			);
@@ -856,6 +876,7 @@
 				189E324F24DAAF8700E63674 /* Default-Portrait-2436h@3x.png in Resources */,
 				1826035C24D2A7CC00248E8B /* Poppins-SemiBold.ttf in Resources */,
 				189EBED7245752B800C52B0E /* AudioCell.xib in Resources */,
+				18B1BEF4255955C6003E96FF /* SubscriptionCell.xib in Resources */,
 				18122C9E252B0CCC00C28926 /* MultiStreamGuestsCVC.xib in Resources */,
 				18DAF98E248FBA1D00A6693A /* sr_entertainment.png in Resources */,
 				180A8BDD24AF92340022FFE4 /* Images.xcassets in Resources */,
@@ -948,12 +969,14 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				18B1BEF3255955C6003E96FF /* SubscriptionCell.swift in Sources */,
 				18DAF9A4248FDE8300A6693A /* DBSearchCVC.swift in Sources */,
 				1822F8A824D03364009E8E1A /* MyEventsCVC.swift in Sources */,
 				182A5F05246166D700FF6147 /* CharityCell.swift in Sources */,
 				182A5EFC2460163100FF6147 /* ButtonsCVC.swift in Sources */,
 				18DAF977248FA98000A6693A /* CheckMarkCell.swift in Sources */,
 				18D480C62454552200640C1A /* ProfileVC.swift in Sources */,
+				18B1BEE925594AF6003E96FF /* EventRegistrationVC.swift in Sources */,
 				189EBF322459CEE500C52B0E /* VideoCell.swift in Sources */,
 				182A5EF2245C59C700FF6147 /* SectionHeader.swift in Sources */,
 				18D480BD2452D0CE00640C1A /* SubscriptionPlanVC.swift in Sources */,
@@ -984,6 +1007,7 @@
 				1864AFCD2454A999004F3AED /* ChannelDetailVC.swift in Sources */,
 				184A0B532472CC20006EDDA3 /* PaymentHistoryCell.swift in Sources */,
 				189EBF44245ACD3400C52B0E /* FilterCell.swift in Sources */,
+				18C4072C255AE5910087BD53 /* MultiStreamVCBackUp.swift in Sources */,
 				18122C9D252B0CCC00C28926 /* MultiStreamGuestsCVC.swift in Sources */,
 				187D7B14246D615C0041D5AA /* AreveaAPIClient.swift in Sources */,
 				1891CA63244AC82B00EE1E45 /* AppDelegate.swift in Sources */,
@@ -1154,7 +1178,7 @@
 				CODE_SIGN_ENTITLEMENTS = AreveaTV/AreveaTV.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 1.50;
+				CURRENT_PROJECT_VERSION = 1.0;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = J7XKYVP7J4;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -1167,7 +1191,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1;
+				MARKETING_VERSION = 2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.prod.arevea;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "Arevea Development New";
@@ -1185,7 +1209,7 @@
 				CODE_SIGN_ENTITLEMENTS = AreveaTV/AreveaTV.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 1.50;
+				CURRENT_PROJECT_VERSION = 1.0;
 				DEVELOPMENT_TEAM = J7XKYVP7J4;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1197,7 +1221,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1;
+				MARKETING_VERSION = 2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.prod.arevea;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "Arevea Development New";

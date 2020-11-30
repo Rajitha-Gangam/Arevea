@@ -27,13 +27,26 @@
 
  @param messageView The messageView of the snackbar that will be presented.
  */
-- (void)willPresentSnackbarWithMessageView:(nullable MDCSnackbarMessageView *)messageView;
+- (void)willPresentSnackbarWithMessageView:(nonnull MDCSnackbarMessageView *)messageView;
 
 @optional
+
+/**
+ This method is called just before a Snackbar is dismissed.
+ */
+- (void)snackbarWillDisappear;
 
 /**
  This method is called after a Snackbar's dismissal animation is finished.
  */
 - (void)snackbarDidDisappear;
+
+/**
+ This method is called after the snackbar begins presenting (and is laid out),
+ but before the animiation is finished.
+
+ @param messageView The messageView of the snackbar that was just presented.
+ */
+- (void)isPresentingSnackbarWithMessageView:(nonnull MDCSnackbarMessageView *)messageView;
 
 @end

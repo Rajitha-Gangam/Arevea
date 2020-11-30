@@ -63,12 +63,13 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
     var arySideMenu : [[String: String]] = [["name":"Home","icon":"home"],["name":"My Profile","icon":"user-white"],["name":"My Events","icon":"event"],["name":"My Payments","icon":"donation"],["name":"My Purchases","icon":"purchase"],["name":"Help","icon":"help"],["name":"Logout","icon":"logout"]];
     var sectionTitles = ["Live Events","Upcoming Events","My List","Trending Channels"]
     var locationManager:CLLocationManager!
-
+    
     //MARK:View Life Cycle Methods
     
     @IBOutlet weak var viewActivity: UIView!
     @IBOutlet weak var heightTopView: NSLayoutConstraint?
     @IBOutlet weak var viewTop: UIView!
+    var aryUserSubscriptionInfo = [Any]()
     
     lazy var refreshControl: UIRefreshControl = {
         let refreshControl = UIRefreshControl()
@@ -114,17 +115,17 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
         
         self.tblMain.addSubview(self.refreshControl)//pull to refresh handled
         let arn = UserDefaults.standard.string(forKey: "arn");
-        print("==arn:",arn)
+        //print("==arn:",arn)
         
         locationManager = CLLocationManager()
-         locationManager.delegate = self
-         locationManager.desiredAccuracy = kCLLocationAccuracyBest
-         locationManager.requestAlwaysAuthorization()
-         
-         if CLLocationManager.locationServicesEnabled(){
-         locationManager.startUpdatingLocation()
-         }
-
+        locationManager.delegate = self
+        locationManager.desiredAccuracy = kCLLocationAccuracyBest
+        locationManager.requestAlwaysAuthorization()
+        
+        if CLLocationManager.locationServicesEnabled(){
+            locationManager.startUpdatingLocation()
+        }
+        
     }
     @objc func handleRefresh(_ refreshControl: UIRefreshControl) {
         // Do some reloading of data and update the table view's data source
@@ -191,7 +192,8 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
          UIDevice.current.setValue(value, forKey: "orientation")
          }
          tblMain.reloadData()*/
-        
+        UIApplication.shared.isIdleTimerDisabled = false //to device lock based on user settings when steraming is not running
+
     }
     override func viewWillAppear(_ animated: Bool) {
         AppDelegate.AppUtility.lockOrientation(.portrait, andRotateTo: .portrait)
@@ -224,7 +226,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
             getProfile()
         }
         let current = UNUserNotificationCenter.current()
-
+        
         current.getNotificationSettings(completionHandler: { [self] (settings) in
             if settings.authorizationStatus == .notDetermined {
                 // Notification permission has not been asked yet, go for it!
@@ -240,7 +242,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
                 self.enablePN()
             } else if settings.authorizationStatus == .authorized {
                 // Notification permission was already granted
-               // self.showAlert(strMsg: "Enabled PN")
+                // self.showAlert(strMsg: "Enabled PN")
                 
             }
         })
@@ -251,30 +253,30 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
     }
     func enablePN(){
         let alertController = UIAlertController(title: "Alert", message: "Please enable push notifictaions for this app, as it impacts more on app", preferredStyle: .alert)
-
-           // Setting button action
-           let settingsAction = UIAlertAction(title: "Go to Settings", style: .default) { (_) -> Void in
+        
+        // Setting button action
+        let settingsAction = UIAlertAction(title: "Go to Settings", style: .default) { (_) -> Void in
             guard let settingsUrl = URL(string: UIApplication.openSettingsURLString) else {
-                   return
-               }
-               
-               if UIApplication.shared.canOpenURL(settingsUrl) {
-                   UIApplication.shared.open(settingsUrl, completionHandler: { (success) in
-                       // Checking for setting is opened or not
-                       print("Setting is opened: \(success)")
-                   })
-               }
-           }
-           
-           alertController.addAction(settingsAction)
-           // Cancel button action
-           let cancelAction = UIAlertAction(title: "Cancel", style: .default){ (_) -> Void in
-               // Magic is here for cancel button
-           }
-           alertController.addAction(cancelAction)
-           // This part is important to show the alert controller ( You may delete "self." from present )
+                return
+            }
+            
+            if UIApplication.shared.canOpenURL(settingsUrl) {
+                UIApplication.shared.open(settingsUrl, completionHandler: { (success) in
+                    // Checking for setting is opened or not
+                    print("Setting is opened: \(success)")
+                })
+            }
+        }
+        
+        alertController.addAction(settingsAction)
+        // Cancel button action
+        let cancelAction = UIAlertAction(title: "Cancel", style: .default){ (_) -> Void in
+            // Magic is here for cancel button
+        }
+        alertController.addAction(cancelAction)
+        // This part is important to show the alert controller ( You may delete "self." from present )
         DispatchQueue.main.async {
-           self.present(alertController, animated: true, completion: nil)
+            self.present(alertController, animated: true, completion: nil)
         }
     }
     func showAlert(strMsg: String){
@@ -310,7 +312,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
                     self.viewActivity.isHidden = true
                     
                 }
-        }
+            }
     }
     // MARK: Handler for myList(myList) API
     func myList(){
@@ -318,6 +320,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
         let url: String = appDelegate.ol_lambda_url +  "/myList"
         let user_id = UserDefaults.standard.string(forKey: "user_id");
         let inputData: [String: Any] = ["userid":user_id ?? ""]
+        //print("myList params:",inputData)
         let session_token = UserDefaults.standard.string(forKey: "session_token") ?? ""
         let headers : HTTPHeaders = [
             "Content-Type": "application/json",
@@ -331,14 +334,14 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
                 switch response.result {
                 case .success(let value):
                     if let json = value as? [String: Any] {
-                        //print("myList JSON:",json)
+                       // print("myList JSON:",json)
                         if (json["statusCode"]as? String == "200" ){
                             self.aryMyListData  = json["Data"] as? [Any] ?? [Any]();
                             //print("Mylist count:",self.aryMyListData.count)
                             self.tblMain.reloadSections([2], with: .none)
                         }else{
                             let strMsg = json["message"] as? String ?? ""
-                            self.showAlert(strMsg: strMsg)
+                            //self.showAlert(strMsg: strMsg)
                         }
                         
                     }
@@ -348,7 +351,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
                     self.viewActivity.isHidden = true
                     
                 }
-        }
+            }
     }
     
     
@@ -368,7 +371,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
                     switch response.result {
                     case .success(let value):
                         if let json = value as? [String: Any] {
-                            print("trendingChannels JSON:",json)
+                           // print("trendingChannels JSON:",json)
                             if (json["statusCode"]as? String == "200"){
                                 //////print(json["message"] ?? "")
                                 self.aryTrendingChannelsData  = json["Data"] as? [Any] ?? [Any]();
@@ -391,13 +394,13 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
                         
                     }
                 }
-        }
+            }
     }
     // MARK: Handler for events(events) API
     func getEvents(inputData:[String: Any]){
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         let url: String = appDelegate.baseURL +  "/events"
-        print("getEvents input:",inputData)
+        //print("getEvents input:",inputData)
         viewActivity.isHidden = false
         let headers: HTTPHeaders
         headers = [appDelegate.x_api_key: appDelegate.x_api_value]
@@ -408,7 +411,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
                     switch response.result {
                     case .success(let value):
                         if let json = value as? [String: Any] {
-                            print("events JSON:",json)
+                            //print("events JSON:",json)
                             let data  = json["Data"] as? [String:Any];
                             self.aryLiveChannelsData = data?["live_events"] as? [Any] ?? [Any]();
                             self.aryUpcomingData = data?["upcoming_events"] as? [Any] ?? [Any]();
@@ -426,7 +429,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
                         
                     }
                 }
-        }
+            }
     }
     // MARK: Handler for events(events) API
     
@@ -498,7 +501,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
                     self.showAlert(strMsg: errorDesc)
                     
                 }
-        }
+            }
     }
     func logoutOL(){
         
@@ -531,7 +534,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
                     self.showAlert(strMsg: errorDesc)
                     
                 }
-        }
+            }
     }
     func logoutLambda(){
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
@@ -580,7 +583,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
                     self.viewActivity.isHidden = true
                     
                 }
-        }
+            }
     }
     
     
@@ -732,7 +735,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
                 self.navigationController?.pushViewController(vc, animated: true)
             default:
                 hideSideMenu()
-                //print ("default")
+            //print ("default")
             }
         }
     }
@@ -772,7 +775,8 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
         hideSideMenu()
         let orgsList = didTappedInTableViewCell.rowWithItems
         let selectedOrg = orgsList[index] as? [String: Any] ?? [:]
-                print("item:\(String(describing: selectedOrg))")
+        //print("item:\(String(describing: selectedOrg))")
+        
         //        //print("title:",title)
         if (title == "dashboard" || title == "dashboard_my_list" || title == "dashboard_up"){
             var streamInfo = selectedOrg["stream_info"] as? [String: Any] ?? [:]
@@ -782,29 +786,43 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
             let storyboard = UIStoryboard(name: "Main", bundle: nil);
             let number_of_creators = streamInfo["number_of_creators"] as? Int ?? 0
             let orgId = streamInfo["organization_id"] as? Int ?? 0
-            var streamId = 0
             let performer_id = streamInfo["performer_id"] as? Int ?? 0
-            let stream_video_title = streamInfo["stream_video_title"] as? String ?? "Channel Details"
-            if (title == "dashboard_my_list"){
-                streamId = streamInfo["stream_video_id"] as? Int ?? 0
-            }else{
-                streamId = streamInfo["id"] as? Int ?? 0
+            var streamId = streamInfo["stream_video_id"] as? Int ?? 0
+            if(title != "dashboard_my_list"){
+            streamId = streamInfo["id"] as? Int ?? 0
             }
-            appDelegate.isLiveLoad = "1"
-            //print("number_of_creators:",number_of_creators)
-            let vc = storyboard.instantiateViewController(withIdentifier: "StreamDetailVC") as! StreamDetailVC
-            vc.orgId = orgId
-            vc.streamId = streamId
-            vc.delegate = self
-            vc.performerId = performer_id
-            vc.strTitle = stream_video_title
-            self.navigationController?.pushViewController(vc, animated: true)
+            
+            let stream_video_title = streamInfo["stream_video_title"] as? String ?? "Channel Details"
+            let channelName = streamInfo["channel_name"] as? String ?? ""
+            //if it is multi event, need to navigate multi stream
+            if(number_of_creators > 1){
+                let storyboard = UIStoryboard(name: "Main", bundle: nil);
+                let vc = storyboard.instantiateViewController(withIdentifier: "MultiStreamVCBackUp") as! MultiStreamVCBackUp
+                let stream_video_title = streamInfo["stream_video_title"] as? String ?? "Stream Details"
+                vc.strTitle = stream_video_title
+                vc.orgId = orgId
+               // print("==streamId:",streamId)
+                vc.streamId = streamId
+                //vc.delegate = self
+                vc.performerId = performer_id
+                vc.strTitle = stream_video_title
+                //vc.isVOD = isVOD
+                self.navigationController?.pushViewController(vc, animated: true)
+            }else{
+                if (title == "dashboard_my_list"){
+                    LiveEventById(streamInfo:streamInfo,myList: true)
+                }else{
+                    LiveEventById(streamInfo:streamInfo,myList: false)
+                }
+            }
+            
         }else if(title == "dashboard_trending_channels"){
             let performerDetails = selectedOrg["performer_details"] as? [String: Any] ?? [:]
             let storyboard = UIStoryboard(name: "Main", bundle: nil);
             let vc = storyboard.instantiateViewController(withIdentifier: "ChannelDetailVC") as! ChannelDetailVC
             vc.orgId = performerDetails["id"] as? Int ?? 0
-            vc.channel_name = performerDetails["channel_name"] as? String ?? ""
+            let channelName = performerDetails["channel_name"] as? String ?? ""
+            vc.channel_name = channelName
             if (performerDetails["user_id"] as? Int) != nil {
                 vc.performerId = performerDetails["user_id"] as! Int
             }
@@ -815,7 +833,108 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
             self.navigationController?.pushViewController(vc, animated: true)
         }
     }
-    
+    func LiveEventById(streamInfo:[String: Any],myList:Bool) {
+       // print("streamInfo:",streamInfo)
+        var streamId = streamInfo["stream_video_id"] as? Int ?? 0
+        if(!myList){
+        streamId = streamInfo["id"] as? Int ?? 0
+        }
+       // print("streamId:",streamId)
+        
+        let channelName = streamInfo["channel_name"] as? String ?? ""
+        
+        let user_id = UserDefaults.standard.string(forKey: "user_id");
+        var streamIdLocal = "0"
+        if (streamId != 0){
+            streamIdLocal = String(streamId)
+        }
+        let orgId = streamInfo["organization_id"] as? Int ?? 0
+        let performer_id = streamInfo["performer_id"] as? Int ?? 0
+        let stream_video_title = streamInfo["stream_video_title"] as? String ?? "Channel Details"
+        
+        let params: [String: Any] = ["userid":user_id ?? "","performer_id":performer_id,"stream_id": streamIdLocal]
+        
+        viewActivity.isHidden = false
+        let netAvailable = appDelegate.isConnectedToInternet()
+        if(!netAvailable){
+            showAlert(strMsg: "Please check your internet connection!")
+            return
+        }
+        let url: String = appDelegate.baseURL +  "/LiveEventById"
+        
+        let headers: HTTPHeaders
+        headers = [appDelegate.x_api_key: appDelegate.x_api_value]
+        
+        //print("liveEvents params1:",params)
+        AF.request(url, method: .post,parameters: params, encoding: JSONEncoding.default,headers:headers)
+            .responseJSON { [self] response in
+                self.viewActivity.isHidden = true
+                switch response.result {
+                case .success(let value):
+                    if let json = value as? [String: Any] {
+                        //print("LiveEventById JSON1:",json)
+                        if (json["statusCode"]as? String == "200"){
+                            let data = json["Data"] as? [String:Any]
+                            let resultData = data ?? [:]
+                            let aryStreamInfo = data?["stream_info"] as? [String:Any] ?? [:]
+                            let stream_info_key_exists = aryStreamInfo["id"]
+                            if (stream_info_key_exists != nil){
+                                let streamObj = aryStreamInfo
+                                let stream_status = streamObj["stream_status"] as? String ?? ""
+                                let user_subscription_info = data?["user_subscription_info"] != nil
+                                if(user_subscription_info){
+                                    self.aryUserSubscriptionInfo = data?["user_subscription_info"] as? [Any] ?? [Any]()
+                                }
+                                var isVOD = false
+                                if (streamObj["stream_vod"]as? String == "stream"){
+                                    isVOD = false
+                                }else{
+                                    isVOD = true
+                                }
+                                if (self.aryUserSubscriptionInfo.count == 0){
+                                    let vc = storyboard!.instantiateViewController(withIdentifier: "EventRegistrationVC") as! EventRegistrationVC
+                                    appDelegate.isLiveLoad = "1"
+                                    vc.orgId = orgId
+                                    //print("==streamId:",streamId)
+                                    vc.streamId = streamId
+                                    //vc.delegate = self
+                                    vc.performerId = performer_id
+                                    vc.strTitle = stream_video_title
+                                    vc.isVOD = isVOD
+                                    // vc.channel_name_subscription = channelName
+                                    self.navigationController?.pushViewController(vc, animated: true)
+                                }else{
+                                        let vc = storyboard!.instantiateViewController(withIdentifier: "StreamDetailVC") as! StreamDetailVC
+                                        appDelegate.isLiveLoad = "1"
+                                        vc.orgId = orgId
+                                        //print("==streamId:",streamId)
+                                        vc.streamId = streamId
+                                        vc.delegate = self
+                                        vc.performerId = performer_id
+                                        vc.strTitle = stream_video_title
+                                        vc.channel_name_subscription = channelName
+                                        if(stream_status == "completed" && myList){
+                                            vc.isVOD = true
+                                        }else{
+                                            vc.isVOD = isVOD
+                                        }
+                                        self.navigationController?.pushViewController(vc, animated: true)
+                                }
+                            }
+                        }else{
+                            let strError = json["message"] as? String
+                            ////print("strError1:",strError ?? "")
+                            self.showAlert(strMsg: strError ?? "")
+                        }
+                    }
+                case .failure(let error):
+                    let errorDesc = error.localizedDescription.replacingOccurrences(of: "URLSessionTask failed with error:", with: "")
+                    self.showAlert(strMsg: errorDesc)
+                    self.viewActivity.isHidden = true
+                    
+                }
+            }
+    }
     //MARK: UISearchbar delegate
     @IBAction func searchTapped(_ sender: UIButton){
         let storyboard = UIStoryboard(name: "Main", bundle: nil);
@@ -844,7 +963,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
             let placemark = placemarks! as [CLPlacemark]
             if placemark.count>0{
                 let placemark = placemarks![0]
-               // print("country:",placemark.country!)
+                // print("country:",placemark.country!)
                 self.appDelegate.strCountry = placemark.country!
                 self.getRegion()
             }

@@ -4,6 +4,5 @@
         "title": "FCM",
         "alert": "Push notification in simulator - take a look",
         "sound": "default",
-        "badge": 1
     }
 }

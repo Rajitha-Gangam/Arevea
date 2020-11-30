@@ -110,9 +110,7 @@ __attribute__((objc_subclassing_restricted)) @interface MDCFlexibleHeaderMinMaxH
 
 @end
 
-#pragma mark APIs that will be deprecated
-
-@interface MDCFlexibleHeaderMinMaxHeight ()
+@interface MDCFlexibleHeaderMinMaxHeight (ToBeDeprecated)
 
 /**
  See MDCFlexibleHeaderView.h for complete documentation of this property.
@@ -121,12 +119,17 @@ __attribute__((objc_subclassing_restricted)) @interface MDCFlexibleHeaderMinMaxH
  */
 @property(nonatomic) BOOL minMaxHeightIncludesSafeArea;
 
+@end
+
+@interface MDCFlexibleHeaderMinMaxHeight (Deprecated)
+
 /**
  Informs the receiver that it should update the minimumHeight and maximumHeight.
 
  Does nothing if minMaxHeightIncludesSafeArea is disabled.
  This property can be removed once minMaxHeightIncludesSafeArea is removed.
  */
-- (void)recalculateMinMaxHeight;
+- (void)recalculateMinMaxHeight __deprecated_msg(
+    "Set minMaxHeightIncludesSafeArea to NO and use minimumHeight and maximumHeight instead.");
 
 @end

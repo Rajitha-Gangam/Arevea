@@ -168,7 +168,7 @@ typedef NS_ENUM(NSInteger, MDCBottomNavigationBarAlignment) {
 @property(nonatomic, assign) CGFloat itemsContentHorizontalMargin;
 
 /**
- The amount of horizontal padding on the leading/trailing edges of each bar item. Defaults to 12.
+ The amount of horizontal padding on the leading/trailing edges of each bar item. Defaults to 0.
 
  @note: The amount of horizontal space between the bar items will be double this value.
  */
@@ -213,24 +213,26 @@ typedef NS_ENUM(NSInteger, MDCBottomNavigationBarAlignment) {
 @property(nonatomic, assign) NSInteger titlesNumberOfLines;
 
 /**
- By setting this property to @c YES, the Ripple component will be used instead of Ink
- to display visual feedback to the user.
-
- @note This property will eventually be enabled by default, deprecated, and then deleted as part
- of our migration to Ripple. Learn more at
- https://github.com/material-components/material-components-ios/tree/develop/components/Ink#migration-guide-ink-to-ripple
-
- Defaults to NO.
- */
-@property(nonatomic, assign) BOOL enableRippleBehavior;
-
-/**
 A block that is invoked when the @c MDCBottomNavigationBar receives a call to @c
 traitCollectionDidChange:. The block is called after the call to the superclass.
 */
 @property(nonatomic, copy, nullable) void (^traitCollectionDidChangeBlock)
     (MDCBottomNavigationBar *_Nonnull bottomNavigationBar,
      UITraitCollection *_Nullable previousTraitCollection);
+
+/**
+ Sets the height of the navigation bar.
+
+ Note: If set to a value smaller or equal to zero (<= 0), the bar will default to a height of 56 in
+ the normal case, and to 40 if alignment is set to
+ MDCBottomNavigationBarAlignmentJustifiedAdjacentTitles and horizontalSizeClass is set to
+ UIUserInterfaceSizeClassRegular.
+
+ If value is bigger than 0 ( > 0), then the intrinsic height will match the provided barHeight.
+
+ Defaults to 0.
+ */
+@property(nonatomic, assign) CGFloat barHeight;
 
 /**
  Returns the navigation bar subview associated with the specific item.
@@ -241,20 +243,20 @@ traitCollectionDidChange:. The block is called after the call to the superclass.
 
 @end
 
-/** APIs that are deprecated. No new code should rely on these APIs. */
-@interface MDCBottomNavigationBar (Deprecated)
+/** APIs that are ToBeDeprecated. */
+@interface MDCBottomNavigationBar (ToBeDeprecated)
 
 /**
- Flag to allow clients to gradually correct the size/position of the Bottom Navigation bar relative
- to the safe area on iOS 11+.
+ By setting this property to @c YES, the Ripple component will be used instead of Ink
+ to display visual feedback to the user.
 
- NOTE: In an upcoming release, this flag will be removed and the default behavior will be to exclude
- the safe area in size calculations.
+ @note This property will eventually be enabled by default, deprecated, and then deleted as part
+ of our migration to Ripple. Learn more at
+ https://github.com/material-components/material-components-ios/tree/develop/components/Ink#migration-guide-ink-to-ripple
 
- Defaults to @c NO.
+ Defaults to NO.
  */
-@property(nonatomic, assign) BOOL sizeThatFitsIncludesSafeArea __deprecated_msg(
-    "This was a migration API and is being removed.");
+@property(nonatomic, assign) BOOL enableRippleBehavior;
 
 @end
 

@@ -130,17 +130,16 @@ class ResetPasswordVC: UIViewController ,UITextFieldDelegate{
             showAlert(strMsg: "Please check your internet connection!")
             return
         }
-        if (txtEmail.text?.count == 0){
+        let email = txtEmail.text!.lowercased().trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
+
+        if (email.count == 0){
             showAlert(strMsg: "Please enter email");
         }else if (!isValidEmail()){
             showAlert(strMsg: "Please enter valid email");
         }else{
             //forgotPWDCognito()
-            guard let username = txtEmail.text else {
-                ////print("No username")
-                return
-            }
-            let inputData = ["email": username,"type": "forgot_password"]
+            
+            let inputData = ["email": email,"type": "forgot_password"]
             sendOTP(inputData: inputData)
         }
     }

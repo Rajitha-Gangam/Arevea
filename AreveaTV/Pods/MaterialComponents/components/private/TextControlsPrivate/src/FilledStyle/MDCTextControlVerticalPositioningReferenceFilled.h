@@ -16,6 +16,7 @@
 #import <UIKit/UIKit.h>
 
 #import "MDCTextControlVerticalPositioningReference.h"
+#import "MDCTextControlVerticalPositioningReferenceUnderlined.h"
 
 @interface MDCTextControlVerticalPositioningReferenceFilled
     : NSObject <MDCTextControlVerticalPositioningReference>
@@ -25,6 +26,7 @@
                                  textRowHeight:(CGFloat)textRowHeight
                               numberOfTextRows:(CGFloat)numberOfTextRows
                                        density:(CGFloat)density
-                      preferredContainerHeight:(CGFloat)preferredContainerHeight;
+                      preferredContainerHeight:(CGFloat)preferredContainerHeight
+                        isMultilineTextControl:(BOOL)isMultilineTextControl;
 
 @end

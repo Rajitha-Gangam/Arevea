@@ -212,7 +212,7 @@ static UIScrollView *MDCBottomSheetGetPrimaryScrollView(UIViewController *viewCo
   }
 
   if (MDCCGFloatEqual(preferredSheetHeight, 0)) {
-    preferredSheetHeight = MDCRound(CGRectGetHeight(self.sheetView.frame) / 2);
+    preferredSheetHeight = round(CGRectGetHeight(self.sheetView.frame) / 2);
   }
   self.sheetView.preferredSheetHeight = preferredSheetHeight;
 }
@@ -227,9 +227,20 @@ static UIScrollView *MDCBottomSheetGetPrimaryScrollView(UIViewController *viewCo
   if ([contentView pointInside:pointInContentView withEvent:nil]) {
     return;
   }
-  [self.presentingViewController dismissViewControllerAnimated:YES completion:nil];
 
   id<MDCBottomSheetPresentationControllerDelegate> strongDelegate = self.delegate;
+  [self.presentingViewController
+      dismissViewControllerAnimated:YES
+                         completion:^{
+                           if ([strongDelegate
+                                   respondsToSelector:@selector
+                                   (bottomSheetPresentationControllerDismissalAnimationCompleted:
+                                           )]) {
+                             [strongDelegate
+                                 bottomSheetPresentationControllerDismissalAnimationCompleted:self];
+                           }
+                         }];
+
   if ([strongDelegate
           respondsToSelector:@selector(bottomSheetPresentationControllerDidDismissBottomSheet:)]) {
     [strongDelegate bottomSheetPresentationControllerDidDismissBottomSheet:self];
@@ -306,9 +317,19 @@ static UIScrollView *MDCBottomSheetGetPrimaryScrollView(UIViewController *viewCo
 #pragma mark - MDCSheetContainerViewDelegate
 
 - (void)sheetContainerViewDidHide:(nonnull __unused MDCSheetContainerView *)containerView {
-  [self.presentingViewController dismissViewControllerAnimated:YES completion:nil];
-
   id<MDCBottomSheetPresentationControllerDelegate> strongDelegate = self.delegate;
+  [self.presentingViewController
+      dismissViewControllerAnimated:YES
+                         completion:^{
+                           if ([strongDelegate
+                                   respondsToSelector:@selector
+                                   (bottomSheetPresentationControllerDismissalAnimationCompleted:
+                                           )]) {
+                             [strongDelegate
+                                 bottomSheetPresentationControllerDismissalAnimationCompleted:self];
+                           }
+                         }];
+
   if ([strongDelegate
           respondsToSelector:@selector(bottomSheetPresentationControllerDidDismissBottomSheet:)]) {
     [strongDelegate bottomSheetPresentationControllerDidDismissBottomSheet:self];

@@ -15,26 +15,17 @@
 #import <UIKit/UIKit.h>
 
 #import "MDCTextControl.h"
+#import "MDCTextControlStyleUnderlined.h"
 
-// TODO: When the MDCBaseTextField subclass that makes use of this style (and the path drawing logic
-// inside it) lands there should be snapshot tests for it.
 /**
 This style object is used by MDCTextControls adopting the Material Filled style.
 */
-@interface MDCTextControlStyleFilled : NSObject <MDCTextControlStyle>
+@interface MDCTextControlStyleFilled : MDCTextControlStyleUnderlined <MDCTextControlStyle>
 
 /**
-Sets the underline color color for a given state.
-@param underlineColor The UIColor for the given state.
-@param state The MDCTextControlState.
+The corner radius of the top two corners.
 */
-- (void)setUnderlineColor:(nonnull UIColor *)underlineColor forState:(MDCTextControlState)state;
-
-/**
-Returns the underline color color for a given state.
-@param state The MDCTextControlState.
-*/
-- (nonnull UIColor *)underlineColorForState:(MDCTextControlState)state;
+@property(nonatomic, assign) CGFloat topCornerRadius;
 
 /**
 Sets the filled background color color for a given state.

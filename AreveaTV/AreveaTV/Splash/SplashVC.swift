@@ -215,7 +215,7 @@ class SplashVC: UIViewController {
                     // self.setUIsForDefault()
                     ////print("Logged In With SendBird Successfully")
                     let storyboard = UIStoryboard(name: "Main", bundle: nil);
-                    let vc = storyboard.instantiateViewController(withIdentifier: "DashBoardVC") as! DashBoardVC
+                    let vc = storyboard.instantiateViewController(withIdentifier: "DashBoardVC") as! DashBoardVC //EventRegistrationVC
                     self.navigationController?.pushViewController(vc, animated: true)
                 }
             }

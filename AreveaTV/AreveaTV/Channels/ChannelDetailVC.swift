@@ -22,10 +22,12 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
     @IBOutlet weak var viewAudios: UIView!
     @IBOutlet weak var viewVideos: UIView!
     @IBOutlet weak var viewUpcoming: UIView!
+    @IBOutlet weak var viewSubscriptions: UIView!
     
     @IBOutlet weak var tblVideos: UITableView!
     @IBOutlet weak var tblAudios: UITableView!
     @IBOutlet weak var tblUpcoming: UITableView!
+    @IBOutlet weak var tblSubscriptions: UITableView!
     @IBOutlet weak var txtProfile: UITextView!
     
     let appDelegate = UIApplication.shared.delegate as! AppDelegate
@@ -38,12 +40,14 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
     var aryVideos = [Any]();
     var aryAudios = [Any]();
     var aryUpcoming = [Any]();
+    var arySubscriptions = [Any]();
+    
     var audioList: [String] = []
     var videoPlayer = AVPlayer()
     var streamVideoCode = ""
     var orgInfo = [String:Any]()
     var streamId = 0;
-    var buttonNames = ["EVENTS","INFO","VIDEOS","AUDIOS"]
+    var buttonNames = ["EVENTS","INFO","VIDEOS","AUDIOS"]//"SUBSCRIBE"
     var playerItem:AVPlayerItem?
     var player:AVPlayer?
     var slider: UISlider?
@@ -60,6 +64,8 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
     @IBOutlet weak var lblNoDataUpcoming: UILabel!
     @IBOutlet weak var lblNoDataVideos: UILabel!
     @IBOutlet weak var lblNoDataAudios: UILabel!
+    @IBOutlet weak var lblNoDataSubscriptions: UILabel!
+    
     @IBOutlet weak var lblTitle: UILabel!
     // MARK: - Live Chat Inputs
     @IBOutlet weak var liveStreamHeight: NSLayoutConstraint!
@@ -85,9 +91,9 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
         registerNibs();
         ////print("detail item in channnel page:\(detailItem)")
         
-        lblNoDataUpcoming.text = "No results found"
-        lblNoDataVideos.text = "No results found"
-        lblNoDataAudios.text = "No results found"
+        lblNoDataUpcoming.text = "No events found"
+        lblNoDataVideos.text = "No videos found"
+        lblNoDataAudios.text = "No audios found"
         lblTitle.text = strTitle
         if(UIDevice.current.userInterfaceIdiom == .pad){
             heightTopView?.constant = 60;
@@ -97,7 +103,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
         self.imgStreamThumbNail.image = UIImage(named: "user")
         self.imgStreamThumbNail.contentMode = .scaleAspectFit
         self.txtProfile.text = ""
-
+        
     }
     
     
@@ -117,6 +123,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
         tblAudios.register(UINib(nibName: "VideoCell", bundle: nil), forCellReuseIdentifier: "VideoCell");
         tblVideos.register(UINib(nibName: "VideoCell", bundle: nil), forCellReuseIdentifier: "VideoCell")
         tblUpcoming.register(UINib(nibName: "UpcomingCell", bundle: nil), forCellReuseIdentifier: "UpcomingCell")
+        tblSubscriptions.register(UINib(nibName: "SubscriptionCell", bundle: nil), forCellReuseIdentifier: "SubscriptionCell")
         
         
     }
@@ -128,6 +135,10 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
         self.imgPerformerProfile.layer.borderWidth = 1.0
         performerEvents();
         getPerformerInfo();
+        //getChannelSubscriptionPlans();
+//        getSubscriptionStatus();
+//        getUserSubscriptons();
+        
         if(isLoaded == 0 || appDelegate.isLiveLoad == "1"){
             let netAvailable = appDelegate.isConnectedToInternet()
             if(!netAvailable){
@@ -138,20 +149,22 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
             appDelegate.isLiveLoad = "0";
             performerVideos();
             performerAudios();
-            hideViews();
             
-            //bottom first object should show
-            let infoLine = self.buttonCVC.viewWithTag(11) as? UILabel
-            let btnText = self.buttonCVC.viewWithTag(21) as? UIButton
-            let orange = UIColor(red: 255, green: 139, blue: 50);
-            infoLine?.backgroundColor = orange;
-            infoLine?.isHidden = false;
-            btnText?.setTitleColor(orange, for: .normal)
-            viewInfo.isHidden = false
         }
+        hideViews();
+        //bottom first object should show
+        let infoLine = self.buttonCVC.viewWithTag(11) as? UILabel
+        let btnText = self.buttonCVC.viewWithTag(21) as? UIButton
+        let orange = UIColor(red: 254, green: 63, blue: 96);
+        infoLine?.backgroundColor = orange;
+        infoLine?.isHidden = false;
+        btnText?.setTitleColor(orange, for: .normal)
+        viewInfo.isHidden = false
+        
         let viewHeight = self.view.frame.size.height*0.35
         liveStreamHeight.constant = CGFloat(viewHeight)
         self.viewLiveStream.layoutIfNeeded()
+        
         
     }
     
@@ -194,10 +207,13 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
     
     //MARK: Main function, handling bottom views logic based on selection here
     func hideViews(){
+        print("hideViews")
         viewInfo.isHidden = true;
         viewAudios.isHidden = true;
         viewVideos.isHidden = true;
         viewUpcoming.isHidden = true;
+        viewSubscriptions.isHidden = true;
+        
         for (index,_) in buttonNames.enumerated() {
             let lineTag = 10 + index;
             let btnTag = 20 + index;
@@ -218,7 +234,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
             let btnText = self.buttonCVC.viewWithTag(btnTag) as? UIButton
             if (name == title){
                 //print("btnTag:",btnTag)
-                let orange = UIColor(red: 255, green: 139, blue: 50);
+                let orange = UIColor(red: 254, green: 63, blue: 96);
                 lblLine?.backgroundColor = orange;
                 lblLine?.isHidden = false;
                 btnText?.setTitleColor(orange, for: .normal)
@@ -236,6 +252,9 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
             viewVideos.isHidden = false;
         case "events":
             viewUpcoming.isHidden = false;
+        case "subscribe":
+            print("subscribe")
+            viewSubscriptions.isHidden = false;
         default:
             break
         }
@@ -323,6 +342,13 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
                 lblNoDataUpcoming.isHidden = false
             }
             return aryUpcoming.count;
+        }else if (tableView == tblSubscriptions ){
+            if (self.arySubscriptions.count > 0){
+                lblNoDataSubscriptions.isHidden = true
+            }else{
+                lblNoDataSubscriptions.isHidden = false
+            }
+            return arySubscriptions.count;
         }
         else if(tableView == tblVideos){
             if (self.aryVideos.count > 0){
@@ -352,6 +378,8 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
             return 300;
         }else if  (tableView == tblUpcoming){
             return 105;
+        }else if  (tableView == tblSubscriptions){
+            return 170;
         }
         return 44;
         
@@ -361,16 +389,19 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
             let cell = tableView.dequeueReusableCell(withIdentifier: "VideoCell") as! VideoCell
             cell.btnVideo.tag = indexPath.row
             cell.btnVideo1.tag = indexPath.row
-            var upcoming = self.aryVideos[indexPath.row] as? [String : Any];
+            var upcoming = [String : Any]();
+            if(tableView == tblVideos){
+                upcoming = self.aryVideos[indexPath.row] as? [String : Any] ?? [:];
+            }
             if(tableView == tblAudios){
-                upcoming = self.aryAudios[indexPath.row] as? [String : Any];
+                upcoming = self.aryAudios[indexPath.row] as? [String : Any] ?? [:];
                 cell.btnVideo.addTarget(self, action: #selector(playAudioBtnTapped(_:)), for: .touchUpInside)
                 cell.btnVideo1.addTarget(self, action: #selector(playAudioBtnTapped(_:)), for: .touchUpInside)
             }else{
                 cell.btnVideo.addTarget(self, action: #selector(playVideoBtnTapped(_:)), for: .touchUpInside)
                 cell.btnVideo1.addTarget(self, action: #selector(playVideoBtnTapped(_:)), for: .touchUpInside)
             }
-            let streamInfo = upcoming?["stream_info"] as? [String : Any];
+            let streamInfo = upcoming["stream_info"] as? [String : Any];
             let strURL = streamInfo?["video_thumbnail_image"] as? String ?? "";
             let videoTitle = streamInfo?["stream_video_title"] as? String ?? "";
             cell.lblTitle.text = videoTitle
@@ -382,8 +413,8 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
                 }
                 // self.videoThumbNail(from: urlVideoThumbImage, button: cell.btnVideo)
                 cell.btnVideo.sd_setBackgroundImage(with:urlVideoThumbImage, for:
-                    UIControl.State.normal, placeholderImage: UIImage(named:
-                        imagePlaceHolder))
+                                                        UIControl.State.normal, placeholderImage: UIImage(named:
+                                                                                                            imagePlaceHolder))
             }else{
                 if(UIDevice.current.userInterfaceIdiom == .pad){
                     cell.btnVideo.setImage((UIImage.init(named: "sample_vod_land")), for: .normal)
@@ -391,6 +422,53 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
                     cell.btnVideo.setImage((UIImage.init(named: "sample-details")), for: .normal)
                 }
             }
+            return cell
+        }else if (tableView == tblSubscriptions){
+            let cell = tableView.dequeueReusableCell(withIdentifier: "SubscriptionCell") as! SubscriptionCell
+            cell.viewContent.layer.borderColor = UIColor.gray.cgColor
+            cell.viewContent.layer.borderWidth = 1.0
+            cell.btnSubscribe.tag = indexPath.row
+            cell.btnSubscribe.addTarget(self, action: #selector(subscribeBtnPressed(_:)), for: .touchUpInside)
+            let subscribeObj = self.arySubscriptions[indexPath.row] as? [String : Any] ?? [:];
+            let feature_details = subscribeObj["feature_details"] as? [Any] ?? [Any]() ;
+            print("feature_details count:",feature_details.count)
+            let tier_amount = subscribeObj["tier_amount"] as? Double ?? 0.0
+            print("tier_amount:",tier_amount)
+            let amount = String(format: "%.02f", tier_amount)
+            print("amount:",amount)
+            
+            var currency_type = subscribeObj["currency_type"] as? String ?? ""
+            
+            if(currency_type == "GBP"){
+                currency_type = "£"
+            }else{
+                currency_type = "$"
+            }
+            let amountWithCurrencyType = currency_type + amount
+            cell.lblAmount.text = amountWithCurrencyType
+            let tier_amount_mode = subscribeObj["tier_amount_mode"] as? String ?? ""
+            print("tier_amount_mode:",tier_amount_mode)
+            cell.lblAmountMode.text = tier_amount_mode
+
+            for (index,_) in feature_details.enumerated() {
+                let feature_details = feature_details[index] as? [String : Any] ?? [:];
+                if(index < 4){
+                    switch index {
+                    case 0:
+                        cell.lbl1.text = feature_details["feature_name"] as? String ?? "Stream free for a month"
+                    case 1:
+                        cell.lbl2.text = feature_details["feature_name"] as? String ?? "Cancel any time"
+                    case 2:
+                        cell.lbl3.text = feature_details["feature_name"] as? String ?? "Plain text chat"
+                    case 3:
+                        cell.lbl4.text = feature_details["feature_name"] as? String ?? "Plain text + Emoji chat"
+                    default:
+                        print("default")
+                    }
+                }
+            }
+            
+            
             return cell
         }else {
             let cell = tableView.dequeueReusableCell(withIdentifier: "UpcomingCell") as! UpcomingCell
@@ -464,29 +542,36 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
         tableView.deselectRow(at: indexPath, animated: true)
         if (tableView == tblUpcoming){
             let upcoming = self.aryUpcoming[indexPath.row] as? [String : Any];
-            let streamInfo = upcoming?["stream_info"] as? [String : Any];
-            let performerId = streamInfo?["performer_id"]as? Int ?? 0
-            let streamId = streamInfo?["id"] as? Int ?? 0
+            print("upcoming:",upcoming)
+            let streamInfo = upcoming?["stream_info"] as? [String : Any] ?? [:];
+            let number_of_creators = streamInfo["number_of_creators"] as? Int ?? 0
+            let performerId = streamInfo["performer_id"]as? Int ?? 0
+            let streamId = streamInfo["id"] as? Int ?? 0
             //let streamVideoCode = streamInfo?["stream_video_code"] as? String ?? ""
-            let orgId = streamInfo?["organization_id"]as? Int ?? 0
-            isVOD = false;
-            isUpcoming = true;
-            let storyboard = UIStoryboard(name: "Main", bundle: nil);
-            let vc = storyboard.instantiateViewController(withIdentifier: "StreamDetailVC") as! StreamDetailVC
-            vc.streamId = streamId
-            vc.delegate = self
-            vc.orgId = orgId
-            appDelegate.isLiveLoad = "1"
-            vc.performerId = performerId;
-            vc.strTitle = streamInfo?["streamTitle"] as? String ?? "Channel Details"
-            vc.isUpcoming = true;
-            self.navigationController?.pushViewController(vc, animated: true)
-            
+            let orgId = streamInfo["organization_id"]as? Int ?? 0
+            if(number_of_creators > 1){
+                let storyboard = UIStoryboard(name: "Main", bundle: nil);
+                let vc = storyboard.instantiateViewController(withIdentifier: "MultiStreamVCBackUp") as! MultiStreamVCBackUp
+                let stream_video_title = streamInfo["stream_video_title"] as? String ?? "Stream Details"
+                vc.strTitle = stream_video_title
+                vc.orgId = orgId
+                print("==streamId:",streamId)
+                vc.streamId = streamId
+                //vc.delegate = self
+                vc.performerId = performerId
+                vc.strTitle = stream_video_title
+                //vc.isVOD = isVOD
+                self.navigationController?.pushViewController(vc, animated: true)
+            }else{
+                LiveEventById(streamInfo: streamInfo,isUpcoming: true)
+            }
         }else if  (tableView == tblVideos){
             playVideoFromList(row: indexPath.row)
         }
         else if  (tableView == tblAudios){
             playAudioFromList(row: indexPath.row)
+        } else if  (tableView == tblSubscriptions){
+            subscribe(row: indexPath.row)
         }
     }
     @objc func playVideoBtnTapped(_ sender: UIButton)
@@ -498,6 +583,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
         playAudioFromList(row: sender.tag)
     }
     @objc func playVideoFromList(row:Int){
+        
         let upcoming = self.aryVideos[row] as? [String : Any];
         let streamInfo = upcoming?["stream_info"] as? [String : Any];
         let performerId = streamInfo?["performer_id"]as? Int ?? 0
@@ -541,7 +627,112 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
         vc.strAudioSource = videoUrl
         self.navigationController?.pushViewController(vc, animated: true)
     }
-    
+    @objc func subscribeBtnPressed(_ sender: UIButton){
+        subscribe(row: sender.tag)
+    }
+    func subscribe(row:Int){
+        print("row:",row)
+    }
+    func LiveEventById(streamInfo:[String: Any],isUpcoming:Bool) {
+        print("streamInfo:",streamInfo)
+        let performerId = streamInfo["performer_id"]as? Int ?? 0
+        let streamId = streamInfo["id"] as? Int ?? 0
+        //let streamVideoCode = streamInfo?["stream_video_code"] as? String ?? ""
+        let orgId = streamInfo["organization_id"]as? Int ?? 0
+        print("streamId:",streamId)
+        let channelName = streamInfo["channel_name"] as? String ?? ""
+        let user_id = UserDefaults.standard.string(forKey: "user_id");
+        var streamIdLocal = "0"
+        if (streamId != 0){
+            streamIdLocal = String(streamId)
+        }
+        let stream_video_title = streamInfo["streamTitle"] as? String ?? "Channel Details"
+
+        let params: [String: Any] = ["userid":user_id ?? "","performer_id":performerId,"stream_id": streamIdLocal]
+        viewActivity.isHidden = false
+        let netAvailable = appDelegate.isConnectedToInternet()
+        if(!netAvailable){
+            showAlert(strMsg: "Please check your internet connection!")
+            return
+        }
+        let url: String = appDelegate.baseURL +  "/LiveEventById"
+        
+        let headers: HTTPHeaders
+        headers = [appDelegate.x_api_key: appDelegate.x_api_value]
+        
+        print("liveEvents params1:",params)
+        AF.request(url, method: .post,parameters: params, encoding: JSONEncoding.default,headers:headers)
+            .responseJSON { [self] response in
+                self.viewActivity.isHidden = true
+                switch response.result {
+                case .success(let value):
+                    if let json = value as? [String: Any] {
+                        //print("LiveEventById JSON1:",json)
+                        if (json["statusCode"]as? String == "200"){
+                            let data = json["Data"] as? [String:Any]
+                            let resultData = data ?? [:]
+                            let aryStreamInfo = data?["stream_info"] as? [String:Any] ?? [:]
+                            let stream_info_key_exists = aryStreamInfo["id"]
+                            if (stream_info_key_exists != nil){
+                                let streamObj = aryStreamInfo
+                                let stream_status = streamObj["stream_status"] as? String ?? ""
+                                let user_subscription_info = data?["user_subscription_info"] != nil
+                                if(user_subscription_info){
+                                    self.aryUserSubscriptionInfo = data?["user_subscription_info"] as? [Any] ?? [Any]()
+                                }
+                                var isVOD = false
+                                if (streamObj["stream_vod"]as? String == "stream"){
+                                    isVOD = false
+                                }else{
+                                    isVOD = true
+                                }
+                                var upcoming = true
+                                if(!isUpcoming){
+                                    upcoming = false
+                                    isVOD = true
+                                }
+                                if (self.aryUserSubscriptionInfo.count == 0){
+                                    let vc = storyboard!.instantiateViewController(withIdentifier: "EventRegistrationVC") as! EventRegistrationVC
+                                    appDelegate.isLiveLoad = "1"
+                                    vc.orgId = orgId
+                                    vc.streamId = streamId
+                                    //vc.delegate = self
+                                    vc.performerId = performerId
+                                    vc.strTitle = stream_video_title
+                                    vc.isVOD = isVOD
+                                    vc.isUpcoming = isUpcoming
+                                    // vc.channel_name_subscription = channelName
+                                    self.navigationController?.pushViewController(vc, animated: true)
+                                }else{
+                                        let vc = storyboard!.instantiateViewController(withIdentifier: "StreamDetailVC") as! StreamDetailVC
+                                        appDelegate.isLiveLoad = "1"
+                                        vc.orgId = orgId
+                                        print("==streamId:",streamId)
+                                        vc.streamId = streamId
+                                        vc.delegate = self
+                                        vc.performerId = performerId
+                                        vc.strTitle = stream_video_title
+                                        vc.channel_name_subscription = channelName
+                                        vc.isVOD = isVOD
+                                        vc.isUpcoming = isUpcoming
+
+                                        self.navigationController?.pushViewController(vc, animated: true)
+                                }
+                            }
+                        }else{
+                            let strError = json["message"] as? String
+                            ////print("strError1:",strError ?? "")
+                            self.showAlert(strMsg: strError ?? "")
+                        }
+                    }
+                case .failure(let error):
+                    let errorDesc = error.localizedDescription.replacingOccurrences(of: "URLSessionTask failed with error:", with: "")
+                    self.showAlert(strMsg: errorDesc)
+                    self.viewActivity.isHidden = true
+                    
+                }
+            }
+    }
     override var preferredStatusBarStyle: UIStatusBarStyle {
         return .lightContent // .default
     }
@@ -574,8 +765,8 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
     
     
     func performerEvents(){
-              let appDelegate = UIApplication.shared.delegate as! AppDelegate
-              let url: String = appDelegate.ol_lambda_url +  "/performerEvents"
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        let url: String = appDelegate.ol_lambda_url +  "/performerEvents"
         let inputData: [String: Any] = ["performerId": performerId,"orgId": orgId]
         let session_token = UserDefaults.standard.string(forKey: "session_token") ?? ""
         let headers : HTTPHeaders = [
@@ -583,108 +774,109 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
             appDelegate.x_api_key:appDelegate.x_api_value,
             "Authorization": "Bearer " + session_token
         ]
-              viewActivity.isHidden = false
-              AF.request(url, method: .post,parameters: inputData, encoding: JSONEncoding.default,headers:headers)
-                  .responseJSON { response in
-                      self.viewActivity.isHidden = true
-                      switch response.result {
-                      case .success(let value):
-                          if let json = value as? [String: Any] {
-                              //print("performerEvents JSON:",json)
-                              if (json["statusCode"]as? String == "200" ){
-                               ////print(json["message"] as? String ?? "")
-                               self.aryUpcoming = json["Data"] as? [Any] ?? [Any]() ;
-                               ////print("upcoming count:",self.aryUpcoming.count);
-                               self.tblUpcoming.reloadData();
-                              }else{
-                                  let strMsg = json["message"] as? String ?? ""
-                                  self.showAlert(strMsg: strMsg)
-                              }
-                             
-                          }
-                      case .failure(let error):
-                         let errorDesc = error.localizedDescription.replacingOccurrences(of: "URLSessionTask failed with error:", with: "")
-                          self.showAlert(strMsg: errorDesc)
-                                  self.viewActivity.isHidden = true
-
-                      }
-              }
-          }
+        viewActivity.isHidden = false
+        AF.request(url, method: .post,parameters: inputData, encoding: JSONEncoding.default,headers:headers)
+            .responseJSON { response in
+                self.viewActivity.isHidden = true
+                switch response.result {
+                case .success(let value):
+                    if let json = value as? [String: Any] {
+                        //print("performerEvents JSON:",json)
+                        if (json["statusCode"]as? String == "200" ){
+                            ////print(json["message"] as? String ?? "")
+                            self.aryUpcoming = json["Data"] as? [Any] ?? [Any]() ;
+                            ////print("upcoming count:",self.aryUpcoming.count);
+                            self.tblUpcoming.reloadData();
+                        }else{
+                            let strMsg = json["message"] as? String ?? ""
+                            self.showAlert(strMsg: strMsg)
+                        }
+                        
+                    }
+                case .failure(let error):
+                    let errorDesc = error.localizedDescription.replacingOccurrences(of: "URLSessionTask failed with error:", with: "")
+                    self.showAlert(strMsg: errorDesc)
+                    self.viewActivity.isHidden = true
+                    
+                }
+            }
+    }
     func performerVideos(){
-          let appDelegate = UIApplication.shared.delegate as! AppDelegate
-          let url: String = appDelegate.ol_lambda_url +  "/performerVideos"
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        let url: String = appDelegate.ol_lambda_url +  "/performerVideos"
         
-    let inputData: [String: Any] = ["channel_name": self.channel_name,"orgId": orgId,"type": "video"]
-    let session_token = UserDefaults.standard.string(forKey: "session_token") ?? ""
-    let headers : HTTPHeaders = [
-        "Content-Type": "application/json",
-        appDelegate.x_api_key:appDelegate.x_api_value,
-        "Authorization": "Bearer " + session_token
-    ]
-          viewActivity.isHidden = false
-          AF.request(url, method: .post,parameters: inputData, encoding: JSONEncoding.default,headers:headers)
-              .responseJSON { response in
-                  self.viewActivity.isHidden = true
-                  switch response.result {
-                  case .success(let value):
-                      if let json = value as? [String: Any] {
-                          //print("performerVideos JSON:",json)
-                          if (json["statusCode"]as? String == "200" ){
-                           ////print(json["message"] as? String ?? "")
-                           self.aryVideos = json["Data"] as? [Any] ?? [Any]() ;
-                           ////print("videos:",self.aryVideos)
-                           self.tblVideos.reloadData();
-                          }else{
-                              let strMsg = json["message"] as? String ?? ""
-                              self.showAlert(strMsg: strMsg)
-                          }
-                         
-                      }
-                  case .failure(let error):
-                     let errorDesc = error.localizedDescription.replacingOccurrences(of: "URLSessionTask failed with error:", with: "")
-                      self.showAlert(strMsg: errorDesc)
-                      self.viewActivity.isHidden = true
-
-                  }
-          }
-      }
+        let inputData: [String: Any] = ["channel_name": self.channel_name,"orgId": orgId,"type": "video"]
+        // print("performerVideos params:",inputData)
+        let session_token = UserDefaults.standard.string(forKey: "session_token") ?? ""
+        let headers : HTTPHeaders = [
+            "Content-Type": "application/json",
+            appDelegate.x_api_key:appDelegate.x_api_value,
+            "Authorization": "Bearer " + session_token
+        ]
+        viewActivity.isHidden = false
+        AF.request(url, method: .post,parameters: inputData, encoding: JSONEncoding.default,headers:headers)
+            .responseJSON { response in
+                self.viewActivity.isHidden = true
+                switch response.result {
+                case .success(let value):
+                    if let json = value as? [String: Any] {
+                        // print("performerVideos JSON:",json)
+                        if (json["statusCode"]as? String == "200" ){
+                            ////print(json["message"] as? String ?? "")
+                            self.aryVideos = json["Data"] as? [Any] ?? [Any]() ;
+                            ////print("videos:",self.aryVideos)
+                            self.tblVideos.reloadData();
+                        }else{
+                            let strMsg = json["message"] as? String ?? ""
+                            self.showAlert(strMsg: strMsg)
+                        }
+                        
+                    }
+                case .failure(let error):
+                    let errorDesc = error.localizedDescription.replacingOccurrences(of: "URLSessionTask failed with error:", with: "")
+                    self.showAlert(strMsg: errorDesc)
+                    self.viewActivity.isHidden = true
+                    
+                }
+            }
+    }
     func performerAudios(){
-          let appDelegate = UIApplication.shared.delegate as! AppDelegate
-          let url: String = appDelegate.ol_lambda_url +  "/performerVideos"
-    let inputData: [String: Any] = ["channel_name": self.channel_name,"orgId": orgId,"type": "audio"]
-    let session_token = UserDefaults.standard.string(forKey: "session_token") ?? ""
-    let headers : HTTPHeaders = [
-        "Content-Type": "application/json",
-        appDelegate.x_api_key:appDelegate.x_api_value,
-        "Authorization": "Bearer " + session_token
-    ]
-          viewActivity.isHidden = false
-          AF.request(url, method: .post,parameters: inputData, encoding: JSONEncoding.default,headers:headers)
-              .responseJSON { response in
-                  self.viewActivity.isHidden = true
-                  switch response.result {
-                  case .success(let value):
-                      if let json = value as? [String: Any] {
-                          //print("performerAudios JSON:",json)
-                          if (json["statusCode"]as? String == "200" ){
-                           ////print(json["message"] as? String ?? "")
-                           self.aryAudios = json["Data"] as? [Any] ?? [Any]() ;
-                           ////print("audios count:",self.aryVideos.count)
-                           self.tblAudios.reloadData();
-                          }else{
-                              let strMsg = json["message"] as? String ?? ""
-                              self.showAlert(strMsg: strMsg)
-                          }
-                         
-                      }
-                  case .failure(let error):
-                     let errorDesc = error.localizedDescription.replacingOccurrences(of: "URLSessionTask failed with error:", with: "")
-                      self.showAlert(strMsg: errorDesc)
-                              self.viewActivity.isHidden = true
-
-                  }
-          }
-      }
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        let url: String = appDelegate.ol_lambda_url +  "/performerVideos"
+        let inputData: [String: Any] = ["channel_name": self.channel_name,"orgId": orgId,"type": "audio"]
+        let session_token = UserDefaults.standard.string(forKey: "session_token") ?? ""
+        let headers : HTTPHeaders = [
+            "Content-Type": "application/json",
+            appDelegate.x_api_key:appDelegate.x_api_value,
+            "Authorization": "Bearer " + session_token
+        ]
+        viewActivity.isHidden = false
+        AF.request(url, method: .post,parameters: inputData, encoding: JSONEncoding.default,headers:headers)
+            .responseJSON { response in
+                self.viewActivity.isHidden = true
+                switch response.result {
+                case .success(let value):
+                    if let json = value as? [String: Any] {
+                        //print("performerAudios JSON:",json)
+                        if (json["statusCode"]as? String == "200" ){
+                            ////print(json["message"] as? String ?? "")
+                            self.aryAudios = json["Data"] as? [Any] ?? [Any]() ;
+                            ////print("audios count:",self.aryVideos.count)
+                            self.tblAudios.reloadData();
+                        }else{
+                            let strMsg = json["message"] as? String ?? ""
+                            self.showAlert(strMsg: strMsg)
+                        }
+                        
+                    }
+                case .failure(let error):
+                    let errorDesc = error.localizedDescription.replacingOccurrences(of: "URLSessionTask failed with error:", with: "")
+                    self.showAlert(strMsg: errorDesc)
+                    self.viewActivity.isHidden = true
+                    
+                }
+            }
+    }
     
     
     // MARK: Handler for getCategoryOrganisations API
@@ -705,7 +897,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
                 switch response.result {
                 case .success(let value):
                     if let json = value as? [String: Any] {
-                        print("getPerformerInfo JSON:",json)
+                        // print("getPerformerInfo JSON:",json)
                         if (json["statusCode"]as? String == "200"){
                             
                             ////print(json["message"] as? String ?? "")
@@ -717,7 +909,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
                                     self.dicPerformerInfo = obj["performer_details"] as? [String : Any] ?? [String:Any]()
                                     let performerName = self.dicPerformerInfo["performer_display_name"] as? String ?? ""
                                     self.channel_name = self.dicPerformerInfo["channel_name"] as? String ?? ""
-
+                                    
                                     var performer_bio = self.dicPerformerInfo["performer_bio"] as? String ?? ""
                                     performer_bio = performer_bio.htmlToString
                                     
@@ -745,12 +937,12 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
                     }
                     
                 case .failure(let error):
-                  let errorDesc = error.localizedDescription.replacingOccurrences(of: "URLSessionTask failed with error:", with: "")
-                   self.showAlert(strMsg: errorDesc)
-                           self.viewActivity.isHidden = true
-
+                    let errorDesc = error.localizedDescription.replacingOccurrences(of: "URLSessionTask failed with error:", with: "")
+                    self.showAlert(strMsg: errorDesc)
+                    self.viewActivity.isHidden = true
+                    
                 }
-        }
+            }
     }
     
     
@@ -777,6 +969,135 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
     }
     func navigationControllerSupportedInterfaceOrientations(_ navigationController: UINavigationController) -> UIInterfaceOrientationMask {
         return UIInterfaceOrientationMask.all
+    }
+    // MARK: Handler for getChannelSubscriptionPlans API
+    func getChannelSubscriptionPlans(){
+        let netAvailable = appDelegate.isConnectedToInternet()
+        if(!netAvailable){
+            showAlert(strMsg: "Please check your internet connection!")
+            return
+        }
+        viewActivity.isHidden = false
+        let url: String = appDelegate.FCMBaseURL +  "/getChannelSubscriptionPlans"
+        let user_id = UserDefaults.standard.string(forKey: "user_id");
+        //below line need to update
+        let params: [String: Any] = ["user_id":user_id ?? "","channel_name":self.channel_name,"channel_url":self.channel_name]
+        print("getChannelSubscriptionPlans params:",params)
+        let headers: HTTPHeaders
+        headers = [appDelegate.x_api_key: appDelegate.x_api_value]
+        AF.request(url, method: .post,parameters: params, encoding: JSONEncoding.default,headers:headers)
+            .responseJSON { [self] response in
+                self.viewActivity.isHidden = true
+                switch response.result {
+                case .success(let value):
+                    if let json = value as? [String: Any] {
+                        print("getChannelSubscriptionPlans JSON:",json)
+                        if (json["statusCode"]as? String == "200"){
+                            self.arySubscriptions = []
+                            let data = json["Data"] as? [Any] ?? [Any]();
+                            print("Data:",data)
+                            if (data.count > 0){
+                                let selectedObj = data[0] as? [String: Any] ?? [:]
+                                let plans = selectedObj["plans"] as? [String: Any] ?? [:]
+                                self.arySubscriptions = plans["subscriptionsData"] as? [Any] ?? [Any]();
+                                self.tblSubscriptions.reloadData()
+                                
+                            }
+                            
+                            
+                        }else{
+                            let strError = json["message"] as? String
+                            ////print("strError1:",strError ?? "")
+                            self.showAlert(strMsg: strError ?? "")
+                        }
+                        
+                    }
+                    
+                case .failure(let error):
+                    let errorDesc = error.localizedDescription.replacingOccurrences(of: "URLSessionTask failed with error:", with: "")
+                    self.showAlert(strMsg: errorDesc)
+                    self.viewActivity.isHidden = true
+                    
+                }
+            }
+    }
+    // MARK: Handler for getSubscriptionStatus API
+    func getSubscriptionStatus(){
+        let netAvailable = appDelegate.isConnectedToInternet()
+        if(!netAvailable){
+            showAlert(strMsg: "Please check your internet connection!")
+            return
+        }
+        viewActivity.isHidden = false
+        let url: String = appDelegate.FCMBaseURL +  "/getSubscriptionStatus"
+        let user_id = UserDefaults.standard.string(forKey: "user_id");
+        let params: [String: Any] = ["user_id":user_id ?? "","channel_url":self.channel_name]
+        //print("getSubscriptionStatus params:",params)
+        let headers: HTTPHeaders
+        headers = [appDelegate.x_api_key: appDelegate.x_api_value]
+        AF.request(url, method: .post,parameters: params, encoding: JSONEncoding.default,headers:headers)
+            .responseJSON { response in
+                self.viewActivity.isHidden = true
+                switch response.result {
+                case .success(let value):
+                    if let json = value as? [String: Any] {
+                        print("getSubscriptionStatus JSON:",json)
+                        if (json["statusCode"]as? String == "200"){
+                            
+                        }else{
+                            let strError = json["message"] as? String
+                            ////print("strError1:",strError ?? "")
+                            self.showAlert(strMsg: strError ?? "")
+                        }
+                        
+                    }
+                    
+                case .failure(let error):
+                    let errorDesc = error.localizedDescription.replacingOccurrences(of: "URLSessionTask failed with error:", with: "")
+                    self.showAlert(strMsg: errorDesc)
+                    self.viewActivity.isHidden = true
+                    
+                }
+            }
+    }
+    // MARK: Handler for getUserSubscriptons API
+    func getUserSubscriptons(){
+        let netAvailable = appDelegate.isConnectedToInternet()
+        if(!netAvailable){
+            showAlert(strMsg: "Please check your internet connection!")
+            return
+        }
+        viewActivity.isHidden = false
+        let url: String = appDelegate.FCMBaseURL +  "/getUserSubscriptons"
+        let user_id = UserDefaults.standard.string(forKey: "user_id");
+        let params: [String: Any] = ["user_id":user_id ?? ""]
+        //print("getUserSubscriptons params:",params)
+        let headers: HTTPHeaders
+        headers = [appDelegate.x_api_key: appDelegate.x_api_value]
+        AF.request(url, method: .post,parameters: params, encoding: JSONEncoding.default,headers:headers)
+            .responseJSON { response in
+                self.viewActivity.isHidden = true
+                switch response.result {
+                case .success(let value):
+                    if let json = value as? [String: Any] {
+                        print("getUserSubscriptons JSON:",json)
+                        if (json["statusCode"]as? String == "200"){
+                            
+                        }else{
+                            let strError = json["message"] as? String
+                            ////print("strError1:",strError ?? "")
+                            self.showAlert(strMsg: strError ?? "")
+                        }
+                        
+                    }
+                    
+                case .failure(let error):
+                    let errorDesc = error.localizedDescription.replacingOccurrences(of: "URLSessionTask failed with error:", with: "")
+                    self.showAlert(strMsg: errorDesc)
+                    self.viewActivity.isHidden = true
+                    
+                }
+            }
     }
     // MARK: - Send Bird Methods
     
@@ -809,8 +1130,8 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
         }
     }
     override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
-           super.viewWillTransition(to: size, with: coordinator)
-           AppDelegate.AppUtility.lockOrientation(.portrait, andRotateTo: .portrait)
+        super.viewWillTransition(to: size, with: coordinator)
+        AppDelegate.AppUtility.lockOrientation(.portrait, andRotateTo: .portrait)
     }
 }
 
@@ -849,7 +1170,7 @@ extension Array where Element : Equatable  {
 extension Notification.Name {
     static let didReceiveStreamData = Notification.Name("didReceiveStreamData")
     static let didReceiveScreenShareData = Notification.Name("didReceiveScreenShareData")
-
+    
     static let StreamOrienationChange = Notification.Name("StreamOrienationChange")
     
 }

@@ -46,7 +46,8 @@ class ScreenShareVC: BaseTest {
         let version = Testbed.getParameter(param:"sm_version") as! String;
         let context = Testbed.getParameter(param:"context") as! String;
         let stream1 = Testbed.getParameter(param:"stream1") as! String;
-        let streamName = stream1 + "_shared_screen";
+        print("==sharedScreenBy:",appDelegate.sharedScreenBy)
+        let streamName = appDelegate.sharedScreenBy + "_shared_screen";
         
         let url = "https://" + host  + "/streammanager/api/" + version + "/event/" +
             context + "/" + streamName + "?action=subscribe&region=" + appDelegate.strRegionCode;
@@ -93,23 +94,22 @@ class ScreenShareVC: BaseTest {
     func config(url:String,stream:String,start:Bool){
        // let streamInfo = ["StreamShare": "started"]
       //  NotificationCenter.default.post(name: .didReceiveScreenShareData, object: self, userInfo: streamInfo)
-        
+        //DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) { [self] in
+        //DispatchQueue.main.async { [self] in
         let config = getConfig(url: url)
         // Set up the connection and stream
         let connection = R5Connection(config: config)
         self.subscribeStream = R5Stream(connection: connection)
-        
         let stats = self.subscribeStream?.getDebugStats()
         //print("---stats:",stats as Any)
         self.subscribeStream!.delegate = self
         self.subscribeStream?.client = self;
         // self.subscribeStream.subscribeToAudio = YES;
-        
         currentView?.attach(subscribeStream)
-        
         streamName = stream
         self.subscribeStream!.play(stream, withHardwareAcceleration:false)
-        
+        //}
+        //}
     }
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)

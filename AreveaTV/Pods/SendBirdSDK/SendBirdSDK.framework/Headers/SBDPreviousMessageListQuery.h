@@ -61,6 +61,28 @@
  */
 @property (nonatomic) BOOL includeReactions;
 
+/// Determines whether replies are included in the results.
+/// @note The default value is `NO`.
+/// @since 3.0.181
+@property (atomic) BOOL includeReplies;
+
+/// Determines whether to include the parent message text in the results when the messages are replies in a thread. If the type of the parent message is [`SBDUserMessage`](../Classes/SBDUserMessage.html), the value is a [`message`](../Classes/SBDUserMessage.html#//api/name/message). If it is [`SBDFileMessage`](../Classes/SBDFileMessage.html), the value is the [`name`](../Classes/SBDFileMessage.html#//api/name/name) of the uploaded file.
+/// @note The default value is `NO`.
+/// @since 3.0.181
+@property (atomic) BOOL includeParentMessageText;
+
+/// Determines whether to include the thread information of the messages in the results when the results contain parent messages.
+/// @note The default value is `NO`.
+/// @since 3.0.181
+@property (atomic) BOOL includeThreadInfo;
+
+/// Determines whether to include only messages from the subChannel to which you belong in the results.
+/// @note The default value is `NO`.
+/// @warning This value is only used in open channels.
+/// @since 3.0.204
+@property (atomic) BOOL showSubChannelMessagesOnly;
+
+
 /**
  *  DO NOT USE this initializer. Use `[SBDBaseChannel createPreviousMessageListQuery]` instead.
  */

@@ -143,7 +143,7 @@
         @IBAction func login(_ sender: Any) {
             txtUserName.resignFirstResponder();
             txtPassword.resignFirstResponder();
-            if (txtUserName.text?.count == 0){
+            if (txtUserName.text?.lowercased().count == 0){
                 showAlert(strMsg: "Please enter email");
             }else if (!isValidEmail()){
                 showAlert(strMsg: "Please enter valid email");
@@ -151,7 +151,7 @@
                 showAlert(strMsg: "Please enter password");
             }else{
                 //AWSsignIn();
-                let email = txtUserName.text!.trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
+                let email = txtUserName.text!.lowercased().trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
                 let pwd = txtPassword.text!.trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
                 let inputData = ["email":email,"password":pwd]
                 OLLogin(inputData:inputData )
@@ -159,7 +159,7 @@
             }
         }
         func OLLogin(inputData:[String: Any]){
-            let username = self.txtUserName.text!.trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
+            let username = self.txtUserName.text!.lowercased().trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
             
             let appDelegate = UIApplication.shared.delegate as! AppDelegate
             let url: String = appDelegate.websiteURL + "/api/user/v1/fanLogin"

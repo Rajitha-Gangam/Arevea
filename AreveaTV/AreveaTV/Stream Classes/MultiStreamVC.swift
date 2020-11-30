@@ -37,14 +37,23 @@ import SendBirdSDK
 import  WebKit
 import Reachability
 
+
 @objc(MultiStreamVC)
 class MultiStreamVC: UIViewController , R5StreamDelegate, UITableViewDelegate,UITableViewDataSource,OpenChanannelChatDelegate,OpenChannelMessageTableViewCellDelegate,AGEmojiKeyboardViewDelegate,SBDChannelDelegate, AGEmojiKeyboardViewDataSource,UITextFieldDelegate,UIPickerViewDelegate, UIPickerViewDataSource,UIWebViewDelegate,UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout {
     // MARK: - Variables Declaration
     
-    @IBOutlet weak var view1: UIView?
-    @IBOutlet weak var view2: UIView?
-    @IBOutlet weak var view3: UIView?
-    @IBOutlet weak var view4: UIView?
+    @IBOutlet weak var view1: UIView!
+    @IBOutlet weak var view2: UIView!
+    @IBOutlet weak var view3: UIView!
+    @IBOutlet weak var view4: UIView!
+    
+    @IBOutlet weak var viewSS1: UIView!
+    @IBOutlet weak var viewSS2: UIView!
+    @IBOutlet weak var viewSS3: UIView!
+    @IBOutlet weak var viewSS4: UIView!
+    @IBOutlet weak var scrollViewSS: UIView!
+    @IBOutlet weak var heightStreamViewSS: NSLayoutConstraint!
+
     @IBOutlet weak var viewOverlay: UIView?
     @IBOutlet weak var viewActions: UIView?
     @IBOutlet weak var viewControls: UIView?
@@ -76,6 +85,9 @@ class MultiStreamVC: UIViewController , R5StreamDelegate, UITableViewDelegate,UI
     @IBOutlet weak var lblTitle: UILabel!
     @IBOutlet weak var viewActivity: UIView!
     @IBOutlet weak var viewStream: UIView!
+    @IBOutlet weak var viewUserStreams: UIView!
+    @IBOutlet weak var viewUserStreamsLeft: NSLayoutConstraint!
+    @IBOutlet weak var viewUserStreamsWidth: NSLayoutConstraint!
     var streamlist = [[String:Any]]()
     var duplicateStreamList = [[String:Any]]()
     var offlineStream = [[String:Any]]()
@@ -98,11 +110,18 @@ class MultiStreamVC: UIViewController , R5StreamDelegate, UITableViewDelegate,UI
     @IBOutlet weak var heightThirdView: NSLayoutConstraint?
     @IBOutlet weak var heightFourthView: NSLayoutConstraint?
     
+    @IBOutlet weak var heightFirstViewSS: NSLayoutConstraint?
+    @IBOutlet weak var heightSecondViewSS: NSLayoutConstraint?
+    @IBOutlet weak var heightThirdViewSS: NSLayoutConstraint?
+    @IBOutlet weak var heightFourthViewSS: NSLayoutConstraint?
+    
     @IBOutlet weak var widthFirstView: NSLayoutConstraint?
     @IBOutlet weak var widthSecondView: NSLayoutConstraint?
     @IBOutlet weak var widthThirdView: NSLayoutConstraint?
     @IBOutlet weak var widthFourthView: NSLayoutConstraint?
     
+    @IBOutlet weak var contentViewStreamSS: UIView!
+
     @IBOutlet weak var lblNoStream1 :UILabel!
     @IBOutlet weak var lblNoStream2 :UILabel!
     @IBOutlet weak var lblNoStream3 :UILabel!
@@ -112,6 +131,11 @@ class MultiStreamVC: UIViewController , R5StreamDelegate, UITableViewDelegate,UI
     @IBOutlet weak var lblUser2 :UILabel!
     @IBOutlet weak var lblUser3 :UILabel!
     @IBOutlet weak var lblUser4 :UILabel!
+    
+    @IBOutlet weak var lblUserSS1 :UILabel!
+    @IBOutlet weak var lblUserSS2 :UILabel!
+    @IBOutlet weak var lblUserSS3 :UILabel!
+    @IBOutlet weak var lblUserSS4 :UILabel!
     
     var resultData = [String:Any]()
     @IBOutlet weak var tblDonations: UITableView!
@@ -193,14 +217,33 @@ class MultiStreamVC: UIViewController , R5StreamDelegate, UITableViewDelegate,UI
     @IBOutlet weak var btnRightArrow: UIButton!
     var increment = 0;
     var errorCount = 0;
+    var r5ViewControllerScreenShare : BaseTest? = nil
+    var isSharedScreenConfigured = false
+    @IBOutlet weak var lblScreenShareUnavailable: UILabel!
+    var isSharedScreen = false;
+    var isSubscribeScreenShare = false;
+    var isCurrentPinScreen = "";
+    @IBOutlet weak var viewShareScreen: UIView!
+    var viewR5StreamingLive : R5VideoViewController? = nil
+    @IBOutlet weak var collectionViewWidth: NSLayoutConstraint?
+    @IBOutlet weak var btnSubscriptions: UIView!
+    @IBOutlet weak var viewSubscriptions: UIView!
+    var arySubscriptions = [Any]();
+    @IBOutlet weak var lblNoDataSubscriptions: UILabel!
+    @IBOutlet weak var tblSubscriptions: UITableView!
+    var channel_name_subscription = ""
+    var indexOfStream = 0
+    @IBOutlet weak var viewsub1: UIView!
+    
+    @IBOutlet weak var viewsub2: UIView!
+    var sharedScreenBy = ""
+    //var dispatch_group: dispatch_group_t = dispatch_group_create()
     // MARK: - View Life Cycle
     override func viewDidLoad() {
         print("viewDidLoad:",viewDidLoad)
         super.viewDidLoad()
-        
         // Do any additional setup after loading the view.
         appSyncClient = appDelegate.appSyncClient
-        
         //print("resultData:",resultData)
         btnInfo?.layer.borderWidth = 2
         btnShare?.layer.borderWidth = 2
@@ -208,6 +251,7 @@ class MultiStreamVC: UIViewController , R5StreamDelegate, UITableViewDelegate,UI
         btnDonations?.layer.borderWidth = 2
         btnEmoji?.layer.borderWidth = 2
         btnChat?.layer.borderWidth = 2
+        btnSubscriptions?.layer.borderWidth = 2
         viewComments?.layer.borderWidth = 1.0
         viewComments?.layer.borderColor = UIColor.lightGray.cgColor
         //viewComments?.layer.cornerRadius = 5.0
@@ -217,12 +261,15 @@ class MultiStreamVC: UIViewController , R5StreamDelegate, UITableViewDelegate,UI
         viewDonations?.layer.borderColor = UIColor.lightGray.cgColor
         viewTips?.layer.borderWidth = 1.0
         viewTips?.layer.borderColor = UIColor.lightGray.cgColor
-        
+        viewSubscriptions?.layer.borderWidth = 1.0
+        viewSubscriptions?.layer.borderColor = UIColor.lightGray.cgColor
         lblTitle.text = strTitle
         viewActivity.isHidden = true
-        
         tblDonations.register(UINib(nibName: "CharityCell", bundle: nil), forCellReuseIdentifier: "CharityCell")
         tblComments.register(UINib(nibName: "OpenChannelUserMessageTableViewCell", bundle: nil), forCellReuseIdentifier: "OpenChannelUserMessageTableViewCell")
+        tblSubscriptions.register(UINib(nibName: "SubscriptionCell", bundle: nil), forCellReuseIdentifier: "SubscriptionCell")
+        
+        
         
         let charity_info = resultData["charity_info"] != nil
         if(charity_info){
@@ -235,7 +282,6 @@ class MultiStreamVC: UIViewController , R5StreamDelegate, UITableViewDelegate,UI
             self.streamId = aryStreamInfo["id"] as? Int ?? 0
             self.streamVideoCode = aryStreamInfo["stream_video_code"] as? String ?? ""
             self.strSlug = aryStreamInfo["slug"] as? String ?? "";
-            
             self.isChannelAvailable = true
             self.sendBirdChatConfig()
             self.sendBirdEmojiConfig()
@@ -247,7 +293,6 @@ class MultiStreamVC: UIViewController , R5StreamDelegate, UITableViewDelegate,UI
             let dicPerformerInfo = resultData["performer_info"] as? [String : Any] ?? [String:Any]()
             performerName = dicPerformerInfo["performer_display_name"] as? String ?? ""
             self.app_id_for_adds = dicPerformerInfo["app_id"] as? String ?? "0"
-            
         }
         let tipGuestList1 = resultData["guestList"] != nil
         //print("===tipGuestList1:",tipGuestList1)
@@ -258,8 +303,6 @@ class MultiStreamVC: UIViewController , R5StreamDelegate, UITableViewDelegate,UI
         let creatorName = "Creator Name: " + performerName;
         self.txtVideoDesc_Info.text = streamVideoDesc  + "\n\n" + creatorName
         //let creators = aryStreamInfo["creators"] as? String ?? ""
-        
-        
         sliderVolume.minimumValue = 0
         sliderVolume.maximumValue = 100
         let emojiKeyboardView = AGEmojiKeyboardView(frame: CGRect(x: 0, y: 0, width: view.frame.size.width, height: 216), dataSource: self)
@@ -290,9 +333,8 @@ class MultiStreamVC: UIViewController , R5StreamDelegate, UITableViewDelegate,UI
         btnDonations?.layer.cornerRadius = btnRadius
         btnEmoji?.layer.cornerRadius = btnRadius
         btnChat?.layer.cornerRadius = btnRadius
-        
+        btnSubscriptions?.layer.cornerRadius = btnRadius
         pickerView.delegate = self
-        
         tblComments.rowHeight = 40
         tblComments.estimatedRowHeight = UITableView.automaticDimension
         lblLive.isHidden = true
@@ -328,7 +370,6 @@ class MultiStreamVC: UIViewController , R5StreamDelegate, UITableViewDelegate,UI
         } catch {
             //print("could not start reachability notifier")
         }
-        
         lblNetStatus.isHidden = true
         stream_status = aryStreamInfo["stream_status"] as? String ?? ""
         //print("====stream_status:",stream_status)
@@ -345,37 +386,52 @@ class MultiStreamVC: UIViewController , R5StreamDelegate, UITableViewDelegate,UI
             getGuestDetailInGraphql(.returnCacheDataAndFetch,showLoader: true)
         }
         collectionView.isPagingEnabled = true
-
         //viewArrows.isHidden = true
         NotificationCenter.default.addObserver(self, selector: #selector(self.ReceivedPN(notification:)),
-        name: Notification.Name("PushNotification"), object: nil)
-        collectionView.isHidden = true
+                                               name: Notification.Name("PushNotification"), object: nil)
+        //collectionView.isHidden = true
         webView.isUserInteractionEnabled = false
         self.webView.backgroundColor = .clear
         self.webView.isOpaque = false
-
+        viewShareScreen.layer.borderColor = UIColor.lightGray.cgColor
+        viewShareScreen.layer.borderWidth = 1.0
+        
+        viewSS1.layer.borderColor = UIColor.gray.cgColor
+                viewSS1.layer.borderWidth = 2.0
+                
+                viewSS2.layer.borderColor = UIColor.gray.cgColor
+                viewSS2.layer.borderWidth = 1.0
+                
+                viewSS3.layer.borderColor = UIColor.gray.cgColor
+                viewSS3.layer.borderWidth = 1.0
+                
+                viewSS4.layer.borderColor = UIColor.gray.cgColor
+                viewSS4.layer.borderWidth = 1.0
+        
+        scrollViewSS.isHidden = true
+        viewShareScreen.isHidden = true
+        
     }
     @objc func ReceivedPN(notification: NSNotification){
-      guard let userInfo = notification.userInfo else {
-        return
-      }
+        guard let userInfo = notification.userInfo else {
+            return
+        }
         print("==ReceivedPN userInfo:",userInfo)
         let gcm = userInfo["GCM"] as? [String:Any] ?? [:]
         if(gcm["data"] != nil){
             getGuestDetailInGraphql(.returnCacheDataAndFetch,showLoader: true)//need to refresh stream
         }
         /*let gcm = userInfo["GCM"] as? [String:Any] ?? [:]
-        let data = gcm["data"]as? [String:Any] ?? [:]
-        let message = data["message"]as? [String:Any] ?? [:]
-        let innerData = message["data"]as? [String:Any] ?? [:]
-        let idKey = innerData["id"]as? [String:Any] ?? [:]
-        let skey = idKey["S"] as? String ?? ""
-        print("skey:",skey)
-        if(skey != ""){
-            //streamVideoCode = skey //stream video key and skey both are same
-            getGuestDetailInGraphql(.returnCacheDataAndFetch,showLoader: false)//need to refresh stream
-        }*/
-        
+         let data = gcm["data"]as? [String:Any] ?? [:]
+         let message = data["message"]as? [String:Any] ?? [:]
+         let innerData = message["data"]as? [String:Any] ?? [:]
+         let idKey = innerData["id"]as? [String:Any] ?? [:]
+         let skey = idKey["S"] as? String ?? ""
+         print("skey:",skey)
+         if(skey != ""){
+         //streamVideoCode = skey //stream video key and skey both are same
+         getGuestDetailInGraphql(.returnCacheDataAndFetch,showLoader: false)//need to refresh stream
+         }*/
     }
     func LiveEventById() {
         /*viewVOD.isHidden = false
@@ -383,14 +439,12 @@ class MultiStreamVC: UIViewController , R5StreamDelegate, UITableViewDelegate,UI
          lblAmount.text = ""
          self.showVideo(strURL: "http://demo.unified-streaming.com/video/tears-of-steel/tears-of-steel.ism/.m3u8");
          return*/
-        
         let netAvailable = appDelegate.isConnectedToInternet()
         if(!netAvailable){
             showAlert(strMsg: "Please check your internet connection!")
             return
         }
         //viewActivity.isHidden = false
-        
         let url: String = appDelegate.baseURL +  "/LiveEventById"
         let user_id = UserDefaults.standard.string(forKey: "user_id");
         var streamIdLocal = "0"
@@ -399,7 +453,6 @@ class MultiStreamVC: UIViewController , R5StreamDelegate, UITableViewDelegate,UI
         }
         let headers: HTTPHeaders
         headers = [appDelegate.x_api_key: appDelegate.x_api_value]
-        
         let params: [String: Any] = ["userid":user_id ?? "","performer_id":performerId,"stream_id": streamIdLocal]
         //print("liveEvents params:",params)
         // let params: [String: Any] = ["userid":user_id ?? "","performer_id":"101","stream_id": "0"]
@@ -418,20 +471,18 @@ class MultiStreamVC: UIViewController , R5StreamDelegate, UITableViewDelegate,UI
                     }
                 case .failure(let error):
                     let errorDesc = error.localizedDescription.replacingOccurrences(of: "URLSessionTask failed with error:", with: "")
-                    // self.showAlert(strMsg: errorDesc)
-                    // self.viewActivity.isHidden = true
+                // self.showAlert(strMsg: errorDesc)
+                // self.viewActivity.isHidden = true
                 }
-        }
+            }
     }
     func setLiveStreamConfig(){
         print("==setLiveStreamConfig")
         let session_token = UserDefaults.standard.string(forKey: "session_token");
         let user_email = UserDefaults.standard.string(forKey: "user_email");
-        
         let path = Bundle.main.path(forResource: "R5options", ofType: "plist")
         let dicPlist = NSMutableDictionary(contentsOfFile: path!)
         let dicGlobalProperties = dicPlist?.value(forKey: "GlobalProperties") as? NSMutableDictionary
-        
         let license_key = dicGlobalProperties?["license_key"] as? String
         let server_port = dicGlobalProperties?["server_port"] as? String
         let bitrate = dicGlobalProperties?["bitrate"] as? Int
@@ -444,7 +495,6 @@ class MultiStreamVC: UIViewController , R5StreamDelegate, UITableViewDelegate,UI
         let camera_height = dicGlobalProperties?["camera_height"] as? Int
         let fps = dicGlobalProperties?["fps"] as? Int
         let sm_version = dicGlobalProperties?["sm_version"] as? String
-        
         Testbed.setUserName(name: user_email ?? "")
         Testbed.setPassword(name: session_token ?? "")
         Testbed.setLicenseKey(name:license_key ?? "")
@@ -470,12 +520,10 @@ class MultiStreamVC: UIViewController , R5StreamDelegate, UITableViewDelegate,UI
         // Testbed.parameters = Testbed.dictionary!.value(forKey: "GlobalProperties") as? NSMutableDictionary
         forceLoad = true
         getGuestDetailInGraphql(.returnCacheDataAndFetch,showLoader: false)//need to refresh stream
-        
-        
     }
     @objc func repeatNetMethod(){
         let netAvailable = appDelegate.isConnectedToInternet()
-        ////print("----repeatNetMethod")
+        print("----repeatNetMethod")
         if(isStreamStarted){
             if(netAvailable){
                 if(!isNetConnected){
@@ -501,7 +549,6 @@ class MultiStreamVC: UIViewController , R5StreamDelegate, UITableViewDelegate,UI
                      self.lblNetStatus.isHidden = true
                      }*/
                 }
-                
             }
         }else{
             self.lblNetStatus.isHidden = true
@@ -517,30 +564,29 @@ class MultiStreamVC: UIViewController , R5StreamDelegate, UITableViewDelegate,UI
         case .cellular:
             print("--Reachable via Cellular")
         case .unavailable:
-            //print("--Network not reachable")
+            print("--Network not reachable")
             if(isNetConnected && isStreamStarted){
                 repeatNetMethod()
                 self.timerNet = Timer.scheduledTimer(timeInterval: 5.0, target: self, selector: #selector(self.repeatNetMethod), userInfo: nil, repeats: true)
-                
             }
             isNetConnected = false
         case .none:
             print("--none")
-            
         }
     }
     func setBtnDefaultBG(){
-        
         btnInfo?.layer.borderColor = UIColor.black.cgColor
         btnShare?.layer.borderColor = UIColor.black.cgColor
         btnTips?.layer.borderColor = UIColor.black.cgColor
         btnDonations?.layer.borderColor = UIColor.black.cgColor
         btnEmoji?.layer.borderColor = UIColor.black.cgColor
         btnChat?.layer.borderColor = UIColor.black.cgColor
+        btnSubscriptions?.layer.borderColor = UIColor.black.cgColor
         viewDonations.isHidden = true
         viewComments.isHidden = true
         viewTips.isHidden = true
         viewInfo.isHidden = true
+        viewSubscriptions.isHidden = true
         txtComment.resignFirstResponder()
         txtTopOfToolBar.resignFirstResponder()
         txtEmoji.resignFirstResponder()
@@ -563,15 +609,10 @@ class MultiStreamVC: UIViewController , R5StreamDelegate, UITableViewDelegate,UI
         txtTopOfToolBar.backgroundColor = .clear
         //txtTopOfToolBar.isUserInteractionEnabled = false
         txtTopOfToolBar.borderStyle = UITextField.BorderStyle.none
-        
         let textfieldBarButton = UIBarButtonItem.init(customView: txtTopOfToolBar)
-        
         // UIToolbar expects an array of UIBarButtonItems:
-        
         let flexButton = UIBarButtonItem(barButtonSystemItem: UIBarButtonItem.SystemItem.flexibleSpace, target: nil, action: nil)
-        
         let cancel = UIBarButtonItem(title: "Cancel", style: .plain, target: self, action:#selector(resignKB(_:)))
-        
         let button = UIButton.init(type: .custom)
         //set image for button
         button.setImage(UIImage(named: "blue-send"), for: UIControl.State.normal)
@@ -579,31 +620,22 @@ class MultiStreamVC: UIViewController , R5StreamDelegate, UITableViewDelegate,UI
         button.addTarget(self, action: #selector(sendChatMessage), for: UIControl.Event.touchUpInside)
         //set frame
         button.frame = CGRect(x: view.frame.size.width-180, y: 0, width: 20, height: 20)
-        
         let sendBtn = UIBarButtonItem(customView: button)
-        
-        
         toolbar.setItems([cancel,textfieldBarButton,flexButton,sendBtn], animated: true)
         toolbar.sizeToFit()
         txtComment.inputAccessoryView = toolbar;
         txtTopOfToolBar.inputAccessoryView = toolbar;
-        
-        
     }
     func addDoneButton1() {
         let toolbar =  UIToolbar(frame: CGRect(x: 0, y: 0, width: view.frame.size.width, height: 35))
-        
         let flexButton = UIBarButtonItem(barButtonSystemItem: UIBarButtonItem.SystemItem.flexibleSpace, target: nil, action: nil)
         let doneButton = UIBarButtonItem(title: "Done", style: .plain, target: self, action:#selector(resignKB(_:)))
         toolbar.setItems([flexButton, doneButton], animated: true)
         toolbar.sizeToFit()
-        
         txtEmoji.inputAccessoryView = toolbar
         txtTipCreator.inputAccessoryView = toolbar
         txtTipCreator.inputView = pickerView
-        
     }
-    
     func cleanup () {
         if(self.subscribeStream1 != nil ) {
             self.subscribeStream1!.client = nil
@@ -629,6 +661,8 @@ class MultiStreamVC: UIViewController , R5StreamDelegate, UITableViewDelegate,UI
     }
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
+        NotificationCenter.default.addObserver(self, selector: #selector(ScreenShareNotificationHandler(_:)), name: .didReceiveScreenShareData, object: nil)
+        //getChannelSubscriptionPlans()
         
     }
     
@@ -648,17 +682,27 @@ class MultiStreamVC: UIViewController , R5StreamDelegate, UITableViewDelegate,UI
         //            ALToastView.toast(in: self.view, withText:s)
         //        }
         // MARK: Customising
-        
-        NSLog("Status: %s ", r5_string_for_status(statusCode))
+        print("stream:",stream)
+        //NSLog("Status: %s ", r5_string_for_status(statusCode))
         let s =  String(format: "Status: %s (%@)",  r5_string_for_status(statusCode), msg)
         //ALToastView.toast(in: self.view, withText:s)
         //print("net status",r5_status_netstatus.rawValue)
+        if(Int(statusCode) == Int(r5_status_connected.rawValue)){
+            //showAlert(strMsg: "stream connected")
+            if(self.indexOfStream < self.streamlist.count){
+                self.indexOfStream = self.indexOfStream + 1
+                self.findStream()
+            }
+        }
+        
+        if(Int(statusCode) == Int(r5_status_video_render_start.rawValue)){
+            print("==Video Render Started ")//when started steraming it will execute
+        }
         if (Int(statusCode) == Int(r5_status_disconnected.rawValue)) {
             //self.cleanup()
             //ALToastView.toast(in: self.view, withText:"Video Disconnected")
         } else if ((Int(statusCode) == Int(r5_status_netstatus.rawValue) && msg == "NetStream.Play.UnpublishNotify") || ((Int(statusCode) == Int(r5_status_netstatus.rawValue) && msg == "NetStream.Play.StreamDry"))){
             //self.lblStreamUnavailable.text = "Video Disconnected"
-            
         } else if ((Int(statusCode) == Int(r5_status_netstatus.rawValue) && msg == "NetStream.Play.SufficientBW")) {
             ////print("=======sufficient band Width")
         }else if ((Int(statusCode) == Int(r5_status_netstatus.rawValue) && msg == "NetStream.Play.InSufficientBW")) {
@@ -671,7 +715,6 @@ class MultiStreamVC: UIViewController , R5StreamDelegate, UITableViewDelegate,UI
              self.subscribeStream?.pauseAudio = true
              }*/
             ALToastView.toast(in: self.view, withText:"Audio Muted")
-            
         }
         else if (Int(statusCode) == Int(r5_status_audio_unmute.rawValue))
         {
@@ -681,8 +724,6 @@ class MultiStreamVC: UIViewController , R5StreamDelegate, UITableViewDelegate,UI
              self.subscribeStream?.pauseAudio = false
              }*/
             ALToastView.toast(in: self.view, withText:"Audio Unmuted")
-            
-            
         }else if (Int(statusCode) == Int(r5_status_video_mute.rawValue))
         {
             ////print("=======r5_status_video_mute")
@@ -691,7 +732,6 @@ class MultiStreamVC: UIViewController , R5StreamDelegate, UITableViewDelegate,UI
              self.subscribeStream?.pauseAudio = true
              }*/
             ALToastView.toast(in: self.view, withText:"Video Muted")
-            
         }
         else if (Int(statusCode) == Int(r5_status_video_unmute.rawValue))
         {
@@ -701,13 +741,11 @@ class MultiStreamVC: UIViewController , R5StreamDelegate, UITableViewDelegate,UI
              self.subscribeStream?.pauseAudio = false
              }*/
             ALToastView.toast(in: self.view, withText:"Video Unmuted")
-            
         }
         else if (Int(statusCode) == Int(r5_status_disconnected.rawValue))
         {
             ////print("=======r5_status_disconnected")
             //ALToastView.toast(in: self.view, withText:"Video Disconnected")
-            
         }
         else if (Int(statusCode) == Int(r5_status_stop_streaming.rawValue))
         {
@@ -721,88 +759,91 @@ class MultiStreamVC: UIViewController , R5StreamDelegate, UITableViewDelegate,UI
     @objc func repeatMethod(){
         //print("====repeatMethod")
         /*if(!publisherIsDisconnected){
-            getGuestDetailInGraphql(.returnCacheDataAndFetch,showLoader: false)
-        }*/
+         getGuestDetailInGraphql(.returnCacheDataAndFetch,showLoader: false)
+         }*/
     }
     func getGuestDetailInGraphql(_ cachePolicy: CachePolicy,showLoader:Bool) {
-        print("====streamVideoCode:",streamVideoCode)
+        closeStream()
+        
+        print("====getGuestDetailInGraphql streamVideoCode:",streamVideoCode)
         if(showLoader){
             viewActivity.isHidden = false
         }
+        var load = false
         let listQuery = GetMulticreatorshareddataQuery(id:streamVideoCode)
         //1872_1595845007395_mc2
         //58_1594894849561_multi_creator_test_event
-        
-        appSyncClient?.fetch(query: listQuery, cachePolicy: cachePolicy) { result, error in
+        appSyncClient?.fetch(query: listQuery, cachePolicy: cachePolicy) { [self] result, error in
             self.viewActivity.isHidden = true
-            
             if let error = error {
                 //print("Error fetching data: \(error)")
                 return
             }
-            
-            print("--result:",result)
-            if((result != nil)  && (result?.data != nil)){
-                print("--data:",result?.data)
-                let data = result?.data
-                let multiData = data?.getMulticreatorshareddata
-                if(multiData != nil){
-                    let multiDataJSON = self.convertToDictionary(text: multiData?.data ?? "")
-                    let guestList = multiDataJSON?["guestList"] as? [Any] ?? [Any]() ;
-                    /*let guestList = [["auth_code": "1454-42a475b0-888d-4f0a-ae02-05fe92894e9d","first_name" : "qa","full_name" : "qa web1","last_name" : "web","liveStatus" : true,"onlineStatus" : true,"shortName" : "qw","useAudio" : 1,"useVideo" : 1,"userColor" : "#44d7b6","user_type" : "creator"
+            if(!load){
+                load = true
+                //print("--result:",result)
+                if((result != nil)  && (result?.data != nil)){
+                    // print("--data:",result?.data)
+                    let data = result?.data
+                    let multiData = data?.getMulticreatorshareddata
+                    print("multiData:",multiData)
+                    if(multiData != nil){
+                        let multiDataJSON = self.convertToDictionary(text: multiData?.data ?? "")
+                       let guestList = multiDataJSON?["guestList"] as? [Any] ?? [Any]() ;
+                       /* let guestList = [["auth_code": "1454-42a475b0-888d-4f0a-ae02-05fe92894e9d","first_name" : "qa","full_name" : "qa web1","last_name" : "web","liveStatus" : true,"onlineStatus" : true,"shortName" : "qw","useAudio" : 1,"useVideo" : 1,"userColor" : "#44d7b6","user_type" : "creator"
                         ],["auth_code": "1454-42a475b0-888d-4f0a-ae02-05fe92894e9d","first_name" : "qa","full_name" : "qa web2","last_name" : "web","liveStatus" : true,"onlineStatus" : true,"shortName" : "qw","useAudio" : 1,"useVideo" : 1,"userColor" : "#44d7b6","user_type" : "creator"
                         ],["auth_code": "1454-42a475b0-888d-4f0a-ae02-05fe92894e9d","first_name" : "qa","full_name" : "qa web3","last_name" : "web","liveStatus" : true,"onlineStatus" : true,"shortName" : "qw","useAudio" : 1,"useVideo" : 1,"userColor" : "#44d7b6","user_type" : "creator"
                         ],["auth_code": "1454-42a475b0-888d-4f0a-ae02-05fe92894e9d","first_name" : "qa","full_name" : "qa web4","last_name" : "web","liveStatus" : true,"onlineStatus" : true,"shortName" : "qw","useAudio" : 1,"useVideo" : 1,"userColor" : "#44d7b6","user_type" : "creator"
-                        ],["auth_code": "1454-42a475b0-888d-4f0a-ae02-05fe92894e9d","first_name" : "qa","full_name" : "qa web5","last_name" : "web","liveStatus" : true,"onlineStatus" : true,"shortName" : "qw","useAudio" : 1,"useVideo" : 1,"userColor" : "#44d7b6","user_type" : "creator"
-                        ],["auth_code": "1454-42a475b0-888d-4f0a-ae02-05fe92894e9d","first_name" : "qa","full_name" : "qa web6","last_name" : "web","liveStatus" : true,"onlineStatus" : true,"shortName" : "qw","useAudio" : 1,"useVideo" : 1,"userColor" : "#44d7b6","user_type" : "creator"
-                        ],["auth_code": "1454-42a475b0-888d-4f0a-ae02-05fe92894e9d","first_name" : "qa","full_name" : "qa web7","last_name" : "web","liveStatus" : true,"onlineStatus" : true,"shortName" : "qw","useAudio" : 1,"useVideo" : 1,"userColor" : "#44d7b6","user_type" : "creator"
-                        ],["auth_code": "1454-42a475b0-888d-4f0a-ae02-05fe92894e9d","first_name" : "qa","full_name" : "qa web8","last_name" : "web","liveStatus" : true,"onlineStatus" : true,"shortName" : "qw","useAudio" : 1,"useVideo" : 1,"userColor" : "#44d7b6","user_type" : "creator"
-                        ],["auth_code": "1454-42a475b0-888d-4f0a-ae02-05fe92894e9d","first_name" : "qa","full_name" : "qa web9","last_name" : "web","liveStatus" : true,"onlineStatus" : true,"shortName" : "qw","useAudio" : 1,"useVideo" : 1,"userColor" : "#44d7b6","user_type" : "creator"
-                        ],["auth_code": "1454-42a475b0-888d-4f0a-ae02-05fe92894e9d","first_name" : "qa","full_name" : "qa web10","last_name" : "web","liveStatus" : true,"onlineStatus" : true,"shortName" : "qw","useAudio" : 1,"useVideo" : 1,"userColor" : "#44d7b6","user_type" : "creator"
-                        ],["auth_code": "1454-42a475b0-888d-4f0a-ae02-05fe92894e9d","first_name" : "qa","full_name" : "qa web11","last_name" : "web","liveStatus" : true,"onlineStatus" : true,"shortName" : "qw","useAudio" : 1,"useVideo" : 1,"userColor" : "#44d7b6","user_type" : "creator"
                         ]]*/
-                    print("guestList:",guestList)
-                    //print("duplicateStreamList:",self.duplicateStreamList)
-                    
-                    //print("guestList count:",guestList.count)
-                    self.streamlist = [[String:Any]]()
-                    self.offlineStream = [[String:Any]]()
-                    for (index,_) in guestList.enumerated() {
-                        if (index < 11){
-                            let guest = guestList[index] as! [String:Any]
-                            let onlineStatus = guest["onlineStatus"] as? Bool ?? false
-                            let liveStatus = guest["liveStatus"] as? Bool ?? false
-                           
-                            if(onlineStatus && liveStatus) {
-                                self.streamlist.append(guest)
-                            } else {
-                                self.offlineStream.append(guest)
+                        print("guestList:",guestList)
+                        let liveStatus = multiDataJSON?["liveStatus"] as? Bool ?? false;
+                        sharedScreenBy = multiDataJSON?["sharedScreenBy"] as? String ?? "";
+
+                        self.isSharedScreen = (multiDataJSON?["isSharedScreen"]as? Bool ?? false) ? true : false;
+                        let isLive = (multiDataJSON?["isLive"]as? Bool ?? false) ? true : false;
+                                                print("self.isSharedScreen:",self.isSharedScreen)
+                        //                        print("self.isStreamStarted:",self.isStreamStarted)
+                        //                        print("isLive:",isLive)
+                        self.streamlist = [[String:Any]]()
+                        self.offlineStream = [[String:Any]]()
+                        for (index,_) in guestList.enumerated() {
+                            if (index < 4){
+                                let guest = guestList[index] as! [String:Any]
+                                let onlineStatus = guest["onlineStatus"] as? Bool ?? false
+                                let liveStatus = guest["liveStatus"] as? Bool ?? false
+                                if(onlineStatus && liveStatus) {
+                                    self.streamlist.append(guest)
+                                } else {
+                                    self.offlineStream.append(guest)
+                                }
+                                //self.streamlist.append(guest)
                             }
                         }
-                    }
-                  
-                    var equal = false
-                    if (self.streamlist as AnyObject).isEqual(self.duplicateStreamList as AnyObject) {
-                        equal = true
-                    }
-                    print("equal:",equal)
-                    
-                    //to avid may times API calling, we are checking, prev obj and current obj are same or not.
-                    if((self.streamlist.count > 0 && !equal) || self.forceLoad){
-                        self.forceLoad = false
-                        self.pickerView.reloadComponent(0)//for load creators for Tip
-                        // self.findStream()
-                        self.collectionView.reloadData()
-                        
-                    }else{
-                        //print("equal")
-                        if(self.streamlist.count > 0){
+                        //uncomment below line and comment netx line
+                        //                        if(self.streamlist.count > 0 && (!self.isSharedScreen || isLive)){
+                        //uncomment below line
+                        //                        if(self.streamlist.count > 0 && isLive){
+
+                        if(self.streamlist.count > 0 && isLive){
                             self.lblStreamUnavailable.isHidden = true
                             self.btnPlayStream.isHidden = true
+                            self.forceLoad = false
+                            self.pickerView.reloadComponent(0)//for load creators for Tip
+                            self.indexOfStream = 0
+                            self.findStream()
+                            self.lblUser1.text = ""
+                            self.lblUser2.text = ""
+                            self.lblUser3.text = ""
+                            self.lblUser4.text = ""
+                            
+                            self.lblUserSS1.text = ""
+                            self.lblUserSS2.text = ""
+                            self.lblUserSS3.text = ""
+                            self.lblUserSS4.text = ""
+                            //self.collectionView.reloadData()
                         }else{
                             self.lblStreamUnavailable.isHidden = false
                             self.btnPlayStream.isHidden = false
-                            
                             if(self.isStreamStarted || self.stream_status == "completed"){
                                 self.lblLive.isHidden = true
                                 self.viewControls?.isHidden = true
@@ -814,27 +855,26 @@ class MultiStreamVC: UIViewController , R5StreamDelegate, UITableViewDelegate,UI
                                     self.timer!.invalidate()
                                     self.timer = nil
                                 }
-                                
                             }else{
-                                self.lblStreamUnavailable.text = "Please wait for the host to start the live stream"
+                                self.lblStreamUnavailable.text = "We are working on the issue. We will be back shortly."
                             }
                         }
+                        
+                    }else{
+                        //print("--getMulticreatorshareddata null")
+                        self.lblStreamUnavailable.isHidden = false
+                        self.btnPlayStream.isHidden = false
                     }
-                }else{
-                    //print("--getMulticreatorshareddata null")
-                    
-                    self.lblStreamUnavailable.isHidden = false
-                    self.btnPlayStream.isHidden = false
+                    self.duplicateStreamList = self.streamlist
                 }
-                self.duplicateStreamList = self.streamlist
             }
-            // Remove existing records if we're either loading from cache, or loading fresh (e.g., from a refresh)
+            
+            //Remove existing records if we're either loading from cache, or loading fresh (e.g., from a refresh)
         }
     }
     @IBAction func playStream(_ sender: Any){
         //print("playStream called")
         getGuestDetailInGraphql(.returnCacheDataAndFetch,showLoader: true)
-        
     }
     func startSubscription() throws {
         do{
@@ -842,30 +882,23 @@ class MultiStreamVC: UIViewController , R5StreamDelegate, UITableViewDelegate,UI
             newCommentsSubscriptionWatcher =
                 try appSyncClient?.subscribe(subscription: subscriptionRequest) { [weak self] result, transaction, error in
                     //print("Received comment subscription callback on event \(self?.streamVideoCode)")
-                    
                     guard let self = self else {
                         //print("EventDetails view controller has been deallocated since subscription was started, aborting")
                         return
                     }
-                    
                     guard error == nil else {
                         //print("Error in comment subscription for event \(self.streamVideoCode): \(error!.localizedDescription)")
                         return
                     }
-                    
                     guard let result = result else {
                         //print("Result unexpectedly nil in comment subscription for event \(self.streamVideoCode)")
                         return
                     }
-                    
-            }
+                }
         }
         catch {
             print (error.localizedDescription)
         }
-        
-        
-        
     }
     func delayWithSeconds(_ seconds: Double, completion: @escaping () -> ()) {
         DispatchQueue.main.asyncAfter(deadline: .now() + seconds) {
@@ -875,94 +908,179 @@ class MultiStreamVC: UIViewController , R5StreamDelegate, UITableViewDelegate,UI
     func showAlert(strMsg: String){
         let alert = UIAlertController(title: "Alert", message: strMsg, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
-        
         DispatchQueue.main.async {
             self.present(alert, animated: true)
         }
     }
     func adjustViews(){
-        /*let count = streamlist.count
-         switch count {
-         case 0:
-         view1?.isHidden = true
-         view2?.isHidden = true
-         view3?.isHidden = true
-         view4?.isHidden = true
-         case 1:
-         view1?.isHidden = false
-         view2?.isHidden = true
-         view3?.isHidden = true
-         view4?.isHidden = true
-         NSLayoutConstraint.setMultiplier(1.0, of: &(widthFirstView)!)
-         NSLayoutConstraint.setMultiplier(1.0, of: &(heightFirstView)!)
-         NSLayoutConstraint.setMultiplier(0.0, of: &(widthSecondView)!)
-         NSLayoutConstraint.setMultiplier(0.0, of: &(heightSecondView)!)
-         NSLayoutConstraint.setMultiplier(0.0, of: &(widthThirdView)!)
-         NSLayoutConstraint.setMultiplier(0.0, of: &(heightThirdView)!)
-         NSLayoutConstraint.setMultiplier(0.0, of: &(widthFourthView)!)
-         NSLayoutConstraint.setMultiplier(0.0, of: &(heightFourthView)!)
-         case 2:
-         view1?.isHidden = false
-         view2?.isHidden = false
-         view3?.isHidden = true
-         view4?.isHidden = true
-         NSLayoutConstraint.setMultiplier(0.5, of: &(widthFirstView)!)
-         NSLayoutConstraint.setMultiplier(1.0, of: &(heightFirstView)!)
-         NSLayoutConstraint.setMultiplier(0.5, of: &(widthSecondView)!)
-         NSLayoutConstraint.setMultiplier(1.0, of: &(heightSecondView)!)
-         NSLayoutConstraint.setMultiplier(0.0, of: &(widthThirdView)!)
-         NSLayoutConstraint.setMultiplier(0.0, of: &(heightThirdView)!)
-         NSLayoutConstraint.setMultiplier(0.0, of: &(widthFourthView)!)
-         NSLayoutConstraint.setMultiplier(0.0, of: &(heightFourthView)!)
-         case 3:
-         view1?.isHidden = false
-         view2?.isHidden = false
-         view3?.isHidden = false
-         view4?.isHidden = true
-         NSLayoutConstraint.setMultiplier(0.5, of: &(widthFirstView)!)
-         NSLayoutConstraint.setMultiplier(0.5, of: &(heightFirstView)!)
-         NSLayoutConstraint.setMultiplier(0.5, of: &(widthSecondView)!)
-         NSLayoutConstraint.setMultiplier(0.5, of: &(heightSecondView)!)
-         NSLayoutConstraint.setMultiplier(0.5, of: &(widthThirdView)!)
-         NSLayoutConstraint.setMultiplier(0.5, of: &(heightThirdView)!)
-         NSLayoutConstraint.setMultiplier(0.0, of: &(widthFourthView)!)
-         NSLayoutConstraint.setMultiplier(0.0, of: &(heightFourthView)!)
-         case 4:
-         view1?.isHidden = false
-         view2?.isHidden = false
-         view3?.isHidden = false
-         view4?.isHidden = false
-         
-         NSLayoutConstraint.setMultiplier(0.5, of: &(widthFirstView)!)
-         NSLayoutConstraint.setMultiplier(0.5, of: &(heightFirstView)!)
-         NSLayoutConstraint.setMultiplier(0.5, of: &(widthSecondView)!)
-         NSLayoutConstraint.setMultiplier(0.5, of: &(heightSecondView)!)
-         NSLayoutConstraint.setMultiplier(0.5, of: &(widthThirdView)!)
-         NSLayoutConstraint.setMultiplier(0.5, of: &(heightThirdView)!)
-         NSLayoutConstraint.setMultiplier(0.5, of: &(widthFourthView)!)
-         NSLayoutConstraint.setMultiplier(0.5, of: &(heightFourthView)!)
-         default:
-         print("default")
-         }
-         /*self.view1!.layoutIfNeeded()
-         self.view2!.layoutIfNeeded()
-         self.view3!.layoutIfNeeded()
-         self.view4!.layoutIfNeeded()
-         self.viewStream!.layoutIfNeeded()*/
-         //        //print("view1 frame:",view1?.frame)
-         //        //print("view2 frame:",view2?.frame)
-         //        //print("view3 frame:",view3?.frame)
-         //        //print("view4 frame:",view4?.frame)
-         
-         */
+        /* view1?.backgroundColor = UIColor.red
+         view2?.backgroundColor = UIColor.green
+         view3?.backgroundColor = UIColor.blue
+         view4?.backgroundColor = UIColor.systemPink */
+        let screenRect = UIScreen.main.bounds
+        let screenHeight = screenRect.size.height
+
+        if(indexOfStream == 0){
+        let count = streamlist.count
+        switch count {
+        case 0:
+            view1?.isHidden = true
+            view2?.isHidden = true
+            view3?.isHidden = true
+            view4?.isHidden = true
+        case 1:
+            view1?.isHidden = false
+            view2?.isHidden = true
+            view3?.isHidden = true
+            view4?.isHidden = true
+        case 2:
+            view1?.isHidden = false
+            view2?.isHidden = false
+            view3?.isHidden = true
+            view4?.isHidden = true
+        case 3:
+            view1?.isHidden = false
+            view2?.isHidden = false
+            view3?.isHidden = false
+            view4?.isHidden = true
+        case 4:
+            view1?.isHidden = false
+            view2?.isHidden = false
+            view3?.isHidden = false
+            view4?.isHidden = false
+        default:
+            print("")
+        }
+        if(isSharedScreen){
+            imgStreamThumbNail.isHidden = true
+            viewShareScreen.isHidden = false
+            //uncomment below line
+            SS_startup()
+            scrollViewSS.isHidden = false
+            viewUserStreams.isHidden = true
+            viewSS1.isHidden = true
+            viewSS2.isHidden = true
+            viewSS3.isHidden = true
+            viewSS4.isHidden = true
+
+            switch count {
+            case 1:
+                viewSS1.isHidden = false
+                heightFirstViewSS?.constant = screenHeight
+                viewSS1.layoutIfNeeded()
+                heightStreamViewSS.constant = screenHeight
+                scrollViewSS.layoutIfNeeded()
+            case 2:
+                viewSS1.isHidden = false
+                viewSS2.isHidden = false
+                heightFirstViewSS?.constant = screenHeight/2
+                heightSecondViewSS?.constant = screenHeight/2
+                viewSS1.layoutIfNeeded()
+                viewSS2.layoutIfNeeded()
+                heightStreamViewSS.constant = screenHeight
+                scrollViewSS.layoutIfNeeded()
+            case 3:
+                viewSS1.isHidden = false
+                viewSS2.isHidden = false
+                viewSS3.isHidden = false
+                heightFirstViewSS?.constant = screenHeight/2
+                heightSecondViewSS?.constant = screenHeight/2
+                heightThirdView?.constant = screenHeight/2
+                viewSS1.layoutIfNeeded()
+                viewSS2.layoutIfNeeded()
+                viewSS3.layoutIfNeeded()
+                heightStreamViewSS.constant = (screenHeight/2) * 3
+                scrollViewSS.layoutIfNeeded()
+            case 4:
+                viewSS1.isHidden = false
+                viewSS2.isHidden = false
+                viewSS3.isHidden = false
+                viewSS4.isHidden = false
+                heightFirstViewSS?.constant = screenHeight/2
+                heightSecondViewSS?.constant = screenHeight/2
+                heightThirdView?.constant = screenHeight/2
+                heightFourthViewSS?.constant = screenHeight/2
+                viewSS1.layoutIfNeeded()
+                viewSS2.layoutIfNeeded()
+                viewSS3.layoutIfNeeded()
+                viewSS4.layoutIfNeeded()
+                heightStreamViewSS.constant = (screenHeight/2) * 4
+                scrollViewSS.layoutIfNeeded()
+
+            default:
+                print("")
+            }
+        }else{
+            scrollViewSS.isHidden = true
+            viewShareScreen.isHidden = true
+            viewUserStreams.isHidden = false
+            switch count {
+            case 1:
+                NSLayoutConstraint.setMultiplier(1.0, of: &(widthFirstView)!)
+                NSLayoutConstraint.setMultiplier(1.0, of: &(heightFirstView)!)
+                NSLayoutConstraint.setMultiplier(0.0, of: &(widthSecondView)!)
+                NSLayoutConstraint.setMultiplier(0.0, of: &(heightSecondView)!)
+                NSLayoutConstraint.setMultiplier(0.0, of: &(widthThirdView)!)
+                NSLayoutConstraint.setMultiplier(0.0, of: &(heightThirdView)!)
+                NSLayoutConstraint.setMultiplier(0.0, of: &(widthFourthView)!)
+                NSLayoutConstraint.setMultiplier(0.0, of: &(heightFourthView)!)
+            case 2:
+                NSLayoutConstraint.setMultiplier(0.5, of: &(widthFirstView)!)
+                NSLayoutConstraint.setMultiplier(1.0, of: &(heightFirstView)!)
+                NSLayoutConstraint.setMultiplier(0.5, of: &(widthSecondView)!)
+                NSLayoutConstraint.setMultiplier(1.0, of: &(heightSecondView)!)
+                NSLayoutConstraint.setMultiplier(0.0, of: &(widthThirdView)!)
+                NSLayoutConstraint.setMultiplier(0.0, of: &(heightThirdView)!)
+                NSLayoutConstraint.setMultiplier(0.0, of: &(widthFourthView)!)
+                NSLayoutConstraint.setMultiplier(0.0, of: &(heightFourthView)!)
+            case 3:
+                NSLayoutConstraint.setMultiplier(0.5, of: &(widthFirstView)!)
+                NSLayoutConstraint.setMultiplier(0.5, of: &(heightFirstView)!)
+                NSLayoutConstraint.setMultiplier(0.5, of: &(widthSecondView)!)
+                NSLayoutConstraint.setMultiplier(0.5, of: &(heightSecondView)!)
+                NSLayoutConstraint.setMultiplier(0.5, of: &(widthThirdView)!)
+                NSLayoutConstraint.setMultiplier(0.5, of: &(heightThirdView)!)
+                NSLayoutConstraint.setMultiplier(0.0, of: &(widthFourthView)!)
+                NSLayoutConstraint.setMultiplier(0.0, of: &(heightFourthView)!)
+            case 4:
+                NSLayoutConstraint.setMultiplier(0.5, of: &(widthFirstView)!)
+                NSLayoutConstraint.setMultiplier(0.5, of: &(heightFirstView)!)
+                NSLayoutConstraint.setMultiplier(0.5, of: &(widthSecondView)!)
+                NSLayoutConstraint.setMultiplier(0.5, of: &(heightSecondView)!)
+                NSLayoutConstraint.setMultiplier(0.5, of: &(widthThirdView)!)
+                NSLayoutConstraint.setMultiplier(0.5, of: &(heightThirdView)!)
+                NSLayoutConstraint.setMultiplier(0.5, of: &(widthFourthView)!)
+                NSLayoutConstraint.setMultiplier(0.5, of: &(heightFourthView)!)
+            default:
+                print("")
+            }
+        }
+        
+        self.view1!.layoutIfNeeded()
+        self.view2!.layoutIfNeeded()
+        self.view3!.layoutIfNeeded()
+        self.view4!.layoutIfNeeded()
+        self.viewStream!.layoutIfNeeded()
+        //        //print("view1 frame:",view1?.frame)
+        //        //print("view2 frame:",view2?.frame)
+        //        //print("view3 frame:",view3?.frame)
+        //        //print("view4 frame:",view4?.frame)
+        
+        
     }
-    func findStream(index:Int,view:UIView){
-       // adjustViews()
-            let guest = streamlist[index]
+    }
+    func findStream(){
+        if(indexOfStream == 0){
+            self.adjustViews()
+        }
+        print("findStream:index:",self.indexOfStream)
+        if(self.indexOfStream < self.streamlist.count)
+        {
+            let guest = self.streamlist[self.indexOfStream]
             let streamName = guest["auth_code"] as? String ?? ""
-            let netAvailable = appDelegate.isConnectedToInternet()
+            let netAvailable = self.appDelegate.isConnectedToInternet()
             if(!netAvailable){
-                showAlert(strMsg: "Please check your internet connection!")
+                self.showAlert(strMsg: "Please check your internet connection!")
                 return
             }
             _ = String(Testbed.getParameter(param:"port") as! Int);
@@ -970,75 +1088,128 @@ class MultiStreamVC: UIViewController , R5StreamDelegate, UITableViewDelegate,UI
             let version = Testbed.getParameter(param:"sm_version") as! String;
             let context = Testbed.getParameter(param:"context") as! String;
             //let stream1 = Testbed.getParameter(param:"stream1") as! String;
-            
             let url = "https://" + host  + "/streammanager/api/" + version + "/event/" +
-                context + "/" + streamName + "?action=subscribe&region=" + appDelegate.strRegionCode;
-            
+                context + "/" + streamName + "?action=subscribe&region=" + self.appDelegate.strRegionCode;
             print("url:",url)
             //let url = "https:// livestream.arevea.com/streammanager/api/4.0/event/live/1588788669277_somethingnew?action=subscribe"
             ////print("findStream url:",url)
             //let stream = "1588832196500_taylorswiftevent"
-            
             AF.request(url,method: .get, encoding: JSONEncoding.default)
                 .responseJSON { [self] response in
                     switch response.result {
                     case .success(let value):
-                        DispatchQueue.main.async {
-                            print(value)
-                        }
+                        
+                        //print("streammanager res:",value)
                         if let json = value as? [String: Any] {
                             if json["errorMessage"] != nil{
                                 let errorMsg = json["errorMessage"]
-                                //                                let tagView = 10*(index + 1)
-                                //                                //print("tagView1:",tagView)
-                                //                                let superView = self.viewStream.viewWithTag(tagView)
-                                //ALToastView.toast(in:self.view, withText:"Unable to locate stream. Broadcast has probably not started for this stream")
+                                print("errorMsg:",errorMsg)
                                 let userName = guest["full_name"] as? String ?? ""
                                 let errorMsg1 = "Video streaming is currently unavailable for : " + userName
                                 errorCount = errorCount + 1
-                                /*if(index == 0){
-                                 self.lblNoStream1.text = errorMsg1
-                                 }else if(index == 1){
-                                 self.lblNoStream2.text = errorMsg1
-                                 }else if(index == 2){
-                                 self.lblNoStream3.text = errorMsg1
-                                 }else if(index == 3){
-                                 self.lblNoStream4.text = errorMsg1
-                                 }*/
-                                // ALToastView.toast(in: superView, withText:errorMsg as? String ?? "")
-                                // "Unable to locate stream. Broadcast has probably not started for this stream: " + streamName
-                                //print("errorMessage:",errorMsg)
-                                //comment these two lines
-                                
-                            }else{
-                                /*if(index == 0){
-                                 self.lblNoStream1.text = ""
-                                 }else if(index == 1){
-                                 self.lblNoStream2.text = ""
-                                 }else if(index == 2){
-                                 self.lblNoStream3.text = ""
-                                 }else if(index == 3){
-                                 self.lblNoStream4.text = ""
-                                 }*/
-                                collectionView.isHidden = false
-                                let serverAddress = json["serverAddress"] as? String ?? ""
-                                //print("serverAddress:",serverAddress)
-                                self.lblLive.isHidden = false
-                                self.lblStreamUnavailable.isHidden = true
-                                self.btnPlayStream.isHidden = true
-                                self.viewControls?.isHidden = false
-                                
-                                if(!self.isStreamStarted){
-                                    self.isStreamStarted = true
-                                    self.imgStreamThumbNail.isHidden = true
-                                    self.addOverLay()
-                                    /*self.timer = Timer.scheduledTimer(timeInterval: 15.0, target: self, selector: #selector(self.repeatMethod), userInfo: nil, repeats: true)*/
-                                    self.startSession()
+                                if(self.indexOfStream < self.streamlist.count){
+                                    self.indexOfStream = self.indexOfStream + 1
+                                    self.findStream()
                                 }
-                                self.config(url: serverAddress,stream:streamName,index: index,view:view)
+                               
+                            }else{
+                               // DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) { [self] in
+                              DispatchQueue.main.async { [self] in
+                                    //collectionView.isHidden = false
+                                    let serverAddress = json["serverAddress"] as? String ?? ""
+                                    //print("serverAddress:",serverAddress)
+                                    self.lblLive.isHidden = false
+                                    self.lblStreamUnavailable.isHidden = true
+                                    self.btnPlayStream.isHidden = true
+                                    self.viewControls?.isHidden = false
+                                    if(!self.isStreamStarted){
+                                        self.isStreamStarted = true
+                                        self.imgStreamThumbNail.isHidden = true
+                                        UIApplication.shared.isIdleTimerDisabled = true //to avoid device lock when steraming is running
+
+                                        let streamInfo = ["Stream": "started"]
+                                        self.addOverLay()
+                                        /*self.timer = Timer.scheduledTimer(timeInterval: 15.0, target: self, selector: #selector(self.repeatMethod), userInfo: nil, repeats: true)*/
+                                        self.startSession()
+                                    }
+                                    // self.config(url: serverAddress,stream:streamName,index: indexOfStream)
+                                var frameView = self.view1!.frame
+                                if(isSharedScreen){
+                                    frameView = viewSS1.frame
+                                }
+                                    let firstView1 = self.getNewR5VideoViewController(rect: frameView)
+                                    
+                                    let tagView = 10*(indexOfStream + 1)
+                                    //print("tagView1:",tagView)
+                                    var superView = self.viewStream.viewWithTag(tagView)
+                                if(isSharedScreen){
+                                    superView = self.contentViewStreamSS.viewWithTag(tagView)
+                                }
+                                    superView?.layer.borderColor = UIColor.lightGray.cgColor
+                                    superView?.layer.borderWidth = 1
+                                    superView?.addSubview((firstView1.view)!)
+                                    
+                                    let lblUsername = superView?.viewWithTag(10) as? UILabel
+                                    let guest = self.streamlist[self.indexOfStream]
+                                    let full_name = guest["full_name"] as? String ?? ""
+                                    print("full_name:",full_name)
+                                    lblUsername?.text = full_name
+                                    
+                                    //self.viewStream.bringSubviewToFront(self.viewOverlay!)
+                                    //self.viewOverlay?.backgroundColor = .green
+                                    self.viewStream.bringSubviewToFront(self.webView)
+                                    firstView1.showDebugInfo(false)
+                                    //firstView1.view.center = center
+                                    let config = self.getConfig(url: serverAddress)
+                                    // Set up the connection and stream
+                                    let connection = R5Connection(config: config)
+                                    switch self.indexOfStream {
+                                    case 0:
+                                        self.subscribeStream1 = R5Stream(connection: connection)
+                                        self.subscribeStream1!.delegate = self
+                                        self.subscribeStream1?.client = self;
+                                        firstView1.attach(self.subscribeStream1)
+                                        self.subscribeStream1!.play(streamName, withHardwareAcceleration:false)
+                                        self.lblUser1.text = full_name
+                                        self.lblUserSS1.text = full_name
+                                        self.view1.bringSubviewToFront(self.lblUser1)
+                                        self.viewSS1.bringSubviewToFront(self.lblUserSS1)
+                                    case 1:
+                                        self.subscribeStream2 = R5Stream(connection: connection)
+                                        self.subscribeStream2!.delegate = self
+                                        self.subscribeStream2?.client = self;
+                                        firstView1.attach(self.subscribeStream2)
+                                        self.subscribeStream2!.play(streamName, withHardwareAcceleration:false)
+                                        self.lblUser2.text = full_name
+                                        self.lblUserSS2.text = full_name
+                                        self.view2.bringSubviewToFront(self.lblUser2)
+                                        self.viewSS2.bringSubviewToFront(self.lblUserSS2)
+                                    case 2:
+                                        self.subscribeStream3 = R5Stream(connection: connection)
+                                        self.subscribeStream3!.delegate = self
+                                        self.subscribeStream3?.client = self;
+                                        firstView1.attach(self.subscribeStream3)
+                                        self.subscribeStream3!.play(streamName, withHardwareAcceleration:false)
+                                        self.lblUser3.text = full_name
+                                        self.lblUserSS3.text = full_name
+                                        self.view3.bringSubviewToFront(self.lblUser3)
+                                        self.viewSS3.bringSubviewToFront(self.lblUserSS3)
+                                    case 3:
+                                        self.subscribeStream4 = R5Stream(connection: connection)
+                                        self.subscribeStream4!.delegate = self
+                                        self.subscribeStream4?.client = self;
+                                        firstView1.attach(self.subscribeStream4)
+                                        self.subscribeStream4!.play(streamName, withHardwareAcceleration:false)
+                                        self.lblUser4.text = full_name
+                                        self.lblUserSS4.text = full_name
+                                        self.view4.bringSubviewToFront(self.lblUser4)
+                                        self.viewSS1.bringSubviewToFront(self.lblUserSS4)
+                                    default:
+                                        print("")
+                                    }
+                                }
                             }
                         }
-                        
                     case .failure(let error):
                         print(error)
                     }
@@ -1049,10 +1220,11 @@ class MultiStreamVC: UIViewController , R5StreamDelegate, UITableViewDelegate,UI
                          self.lblNoStream3.text = ""
                          self.lblNoStream4.text = ""*/
                         self.lblStreamUnavailable.isHidden = false
-                        self.lblStreamUnavailable.text = "Please wait for the host to start the live stream."
+                        self.lblStreamUnavailable.text = "We are working on the issue. We will be back shortly."
                         self.btnPlayStream.isHidden = false
                         viewControls?.isHidden = true
-                        self.collectionView.isHidden = true
+                        //uncomment below line
+                        //self.collectionView.isHidden = true
                         if (self.timer != nil)
                         {
                             //print("stoptimer executed")
@@ -1060,13 +1232,11 @@ class MultiStreamVC: UIViewController , R5StreamDelegate, UITableViewDelegate,UI
                             self.timer = nil
                         }
                     }
-            }
-        
-        //print("--forceStreamLoad:",forceStreamLoad)
-        //print("--isStreamStarted:",isStreamStarted)
-        
+                }
+        }
         
     }
+    
     func getConfig(url:String)->R5Configuration{
         // Set up the configuration
         let config = R5Configuration()
@@ -1089,134 +1259,71 @@ class MultiStreamVC: UIViewController , R5StreamDelegate, UITableViewDelegate,UI
         return r5View;
     }
     // MARK: - config
-    func config(url:String,stream:String,index:Int,view:UIView){
-        //view.backgroundColor = UIColor.clear
-        let streamInfo = ["Stream": "started"]
-        NotificationCenter.default.post(name: .didReceiveStreamData, object: self, userInfo: streamInfo)
-        let screenSize = self.viewStream.bounds.size
-        let count = streamlist.count
-        var width = CGFloat(0)
-        var height = CGFloat(0)
+    func config(url:String,stream:String,index:Int){
+        let firstView1 = self.getNewR5VideoViewController(rect: self.view1!.frame)
         
-        let firstView1 = getNewR5VideoViewController(rect: view.frame)
-        print("index--:",index)
-        print("view fr:",view.frame)
+        let tagView = 10*(indexOfStream + 1)
+        //print("tagView1:",tagView)
+        let superView = self.viewStream.viewWithTag(tagView)
+        superView?.layer.borderColor = UIColor.lightGray.cgColor
+        superView?.layer.borderWidth = 1
+        superView?.addSubview((firstView1.view)!)
         
-        print("stream frame:",firstView1.view.frame)
-        //self.addChild(firstView1)
-        //view.addSubview((firstView1.view)!)
-        let tagView = 10*(index + 1)
-        print("tagView1:",tagView)
-        //let superView = self.viewStream.viewWithTag(tagView)
-        let superView = view
-        superView.layer.borderColor = UIColor.lightGray.cgColor
-        superView.layer.borderWidth = 1
-        superView.addSubview((firstView1.view)!)
-        let lblUsername = superView.viewWithTag(10) as! UILabel
-        let guest = streamlist[index]
+        let lblUsername = superView?.viewWithTag(10) as? UILabel
+        let guest = self.streamlist[self.indexOfStream]
         let full_name = guest["full_name"] as? String ?? ""
-        lblUsername.text = full_name
+        print("full_name:",full_name)
+        lblUsername?.text = full_name
+        
         //self.viewStream.bringSubviewToFront(self.viewOverlay!)
         //self.viewOverlay?.backgroundColor = .green
         self.viewStream.bringSubviewToFront(self.webView)
-        
         firstView1.showDebugInfo(false)
         //firstView1.view.center = center
-        let config = getConfig(url: url)
+        let config = self.getConfig(url: url)
         // Set up the connection and stream
         let connection = R5Connection(config: config)
-        switch index {
+        switch self.indexOfStream {
         case 0:
-            subscribeStream1 = R5Stream(connection: connection)
-            subscribeStream1!.delegate = self
-            subscribeStream1?.client = self;
-            firstView1.attach(subscribeStream1)
-            subscribeStream1!.play(stream, withHardwareAcceleration:false)
-            /*let guest = self.streamlist[index]
-             let useAudio = guest["useAudio"] as? Bool ?? false
-             if(!useAudio){
-             if( self.subscribeStream1 != nil && self.subscribeStream1?.audioController != nil) {
-             self.subscribeStream1?.audioController.volume = 0
-             }
-             }*/
-            
+            self.subscribeStream1 = R5Stream(connection: connection)
+            self.subscribeStream1!.delegate = self
+            self.subscribeStream1?.client = self;
+            firstView1.attach(self.subscribeStream1)
+            self.subscribeStream1!.play(stream, withHardwareAcceleration:false)
+            self.lblUser1.text = full_name
+            self.view1.bringSubviewToFront(self.lblUser1)
         case 1:
-            subscribeStream2 = R5Stream(connection: connection)
-            subscribeStream2!.delegate = self
-            subscribeStream2?.client = self;
-            firstView1.attach(subscribeStream2)
-            subscribeStream2!.play(stream, withHardwareAcceleration:false)
+            self.subscribeStream2 = R5Stream(connection: connection)
+            self.subscribeStream2!.delegate = self
+            self.subscribeStream2?.client = self;
+            firstView1.attach(self.subscribeStream2)
+            self.subscribeStream2!.play(stream, withHardwareAcceleration:false)
+            self.lblUser2.text = full_name
+            self.view2.bringSubviewToFront(self.lblUser2)
+            
         case 2:
-            subscribeStream3 = R5Stream(connection: connection)
-            subscribeStream3!.delegate = self
-            subscribeStream3?.client = self;
-            firstView1.attach(subscribeStream3)
-            subscribeStream3!.play(stream, withHardwareAcceleration:false)
+            self.subscribeStream3 = R5Stream(connection: connection)
+            self.subscribeStream3!.delegate = self
+            self.subscribeStream3?.client = self;
+            firstView1.attach(self.subscribeStream3)
+            self.subscribeStream3!.play(stream, withHardwareAcceleration:false)
+            self.lblUser3.text = full_name
+            self.view3.bringSubviewToFront(self.lblUser3)
         case 3:
-            subscribeStream4 = R5Stream(connection: connection)
-            subscribeStream4!.delegate = self
-            subscribeStream4?.client = self;
-            firstView1.attach(subscribeStream4)
-            subscribeStream4!.play(stream, withHardwareAcceleration:false)
-        case 4:
-            subscribeStream5 = R5Stream(connection: connection)
-            subscribeStream5!.delegate = self
-            subscribeStream5?.client = self;
-            firstView1.attach(subscribeStream5)
-            subscribeStream5!.play(stream, withHardwareAcceleration:false)
-        case 5:
-            subscribeStream6 = R5Stream(connection: connection)
-            subscribeStream6!.delegate = self
-            subscribeStream6?.client = self;
-            firstView1.attach(subscribeStream6)
-            subscribeStream6!.play(stream, withHardwareAcceleration:false)
-        case 6:
-            subscribeStream7 = R5Stream(connection: connection)
-            subscribeStream7!.delegate = self
-            subscribeStream7?.client = self;
-            firstView1.attach(subscribeStream7)
-            subscribeStream7!.play(stream, withHardwareAcceleration:false)
-        case 7:
-            subscribeStream8 = R5Stream(connection: connection)
-            subscribeStream8!.delegate = self
-            subscribeStream8?.client = self;
-            firstView1.attach(subscribeStream8)
-            subscribeStream8!.play(stream, withHardwareAcceleration:false)
-        case 8:
-            subscribeStream9 = R5Stream(connection: connection)
-            subscribeStream9!.delegate = self
-            subscribeStream9?.client = self;
-            firstView1.attach(subscribeStream9)
-            subscribeStream9!.play(stream, withHardwareAcceleration:false)
-        case 9:
-            subscribeStream10 = R5Stream(connection: connection)
-            subscribeStream10!.delegate = self
-            subscribeStream10?.client = self;
-            firstView1.attach(subscribeStream10)
-            subscribeStream10!.play(stream, withHardwareAcceleration:false)
-        case 10:
-            subscribeStream11 = R5Stream(connection: connection)
-            subscribeStream11!.delegate = self
-            subscribeStream11?.client = self;
-            firstView1.attach(subscribeStream11)
-            subscribeStream11!.play(stream, withHardwareAcceleration:false)
-        case 11:
-            subscribeStream12 = R5Stream(connection: connection)
-            subscribeStream12!.delegate = self
-            subscribeStream12?.client = self;
-            firstView1.attach(subscribeStream12)
-            subscribeStream12!.play(stream, withHardwareAcceleration:false)
+            self.subscribeStream4 = R5Stream(connection: connection)
+            self.subscribeStream4!.delegate = self
+            self.subscribeStream4?.client = self;
+            firstView1.attach(self.subscribeStream4)
+            self.subscribeStream4!.play(stream, withHardwareAcceleration:false)
+            self.lblUser4.text = full_name
+            self.view4.bringSubviewToFront(self.lblUser4)
+            
         default:
             print("")
         }
-        superView.bringSubviewToFront(lblUsername)
-        
-        /*if(index == self.streamlist.count - 1 && !forceStreamLoad){
-         forceStreamLoad = true
-         LiveEventById()
-         }*/
         
     }
+    
     func convertToDictionary(text: String) -> [String: Any]? {
         if let data = text.data(using: .utf8) {
             do {
@@ -1228,7 +1335,6 @@ class MultiStreamVC: UIViewController , R5StreamDelegate, UITableViewDelegate,UI
         return nil
     }
     func closeStream(){
-        
         if( self.subscribeStream1 != nil ){
             //NSLog("==subscribeStream1 != nil")
             self.subscribeStream1!.stop()
@@ -1313,6 +1419,7 @@ class MultiStreamVC: UIViewController , R5StreamDelegate, UITableViewDelegate,UI
             self.subscribeStream12?.delegate = nil
             self.subscribeStream12 = nil
         }
+        SS_shutdown()
     }
     func popToDashBoard(){
         //print("vc:",self.navigationController!.viewControllers)
@@ -1336,10 +1443,8 @@ class MultiStreamVC: UIViewController , R5StreamDelegate, UITableViewDelegate,UI
     func showConfirmation(strMsg: String){
         let alert = UIAlertController(title: "Alert", message: strMsg, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "No", style: .cancel, handler: nil))
-        
         alert.addAction(UIAlertAction(title: "Yes", style: .default, handler: { action in
             self.popToDashBoard()
-            
         }))
         DispatchQueue.main.async {
             self.present(alert, animated: true)
@@ -1352,7 +1457,6 @@ class MultiStreamVC: UIViewController , R5StreamDelegate, UITableViewDelegate,UI
         }else{
             popToDashBoard()
         }
-        
     }
     @IBAction func viewBGTap() {
         //print("viewBGTap called")
@@ -1361,44 +1465,45 @@ class MultiStreamVC: UIViewController , R5StreamDelegate, UITableViewDelegate,UI
     override var preferredStatusBarStyle: UIStatusBarStyle {
         return .lightContent // .default
     }
-    
     // MARK: - Button Actions
     @IBAction func tapInfo(){
         //print("info")
         setBtnDefaultBG()
-        let orange = UIColor.init(red: 255, green: 155, blue: 90)
+        let orange = UIColor.init(red: 254, green: 63, blue: 96)
         btnInfo?.layer.borderColor = orange.cgColor
         viewInfo.isHidden = false
+    }
+    @IBAction func tapSubscriptions(){
+        //print("info")
+        setBtnDefaultBG()
+        let orange = UIColor.init(red: 254, green: 63, blue: 96)
+        btnSubscriptions?.layer.borderColor = orange.cgColor
+        viewSubscriptions.isHidden = false
     }
     @IBAction func tapShare(){
         //print("share")
         setBtnDefaultBG()
-        let orange = UIColor.init(red: 255, green: 155, blue: 90)
+        let orange = UIColor.init(red: 254, green: 63, blue: 96)
         btnShare?.layer.borderColor = orange.cgColor
-        
         let url = appDelegate.websiteURL + "/event/" + self.strSlug
         //print(url)
         let textToShare = [url]
         // set up activity view controller
         let activityViewController = UIActivityViewController(activityItems: textToShare, applicationActivities: nil)
         activityViewController.excludedActivityTypes = [.airDrop]
-        
         if let popoverController = activityViewController.popoverPresentationController {
             popoverController.sourceRect = CGRect(x: UIScreen.main.bounds.width / 2, y: UIScreen.main.bounds.height / 2, width: 0, height: 0)
             popoverController.sourceView = self.view
             popoverController.permittedArrowDirections = UIPopoverArrowDirection(rawValue: 0)
         }
-        
         self.present(activityViewController, animated: true, completion: nil)
-        
     }
     @IBAction func tapTips(){
         //print("tips")
         setBtnDefaultBG()
-        let orange = UIColor.init(red: 255, green: 155, blue: 90)
+        let orange = UIColor.init(red: 254, green: 63, blue: 96)
         btnTips?.layer.borderColor = orange.cgColor
         viewTips.isHidden = false
-        
         selectedCreatorForTip = -1
         pickerView.reloadComponent(0)
         txtTipCreator.text = ""
@@ -1413,27 +1518,30 @@ class MultiStreamVC: UIViewController , R5StreamDelegate, UITableViewDelegate,UI
     @IBAction func tapDonations(){
         //print("donations")
         setBtnDefaultBG()
-        let orange = UIColor.init(red: 255, green: 155, blue: 90)
+        let orange = UIColor.init(red: 254, green: 63, blue: 96)
         btnDonations?.layer.borderColor = orange.cgColor
         viewDonations.isHidden = false
     }
     @IBAction func tapEmoji(){
         //print("emoji")
         setBtnDefaultBG()
-        let orange = UIColor.init(red: 255, green: 155, blue: 90)
+        let orange = UIColor.init(red: 254, green: 63, blue: 96)
         btnEmoji?.layer.borderColor = orange.cgColor
     }
     @IBAction func tapChat(){
         //print("chat")
         setBtnDefaultBG()
-        let orange = UIColor.init(red: 255, green: 155, blue: 90)
+        let orange = UIColor.init(red: 254, green: 63, blue: 96)
         btnChat?.layer.borderColor = orange.cgColor
         viewComments.isHidden = false
-        
     }
     @IBAction func closeInfo(){
         viewInfo.isHidden = true
         btnInfo?.layer.borderColor = UIColor.black.cgColor
+    }
+    @IBAction func closeSubscriptions(){
+        viewSubscriptions.isHidden = true
+        btnSubscriptions?.layer.borderColor = UIColor.black.cgColor
     }
     @IBAction func closeDonations(){
         viewDonations.isHidden = true
@@ -1480,7 +1588,6 @@ class MultiStreamVC: UIViewController , R5StreamDelegate, UITableViewDelegate,UI
             }
             //let lastName = guestInfo["last_name"]as? String ?? ""
             //proceedToPayment(type: "performer_tip",charityId: 0)
-            
             let user_id = UserDefaults.standard.string(forKey: "user_id");
             let strUserId = user_id ?? "1"
             var queryString = "stream_id=" + String(streamId) + "&user_id=" + strUserId//ppv
@@ -1502,21 +1609,15 @@ class MultiStreamVC: UIViewController , R5StreamDelegate, UITableViewDelegate,UI
         }
         let attributedText = NSAttributedString(string: strMsg,
                                                 attributes: [.paragraphStyle: paragraph,NSAttributedString.Key.font: UIFont.systemFont(ofSize: CGFloat(fontSize))])
-        
         //let attributedText = NSMutableAttributedString(string: strMsg, attributes: [NSAttributedString.Key.font: UIFont.systemFont(ofSize: 15)])
-        
-        
         let alert = UIAlertController(title: "Chat Rules", message: "", preferredStyle: .alert)
         alert.setValue(attributedText, forKey: "attributedMessage")
-        
         alert.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))
-        
         DispatchQueue.main.async {
             self.present(alert, animated: true)
         }
     }
     //MARK:Tableview Delegates and Datasource Methods
-    
     func numberOfSections(in tableView: UITableView) ->  Int {
         return 1
     }
@@ -1540,55 +1641,58 @@ class MultiStreamVC: UIViewController , R5StreamDelegate, UITableViewDelegate,UI
                 tblComments.isHidden = true
             }
             return self.messages.count;
+        }else if (tableView == tblSubscriptions ){
+            if (self.arySubscriptions.count > 0){
+                lblNoDataSubscriptions.isHidden = true
+            }else{
+                lblNoDataSubscriptions.isHidden = false
+            }
+            return arySubscriptions.count;
         }
         return 0;
-        
     }
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) ->  CGFloat {
         if  (tableView == tblDonations){
-            return 130;
+            return 140;
         }
         else if  (tableView == tblComments){
             return UITableView.automaticDimension
+        }else if  (tableView == tblSubscriptions){
+            return 170;
         }
         return 44;
-        
     }
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         if (tableView == tblComments){
             var cell: UITableViewCell = UITableViewCell()
-            
             if self.messages[indexPath.row] is SBDAdminMessage {
                 if let adminMessage = self.messages[indexPath.row] as? SBDAdminMessage,
-                    let adminMessageCell = tableView.dequeueReusableCell(withIdentifier: "OpenChannelUserMessageTableViewCell") as? OpenChannelUserMessageTableViewCell {
+                   let adminMessageCell = tableView.dequeueReusableCell(withIdentifier: "OpenChannelUserMessageTableViewCell") as? OpenChannelUserMessageTableViewCell {
                     adminMessageCell.setMessage(adminMessage)
                     adminMessageCell.delegate = self
                     //adminMessageCell.profileImageView
                     if indexPath.row > 0 {
                         //adminMessageCell.setPreviousMessage(self.messages[indexPath.row - 1])
                     }
-                    
                     cell = adminMessageCell
                 }
             }
             else if self.messages[indexPath.row] is SBDUserMessage {
                 let userMessage = self.messages[indexPath.row] as! SBDUserMessage
                 if let userMessageCell = tableView.dequeueReusableCell(withIdentifier: "OpenChannelUserMessageTableViewCell") as? OpenChannelUserMessageTableViewCell,
-                    let sender = userMessage.sender {
+                   let sender = userMessage.sender {
                     userMessageCell.setMessage(userMessage)
                     userMessageCell.delegate = self
-                    
-                    
                     if sender.userId == SBDMain.getCurrentUser()!.userId {
                         // Outgoing message
-                        if let requestId = userMessage.requestId {
+                        let requestId = userMessage.requestId
                             if self.resendableMessages[requestId] != nil {
                                 userMessageCell.showElementsForFailure()
                             }
                             else {
                                 userMessageCell.hideElementsForFailure()
                             }
-                        }
+                        
                     }
                     else {
                         // Incoming message
@@ -1598,24 +1702,61 @@ class MultiStreamVC: UIViewController , R5StreamDelegate, UITableViewDelegate,UI
                     DispatchQueue.main.async {
                         guard let updateCell = tableView.cellForRow(at: indexPath) else { return }
                         guard updateCell is OpenChannelUserMessageTableViewCell else { return }
-                        
                         // updateUserMessageCell.profileImageView.setProfileImageView(for: sender)
                     }
-                    
                     cell = userMessageCell
                 }
             }
-            
             if indexPath.row == 0 && self.messages.count > 0 && self.initialLoading == false && self.isLoading == false {
                 self.loadPreviousMessages(initial: false)
             }
-            
+            return cell
+        }else if (tableView == tblSubscriptions){
+            let cell = tableView.dequeueReusableCell(withIdentifier: "SubscriptionCell") as! SubscriptionCell
+            cell.viewContent.layer.borderColor = UIColor.gray.cgColor
+            cell.viewContent.layer.borderWidth = 1.0
+            cell.btnSubscribe.tag = indexPath.row
+            cell.btnSubscribe.addTarget(self, action: #selector(subscribeBtnPressed(_:)), for: .touchUpInside)
+            let subscribeObj = self.arySubscriptions[indexPath.row] as? [String : Any] ?? [:];
+            let feature_details = subscribeObj["feature_details"] as? [Any] ?? [Any]() ;
+            print("feature_details count:",feature_details.count)
+            let tier_amount = subscribeObj["tier_amount"] as? Double ?? 0.0
+            print("tier_amount:",tier_amount)
+            let amount = String(format: "%.02f", tier_amount)
+            print("amount:",amount)
+            var currency_type = subscribeObj["currency_type"] as? String ?? ""
+            if(currency_type == "GBP"){
+                currency_type = "£"
+            }else{
+                currency_type = "$"
+            }
+            let amountWithCurrencyType = currency_type + amount
+            cell.lblAmount.text = amountWithCurrencyType
+            let tier_amount_mode = subscribeObj["tier_amount_mode"] as? String ?? ""
+            print("tier_amount_mode:",tier_amount_mode)
+            cell.lblAmountMode.text = tier_amount_mode
+            for (index,_) in feature_details.enumerated() {
+                let feature_details = feature_details[index] as? [String : Any] ?? [:];
+                if(index < 4){
+                    switch index {
+                    case 0:
+                        cell.lbl1.text = feature_details["feature_name"] as? String ?? "Stream free for a month"
+                    case 1:
+                        cell.lbl2.text = feature_details["feature_name"] as? String ?? "Cancel any time"
+                    case 2:
+                        cell.lbl3.text = feature_details["feature_name"] as? String ?? "Plain text chat"
+                    case 3:
+                        cell.lbl4.text = feature_details["feature_name"] as? String ?? "Plain text + Emoji chat"
+                    default:
+                        print("default")
+                    }
+                }
+            }
             return cell
         }else{
             let cell = tableView.dequeueReusableCell(withIdentifier: "CharityCell") as! CharityCell
             cell.btnDonate.addTarget(self, action: #selector(payDonation(_:)), for: .touchUpInside)
             cell.btnDonate.tag = indexPath.row
-            
             let charity = self.aryCharityInfo[indexPath.row] as? [String : Any];
             cell.lblCharityName.text = charity?["charity_name"] as? String ?? ""
             cell.lblCharityDesc.text = charity?["charity_description"] as? String ?? ""
@@ -1623,22 +1764,28 @@ class MultiStreamVC: UIViewController , R5StreamDelegate, UITableViewDelegate,UI
             if let urlCharity = URL(string: strURL){
                 cell.imgCharity.sd_setImage(with: urlCharity, placeholderImage: UIImage(named: "charity-img.png"))
             }
-            
             return cell
-            
-            
         }
     }
-    
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
+        if  (tableView == tblSubscriptions){
+            subscribe(row: indexPath.row)
+        }else{
+            viewBGTap()
+        }
+    }
+    @objc func subscribeBtnPressed(_ sender: UIButton){
+        subscribe(row: sender.tag)
+    }
+    func subscribe(row:Int){
+        print("row:",row)
     }
     // MARK: Tip Methods
     @objc func payDonation(_ sender: UIButton) {
         let charity = self.aryCharityInfo[sender.tag] as? [String:Any]
         let charityId = charity?["id"] as? Int ?? 0
         proceedToPayment(type: "charity_donation",charityId:String(charityId))
-        
     }
     func proceedToPayment(type:String,charityId:String){
         //let url: String = appDelegate.baseURL +  "/proceedToPayment"
@@ -1689,7 +1836,7 @@ class MultiStreamVC: UIViewController , R5StreamDelegate, UITableViewDelegate,UI
                     self.lblNoDataComments.text = "Channel is not available, Please try again later."
                 default:
                     self.lblNoDataComments.text = "Channel is not available, Please try again later."
-                    //              showAlert(strMsg: "\(self.sbdError)")
+                //              showAlert(strMsg: "\(self.sbdError)")
                 }
                 // return
                 self.messages.removeAll()
@@ -1706,7 +1853,6 @@ class MultiStreamVC: UIViewController , R5StreamDelegate, UITableViewDelegate,UI
                     return
                 }
             })
-            
         })
         channel?.getMyMutedInfo(completionHandler: { (isMuted, description, startAt, endAt, duration, error) in
             if isMuted {
@@ -1751,7 +1897,6 @@ class MultiStreamVC: UIViewController , R5StreamDelegate, UITableViewDelegate,UI
         if self.messages.count == 0 {
             return
         }
-        
         for i in 0...self.messages.count-1 {
             let msg = self.messages[i]
             if msg.messageId == messageId {
@@ -1766,15 +1911,11 @@ class MultiStreamVC: UIViewController , R5StreamDelegate, UITableViewDelegate,UI
     }
     func loadPreviousMessages(initial: Bool) {
         guard let channel = self.channel else { return }
-        
         if self.isLoading {
             return
         }
-        
         self.isLoading = true
-        
         var timestamp: Int64 = 0
-        
         if initial {
             self.hasPrevious = true
             timestamp = Int64.max
@@ -1782,42 +1923,31 @@ class MultiStreamVC: UIViewController , R5StreamDelegate, UITableViewDelegate,UI
         else {
             timestamp = self.minMessageTimestamp
         }
-        
         if self.hasPrevious == false {
             return
         }
-        
         channel.getPreviousMessages(byTimestamp: timestamp, limit: 30, reverse: !initial, messageType: .all, customType: nil, completionHandler: { (msgs, error) in
             if error != nil {
                 self.isLoading = false
-                
                 return
             }
-            
             guard let messages = msgs else { return }
-            
             if messages.count == 0 {
                 self.hasPrevious = false
             }
-            
             if initial {
                 if messages.count > 0 {
                     DispatchQueue.main.async {
                         self.messages.removeAll()
-                        
                         for message in messages {
                             self.messages.append(message)
-                            
                             if self.minMessageTimestamp > message.createdAt {
                                 self.minMessageTimestamp = message.createdAt
                             }
                         }
-                        
                         self.initialLoading = true
-                        
                         self.tblComments.reloadData()
                         self.tblComments.layoutIfNeeded()
-                        
                         self.scrollToBottom(force: true)
                         self.initialLoading = false
                         self.isLoading = false
@@ -1831,18 +1961,14 @@ class MultiStreamVC: UIViewController , R5StreamDelegate, UITableViewDelegate,UI
                         var row: Int = 0
                         for message in messages {
                             self.messages.insert(message, at: 0)
-                            
                             if self.minMessageTimestamp > message.createdAt {
                                 self.minMessageTimestamp = message.createdAt
                             }
-                            
                             messageIndexPaths.append(IndexPath(row: row, section: 0))
                             row += 1
                         }
-                        
                         self.tblComments.reloadData()
                         self.tblComments.layoutIfNeeded()
-                        
                         self.tblComments.scrollToRow(at: IndexPath(row: messages.count-1, section: 0), at: .top, animated: false)
                         self.isLoading = false
                     }
@@ -1853,15 +1979,11 @@ class MultiStreamVC: UIViewController , R5StreamDelegate, UITableViewDelegate,UI
     }
     func loadPreviousEmojis(initial: Bool) {
         guard let channel_emoji = self.channel_emoji else { return }
-        
         if self.isLoading {
             return
         }
-        
         self.isLoading = true
-        
         var timestamp: Int64 = 0
-        
         if initial {
             self.hasPrevious = true
             timestamp = Int64.max
@@ -1869,29 +1991,22 @@ class MultiStreamVC: UIViewController , R5StreamDelegate, UITableViewDelegate,UI
         else {
             timestamp = self.minMessageTimestamp
         }
-        
         if self.hasPrevious == false {
             return
         }
-        
         channel_emoji.getPreviousMessages(byTimestamp: timestamp, limit: 30, reverse: !initial, messageType: .all, customType: nil, completionHandler: { (msgs, error) in
             if error != nil {
                 self.isLoading = false
-                
                 return
             }
-            
             guard let emojis = msgs else { return }
-            
             if emojis.count == 0 {
                 self.hasPrevious = false
             }
-            
             if initial {
                 if emojis.count > 0 {
                     DispatchQueue.main.async {
                         self.emojis.removeAll()
-                        
                         for message in emojis {
                             self.emojis.append(message)
                             ////print("self.emojis:",self.emojis)
@@ -1899,7 +2014,6 @@ class MultiStreamVC: UIViewController , R5StreamDelegate, UITableViewDelegate,UI
                                 self.minMessageTimestamp = message.createdAt
                             }
                         }
-                        
                         self.initialLoading = true
                         self.animateEmojisLoop()
                         //self.tblComments.reloadData()
@@ -1915,17 +2029,13 @@ class MultiStreamVC: UIViewController , R5StreamDelegate, UITableViewDelegate,UI
                         var row: Int = 0
                         for message in emojis {
                             self.emojis.insert(message, at: 0)
-                            
                             if self.minMessageTimestamp > message.createdAt {
                                 self.minMessageTimestamp = message.createdAt
                             }
-                            
                             messageIndexPaths.append(IndexPath(row: row, section: 0))
                             row += 1
                         }
-                        
                         //  self.tblComments.reloadData()
-                        
                         self.isLoading = false
                     }
                 }
@@ -1934,7 +2044,6 @@ class MultiStreamVC: UIViewController , R5StreamDelegate, UITableViewDelegate,UI
     }
     
     @IBAction func sendChatMessage() {
-        
         txtComment.resignFirstResponder()
         txtTopOfToolBar.resignFirstResponder()
         let messageText = txtComment.text!.trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
@@ -1944,7 +2053,6 @@ class MultiStreamVC: UIViewController , R5StreamDelegate, UITableViewDelegate,UI
         }
         self.txtComment.text = ""
         self.txtTopOfToolBar.text = ""
-        
         if (!isChannelAvailable){
             //print("sendBirdErrorCode:",sendBirdErrorCode)
             switch sendBirdErrorCode {
@@ -1966,11 +2074,10 @@ class MultiStreamVC: UIViewController , R5StreamDelegate, UITableViewDelegate,UI
                 showAlert(strMsg: "Channel is not available, Please try again later.")
             default:
                 showAlert(strMsg: "Channel is not available, Please try again later.")
-                //              showAlert(strMsg: "\(self.sbdError)")
+            //              showAlert(strMsg: "\(self.sbdError)")
             }
             return
         }
-        
         //print("channelName:",channelName)
         guard let channel = self.channel else {
             showAlert(strMsg: "Channel is not available, Please try again later.")
@@ -1984,8 +2091,7 @@ class MultiStreamVC: UIViewController , R5StreamDelegate, UITableViewDelegate,UI
             if error != nil {
                 DispatchQueue.main.async {
                     guard let preSendMsg = preSendMessage else { return }
-                    guard let requestId = preSendMsg.requestId else { return }
-                    
+                    let requestId = preSendMsg.requestId
                     self.preSendMessages.removeValue(forKey: requestId)
                     self.resendableMessages[requestId] = preSendMsg
                     self.tblComments.reloadData()
@@ -1994,13 +2100,10 @@ class MultiStreamVC: UIViewController , R5StreamDelegate, UITableViewDelegate,UI
                 }
                 return
             }
-            
             guard let message = userMessage else { return }
-            guard let requestId = message.requestId else { return }
-            
+            let requestId = message.requestId
             DispatchQueue.main.async {
                 self.determineScrollLock()
-                
                 if let preSendMessage = self.preSendMessages[requestId] {
                     if let index = self.messages.firstIndex(of: preSendMessage) {
                         self.messages[index] = message
@@ -2011,22 +2114,20 @@ class MultiStreamVC: UIViewController , R5StreamDelegate, UITableViewDelegate,UI
                 }
             }
         }
-        
         DispatchQueue.main.async {
             self.determineScrollLock()
             if let preSendMsg = preSendMessage {
-                if let requestId = preSendMsg.requestId {
+                 let requestId = preSendMsg.requestId
                     self.preSendMessages[requestId] = preSendMsg
                     self.messages.append(preSendMsg)
                     self.tblComments.reloadData()
                     self.scrollToBottom(force: true)
-                }
+                
             }
         }
     }
     @IBAction func sendEmoji(strEmoji: String) {
         txtEmoji.resignFirstResponder()
-        
         if (!isChannelAvailable_emoji){
             ////print("sendBirdErrorCode:",sendBirdErrorCode_Emoji)
             switch sendBirdErrorCode_Emoji {
@@ -2048,11 +2149,10 @@ class MultiStreamVC: UIViewController , R5StreamDelegate, UITableViewDelegate,UI
                 showAlert(strMsg: "Channel is not available, Please try again later.")
             default:
                 showAlert(strMsg: "Channel is not available, Please try again later.")
-                //showAlert(strMsg: "\(self.sbdError_emoji)")
+            //showAlert(strMsg: "\(self.sbdError_emoji)")
             }
             return
         }
-        
         ////print("channelName:",channelName_Emoji)
         guard let channel_emoji = self.channel_emoji else {
             showAlert(strMsg: "Channel is not available, Please try again later.")
@@ -2067,24 +2167,17 @@ class MultiStreamVC: UIViewController , R5StreamDelegate, UITableViewDelegate,UI
             if error != nil {
                 DispatchQueue.main.async {
                     guard let preSendMsg = preSendMessage else { return }
-                    guard let requestId = preSendMsg.requestId else { return }
-                    
+                    let requestId = preSendMsg.requestId
                     self.preSendMessage_emojis.removeValue(forKey: requestId)
                     self.resendableMessage_emojis[requestId] = preSendMsg
                     // self.tblComments.reloadData()
                 }
                 return
             }
-            
             guard let message = userMessage else {
                 return
-                
             }
-            guard let requestId = message.requestId else {
-                return
-                
-            }
-            
+            let requestId = message.requestId
             DispatchQueue.main.async {
                 self.determineScrollLock()
                 
@@ -2101,12 +2194,12 @@ class MultiStreamVC: UIViewController , R5StreamDelegate, UITableViewDelegate,UI
         DispatchQueue.main.async {
             self.determineScrollLock()
             if let preSendMsg = preSendMessage {
-                if let requestId = preSendMsg.requestId {
+                let requestId = preSendMsg.requestId
                     self.preSendMessage_emojis[requestId] = preSendMsg
                     self.emojis.append(preSendMsg)
                     //                    self.tblComments.reloadData()
                     //                    self.scrollToBottom(force: false)
-                }
+                
             }
         }
     }
@@ -2146,7 +2239,7 @@ class MultiStreamVC: UIViewController , R5StreamDelegate, UITableViewDelegate,UI
             let userMessage = self.emojis[i] as! SBDUserMessage
             self.delay(2.0){
                 let strEmojiText = userMessage.message
-                self.imgEmoji.image = strEmojiText!.image()
+                self.imgEmoji.image = strEmojiText.image()
                 self.animateEmoji()
                 return self.animateEmojisLoop(i + 1)
             }
@@ -2212,7 +2305,7 @@ class MultiStreamVC: UIViewController , R5StreamDelegate, UITableViewDelegate,UI
     //  Converted to Swift 5.2 by Swiftify v5.2.28138 - https://swiftify.com/
     @objc func txtEmojiTap(textField: UITextField) {
         setBtnDefaultBG()
-        let orange = UIColor.init(red: 255, green: 155, blue: 90)
+        let orange = UIColor.init(red: 254, green: 63, blue: 96)
         btnEmoji?.layer.borderColor = orange.cgColor
     }
     func emojiKeyBoardView(_ emojiKeyBoardView: AGEmojiKeyboardView?, didUseEmoji emoji: String?) {
@@ -2517,7 +2610,7 @@ class MultiStreamVC: UIViewController , R5StreamDelegate, UITableViewDelegate,UI
             "<iframe width=\"100%\" height=\"100%\" src=\"https://app.singular.live/appinstances/" + self.app_id_for_adds + "/outputs/Output/onair\" frameborder=\"0\" allow=\"accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture\" allowfullscreen>\n" +
             "</iframe>\n" +
             "</body>\n" +
-        "</html>";
+            "</html>";
         print("htmlString22:",htmlString)
         self.webView.loadHTMLString(htmlString, baseURL: nil)
         self.webView.isHidden = false
@@ -2538,7 +2631,7 @@ class MultiStreamVC: UIViewController , R5StreamDelegate, UITableViewDelegate,UI
             streamIdLocal = String(streamId)
         }
         let arn = UserDefaults.standard.string(forKey: "arn");
-
+        
         let inputData: [String: Any] = [ "user_id": user_id ?? "0",
                                          "event_id": streamIdLocal,
                                          "organization_id" : orgId,
@@ -2568,7 +2661,7 @@ class MultiStreamVC: UIViewController , R5StreamDelegate, UITableViewDelegate,UI
                             self.isViewerCountcall = 1;
                         }else{
                             let strMsg = json["message"] as? String ?? ""
-                            self.showAlert(strMsg: strMsg)
+                            //self.showAlert(strMsg: strMsg)
                         }
                         
                     }
@@ -2578,7 +2671,7 @@ class MultiStreamVC: UIViewController , R5StreamDelegate, UITableViewDelegate,UI
                     self.viewActivity.isHidden = true
                     
                 }
-        }
+            }
     }
     func endSession(){
         NSLog("==endSession")
@@ -2589,17 +2682,17 @@ class MultiStreamVC: UIViewController , R5StreamDelegate, UITableViewDelegate,UI
         print("self.startSessionResponse:",self.startSessionResponse)
         var session_start_time = self.startSessionResponse["session_start_time"] as? String ?? ""
         if (session_start_time == ""){
-             session_start_time = String(self.startSessionResponse["session_start_time"] as? Int ?? 0)//if it comes as timestamp
+            session_start_time = String(self.startSessionResponse["session_start_time"] as? Int ?? 0)//if it comes as timestamp
         }
         let idData = self.startSessionResponse["Data"] as? String ?? ""
         var arn = self.startSessionResponse["subscription_arn"] as? String ?? ""
         if(arn == ""){
             //if startSessionResponse subscription_arn empty
-            arn = UserDefaults.standard.string(forKey: "arn")!;
+            arn = UserDefaults.standard.string(forKey: "arn") ?? "";
         }
         let params: [String: Any] = ["id":idData,"image_for": streamInfo,"session_start_time":session_start_time,"is_final":"true","event_id": String(self.streamId),"is_mobile":true,"subscription_arn":arn]
         print("endSession multi params:",params)
-
+        
         let session_token = UserDefaults.standard.string(forKey: "session_token") ?? ""
         let headers : HTTPHeaders = [
             "Content-Type": "application/json",
@@ -2615,10 +2708,10 @@ class MultiStreamVC: UIViewController , R5StreamDelegate, UITableViewDelegate,UI
                     if let json = value as? [String: Any] {
                         print("endSession JSON:",json)
                         if (json["statusCode"]as? String == "200" ){
-                           
+                            
                         }else{
                             let strMsg = json["message"] as? String ?? ""
-                            self.showAlert(strMsg: strMsg)
+                            //self.showAlert(strMsg: strMsg)
                         }
                         
                     }
@@ -2628,7 +2721,7 @@ class MultiStreamVC: UIViewController , R5StreamDelegate, UITableViewDelegate,UI
                     self.viewActivity.isHidden = true
                     
                 }
-        }
+            }
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -2676,27 +2769,50 @@ class MultiStreamVC: UIViewController , R5StreamDelegate, UITableViewDelegate,UI
         return 1
     }
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        if let layout = self.collectionView.collectionViewLayout as? UICollectionViewFlowLayout {
+            
+            if(isSharedScreen){
+                layout.scrollDirection = .vertical  // .horizontal
+            }else{
+                layout.scrollDirection = .horizontal  // .vertical
+            }
+        }
         if(streamlist.count > 4){
             viewArrows.isHidden = false
         }else{
             viewArrows.isHidden = true
             btnLeftArrow.isEnabled = false
         }
-        collectionView.isHidden = true
+        //collectionView.isHidden = false
         errorCount = 0
+        print("streamlist.count:",streamlist.count)
+        
         return streamlist.count
     }
+    func findStream2(){
+        let indexPath = IndexPath(item: indexOfStream, section: 0)
+        print("indexPath findStream2:",indexPath)
+        
+        if let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "MultiStreamGuestsCVC", for: indexPath) as? MultiStreamGuestsCVC {
+            print("====inside")
+            cell.viewLiveStream.layer.borderColor = UIColor.red.cgColor
+            cell.viewLiveStream.layer.borderWidth = 1
+            cell.viewLiveStream.backgroundColor = UIColor.systemPink
+        }
+    }
+    
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "MultiStreamGuestsCVC", for: indexPath) as? MultiStreamGuestsCVC {
-            findStream(index: indexPath.row, view: cell.viewLiveStream)
+            print("cell indexPath:",indexPath)
+            //findStream(index: indexPath.row, view: cell.viewLiveStream)
+            cell.viewLiveStream.layer.borderColor = UIColor.blue.cgColor
+            cell.viewLiveStream.layer.borderWidth = 2
+            cell.viewLiveStream.backgroundColor = UIColor.green
             cell.lblUserName.text = ""
-            //cell.lblUserName.text = "Row: " + String(indexPath.row)
-            /*let guest = streamlist[indexPath.row]
-            let full_name = guest["full_name"] as? String ?? ""
-            cell.lblUserName.text = full_name*/
-            cell.viewLiveStream.layer.borderColor = UIColor.lightGray.cgColor
-            cell.viewLiveStream.layer.borderWidth = 1
-            // cell.backgroundColor = UIColor.red
+            print("collectionView called")
+            if(indexPath.row == streamlist.count - 1){
+                //findStream()
+            }
             return cell
         }
         return UICollectionViewCell()
@@ -2717,28 +2833,48 @@ class MultiStreamVC: UIViewController , R5StreamDelegate, UITableViewDelegate,UI
             decWidth = 50
             decHeight = 20
         }
-        var screenWidth = Int(screenRect.size.width)/2 - decWidth
-        var screenHeight = Int(screenRect.size.height)/2 - decHeight
-        print("w:",screenRect.size.width)
-        print("h:",screenRect.size.height)
-
-        print("streamlist.count:",streamlist.count)
-        if(streamlist.count == 1){
-            screenWidth = Int(screenRect.size.width) - decWidth
-            screenHeight = Int(screenRect.size.height) - decHeight
-        }else if(streamlist.count == 2){
-            screenWidth = Int(screenRect.size.width)/2 - decWidth
-            screenHeight = Int(screenRect.size.height) - decHeight
+        var screenWidth = 0
+        var screenHeight = 0
+        
+        if(isSharedScreen){
+            if(streamlist.count == 1){
+                screenWidth = Int(screenRect.size.width * 0.45) - decWidth
+                screenHeight = Int(screenRect.size.height) - decHeight
+            }else if(streamlist.count == 2){
+                screenWidth = Int(screenRect.size.width * 0.45) - decWidth
+                screenHeight = Int(screenRect.size.height)/2 - decHeight
+            }else{
+                screenWidth = Int(screenRect.size.width * 0.45) - decWidth
+                screenHeight = Int(screenRect.size.height)/2 - decHeight
+                
+            }
+            print("w:",screenRect.size.width)
+            print("h:",screenRect.size.height)
+            return CGSize(width: screenWidth, height: screenHeight)
+        }else{
+            if(streamlist.count == 1){
+                screenWidth = Int(screenRect.size.width) - decWidth
+                screenHeight = Int(screenRect.size.height) - decHeight
+            }else if(streamlist.count == 2){
+                screenWidth = Int(screenRect.size.width)/2 - decWidth
+                screenHeight = Int(screenRect.size.height) - decHeight
+            }else{
+                screenWidth = Int(screenRect.size.width)/2 - decWidth
+                screenHeight = Int(screenRect.size.height)/2 - decHeight
+            }
+            print("w:",screenRect.size.width)
+            print("h:",screenRect.size.height)
+            return CGSize(width: screenWidth, height: screenHeight)
         }
-        return CGSize(width: screenWidth, height: screenHeight)
+        
     }
     @IBAction func btnLeftPressed(){
         print("btnLeftPressed:",increment)
         /*if(increment >= 0){
-            increment = increment - 1
-            let indexPath = IndexPath(row: increment - 2, section: 0)
-            collectionView.scrollToItem(at: indexPath, at: .centeredHorizontally, animated: true)
-        }*/
+         increment = increment - 1
+         let indexPath = IndexPath(row: increment - 2, section: 0)
+         collectionView.scrollToItem(at: indexPath, at: .centeredHorizontally, animated: true)
+         }*/
         print("increment:",increment)
         increment = increment - 1
         //for left arrow show/hide logic
@@ -2761,17 +2897,17 @@ class MultiStreamVC: UIViewController , R5StreamDelegate, UITableViewDelegate,UI
             self.collectionView.contentOffset.x = self.collectionView.contentOffset.x - (screenRect.width + 10)
         }else{
             self.collectionView.contentOffset.x = self.collectionView.contentOffset.x - (screenRect.width - 80)
-
+            
         }
         print("self.collectionView.contentOffset.x:",self.collectionView.contentOffset.x)
     }
     @IBAction func btnRightPressed(){
         print("btnRightPressed:",increment)
         /*if(increment <= 2 ){
-            increment = increment + 1
-            let indexPath = IndexPath(row: increment + 4, section: 0)
-            collectionView.scrollToItem(at: indexPath, at: .centeredHorizontally, animated: true)
-        }*/
+         increment = increment + 1
+         let indexPath = IndexPath(row: increment + 4, section: 0)
+         collectionView.scrollToItem(at: indexPath, at: .centeredHorizontally, animated: true)
+         }*/
         print("increment:",increment)
         increment = increment + 1
         //for left arrow show/hide logic
@@ -2794,7 +2930,7 @@ class MultiStreamVC: UIViewController , R5StreamDelegate, UITableViewDelegate,UI
             self.collectionView.contentOffset.x = self.collectionView.contentOffset.x + (screenRect.width + 8)
         }else{
             self.collectionView.contentOffset.x = self.collectionView.contentOffset.x + (screenRect.width - 80)
-
+            
         }
         print("self.collectionView.contentOffset.x:",self.collectionView.contentOffset.x)
     }
@@ -2821,17 +2957,129 @@ class MultiStreamVC: UIViewController , R5StreamDelegate, UITableViewDelegate,UI
                 btnRightArrow.isEnabled = false
             }
         }
-       /* for cell in collectionView.visibleCells {
-            let indexPath = collectionView.indexPath(for: cell)
-            print(indexPath)
-        }
-        let center = CGPoint(x: scrollView.contentOffset.x + (scrollView.frame.width / 2), y: (scrollView.frame.height / 2))
-        print("center:",center)
-        if let ip = collectionView.indexPathForItem(at: center) {
-            print("row:",ip.row)
-            }*/
+        /* for cell in collectionView.visibleCells {
+         let indexPath = collectionView.indexPath(for: cell)
+         print(indexPath)
+         }
+         let center = CGPoint(x: scrollView.contentOffset.x + (scrollView.frame.width / 2), y: (scrollView.frame.height / 2))
+         print("center:",center)
+         if let ip = collectionView.indexPathForItem(at: center) {
+         print("row:",ip.row)
+         }*/
         
+        
+    }
+    //MARK: - Screen Share Start
+    
+    
+    
+    
+    func SS_startup() {
+        print("==SS_startup")
+        //screenshare
+        //viewActivity.isHidden = false
+        _ = Testbed.sharedInstance
+        
+        let className = "ScreenShareVC"
+        let mClass = NSClassFromString(className) as! BaseTest.Type;
+        appDelegate.sharedScreenBy = sharedScreenBy
 
+        r5ViewControllerScreenShare  = mClass.init()
+        r5ViewControllerScreenShare?.view.frame = self.viewShareScreen.bounds
+        self.viewShareScreen.addSubview(r5ViewControllerScreenShare!.view)
+        
+        self.addChild(r5ViewControllerScreenShare!)
+        self.viewStream.bringSubviewToFront(self.webView)
+        
+        //collectionView.reloadData()
+        
+    }
+    func SS_shutdown(){
+        /*if(r5ViewControllerScreenShare != nil){
+            r5ViewControllerScreenShare?.closeTest()
+        }*/
+        r5ViewControllerScreenShare?.closeTest()
     }
     
-}
+    @objc func ScreenShareNotificationHandler(_ notification:Notification) {
+        // Do something now
+        ////print("====ScreenShareNotificationHandler")
+        if let data = notification.userInfo as? [String: String]
+        {
+            for (key,value) in data
+            {
+                //key Stream
+                //value Stopped/Started
+                ////print("key: \(key)")
+                ////print("value: \(value)")
+                
+                if (value == "started"){
+                    self.lblScreenShareUnavailable.text = ""
+                    ALToastView.toast(in: self.view, withText:"Creator has started screen share.")
+                }else if(value == "stopped"){
+                    self.lblScreenShareUnavailable.text = ""
+                    ALToastView.toast(in: self.view, withText:"Creator has stopped screen share")
+                    isSharedScreen = false
+                    adjustViews()
+                }else if(value == "not_available"){
+                    self.lblScreenShareUnavailable.text = "Unable to locate screen share. Please try again later."
+                    self.lblScreenShareUnavailable.sizeToFit()
+                    // ALToastView.toast(in: self.view, withText:"")
+                }
+            }
+        }
+    }
+    //MARK: - Screen Share End
+    // MARK: Handler for getChannelSubscriptionPlans API
+    func getChannelSubscriptionPlans(){
+        let netAvailable = appDelegate.isConnectedToInternet()
+        if(!netAvailable){
+            showAlert(strMsg: "Please check your internet connection!")
+            return
+        }
+        viewActivity.isHidden = false
+        let url: String = appDelegate.FCMBaseURL +  "/getChannelSubscriptionPlans"
+        let user_id = UserDefaults.standard.string(forKey: "user_id");
+        //below line need to update
+        let params: [String: Any] = ["user_id":user_id ?? "","channel_name":channel_name_subscription,"channel_url":channel_name_subscription]
+        print("getChannelSubscriptionPlans params:",params)
+        let headers: HTTPHeaders
+        headers = [appDelegate.x_api_key: appDelegate.x_api_value]
+        AF.request(url, method: .post,parameters: params, encoding: JSONEncoding.default,headers:headers)
+            .responseJSON { [self] response in
+                self.viewActivity.isHidden = true
+                switch response.result {
+                case .success(let value):
+                    if let json = value as? [String: Any] {
+                        print("getChannelSubscriptionPlans JSON:",json)
+                        if (json["statusCode"]as? String == "200"){
+                            self.arySubscriptions = []
+                            let data = json["Data"] as? [Any] ?? [Any]();
+                            print("Data:",data)
+                            if (data.count > 0){
+                                let selectedObj = data[0] as? [String: Any] ?? [:]
+                                let plans = selectedObj["plans"] as? [String: Any] ?? [:]
+                                self.arySubscriptions = plans["subscriptionsData"] as? [Any] ?? [Any]();
+                                self.tblSubscriptions.reloadData()
+                                
+                            }
+                            
+                            
+                        }else{
+                            let strError = json["message"] as? String
+                            ////print("strError1:",strError ?? "")
+                            self.showAlert(strMsg: strError ?? "")
+                        }
+                        
+                    }
+                    
+                case .failure(let error):
+                    let errorDesc = error.localizedDescription.replacingOccurrences(of: "URLSessionTask failed with error:", with: "")
+                    self.showAlert(strMsg: errorDesc)
+                    self.viewActivity.isHidden = true
+                    
+                }
+            }
+    }
+    }
+

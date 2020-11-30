@@ -8,7 +8,6 @@
 import Foundation
 
 enum SubscriptionState {
-
     case notSubscribed
 
     case inProgress
@@ -17,15 +16,14 @@ enum SubscriptionState {
 }
 
 public class AppSyncSubscriptionConnection: SubscriptionConnection, RetryableConnection {
-
     /// Connection provider that connects with the service
     weak var connectionProvider: ConnectionProvider?
 
     /// The current state of subscription
     var subscriptionState: SubscriptionState = .notSubscribed
 
-    /// Current item that is subscriped
-    var subscriptionItem: SubscriptionItem!
+    /// Current item that is subscribed
+    private(set) var subscriptionItem: SubscriptionItem?
 
     /// Retry logic to handle
     var retryHandler: ConnectionRetryHandler?
@@ -34,12 +32,17 @@ public class AppSyncSubscriptionConnection: SubscriptionConnection, RetryableCon
         self.connectionProvider = provider
     }
 
-    public func subscribe(requestString: String,
-                   variables: [String: Any?]?,
-                   eventHandler: @escaping (SubscriptionItemEvent, SubscriptionItem) -> Void) -> SubscriptionItem {
-        subscriptionItem = SubscriptionItem(requestString: requestString,
-                                            variables: variables,
-                                            eventHandler: eventHandler)
+    public func subscribe(
+        requestString: String,
+        variables: [String: Any?]?,
+        eventHandler: @escaping (SubscriptionItemEvent, SubscriptionItem) -> Void
+    ) -> SubscriptionItem {
+        let subscriptionItem = SubscriptionItem(
+            requestString: requestString,
+            variables: variables,
+            eventHandler: eventHandler
+        )
+        self.subscriptionItem = subscriptionItem
         addListener()
         subscriptionItem.subscriptionEventHandler(.connection(.connecting), subscriptionItem)
         connectionProvider?.connect()
@@ -48,14 +51,35 @@ public class AppSyncSubscriptionConnection: SubscriptionConnection, RetryableCon
 
     public func unsubscribe(item: SubscriptionItem) {
         AppSyncLogger.debug("Unsubscribe - \(item.identifier)")
-        let message = AppSyncMessage(id: item.identifier,
-                                     type: .unsubscribe("stop"))
-        connectionProvider?.write(message)
-        connectionProvider?.removeListener(identifier: subscriptionItem.identifier)
+
+        let message = AppSyncMessage(id: item.identifier, type: .unsubscribe("stop"))
+
+        guard let connectionProvider = connectionProvider else {
+            AppSyncLogger.debug("\(#function): no connection provider")
+            return
+        }
+
+        guard let subscriptionItem = subscriptionItem else {
+            AppSyncLogger.debug("\(#function): no subscription item")
+            return
+        }
+
+        connectionProvider.write(message)
+        connectionProvider.removeListener(identifier: subscriptionItem.identifier)
     }
 
     private func addListener() {
-        connectionProvider?.addListener(identifier: subscriptionItem.identifier) { [weak self] event in
+        guard let connectionProvider = connectionProvider else {
+            AppSyncLogger.debug("\(#function): no connection provider")
+            return
+        }
+
+        guard let subscriptionItem = subscriptionItem else {
+            AppSyncLogger.debug("\(#function): no subscription item")
+            return
+        }
+
+        connectionProvider.addListener(identifier: subscriptionItem.identifier) { [weak self] event in
             guard let self = self else {
                 AppSyncLogger.debug("Self is nil, listener is not called.")
                 return

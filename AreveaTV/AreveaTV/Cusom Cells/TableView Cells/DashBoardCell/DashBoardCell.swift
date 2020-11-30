@@ -28,7 +28,7 @@ class DashBoardCell: UITableViewCell, UICollectionViewDataSource, UICollectionVi
         // Initialization code
         self.collectionView.showsHorizontalScrollIndicator = false
         //for disable scroll
-        self.collectionView.isScrollEnabled = false
+        self.collectionView.isScrollEnabled = true
         // Comment if you set Datasource and delegate in .xib
         self.collectionView.dataSource = self
         self.collectionView.delegate = self

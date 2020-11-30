@@ -64,6 +64,8 @@ static NSString *const kMaterialDialogsBundle = @"MaterialDialogs.bundle";
   return self;
 }
 
+#pragma mark - NSCopying
+
 - (id)copyWithZone:(__unused NSZone *)zone {
   MDCAlertAction *action = [[self class] actionWithTitle:self.title
                                                 emphasis:self.emphasis
@@ -73,9 +75,25 @@ static NSString *const kMaterialDialogsBundle = @"MaterialDialogs.bundle";
   return action;
 }
 
+#pragma mark - NSObject
+
+- (BOOL)isEqual:(id)object {
+  if (![object isKindOfClass:[MDCAlertAction class]]) {
+    return NO;
+  }
+
+  MDCAlertAction *anotherAction = (MDCAlertAction *)object;
+  if (self == anotherAction) {
+    return YES;
+  }
+
+  return
+      [self.title isEqualToString:anotherAction.title] && self.emphasis == anotherAction.emphasis;
+}
+
 @end
 
-@interface MDCAlertController ()
+@interface MDCAlertController () <UITextViewDelegate>
 
 @property(nonatomic, nullable, weak) MDCAlertControllerView *alertView;
 @property(nonatomic, strong) MDCDialogTransitionController *transitionController;
@@ -174,12 +192,10 @@ static NSString *const kMaterialDialogsBundle = @"MaterialDialogs.bundle";
   if (self.traitCollectionDidChangeBlock) {
     self.traitCollectionDidChangeBlock(self, previousTraitCollection);
   }
-  if (@available(iOS 10.0, *)) {
-    if (![self.traitCollection.preferredContentSizeCategory
-            isEqualToString:previousTraitCollection.preferredContentSizeCategory]) {
-      self.preferredContentSize = [self.alertView
-          calculatePreferredContentSizeForBounds:CGRectStandardize(self.view.bounds).size];
-    }
+  if (![self.traitCollection.preferredContentSizeCategory
+          isEqualToString:previousTraitCollection.preferredContentSizeCategory]) {
+    self.preferredContentSize = [self.alertView
+        calculatePreferredContentSizeForBounds:CGRectStandardize(self.view.bounds).size];
   }
 }
 
@@ -230,11 +246,21 @@ static NSString *const kMaterialDialogsBundle = @"MaterialDialogs.bundle";
   }
 }
 
+- (void)setAttributedLinkColor:(UIColor *)attributedLinkColor {
+  if ([_attributedLinkColor isEqual:attributedLinkColor]) {
+    return;
+  }
+  _attributedLinkColor = attributedLinkColor;
+  if (self.alertView) {
+    self.alertView.messageTextView.tintColor = attributedLinkColor;
+  }
+}
+
 - (void)messageDidChange {
   if (self.attributedMessage.length > 0) {
-    self.alertView.messageLabel.attributedText = self.attributedMessage;
+    self.alertView.messageTextView.attributedText = self.attributedMessage;
   } else {
-    self.alertView.messageLabel.text = self.message;
+    self.alertView.messageTextView.text = self.message;
   }
   self.preferredContentSize =
       [self.alertView calculatePreferredContentSizeForBounds:CGRectInfinite.size];
@@ -243,7 +269,7 @@ static NSString *const kMaterialDialogsBundle = @"MaterialDialogs.bundle";
 - (void)setMessageAccessibilityLabel:(NSString *)messageAccessibilityLabel {
   _messageAccessibilityLabel = [messageAccessibilityLabel copy];
   if (self.alertView && messageAccessibilityLabel) {
-    self.alertView.messageLabel.accessibilityLabel = messageAccessibilityLabel;
+    self.alertView.messageTextView.accessibilityLabel = messageAccessibilityLabel;
   }
 }
 
@@ -384,14 +410,6 @@ static NSString *const kMaterialDialogsBundle = @"MaterialDialogs.bundle";
   _messageFont = messageFont;
   if (self.alertView) {
     self.alertView.messageFont = messageFont;
-  }
-}
-
-// b/117717380: Will be deprecated
-- (void)setButtonFont:(UIFont *)buttonFont {
-  _buttonFont = buttonFont;
-  if (self.alertView) {
-    self.alertView.buttonFont = buttonFont;
   }
 }
 
@@ -574,24 +592,32 @@ static NSString *const kMaterialDialogsBundle = @"MaterialDialogs.bundle";
 
 - (void)actionButtonPressed:(id)button forEvent:(UIEvent *)event {
   MDCAlertAction *action = [self.actionManager actionForButton:button];
+  if ([self.delegate respondsToSelector:@selector(alertController:didTapAction:withEvent:)]) {
+    [self.delegate alertController:self didTapAction:action withEvent:event];
+  }
 
   // We call our action.completionHandler after we dismiss the existing alert in case the handler
   // also presents a view controller. Otherwise we get a warning about presenting on a controller
   // which is already presenting.
-  [self.presentingViewController dismissViewControllerAnimated:YES
-                                                    completion:^(void) {
-                                                      if (action.completionHandler) {
-                                                        if ([self.delegate
-                                                                respondsToSelector:@selector
-                                                                (alertController:
-                                                                    didTapAction:withEvent:)]) {
-                                                          [self.delegate alertController:self
-                                                                            didTapAction:action
-                                                                               withEvent:event];
-                                                        }
-                                                        action.completionHandler(action);
-                                                      }
-                                                    }];
+  [self.presentingViewController
+      dismissViewControllerAnimated:YES
+                         completion:^(void) {
+                           if (action.completionHandler) {
+                             action.completionHandler(action);
+                           }
+                         }];
+}
+
+#pragma mark - Text View Delegate
+
+- (BOOL)textView:(UITextView *)textView
+    shouldInteractWithURL:(NSURL *)URL
+                  inRange:(NSRange)characterRange
+              interaction:(UITextItemInteraction)interaction {
+  if (self.attributedMessageAction != nil) {
+    return self.attributedMessageAction(URL, characterRange, interaction);
+  }
+  return YES;
 }
 
 #pragma mark - UIViewController
@@ -700,10 +726,6 @@ static NSString *const kMaterialDialogsBundle = @"MaterialDialogs.bundle";
   }
 }
 
-- (BOOL)canBecomeFirstResponder {
-  return YES;
-}
-
 - (void)viewWillTransitionToSize:(CGSize)size
        withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator {
   [super viewWillTransitionToSize:size withTransitionCoordinator:coordinator];
@@ -743,27 +765,42 @@ static NSString *const kMaterialDialogsBundle = @"MaterialDialogs.bundle";
 
 - (void)setupAlertView {
   self.alertView.titleLabel.text = self.title;
-  if (@available(iOS 10.0, *)) {
-    self.alertView.titleLabel.adjustsFontForContentSizeCategory =
-        self.adjustsFontForContentSizeCategory;
-  }
+  self.alertView.titleLabel.adjustsFontForContentSizeCategory =
+      self.adjustsFontForContentSizeCategory;
   if (self.attributedMessage.length > 0) {
-    self.alertView.messageLabel.attributedText = self.attributedMessage;
+    self.alertView.messageTextView.attributedText = self.attributedMessage;
   } else {
-    self.alertView.messageLabel.text = self.message;
+    self.alertView.messageTextView.text = self.message;
   }
   self.alertView.titleLabel.accessibilityLabel = self.titleAccessibilityLabel ?: self.title;
-  self.alertView.messageLabel.accessibilityLabel = self.messageAccessibilityLabel ?: self.message;
+  self.alertView.messageTextView.accessibilityLabel =
+      self.messageAccessibilityLabel ?: self.message ?: self.attributedMessage.string;
+  // Set messageTextView's accessibilityValue to the empty string to resolve b/158732017.
+  // MessageTextView acts as a label and should not have an accessibilityValue.
+  // Setting the accessibilityValue to nil causes VoiceOver to use the default value, which is the
+  // text of the message, so the value must be set to the empty string instead.
+  self.alertView.messageTextView.accessibilityValue = @"";
+  self.alertView.messageTextView.delegate = self;
+
   self.alertView.titleIconImageView.accessibilityLabel = self.imageAccessibilityLabel;
   self.alertView.titleIconView.accessibilityLabel = self.imageAccessibilityLabel;
 
   // TODO(https://github.com/material-components/material-components-ios/issues/8671): Update
-  // adjustsFontForContentSizeCategory for messageLabel
+  // adjustsFontForContentSizeCategory for messageTextView
   self.alertView.accessoryView = self.accessoryView;
   self.alertView.titleFont = self.titleFont;
   self.alertView.messageFont = self.messageFont;
   self.alertView.titleColor = self.titleColor ?: UIColor.blackColor;
-  self.alertView.messageColor = self.messageColor ?: UIColor.blackColor;
+  self.alertView.messageTextView.tintColor = self.attributedLinkColor;
+  if (self.attributedMessage.length > 0) {
+    // Avoid overriding `messageColor` during initialization, to allow the attributed messages's
+    // foregroundColor to take precedence in case `messageColor` was not set.
+    if (self.messageColor != nil) {
+      self.alertView.messageColor = self.messageColor;
+    }
+  } else {
+    self.alertView.messageColor = self.messageColor ?: UIColor.blackColor;
+  }
   self.alertView.adjustsFontForContentSizeCategoryWhenScaledFontIsUnavailable =
       self.adjustsFontForContentSizeCategoryWhenScaledFontIsUnavailable;
   if (self.backgroundColor) {
@@ -774,7 +811,6 @@ static NSString *const kMaterialDialogsBundle = @"MaterialDialogs.bundle";
     // Avoid reset title color to white when setting it to nil. only set it for an actual UIColor.
     self.alertView.buttonColor = self.buttonTitleColor;  // b/117717380: Will be deprecated
   }
-  self.alertView.buttonFont = self.buttonFont;  // b/117717380: Will be deprecated
   if (self.buttonInkColor) {
     // Avoid reset ink color to white when setting it to nil. only set it for an actual UIColor.
     self.alertView.buttonInkColor = self.buttonInkColor;  // b/117717380: Will be deprecated
