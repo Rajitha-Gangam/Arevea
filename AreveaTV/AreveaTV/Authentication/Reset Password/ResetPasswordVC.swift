@@ -79,7 +79,7 @@ class ResetPasswordVC: UIViewController ,UITextFieldDelegate{
         }
         
            let appDelegate = UIApplication.shared.delegate as! AppDelegate
-           let url: String = appDelegate.ol_lambda_url +  "/sendOTP"
+           let url: String = appDelegate.baseURL +  "/sendOTP"
            viewActivity.isHidden = false
            let headers: HTTPHeaders
            headers = [appDelegate.x_api_key: appDelegate.x_api_value]

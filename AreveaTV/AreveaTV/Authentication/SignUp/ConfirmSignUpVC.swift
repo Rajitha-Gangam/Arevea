@@ -79,7 +79,7 @@ class ConfirmSignUpVC: UIViewController,UITextFieldDelegate {
     // MARK: Handler for events(events) API
     func sendOTP(inputData:[String: Any]){
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        let url: String = appDelegate.ol_lambda_url +  "/sendOTP"
+        let url: String = appDelegate.baseURL +  "/sendOTP"
         viewActivity.isHidden = false
         let headers: HTTPHeaders
         headers = [appDelegate.x_api_key: appDelegate.x_api_value]
@@ -111,7 +111,7 @@ class ConfirmSignUpVC: UIViewController,UITextFieldDelegate {
     func verifyOTP(inputData:[String: Any]){
         //print("verifyOTP:",inputData)
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        let url: String = appDelegate.ol_lambda_url +  "/verifyOTP"
+        let url: String = appDelegate.baseURL +  "/verifyOTP"
         viewActivity.isHidden = false
         let headers: HTTPHeaders
         headers = [appDelegate.x_api_key: appDelegate.x_api_value]

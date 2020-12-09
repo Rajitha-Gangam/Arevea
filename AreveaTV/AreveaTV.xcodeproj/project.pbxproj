@@ -54,6 +54,8 @@
 		184B86D624D302C8003F4D3D /* OpenChannelUserMessageTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 184B86D024D302C8003F4D3D /* OpenChannelUserMessageTableViewCell.swift */; };
 		184B86D724D302C8003F4D3D /* OpenChannelUserMessageTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 184B86D124D302C8003F4D3D /* OpenChannelUserMessageTableViewCell.xib */; };
 		184B86D824D302C8003F4D3D /* OpenChannelTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 184B86D224D302C8003F4D3D /* OpenChannelTableViewCell.swift */; };
+		184C49FA2578CF2B007DEB51 /* SubscribedCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 184C49F82578CF2B007DEB51 /* SubscribedCell.swift */; };
+		184C49FB2578CF2B007DEB51 /* SubscribedCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 184C49F92578CF2B007DEB51 /* SubscribedCell.xib */; };
 		1858EAD22484F51C00A69D10 /* HelpVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1858EAD12484F51C00A69D10 /* HelpVC.swift */; };
 		1860DFBD24D40BA900ACB899 /* MyEventsCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1860DFBB24D40BA900ACB899 /* MyEventsCell.swift */; };
 		1860DFBE24D40BA900ACB899 /* MyEventsCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1860DFBC24D40BA900ACB899 /* MyEventsCell.xib */; };
@@ -138,6 +140,7 @@
 		18EB81CC244ACC5B008EB09A /* NewPasswordVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18EB81CA244ACC5B008EB09A /* NewPasswordVC.swift */; };
 		18EB81CE244ACC86008EB09A /* DashBoardVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18EB81CD244ACC86008EB09A /* DashBoardVC.swift */; };
 		18EB81DE244B4341008EB09A /* awsconfiguration.json in Resources */ = {isa = PBXBuildFile; fileRef = 18EB81DD244B4340008EB09A /* awsconfiguration.json */; };
+		18EC6AB22577FE36001DE714 /* SubscribedChannelsVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18EC6AB12577FE36001DE714 /* SubscribedChannelsVC.swift */; };
 		18FE073C24D1CFB90011FDE3 /* MultiStreamVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18FE073B24D1CFB90011FDE3 /* MultiStreamVC.swift */; };
 		C8D0A372F8CE8663D84930A1 /* Pods_AreveaTV.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9290EFE9F47E13554D29A225 /* Pods_AreveaTV.framework */; };
 /* End PBXBuildFile section */
@@ -191,6 +194,8 @@
 		184B86D024D302C8003F4D3D /* OpenChannelUserMessageTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OpenChannelUserMessageTableViewCell.swift; sourceTree = "<group>"; };
 		184B86D124D302C8003F4D3D /* OpenChannelUserMessageTableViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = OpenChannelUserMessageTableViewCell.xib; sourceTree = "<group>"; };
 		184B86D224D302C8003F4D3D /* OpenChannelTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OpenChannelTableViewCell.swift; sourceTree = "<group>"; };
+		184C49F82578CF2B007DEB51 /* SubscribedCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubscribedCell.swift; sourceTree = "<group>"; };
+		184C49F92578CF2B007DEB51 /* SubscribedCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = SubscribedCell.xib; sourceTree = "<group>"; };
 		1858EAD12484F51C00A69D10 /* HelpVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelpVC.swift; sourceTree = "<group>"; };
 		1860DFBB24D40BA900ACB899 /* MyEventsCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyEventsCell.swift; sourceTree = "<group>"; };
 		1860DFBC24D40BA900ACB899 /* MyEventsCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MyEventsCell.xib; sourceTree = "<group>"; };
@@ -280,6 +285,7 @@
 		18EB81CA244ACC5B008EB09A /* NewPasswordVC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NewPasswordVC.swift; sourceTree = "<group>"; };
 		18EB81CD244ACC86008EB09A /* DashBoardVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashBoardVC.swift; sourceTree = "<group>"; };
 		18EB81DD244B4340008EB09A /* awsconfiguration.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = awsconfiguration.json; sourceTree = "<group>"; };
+		18EC6AB12577FE36001DE714 /* SubscribedChannelsVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscribedChannelsVC.swift; sourceTree = "<group>"; };
 		18FE073B24D1CFB90011FDE3 /* MultiStreamVC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MultiStreamVC.swift; sourceTree = "<group>"; };
 		783C47A52DE81D11826FBA5C /* Pods-AreveaTV.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AreveaTV.release.xcconfig"; path = "Target Support Files/Pods-AreveaTV/Pods-AreveaTV.release.xcconfig"; sourceTree = "<group>"; };
 		9290EFE9F47E13554D29A225 /* Pods_AreveaTV.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_AreveaTV.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -384,6 +390,15 @@
 				184B86D224D302C8003F4D3D /* OpenChannelTableViewCell.swift */,
 			);
 			path = "Open Channel Cells";
+			sourceTree = "<group>";
+		};
+		184C49F72578CF2B007DEB51 /* SubscribedCell */ = {
+			isa = PBXGroup;
+			children = (
+				184C49F82578CF2B007DEB51 /* SubscribedCell.swift */,
+				184C49F92578CF2B007DEB51 /* SubscribedCell.xib */,
+			);
+			path = SubscribedCell;
 			sourceTree = "<group>";
 		};
 		1860DFBA24D40B8800ACB899 /* MyEventsCell */ = {
@@ -521,6 +536,7 @@
 		189EBF4B245B385700C52B0E /* TableView Cells */ = {
 			isa = PBXGroup;
 			children = (
+				184C49F72578CF2B007DEB51 /* SubscribedCell */,
 				18B1BEEB2559557E003E96FF /* SubscriptionCell */,
 				18122C98252B0C5800C28926 /* MultiStreamGuests */,
 				1860DFBA24D40B8800ACB899 /* MyEventsCell */,
@@ -732,6 +748,7 @@
 				18404763248A79AC000573A2 /* SearchViewController.swift */,
 				1858EAD12484F51C00A69D10 /* HelpVC.swift */,
 				18E77E1D24C6E541003BBC39 /* MyEventsVC.swift */,
+				18EC6AB12577FE36001DE714 /* SubscribedChannelsVC.swift */,
 			);
 			path = DashBoard;
 			sourceTree = "<group>";
@@ -845,6 +862,7 @@
 				18D2717D24A382A400F958BC /* search.png in Resources */,
 				181026882514B72F00D5CC93 /* mcs-donations.png in Resources */,
 				180A8BDB24AF74500022FFE4 /* ButtonsCVC-iPad.xib in Resources */,
+				184C49FB2578CF2B007DEB51 /* SubscribedCell.xib in Resources */,
 				18DAF996248FBA1D00A6693A /* sr_category.png in Resources */,
 				181026872514B72F00D5CC93 /* mcs-chat.png in Resources */,
 				1822F8A924D03364009E8E1A /* MyEventsCVC.xib in Resources */,
@@ -970,6 +988,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				18B1BEF3255955C6003E96FF /* SubscriptionCell.swift in Sources */,
+				184C49FA2578CF2B007DEB51 /* SubscribedCell.swift in Sources */,
 				18DAF9A4248FDE8300A6693A /* DBSearchCVC.swift in Sources */,
 				1822F8A824D03364009E8E1A /* MyEventsCVC.swift in Sources */,
 				182A5F05246166D700FF6147 /* CharityCell.swift in Sources */,
@@ -1028,6 +1047,7 @@
 				180A78C82464243A0013AB0B /* ConnectionManager.swift in Sources */,
 				18D48057244EA59D00640C1A /* DashBoardCell.swift in Sources */,
 				1826036024D2CD7B00248E8B /* API.swift in Sources */,
+				18EC6AB22577FE36001DE714 /* SubscribedChannelsVC.swift in Sources */,
 				18EB81CC244ACC5B008EB09A /* NewPasswordVC.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1176,9 +1196,9 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = AreveaTV/AreveaTV.entitlements;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
-				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 1.0;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1.42;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = J7XKYVP7J4;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -1191,10 +1211,10 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 2;
+				MARKETING_VERSION = 1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.prod.arevea;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "Arevea Development New";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "AreveaTV-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
@@ -1207,9 +1227,9 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = AreveaTV/AreveaTV.entitlements;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
-				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 1.0;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1.42;
 				DEVELOPMENT_TEAM = J7XKYVP7J4;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1221,10 +1241,10 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 2;
+				MARKETING_VERSION = 1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.prod.arevea;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "Arevea Development New";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "AreveaTV-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;

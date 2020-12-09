@@ -410,7 +410,8 @@ class MultiStreamVC: UIViewController , R5StreamDelegate, UITableViewDelegate,UI
         
         scrollViewSS.isHidden = true
         viewShareScreen.isHidden = true
-        
+        sliderVolume.value = 100;
+
     }
     @objc func ReceivedPN(notification: NSNotification){
         guard let userInfo = notification.userInfo else {
@@ -662,7 +663,7 @@ class MultiStreamVC: UIViewController , R5StreamDelegate, UITableViewDelegate,UI
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         NotificationCenter.default.addObserver(self, selector: #selector(ScreenShareNotificationHandler(_:)), name: .didReceiveScreenShareData, object: nil)
-        //getChannelSubscriptionPlans()
+        getChannelSubscriptionPlans()
         
     }
     
@@ -2624,7 +2625,7 @@ class MultiStreamVC: UIViewController , R5StreamDelegate, UITableViewDelegate,UI
     
     func startSession(){
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        let url: String = appDelegate.ol_lambda_url +  "/startSession"
+        let url: String = appDelegate.baseURL +  "/startSession"
         let user_id = UserDefaults.standard.string(forKey: "user_id");
         var streamIdLocal = "0"
         if (streamId != 0){
@@ -2676,7 +2677,7 @@ class MultiStreamVC: UIViewController , R5StreamDelegate, UITableViewDelegate,UI
     func endSession(){
         NSLog("==endSession")
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        let url: String = appDelegate.ol_lambda_url +  "/endSession"
+        let url: String = appDelegate.baseURL +  "/endSession"
         let user_id = UserDefaults.standard.string(forKey: "user_id");
         let streamInfo = "stream_metrics/" + self.streamVideoCode + "/" + String(self.streamId)
         print("self.startSessionResponse:",self.startSessionResponse)
@@ -3032,6 +3033,8 @@ class MultiStreamVC: UIViewController , R5StreamDelegate, UITableViewDelegate,UI
     //MARK: - Screen Share End
     // MARK: Handler for getChannelSubscriptionPlans API
     func getChannelSubscriptionPlans(){
+        channel_name_subscription = "chirantan-patel"
+
         let netAvailable = appDelegate.isConnectedToInternet()
         if(!netAvailable){
             showAlert(strMsg: "Please check your internet connection!")

@@ -221,7 +221,7 @@ class PaymentHistoryVC: UIViewController, UITableViewDelegate,UITableViewDataSou
             return
         }
               let appDelegate = UIApplication.shared.delegate as! AppDelegate
-              let url: String = appDelegate.ol_lambda_url +  "/userDonations"
+              let url: String = appDelegate.baseURL +  "/userDonations"
         let user_id = UserDefaults.standard.string(forKey: "user_id");
         let inputData: [String: Any] = ["user_id":user_id ?? ""]
         let session_token = UserDefaults.standard.string(forKey: "session_token") ?? ""

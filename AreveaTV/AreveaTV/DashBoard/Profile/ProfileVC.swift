@@ -389,7 +389,7 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
         let dobPast = dateFormatter.string(from:pastDate!)
         strDOB = dobPast
         
-        let url: String = appDelegate.ol_lambda_url +  "/setProfile"
+        let url: String = appDelegate.baseURL +  "/setProfile"
         let user_id = UserDefaults.standard.string(forKey: "user_id");
         let user_email = UserDefaults.standard.string(forKey: "user_email");
         
@@ -435,7 +435,7 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
         }
         let username = UserDefaults.standard.string(forKey: "user_email");
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        let url: String = appDelegate.ol_lambda_url +  "/sendOTP"
+        let url: String = appDelegate.baseURL +  "/sendOTP"
         viewActivity.isHidden = false
         let headers: HTTPHeaders
         headers = [appDelegate.x_api_key: appDelegate.x_api_value]
@@ -649,7 +649,7 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
     }
     func updateProfilePic1(){
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        let url: String = appDelegate.ol_lambda_url +  "/uploadFile"
+        let url: String = appDelegate.baseURL +  "/uploadFile"
         let user_id = UserDefaults.standard.string(forKey: "user_id");
         let inputData: [String: Any] = ["user_id":user_id ?? "","image_for":"profile"]
         let session_token = UserDefaults.standard.string(forKey: "session_token") ?? ""

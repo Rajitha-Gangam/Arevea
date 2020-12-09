@@ -5,24 +5,24 @@
     "CredentialsProvider": {
         "CognitoIdentity": {
             "Default": {
-                "PoolId": "us-west-2:e1389653-813a-4f76-8af3-b15157a6ffd8",
+                "PoolId": "us-west-2:00b71663-b151-44a1-9164-246be7970493",
                 "Region": "us-west-2"
             }
         }
     },
     "CognitoUserPool": {
         "Default": {
-            "PoolId": "us-west-2_hJMjZrFeH",
-            "AppClientId": "4gc3pe5sb0drdi7fmsph4g6uth",
+            "PoolId": "us-west-2_DImSWAWlU",
+            "AppClientId": "1tqk7dl1eqqu0mdps6i9jh7akh",
             "Region": "us-west-2"
         }
     },
     "AppSync": {
         "Default": {
-            "ApiUrl": "https://dehnytge4beoxmhicnv6flnarm.appsync-api.us-west-2.amazonaws.com/graphql",
+            "ApiUrl": "https://b3tciadw35byllatz4xpwibxti.appsync-api.us-west-2.amazonaws.com/graphql",
             "Region": "us-west-2",
             "AuthMode": "API_KEY",
-            "ApiKey": "da2-a7ppzi5h5jen7hqjajzfwptg3a"
+            "ApiKey": "da2-ddlr7pazgrfzngyth7hm4bw4d4"
         }
     }
 }

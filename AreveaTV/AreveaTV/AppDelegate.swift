@@ -35,7 +35,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var sharedScreenBy = ""
 
     // MARK: - Dev Environmet Variables Declaration
-    /* var baseURL = "https://dev1-apis.arevea.com";
+    /*var baseURL = "https://dev1-apis.arevea.com";
      var websiteURL = "https://dev1.arevea.com"
      var sendBirdAppId = "AE94EB49-0A01-43BF-96B4-8297EBB47F12";
      var profileURL = "https://dev1.arevea.com/api/user/v1";
@@ -54,13 +54,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
      var ol_client_id = "4e42c39db6ada915afaf60448254cd10033604c982128c55d1548e218b983279"
      var ol_client_secret = "67795bdcf01b42caeb145988f7e64bd71d00191e2abab99dc7e43bf86da3e50c"
      var ol_access_token = ""
-     var ol_lambda_url = "https://dev1-apis.arevea.com"
-     var FCMBaseURL = "https://r5ibd3yzp7.execute-api.us-west-2.amazonaws.com/devel"*/
-    
+     var FCMBaseURL = "https://r5ibd3yzp7.execute-api.us-west-2.amazonaws.com/devel"
+     var socialLoginURL = "https://areveatv-sandbox.onelogin.com/access/initiate"
+    */
     //Dev Variables END
     
     // MARK: - QA Environmet Variables Declaration
-    /*var baseURL = "https://qa1-apis.arevea.com"
+    var baseURL = "https://qa1-apis.arevea.com"
     var websiteURL = "https://qa1.arevea.com"
     var sendBirdAppId = "7AF38850-F099-4C47-BD19-F7F84DAFECF8";
     var profileURL = "https://qa1.arevea.com/api/user/v1"
@@ -79,13 +79,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var ol_client_id = "4e42c39db6ada915afaf60448254cd10033604c982128c55d1548e218b983279"
     var ol_client_secret = "67795bdcf01b42caeb145988f7e64bd71d00191e2abab99dc7e43bf86da3e50c"
     var ol_access_token = ""
-    var ol_lambda_url = "https://qa1-apis.arevea.com"
     var FCMBaseURL = "https://eku2g4rzxl.execute-api.us-west-2.amazonaws.com/dev"
-*/
+     var socialLoginURL = "https://areveatv-sandbox.onelogin.com/access/initiate"
+
     //QA Variables END
     
     // MARK: - Pre-prod Environmet Variables Declaration
-    var baseURL = "https://preprod-apis.arevea.tv"
+    /*var baseURL = "https://preprod-apis.arevea.tv"
      var websiteURL = "https://preprod.arevea.tv"
      var sendBirdAppId = "2115A8A2-36D7-4ABC-A8CE-758500A54DFD";
      var profileURL = "https://preprod.arevea.tv/api/user/v1"
@@ -104,15 +104,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
      var ol_client_id = "4e42c39db6ada915afaf60448254cd10033604c982128c55d1548e218b983279"
      var ol_client_secret = "67795bdcf01b42caeb145988f7e64bd71d00191e2abab99dc7e43bf86da3e50c"
      var ol_access_token = ""
-     var ol_lambda_url = "https://preprod-apis.arevea.tv"
     var FCMBaseURL = "https://preprod-apis.arevea.tv"
+     var socialLoginURL = "https://areveatv-sandbox.onelogin.com/access/initiate"*/
 
     
     
     //Pre-prod Variables END
     
     // MARK: - prod Environmet Variables Declaration
-   /* var baseURL = "https://prod-apis.arevea.com"
+   /*var baseURL = "https://prod-apis.arevea.com"
      var websiteURL = "https://www.arevea.com"
      var sendBirdAppId = "ED4D2A9B-A140-40FD-83BF-6D240903C5BF";
      var profileURL = "https://www.arevea.com/api/user/v1"
@@ -131,12 +131,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
      var ol_client_id = "4f4a70d46e9cb24ce5f723837402343a1b622bca17dc041df218991c1f5eb247"
      var ol_client_secret = "d5c29333a8e9e5164d203cd7540b17e4c1d7bf2c2f52d15a01460c506a60dbca"
      var ol_access_token = ""
-     var ol_lambda_url = "https://prod-apis.arevea.com"
     var FCMBaseURL = "https://prod-apis.arevea.com"
-
-    */
+    var socialLoginURL = "https://areveatv-dev.onelogin.com/access/initiate"*/
     //prod Variables END
-    
     
     var emailPopulate = ""
     var strCategory = "";

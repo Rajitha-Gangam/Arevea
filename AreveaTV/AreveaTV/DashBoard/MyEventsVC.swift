@@ -47,7 +47,7 @@ class MyEventsVC: UIViewController,OpenChanannelChatDelegate,UITableViewDelegate
     }
     func myList(){
               let appDelegate = UIApplication.shared.delegate as! AppDelegate
-              let url: String = appDelegate.ol_lambda_url +  "/myList"
+              let url: String = appDelegate.baseURL +  "/myList"
         let user_id = UserDefaults.standard.string(forKey: "user_id");
         let inputData: [String: Any] = ["userid":user_id ?? ""]
         let session_token = UserDefaults.standard.string(forKey: "session_token") ?? ""

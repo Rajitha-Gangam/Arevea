@@ -303,7 +303,7 @@
         }
         func logoutLambda(){
             let appDelegate = UIApplication.shared.delegate as! AppDelegate
-            let url: String = appDelegate.ol_lambda_url +  "/logout"
+            let url: String = appDelegate.baseURL +  "/logout"
             let user_id = UserDefaults.standard.string(forKey: "user_id");
             let inputData: [String: Any] = ["user_id":user_id ?? ""]
             let session_token = UserDefaults.standard.string(forKey: "session_token") ?? ""
@@ -342,7 +342,7 @@
         func getUserById(inputData:[String: Any]){
             //print("getUserById:",inputData)
             let appDelegate = UIApplication.shared.delegate as! AppDelegate
-            let url: String = appDelegate.ol_lambda_url +  "/getUserById"
+            let url: String = appDelegate.baseURL +  "/getUserById"
             viewActivity.isHidden = false
             let headers: HTTPHeaders
             headers = [appDelegate.x_api_key: appDelegate.x_api_value]

@@ -25,15 +25,14 @@ class FBLoginVC: UIViewController,WKNavigationDelegate {
         // Do any additional setup after loading the view.
         if(strSocialMedia == "fb"){
             lblHeader.text = "Sign in with Facebook"
-            strURL = "https://areveatv-sandbox.onelogin.com/access/initiate?iss=facebook&target_link_uri=" + appDelegate.websiteURL + "/mobile-callback/"
+            strURL = appDelegate.socialLoginURL + "?iss=facebook&target_link_uri=" + appDelegate.websiteURL + "/mobile-callback/"
         }else  if(strSocialMedia == "linkedin"){
             lblHeader.text = "Sign in with LinkedIn"
-            strURL = "https://areveatv-sandbox.onelogin.com/access/initiate?iss=linkedin&target_link_uri=" + appDelegate.websiteURL + "/mobile-callback/"
+            strURL = appDelegate.socialLoginURL + "?iss=linkedin&target_link_uri=" + appDelegate.websiteURL + "/mobile-callback/"
         }else  if(strSocialMedia == "google"){
             lblHeader.text = "Sign in with Google"
-
             webView.customUserAgent = "MyCustomUserAgent";
-            strURL = "https://areveatv-sandbox.onelogin.com/access/initiate?iss=https://accounts.google.com&target_link_uri=" + appDelegate.websiteURL + "/mobile-callback/"
+            strURL = appDelegate.socialLoginURL + "?iss=https://accounts.google.com&target_link_uri=" + appDelegate.websiteURL + "/mobile-callback/"
         }
         let link = URL(string:strURL)!
 
@@ -195,6 +194,7 @@ class FBLoginVC: UIViewController,WKNavigationDelegate {
         }
     }
     @IBAction func back(_ sender: Any) {
+        clearCache()//if any problem happens due to social login, need to clear data
         self.navigationController!.popViewController(animated: true)
     }
     func createDeviceToken(){

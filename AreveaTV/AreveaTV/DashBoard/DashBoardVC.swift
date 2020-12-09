@@ -60,7 +60,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
     
     @IBOutlet var imgProfilePic: UIImageView!
     
-    var arySideMenu : [[String: String]] = [["name":"Home","icon":"home"],["name":"My Profile","icon":"user-white"],["name":"My Events","icon":"event"],["name":"My Payments","icon":"donation"],["name":"My Purchases","icon":"purchase"],["name":"Help","icon":"help"],["name":"Logout","icon":"logout"]];
+    var arySideMenu : [[String: String]] = [["name":"Home","icon":"home"],["name":"My Profile","icon":"user-white"],["name":"My Events","icon":"event"],["name":"My Payments","icon":"donation"],["name":"My Purchases","icon":"purchase"],["name":"Subscribed Channels","icon":"video-sub"],["name":"Help","icon":"help"],["name":"Logout","icon":"logout"]];
     var sectionTitles = ["Live Events","Upcoming Events","My List","Trending Channels"]
     var locationManager:CLLocationManager!
     
@@ -78,7 +78,8 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
         
         return refreshControl
     }()
-    
+    var age_limit = 0;
+
     // MARK: - View Life cycle
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -317,7 +318,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
     // MARK: Handler for myList(myList) API
     func myList(){
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        let url: String = appDelegate.ol_lambda_url +  "/myList"
+        let url: String = appDelegate.baseURL +  "/myList"
         let user_id = UserDefaults.standard.string(forKey: "user_id");
         let inputData: [String: Any] = ["userid":user_id ?? ""]
         //print("myList params:",inputData)
@@ -477,7 +478,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
                             return
                         }
                         let user_age_limit = currentYear - pastYear
-                        UserDefaults.standard.set(user_age_limit, forKey: "user_age_limit")
+                       UserDefaults.standard.set(user_age_limit, forKey: "user_age_limit")
                         
                         self.appDelegate.USER_NAME = strName;
                         self.appDelegate.USER_NAME_FULL = (fn ?? "") + " " + (ln ?? "")
@@ -538,7 +539,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
     }
     func logoutLambda(){
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        let url: String = appDelegate.ol_lambda_url +  "/logout"
+        let url: String = appDelegate.baseURL +  "/logout"
         let user_id = UserDefaults.standard.string(forKey: "user_id");
         let inputData: [String: Any] = ["user_id":user_id ?? ""]
         let session_token = UserDefaults.standard.string(forKey: "session_token") ?? ""
@@ -733,6 +734,11 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
                 let storyboard = UIStoryboard(name: "Main", bundle: nil);
                 let vc = storyboard.instantiateViewController(withIdentifier: "HelpVC") as! HelpVC
                 self.navigationController?.pushViewController(vc, animated: true)
+            case "subscribed channels":
+                hideSideMenu()
+                let storyboard = UIStoryboard(name: "Main", bundle: nil);
+                let vc = storyboard.instantiateViewController(withIdentifier: "SubscribedChannelsVC") as! SubscribedChannelsVC
+                self.navigationController?.pushViewController(vc, animated: true)
             default:
                 hideSideMenu()
             //print ("default")
@@ -891,6 +897,10 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
                                 }else{
                                     isVOD = true
                                 }
+                                let user_age_limit = UserDefaults.standard.integer(forKey:"user_age_limit");
+                                self.age_limit = streamObj["age_limit"] as? Int ?? 0
+
+                                if (self.age_limit <= user_age_limit || self.age_limit == 0){
                                 if (self.aryUserSubscriptionInfo.count == 0){
                                     let vc = storyboard!.instantiateViewController(withIdentifier: "EventRegistrationVC") as! EventRegistrationVC
                                     appDelegate.isLiveLoad = "1"
@@ -901,7 +911,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
                                     vc.performerId = performer_id
                                     vc.strTitle = stream_video_title
                                     vc.isVOD = isVOD
-                                    // vc.channel_name_subscription = channelName
+                                    vc.channel_name_subscription = channelName
                                     self.navigationController?.pushViewController(vc, animated: true)
                                 }else{
                                         let vc = storyboard!.instantiateViewController(withIdentifier: "StreamDetailVC") as! StreamDetailVC
@@ -920,7 +930,22 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
                                         }
                                         self.navigationController?.pushViewController(vc, animated: true)
                                 }
-                            }
+                                }else{
+                                    //showAlert(strMsg: "This video may be inappropriate for some users")
+                                    let vc = storyboard!.instantiateViewController(withIdentifier: "EventRegistrationVC") as! EventRegistrationVC
+                                    appDelegate.isLiveLoad = "1"
+                                    vc.orgId = orgId
+                                    //print("==streamId:",streamId)
+                                    vc.streamId = streamId
+                                    //vc.delegate = self
+                                    vc.performerId = performer_id
+                                    vc.strTitle = stream_video_title
+                                    vc.isVOD = isVOD
+                                    vc.channel_name_subscription = channelName
+                                    self.navigationController?.pushViewController(vc, animated: true)
+                                    
+                                }
+                        }
                         }else{
                             let strError = json["message"] as? String
                             ////print("strError1:",strError ?? "")
