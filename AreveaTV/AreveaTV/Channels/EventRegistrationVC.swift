@@ -1228,7 +1228,6 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate{
                                 let streamObj = data[0] as? [String: Any] ?? [:]
                                 let subscription_status = streamObj["subscription_status"] as? Bool ?? false
                                 let subscription_status1 = streamObj["subscription_status"] as? Int ?? 0
-                                print("==subscription_status1:",subscription_status1)
 
                                 print("==subscription_status:",subscription_status)
                                 
@@ -1237,17 +1236,19 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate{
                                 let date = Date()
                                 formatter.timeZone = NSTimeZone(abbreviation: "UTC") as TimeZone?
                                 formatter.locale = Locale(identifier: "en_US_POSIX")
+                                var endDate = date
                                 if let subEndDate = formatter.date(from: subscription_end_date){
                                     print("subEndDate:",subEndDate)
-                                    if(!subscription_status){
-                                        if(date.isSmallerThan(subEndDate)){
-                                            self.isUserSubscribe = true
-                                        }else {
-                                            self.isUserSubscribe = false;
-                                        }
-                                    } else {
-                                        self.isUserSubscribe = true;
+                                    endDate = subEndDate
+                                }
+                                if(!subscription_status){
+                                    if(date.isSmallerThan(endDate)){
+                                        self.isUserSubscribe = true
+                                    }else {
+                                        self.isUserSubscribe = false;
                                     }
+                                } else {
+                                    self.isUserSubscribe = true;
                                 }
                             }else {
                                 self.isUserSubscribe = false;
@@ -1261,7 +1262,6 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate{
                                 self.shareEventTop.constant = 55;
                                 viewShareEvent.layoutIfNeeded()
                             }
-                            print("==isUserSubscribe:",isUserSubscribe)
                             getChannelSubscriptionPlans()
                         }else{
                             self.isUserSubscribe = false;

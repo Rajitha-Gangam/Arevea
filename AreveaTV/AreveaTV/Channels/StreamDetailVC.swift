@@ -28,11 +28,14 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
     @IBOutlet weak var viewInfo: UIView!
     @IBOutlet weak var viewDonations: UIView!
     @IBOutlet weak var viewSubscriptions: UIView!
+    @IBOutlet weak var view_Q_And_A: UIView!
 
     @IBOutlet weak var tblComments: UITableView!
     @IBOutlet weak var tblDonations: UITableView!
     @IBOutlet weak var txtProfile: UITextView!
-    
+    @IBOutlet weak var tbl_Q_And_A: UITableView!
+    @IBOutlet weak var txt_Q_And_A: UITextField!
+
     let appDelegate = UIApplication.shared.delegate as! AppDelegate
     @IBOutlet weak var btnPayPerView: UIButton!
     @IBOutlet weak var lblAmount: UILabel!
@@ -78,23 +81,37 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
     
     @IBOutlet weak var lblNoDataComments: UILabel!
     @IBOutlet weak var lblNoDataDonations: UILabel!
-    
+    @IBOutlet weak var lblNoData_Q_And_A: UILabel!
+
     var subscribeStream1 : R5Stream? = nil
     var isStreamConfigured = false
     
     // MARK: - Live Chat Inputs
     var channel: SBDOpenChannel?
     var channel_emoji: SBDOpenChannel?
+    var channel_q_and_a: SBDOpenChannel?
+
     var hasPrevious: Bool?
+    var hasPrevious_q_and_a: Bool?
+
     var minMessageTimestamp: Int64 = Int64.max
     var isLoading: Bool = false
+    var isLoading_q_and_a: Bool = false
+
     var messages: [SBDBaseMessage] = []
+    var messages_q_and_a: [SBDBaseMessage] = []
+
     var emojis: [SBDBaseMessage] = []
     var channel_name_subscription = ""
     var initialLoading: Bool = true
+    var initialLoading_q_and_a: Bool = true
+
     var scrollLock: Bool = false
     var resendableMessages: [String:SBDBaseMessage] = [:]
     var preSendMessages: [String:SBDBaseMessage] = [:]
+    var resendableMessages_q_and_a: [String:SBDBaseMessage] = [:]
+    var preSendMessages_q_and_a: [String:SBDBaseMessage] = [:]
+
     var resendableMessage_emojis: [String:SBDBaseMessage] = [:]
     var preSendMessage_emojis: [String:SBDBaseMessage] = [:]
     var age_limit = 0;
@@ -108,6 +125,8 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
     weak var delegate: OpenChanannelChatDelegate?
     var channelName = ""
     var channelName_Emoji = ""
+    var channelName_Q_And_A = ""
+
     var paymentAmount = 0
     var streamPaymentMode = ""
     var strTitle = ""
@@ -120,8 +139,11 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
     var toolTipView = EasyTipView(text: "");
     var isChannelAvailable = false;
     var isChannelAvailable_emoji = false;
+    var isChannelAvailable_q_and_a = false;
     var sendBirdErrorCode = 0;
     var sendBirdErrorCode_Emoji = 0;
+    var sendBirdErrorCode_Q_And_A = 0;
+
     var sbdError = SBDError()
     var sbdError_emoji = SBDError()
     
@@ -159,6 +181,8 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
     @IBOutlet weak var btnDonations: UIView!
     @IBOutlet weak var btnEmoji: UIView!
     @IBOutlet weak var btnChat: UIView!
+    @IBOutlet weak var btn_Q_And_A: UIView!
+
     @IBOutlet weak var lblTitle: UILabel!
     @IBOutlet weak var viewActions: UIView?
     @IBOutlet weak var viewOverlay: UIView?
@@ -401,11 +425,13 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
         btnSubscriptions?.layer.borderColor = UIColor.black.cgColor
         viewDonations.isHidden = true
         viewComments.isHidden = true
+        view_Q_And_A.isHidden = true
         viewInfo.isHidden = true
         viewSubscriptions.isHidden = true
         txtComment.resignFirstResponder()
         txtTopOfToolBar.resignFirstResponder()
         txtEmoji.resignFirstResponder()
+        txt_Q_And_A.resignFirstResponder()
     }
     
     
@@ -421,6 +447,10 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
     
     
     func sendBirdChatConfig(){
+        
+        self.sendBirdEmojiConfig()
+        self.sendBird_Q_And_A_Config()
+
         channelName = streamVideoCode
         ////print("channelName in sendBirdChatConfig:",channelName)
         SBDOpenChannel.getWithUrl(channelName, completionHandler: { (openChannel, error) in
@@ -479,6 +509,69 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                 self.sendUserMessageButton.isEnabled = true
                 self.txtComment.isEnabled = true
                 self.txtComment.placeholder = "Send a message"
+            }
+        })
+    }
+    func sendBird_Q_And_A_Config(){
+        isChannelAvailable_q_and_a = true
+        channelName_Q_And_A = String(self.streamId) + "_qa"
+        print("channelName in sendBird_Q_And_A_Config:",channelName_Q_And_A)
+        SBDOpenChannel.getWithUrl(channelName_Q_And_A, completionHandler: { (openChannel, error) in
+            guard error == nil else {   // Error.
+                let errorDesc = "Chat Error:" + error!.localizedDescription
+                print("Send Bird Error:\(String(describing: error))")
+                //print(errorDesc)
+                //self.sbdError = error ?? error?.localizedDescription as! SBDError
+                self.sendBirdErrorCode_Q_And_A = error?.code ?? 0
+                //self.showAlert(strMsg:errorDesc )
+                ////print("sendBirdErrorCode:",sendBirdErrorCode)
+                switch self.sendBirdErrorCode_Q_And_A {
+                case 403100:
+                    self.lblNoData_Q_And_A.text = "Application id disabled/expired, Please contact admin."
+                case 400300:
+                    self.lblNoData_Q_And_A.text = "Deactivated user not accessible, Please contact admin."
+                case 400301:
+                    self.lblNoData_Q_And_A.text = "User not found, Please contact admin."
+                case 400304:
+                    self.lblNoData_Q_And_A.text = "Application id not found, Please contact admin."
+                case 400306:
+                    self.lblNoData_Q_And_A.text = "Paid quota exceeded, Please contact admin."
+                case 400700:
+                    self.lblNoData_Q_And_A.text = "Blocked user send not allowed, Please contact admin."
+                case 500910:
+                    self.lblNoData_Q_And_A.text = "Rate limit exceeded, Please contact admin."
+                case 400201:
+                    self.lblNoData_Q_And_A.text = "Channel is not available, Please try again later."
+                default:
+                    self.lblNoData_Q_And_A.text = "Channel is not available, Please try again later."
+                //              showAlert(strMsg: "\(self.sbdError)")
+                }
+                // return
+                self.messages_q_and_a.removeAll()
+                self.channel_q_and_a = nil
+                self.isChannelAvailable_q_and_a = false
+                self.tbl_Q_And_A.reloadData()
+                return
+            }
+            self.channel_q_and_a = openChannel
+            self.title = self.channel_q_and_a?.name
+            self.loadPrevious_Q_And_A(initial: true)
+            openChannel?.enter(completionHandler: { (error) in
+                guard error == nil else {   // Error.
+                    return
+                }
+            })
+            
+        })
+        channel_q_and_a?.getMyMutedInfo(completionHandler: { (isMuted, description, startAt, endAt, duration, error) in
+            if isMuted {
+                //self.sendUserMessageButton.isEnabled = false
+                //self.txtComment.isEnabled = false
+                self.txt_Q_And_A.placeholder = "You are muted"
+            } else {
+                self.sendUserMessageButton.isEnabled = true
+                self.txt_Q_And_A.isEnabled = true
+                self.txt_Q_And_A.placeholder = "Send a message"
             }
         })
     }
@@ -627,6 +720,8 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
     }
     func registerNibs() {
         tblComments.register(UINib(nibName: "OpenChannelUserMessageTableViewCell", bundle: nil), forCellReuseIdentifier: "OpenChannelUserMessageTableViewCell")
+        tbl_Q_And_A.register(UINib(nibName: "OpenChannelUserMessageTableViewCell", bundle: nil), forCellReuseIdentifier: "OpenChannelUserMessageTableViewCell")
+
         tblDonations.register(UINib(nibName: "CharityCell", bundle: nil), forCellReuseIdentifier: "CharityCell")
         tblSubscriptions.register(UINib(nibName: "SubscriptionCell", bundle: nil), forCellReuseIdentifier: "SubscriptionCell")
 
@@ -661,7 +756,8 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
         
         tblComments.rowHeight = 40
         tblComments.estimatedRowHeight = UITableView.automaticDimension
-        
+        tbl_Q_And_A.rowHeight = 40
+        tbl_Q_And_A.estimatedRowHeight = UITableView.automaticDimension
         self.viewLiveStream.bringSubviewToFront(self.viewOverlay!)
         getChannelSubscriptionPlans();
         getSubscriptionStatus()
@@ -857,6 +953,13 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
         btnSubscriptions?.layer.borderColor = orange.cgColor
         viewSubscriptions.isHidden = false
     }
+    @IBAction func tap_Q_And_A(){
+        //print("info")
+        setBtnDefaultBG()
+        let orange = UIColor.init(red: 254, green: 63, blue: 96)
+        btn_Q_And_A?.layer.borderColor = orange.cgColor
+        view_Q_And_A.isHidden = false
+    }
     @IBAction func tapTips(){
         //print("tips")
         if(isShowChat){
@@ -946,7 +1049,12 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
         txtComment.resignFirstResponder()
         txtTopOfToolBar.resignFirstResponder()
     }
-    
+    @IBAction func close_Q_And_A(){
+        view_Q_And_A.isHidden = true
+        btn_Q_And_A?.layer.borderColor = UIColor.black.cgColor
+        txt_Q_And_A.resignFirstResponder()
+        txtTopOfToolBar.resignFirstResponder()
+    }
     
     /*
      // MARK: - Navigation
@@ -988,6 +1096,18 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                 
             }
             return self.messages.count;
+        }else if(tableView == tbl_Q_And_A){
+            print("messages_q_and_a:",messages_q_and_a)
+
+            if (isChannelAvailable_q_and_a && self.messages_q_and_a.count > 0){
+                tbl_Q_And_A.isHidden = false
+                lblNoData_Q_And_A.text = ""
+            }else{
+                tbl_Q_And_A.isHidden = true
+                lblNoData_Q_And_A.text = "Channel is unavailable"
+                
+            }
+            return self.messages_q_and_a.count;
         }else if (tableView == tblSubscriptions ){
             if (self.arySubscriptions.count > 0){
                 lblNoDataSubscriptions.isHidden = true
@@ -1004,6 +1124,8 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
             return 140;
         }
         else if  (tableView == tblComments){
+            return UITableView.automaticDimension
+        }else if  (tableView == tbl_Q_And_A){
             return UITableView.automaticDimension
         }else if  (tableView == tblSubscriptions){
             return 170;
@@ -1141,6 +1263,59 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                     }
                 }
             }
+            return cell
+        }else if (tableView == tbl_Q_And_A){
+            var cell: UITableViewCell = UITableViewCell()
+            if self.messages_q_and_a[indexPath.row] is SBDAdminMessage {
+                if let adminMessage = self.messages_q_and_a[indexPath.row] as? SBDAdminMessage,
+                   let adminMessageCell = tableView.dequeueReusableCell(withIdentifier: "OpenChannelUserMessageTableViewCell") as? OpenChannelUserMessageTableViewCell {
+                    adminMessageCell.setMessage(adminMessage)
+                    adminMessageCell.delegate = self
+                    //adminMessageCell.profileImageView
+                    if indexPath.row > 0 {
+                        //adminMessageCell.setPreviousMessage(self.messages[indexPath.row - 1])
+                    }
+                    
+                    cell = adminMessageCell
+                }
+            }
+            else if self.messages_q_and_a[indexPath.row] is SBDUserMessage {
+                let userMessage = self.messages_q_and_a[indexPath.row] as! SBDUserMessage
+                if let userMessageCell = tableView.dequeueReusableCell(withIdentifier: "OpenChannelUserMessageTableViewCell") as? OpenChannelUserMessageTableViewCell,
+                   let sender = userMessage.sender {
+                    userMessageCell.setMessage(userMessage)
+                    userMessageCell.delegate = self
+                    
+                    if sender.userId == SBDMain.getCurrentUser()!.userId {
+                        // Outgoing message
+                         let requestId = userMessage.requestId
+                            if self.resendableMessages[requestId] != nil {
+                                userMessageCell.showElementsForFailure()
+                            }
+                            else {
+                                userMessageCell.hideElementsForFailure()
+                            }
+                    }
+                    else {
+                        // Incoming message
+                        userMessageCell.hideElementsForFailure()
+                    }
+                    //userMessageCell.profileImageView
+                    DispatchQueue.main.async {
+                        guard let updateCell = tableView.cellForRow(at: indexPath) else { return }
+                        guard updateCell is OpenChannelUserMessageTableViewCell else { return }
+                        
+                        // updateUserMessageCell.profileImageView.setProfileImageView(for: sender)
+                    }
+                    
+                    cell = userMessageCell
+                }
+            }
+            
+            if indexPath.row == 0 && self.messages_q_and_a.count > 0 && self.initialLoading_q_and_a == false && self.isLoading_q_and_a == false {
+                self.loadPrevious_Q_And_A(initial: false)
+            }
+            
             return cell
         }else{
             let cell = tableView.dequeueReusableCell(withIdentifier: "CharityCell") as! CharityCell
@@ -1354,6 +1529,8 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
         txtComment.resignFirstResponder();
         txtTopOfToolBar.resignFirstResponder()
         txtEmoji.resignFirstResponder()
+        txt_Q_And_A.resignFirstResponder()
+
     }
     func addDoneButton() {
         let toolbar =  UIToolbar(frame: CGRect(x: 0, y: 0, width: view.frame.size.width, height: 35))
@@ -1388,6 +1565,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
         toolbar.setItems([cancel,textfieldBarButton,flexButton,sendBtn], animated: true)
         toolbar.sizeToFit()
         txtComment.inputAccessoryView = toolbar;
+        txt_Q_And_A.inputAccessoryView = toolbar;
         txtTopOfToolBar.inputAccessoryView = toolbar;
         
     }
@@ -1405,7 +1583,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
     // MARK: Text Field Delegate Methods
     
     func textFieldDidBeginEditing(_ textField: UITextField) {
-        if (txtComment == textField || txtTopOfToolBar == textField){
+        if (txtComment == textField || txtTopOfToolBar == textField || txt_Q_And_A == textField){
             
             
         }else if(txtEmoji == textField){
@@ -1414,7 +1592,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
         
     }
     func textFieldDidEndEditing(_ textField: UITextField) {
-        if (txtComment == textField || txtTopOfToolBar == textField){
+        if (txtComment == textField || txtTopOfToolBar == textField || txt_Q_And_A == textField){
             //            if(UIDevice.current.userInterfaceIdiom == .phone){
             //                        self.viewComments.frame.origin.y = 0
             //            }
@@ -1430,6 +1608,8 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
         textField.resignFirstResponder();
         if (textField == txtComment || txtTopOfToolBar == textField){
             sendChatMessage()
+        }else if (textField == txt_Q_And_A){
+            
         }
         return true;
     }
@@ -1765,7 +1945,6 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                                 //print("==streamVideoTitle:",streamVideoTitle)
                                 self.isChannelAvailable = true
                                 self.sendBirdChatConfig()
-                                self.sendBirdEmojiConfig()
                                 self.streamVideoDesc = streamObj["stream_video_description"] as? String ?? ""
                                 // "currency_type" = USD;
                                 var currency_type = streamObj["currency_type"] as? String ?? ""
@@ -2523,7 +2702,183 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
             }
         })
     }
-    
+    func loadPrevious_Q_And_A(initial: Bool) {
+        guard let channel_q_and_a = self.channel_q_and_a else { return }
+        
+        if self.isLoading_q_and_a {
+            return
+        }
+        
+        self.isLoading_q_and_a = true
+        
+        var timestamp: Int64 = 0
+        
+        if initial {
+            self.hasPrevious_q_and_a = true
+            timestamp = Int64.max
+        }
+        else {
+            timestamp = self.minMessageTimestamp
+        }
+        
+        if self.hasPrevious_q_and_a == false {
+            return
+        }
+        
+        channel_q_and_a.getPreviousMessages(byTimestamp: timestamp, limit: 30, reverse: !initial, messageType: .all, customType: nil, completionHandler: { (msgs, error) in
+            if error != nil {
+                self.isLoading_q_and_a = false
+                
+                return
+            }
+            
+            guard let messages_q_and_a = msgs else { return }
+            
+            if messages_q_and_a.count == 0 {
+                self.hasPrevious_q_and_a = false
+            }
+            
+            if initial {
+                if messages_q_and_a.count > 0 {
+                    DispatchQueue.main.async {
+                        self.messages_q_and_a.removeAll()
+                        
+                        for message in messages_q_and_a {
+                            self.messages_q_and_a.append(message)
+                            
+                            if self.minMessageTimestamp > message.createdAt {
+                                self.minMessageTimestamp = message.createdAt
+                            }
+                        }
+                        
+                        self.initialLoading_q_and_a = true
+                        
+                        self.tbl_Q_And_A.reloadData()
+                        self.tbl_Q_And_A.layoutIfNeeded()
+                        
+                        self.scrollToBottom(force: true)
+                        self.initialLoading_q_and_a = false
+                        self.isLoading_q_and_a = false
+                    }
+                }
+            }
+            else {
+                if messages_q_and_a.count > 0 {
+                    DispatchQueue.main.async {
+                        var messageIndexPaths: [IndexPath] = []
+                        var row: Int = 0
+                        for message in messages_q_and_a {
+                            self.messages_q_and_a.insert(message, at: 0)
+                            
+                            if self.minMessageTimestamp > message.createdAt {
+                                self.minMessageTimestamp = message.createdAt
+                            }
+                            
+                            messageIndexPaths.append(IndexPath(row: row, section: 0))
+                            row += 1
+                        }
+                        
+                        self.tbl_Q_And_A.reloadData()
+                        self.tbl_Q_And_A.layoutIfNeeded()
+                        
+                        self.tbl_Q_And_A.scrollToRow(at: IndexPath(row: messages_q_and_a.count-1, section: 0), at: .top, animated: false)
+                        self.isLoading_q_and_a = false
+                    }
+                }
+            }
+        })
+        //print("msgs:",self.messages)
+    }
+    @IBAction func send_Q_And_A() {
+        txt_Q_And_A.resignFirstResponder()
+        txtTopOfToolBar.resignFirstResponder()
+        let messageText = txt_Q_And_A.text!.trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
+        if (messageText.count == 0){
+            showAlert(strMsg: "Please enter message")
+            return
+        }
+        self.txt_Q_And_A.text = ""
+        self.txtTopOfToolBar.text = ""
+        
+        if (!isChannelAvailable_q_and_a){
+            //print("sendBirdErrorCode:",sendBirdErrorCode)
+            switch sendBirdErrorCode_Q_And_A {
+            case 403100:
+                showAlert(strMsg: "Application id disabled/expired, Please contact admin.")
+            case 400300:
+                showAlert(strMsg: "Deactivated user not accessible, Please contact admin.")
+            case 400301:
+                showAlert(strMsg: "User not found, Please contact admin.")
+            case 400304:
+                showAlert(strMsg: "Application id not found, Please contact admin.")
+            case 400306:
+                showAlert(strMsg: "Paid quota exceeded, Please contact admin.")
+            case 400700:
+                showAlert(strMsg: "Blocked user send not allowed, Please contact admin.")
+            case 500910:
+                showAlert(strMsg: "Rate limit exceeded, Please contact admin.")
+            case 400201:
+                showAlert(strMsg: "Channel is not available, Please try again later.")
+            default:
+                showAlert(strMsg: "Channel is not available, Please try again later.")
+            //              showAlert(strMsg: "\(self.sbdError)")
+            }
+            return
+        }
+        
+        //print("channelName:",channelName)
+        guard let channel = self.channel_q_and_a else {
+            showAlert(strMsg: "Channel is not available, Please try again later.")
+            return
+        }
+        //print("channelName2:",self.channel?.name);
+        self.txt_Q_And_A.text = ""
+        //self.sendUserMessageButton.isEnabled = false
+        var preSendMessage: SBDUserMessage?
+        preSendMessage = channel.sendUserMessage(messageText) { (userMessage, error) in
+            if error != nil {
+                DispatchQueue.main.async {
+                    guard let preSendMsg = preSendMessage else { return }
+                    let requestId = preSendMsg.requestId
+                    
+                    self.preSendMessages.removeValue(forKey: requestId)
+                    self.resendableMessages[requestId] = preSendMsg
+                    self.tbl_Q_And_A.reloadData()
+                    self.scrollToBottom(force: true)
+                    
+                }
+                return
+            }
+            
+            guard let message = userMessage else { return }
+            let requestId = message.requestId
+            
+            DispatchQueue.main.async {
+                self.determineScrollLock()
+                
+                if let preSendMessage = self.preSendMessages_q_and_a[requestId] {
+                    if let index = self.messages_q_and_a.firstIndex(of: preSendMessage) {
+                        self.messages_q_and_a[index] = message
+                        self.preSendMessages_q_and_a.removeValue(forKey: requestId)
+                        self.tbl_Q_And_A.reloadRows(at: [IndexPath(row: index, section: 0)], with: .none)
+                        self.scrollToBottom(force: true)
+                    }
+                }
+            }
+        }
+        
+        DispatchQueue.main.async {
+            self.determineScrollLock()
+            if let preSendMsg = preSendMessage {
+                let requestId = preSendMsg.requestId
+                    self.preSendMessages_q_and_a[requestId] = preSendMsg
+                    self.messages_q_and_a.append(preSendMsg)
+                    self.tbl_Q_And_A.reloadData()
+                    self.scrollToBottom(force: true)
+                
+            }
+        }
+    }
     @IBAction func sendChatMessage() {
         
         txtComment.resignFirstResponder()
@@ -3016,7 +3371,6 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                                 //print("==streamVideoTitle:",streamVideoTitle)
                                 self.isChannelAvailable = true
                                 self.sendBirdChatConfig()
-                                self.sendBirdEmojiConfig()
                                 self.streamVideoDesc = streamObj["stream_video_description"] as? String ?? ""
                                 // "currency_type" = USD;
                                 var currency_type = streamObj["currency_type"] as? String ?? ""
