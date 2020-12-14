@@ -11,13 +11,6 @@
 		180A8BDB24AF74500022FFE4 /* ButtonsCVC-iPad.xib in Resources */ = {isa = PBXBuildFile; fileRef = 180A8BDA24AF74500022FFE4 /* ButtonsCVC-iPad.xib */; };
 		180A8BDD24AF92340022FFE4 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 180A8BDC24AF92340022FFE4 /* Images.xcassets */; };
 		180E003B253F404B00DDFD2D /* payload.apns in Resources */ = {isa = PBXBuildFile; fileRef = 180E003A253F404A00DDFD2D /* payload.apns */; };
-		181026872514B72F00D5CC93 /* mcs-chat.png in Resources */ = {isa = PBXBuildFile; fileRef = 181026802514B72600D5CC93 /* mcs-chat.png */; };
-		181026882514B72F00D5CC93 /* mcs-donations.png in Resources */ = {isa = PBXBuildFile; fileRef = 181026812514B72800D5CC93 /* mcs-donations.png */; };
-		181026892514B72F00D5CC93 /* mcs-info-icon.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 181026822514B72900D5CC93 /* mcs-info-icon.jpg */; };
-		1810268A2514B72F00D5CC93 /* mcs-share.png in Resources */ = {isa = PBXBuildFile; fileRef = 181026832514B72B00D5CC93 /* mcs-share.png */; };
-		1810268B2514B72F00D5CC93 /* mcs-emoji.png in Resources */ = {isa = PBXBuildFile; fileRef = 181026842514B72C00D5CC93 /* mcs-emoji.png */; };
-		1810268C2514B72F00D5CC93 /* mcs-custom-emoji.png in Resources */ = {isa = PBXBuildFile; fileRef = 181026852514B72E00D5CC93 /* mcs-custom-emoji.png */; };
-		1810268D2514B72F00D5CC93 /* mcs-tips.png in Resources */ = {isa = PBXBuildFile; fileRef = 181026862514B72F00D5CC93 /* mcs-tips.png */; };
 		1810E6F624C84BCA003EAF91 /* StreamDetailVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1810E6F524C84BCA003EAF91 /* StreamDetailVC.swift */; };
 		18122C9D252B0CCC00C28926 /* MultiStreamGuestsCVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18122C9B252B0CCC00C28926 /* MultiStreamGuestsCVC.swift */; };
 		18122C9E252B0CCC00C28926 /* MultiStreamGuestsCVC.xib in Resources */ = {isa = PBXBuildFile; fileRef = 18122C9C252B0CCC00C28926 /* MultiStreamGuestsCVC.xib */; };
@@ -150,13 +143,6 @@
 		180A8BDA24AF74500022FFE4 /* ButtonsCVC-iPad.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = "ButtonsCVC-iPad.xib"; sourceTree = "<group>"; };
 		180A8BDC24AF92340022FFE4 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		180E003A253F404A00DDFD2D /* payload.apns */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = payload.apns; sourceTree = "<group>"; };
-		181026802514B72600D5CC93 /* mcs-chat.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "mcs-chat.png"; sourceTree = "<group>"; };
-		181026812514B72800D5CC93 /* mcs-donations.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "mcs-donations.png"; sourceTree = "<group>"; };
-		181026822514B72900D5CC93 /* mcs-info-icon.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "mcs-info-icon.jpg"; sourceTree = "<group>"; };
-		181026832514B72B00D5CC93 /* mcs-share.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "mcs-share.png"; sourceTree = "<group>"; };
-		181026842514B72C00D5CC93 /* mcs-emoji.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "mcs-emoji.png"; sourceTree = "<group>"; };
-		181026852514B72E00D5CC93 /* mcs-custom-emoji.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "mcs-custom-emoji.png"; sourceTree = "<group>"; };
-		181026862514B72F00D5CC93 /* mcs-tips.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "mcs-tips.png"; sourceTree = "<group>"; };
 		1810E6F524C84BCA003EAF91 /* StreamDetailVC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StreamDetailVC.swift; sourceTree = "<group>"; };
 		18122C9B252B0CCC00C28926 /* MultiStreamGuestsCVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultiStreamGuestsCVC.swift; sourceTree = "<group>"; };
 		18122C9C252B0CCC00C28926 /* MultiStreamGuestsCVC.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MultiStreamGuestsCVC.xib; sourceTree = "<group>"; };
@@ -328,20 +314,6 @@
 				9290EFE9F47E13554D29A225 /* Pods_AreveaTV.framework */,
 			);
 			name = Frameworks;
-			sourceTree = "<group>";
-		};
-		1810267F2514B71600D5CC93 /* stream */ = {
-			isa = PBXGroup;
-			children = (
-				181026802514B72600D5CC93 /* mcs-chat.png */,
-				181026852514B72E00D5CC93 /* mcs-custom-emoji.png */,
-				181026812514B72800D5CC93 /* mcs-donations.png */,
-				181026842514B72C00D5CC93 /* mcs-emoji.png */,
-				181026822514B72900D5CC93 /* mcs-info-icon.jpg */,
-				181026832514B72B00D5CC93 /* mcs-share.png */,
-				181026862514B72F00D5CC93 /* mcs-tips.png */,
-			);
-			path = stream;
 			sourceTree = "<group>";
 		};
 		18122C98252B0C5800C28926 /* MultiStreamGuests */ = {
@@ -773,7 +745,6 @@
 		18EB81D0244AD311008EB09A /* images */ = {
 			isa = PBXGroup;
 			children = (
-				1810267F2514B71600D5CC93 /* stream */,
 				189E324724DAAF6B00E63674 /* splash screens */,
 				18DAF97D248FB9D500A6693A /* search-icons */,
 				182A5F0B24616B4A00FF6147 /* charity-img.png */,
@@ -857,18 +828,14 @@
 				1826035D24D2A7CC00248E8B /* Poppins-Medium.ttf in Resources */,
 				1860DFBE24D40BA900ACB899 /* MyEventsCell.xib in Resources */,
 				18122CA2252B0E0A00C28926 /* MultiStreamGuestsCell.xib in Resources */,
-				1810268A2514B72F00D5CC93 /* mcs-share.png in Resources */,
 				189E325024DAAF8700E63674 /* Default-Portrait-750h@2x.png in Resources */,
 				18D2717D24A382A400F958BC /* search.png in Resources */,
-				181026882514B72F00D5CC93 /* mcs-donations.png in Resources */,
 				180A8BDB24AF74500022FFE4 /* ButtonsCVC-iPad.xib in Resources */,
 				184C49FB2578CF2B007DEB51 /* SubscribedCell.xib in Resources */,
 				18DAF996248FBA1D00A6693A /* sr_category.png in Resources */,
-				181026872514B72F00D5CC93 /* mcs-chat.png in Resources */,
 				1822F8A924D03364009E8E1A /* MyEventsCVC.xib in Resources */,
 				189E325124DAAF8700E63674 /* Default-Portrait@2x.png in Resources */,
 				189EBF3A2459D25700C52B0E /* UpcomingCell.xib in Resources */,
-				1810268C2514B72F00D5CC93 /* mcs-custom-emoji.png in Resources */,
 				184B86D724D302C8003F4D3D /* OpenChannelUserMessageTableViewCell.xib in Resources */,
 				184A0B542472CC20006EDDA3 /* PaymentHistoryCell.xib in Resources */,
 				18DAF997248FBA1D00A6693A /* sr_health-wellness.png in Resources */,
@@ -889,7 +856,6 @@
 				189E325224DAAF8700E63674 /* Default-Portrait-640h@2x.png in Resources */,
 				18DAF991248FBA1D00A6693A /* sr_organization.png in Resources */,
 				18DAF998248FBA1D00A6693A /* sr_performer.png in Resources */,
-				1810268D2514B72F00D5CC93 /* mcs-tips.png in Resources */,
 				18D480A324509B0D00640C1A /* DashBoardCell.xib in Resources */,
 				189E324F24DAAF8700E63674 /* Default-Portrait-2436h@3x.png in Resources */,
 				1826035C24D2A7CC00248E8B /* Poppins-SemiBold.ttf in Resources */,
@@ -904,14 +870,12 @@
 				180E003B253F404B00DDFD2D /* payload.apns in Resources */,
 				1826035E24D2A7CC00248E8B /* Poppins-Bold.ttf in Resources */,
 				1826035A24D2A7CC00248E8B /* Poppins-Light.ttf in Resources */,
-				1810268B2514B72F00D5CC93 /* mcs-emoji.png in Resources */,
 				189E325324DAAF8700E63674 /* Default-Portrait-1242h@3x.png in Resources */,
 				182A5EF4245C59C700FF6147 /* SectionHeader.xib in Resources */,
 				18DAF994248FBA1D00A6693A /* sr_video.png in Resources */,
 				1826035B24D2A7CC00248E8B /* Poppins-Regular.ttf in Resources */,
 				189EBF45245ACD3400C52B0E /* FilterCell.xib in Resources */,
 				18DAF993248FBA1D00A6693A /* sr_all.png in Resources */,
-				181026892514B72F00D5CC93 /* mcs-info-icon.jpg in Resources */,
 				18DAF978248FA98000A6693A /* CheckMarkCell.xib in Resources */,
 				18D480A824509F7700640C1A /* SideMenuCell.xib in Resources */,
 				18D480AD24519DA300640C1A /* R5options.plist in Resources */,
@@ -1198,7 +1162,7 @@
 				CODE_SIGN_ENTITLEMENTS = AreveaTV/AreveaTV.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1.42;
+				CURRENT_PROJECT_VERSION = 1.43;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = J7XKYVP7J4;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -1229,7 +1193,7 @@
 				CODE_SIGN_ENTITLEMENTS = AreveaTV/AreveaTV.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1.42;
+				CURRENT_PROJECT_VERSION = 1.43;
 				DEVELOPMENT_TEAM = J7XKYVP7J4;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",

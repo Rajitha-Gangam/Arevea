@@ -79,9 +79,9 @@ class SubscribedChannelsVC: UIViewController ,UITableViewDataSource,UITableViewD
             cell.lblTierName.text = tier_name
             cell.lblChannelName.text = channel_name
 
-            let tier_amount = plan_details["tier_amount"] as? Double ?? 0.0
-            print("tier_amount:",tier_amount)
-            let amount = String(format: "%.02f", tier_amount)
+            let subscription_amount = subscribeObj["subscription_amount"] as? Double ?? 0.0
+            print("subscription_amount:", subscription_amount)
+            let amount = String(format: "%.02f", subscription_amount)
             print("amount:",amount)
             var currency_type = plan_details["currency_type"] as? String ?? ""
             if(currency_type == "GBP"){

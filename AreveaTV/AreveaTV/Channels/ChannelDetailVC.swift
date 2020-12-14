@@ -473,9 +473,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
             
             let feature_details = subscribeObj["feature_details"] as? [Any] ?? [Any]() ;
             // print("feature_details count:",feature_details.count)
-            let tier_amount = subscribeObj["tier_amount"] as? Double ?? 0.0
-            // print("tier_amount:",tier_amount)
-            let amount = String(format: "%.02f", tier_amount)
+            var tier_amount = subscribeObj["tier_amount"] as? Double ?? 0.0
             // print("amount:",amount)
             var currency_type = subscribeObj["currency_type"] as? String ?? ""
             if(currency_type == "GBP"){
@@ -483,8 +481,6 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
             }else{
                 currency_type = "$"
             }
-            let amountWithCurrencyType = currency_type + amount
-            cell.lblAmount.text = amountWithCurrencyType
             let tier_amount_mode = subscribeObj["tier_amount_mode"] as? String ?? ""
             // print("tier_amount_mode:",tier_amount_mode)
             cell.lblAmountMode.text = tier_amount_mode
@@ -493,7 +489,14 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
             if(arySubscriptionDetails.count > 0){
                 let subscribeObj1 = self.arySubscriptionDetails[0] as? [String : Any] ?? [:];
                 subscription_status = subscribeObj1["subscription_status"] as? Bool ?? false
+                tier_amount = subscribeObj1["subscription_amount"] as? Double ?? 0.0
+
             }
+            let amount = String(format: "%.02f", tier_amount)
+            
+            let amountWithCurrencyType = currency_type + amount
+            cell.lblAmount.text = amountWithCurrencyType
+            
             //if user subscribed
             if(subscription_status){
                 let orange = UIColor(red: 254, green: 63, blue: 96);
