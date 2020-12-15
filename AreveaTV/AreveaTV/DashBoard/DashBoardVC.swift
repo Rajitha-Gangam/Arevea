@@ -335,7 +335,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
                 switch response.result {
                 case .success(let value):
                     if let json = value as? [String: Any] {
-                       // print("myList JSON:",json)
+                       print("myList JSON:",json)
                         if (json["statusCode"]as? String == "200" ){
                             self.aryMyListData  = json["Data"] as? [Any] ?? [Any]();
                             //print("Mylist count:",self.aryMyListData.count)

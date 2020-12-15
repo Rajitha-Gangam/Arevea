@@ -38,6 +38,10 @@
 		182A5F06246166D700FF6147 /* CharityCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 182A5F04246166D700FF6147 /* CharityCell.xib */; };
 		182A5F0C24616B4B00FF6147 /* charity-img.png in Resources */ = {isa = PBXBuildFile; fileRef = 182A5F0B24616B4A00FF6147 /* charity-img.png */; };
 		18404764248A79AC000573A2 /* SearchViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18404763248A79AC000573A2 /* SearchViewController.swift */; };
+		18408E7B25892610000F0F30 /* Q_And_A_Section.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18408E7A25892610000F0F30 /* Q_And_A_Section.swift */; };
+		18408E7F25892624000F0F30 /* Q_And_A_Section.xib in Resources */ = {isa = PBXBuildFile; fileRef = 18408E7E25892624000F0F30 /* Q_And_A_Section.xib */; };
+		18408E8325892A5A000F0F30 /* Q_And_A_Footer.xib in Resources */ = {isa = PBXBuildFile; fileRef = 18408E8125892A5A000F0F30 /* Q_And_A_Footer.xib */; };
+		18408E8425892A5A000F0F30 /* Q_And_A_Footer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18408E8225892A5A000F0F30 /* Q_And_A_Footer.swift */; };
 		184A0B4F2472CA9E006EDDA3 /* PaymentHistoryVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 184A0B4E2472CA9E006EDDA3 /* PaymentHistoryVC.swift */; };
 		184A0B532472CC20006EDDA3 /* PaymentHistoryCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 184A0B512472CC20006EDDA3 /* PaymentHistoryCell.swift */; };
 		184A0B542472CC20006EDDA3 /* PaymentHistoryCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 184A0B522472CC20006EDDA3 /* PaymentHistoryCell.xib */; };
@@ -81,6 +85,9 @@
 		18B1BEE925594AF6003E96FF /* EventRegistrationVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18B1BEE825594AF6003E96FF /* EventRegistrationVC.swift */; };
 		18B1BEF3255955C6003E96FF /* SubscriptionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18B1BEF1255955C6003E96FF /* SubscriptionCell.swift */; };
 		18B1BEF4255955C6003E96FF /* SubscriptionCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 18B1BEF2255955C6003E96FF /* SubscriptionCell.xib */; };
+		18BAF3142588B9B300FBB9F3 /* Q_And_A_AnswerCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18BAF3122588B9B300FBB9F3 /* Q_And_A_AnswerCell.swift */; };
+		18BAF3152588B9B300FBB9F3 /* Q_And_A_AnswerCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 18BAF3132588B9B300FBB9F3 /* Q_And_A_AnswerCell.xib */; };
+		18BAF31C2588C1C300FBB9F3 /* Q_And_A_Cell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18BAF31B2588C1C300FBB9F3 /* Q_And_A_Cell.swift */; };
 		18C4072C255AE5910087BD53 /* MultiStreamVCBackUp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18C4072B255AE5900087BD53 /* MultiStreamVCBackUp.swift */; };
 		18D2717D24A382A400F958BC /* search.png in Resources */ = {isa = PBXBuildFile; fileRef = 18D2717C24A382A300F958BC /* search.png */; };
 		18D48042244E8F2B00640C1A /* libc++.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 18D48041244E8F2B00640C1A /* libc++.tbd */; };
@@ -171,6 +178,10 @@
 		182A5F04246166D700FF6147 /* CharityCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = CharityCell.xib; sourceTree = "<group>"; };
 		182A5F0B24616B4A00FF6147 /* charity-img.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "charity-img.png"; sourceTree = "<group>"; };
 		18404763248A79AC000573A2 /* SearchViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchViewController.swift; sourceTree = "<group>"; };
+		18408E7A25892610000F0F30 /* Q_And_A_Section.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Q_And_A_Section.swift; sourceTree = "<group>"; };
+		18408E7E25892624000F0F30 /* Q_And_A_Section.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = Q_And_A_Section.xib; sourceTree = "<group>"; };
+		18408E8125892A5A000F0F30 /* Q_And_A_Footer.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = Q_And_A_Footer.xib; sourceTree = "<group>"; };
+		18408E8225892A5A000F0F30 /* Q_And_A_Footer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Q_And_A_Footer.swift; sourceTree = "<group>"; };
 		184A0B4E2472CA9E006EDDA3 /* PaymentHistoryVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PaymentHistoryVC.swift; path = AreveaTV/Payment/PaymentHistoryVC.swift; sourceTree = SOURCE_ROOT; };
 		184A0B512472CC20006EDDA3 /* PaymentHistoryCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaymentHistoryCell.swift; sourceTree = "<group>"; };
 		184A0B522472CC20006EDDA3 /* PaymentHistoryCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = PaymentHistoryCell.xib; sourceTree = "<group>"; };
@@ -216,6 +227,9 @@
 		18B1BEE825594AF6003E96FF /* EventRegistrationVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventRegistrationVC.swift; sourceTree = "<group>"; };
 		18B1BEF1255955C6003E96FF /* SubscriptionCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionCell.swift; sourceTree = "<group>"; };
 		18B1BEF2255955C6003E96FF /* SubscriptionCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = SubscriptionCell.xib; sourceTree = "<group>"; };
+		18BAF3122588B9B300FBB9F3 /* Q_And_A_AnswerCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Q_And_A_AnswerCell.swift; sourceTree = "<group>"; };
+		18BAF3132588B9B300FBB9F3 /* Q_And_A_AnswerCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = Q_And_A_AnswerCell.xib; sourceTree = "<group>"; };
+		18BAF31B2588C1C300FBB9F3 /* Q_And_A_Cell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Q_And_A_Cell.swift; sourceTree = "<group>"; };
 		18C4072B255AE5900087BD53 /* MultiStreamVCBackUp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultiStreamVCBackUp.swift; sourceTree = "<group>"; };
 		18D2717C24A382A300F958BC /* search.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = search.png; sourceTree = "<group>"; };
 		18D48041244E8F2B00640C1A /* libc++.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libc++.tbd"; path = "usr/lib/libc++.tbd"; sourceTree = SDKROOT; };
@@ -342,6 +356,17 @@
 			path = CharityCell;
 			sourceTree = "<group>";
 		};
+		18408E79258925C0000F0F30 /* Q_And_A */ = {
+			isa = PBXGroup;
+			children = (
+				18408E7A25892610000F0F30 /* Q_And_A_Section.swift */,
+				18408E7E25892624000F0F30 /* Q_And_A_Section.xib */,
+				18408E8225892A5A000F0F30 /* Q_And_A_Footer.swift */,
+				18408E8125892A5A000F0F30 /* Q_And_A_Footer.xib */,
+			);
+			path = Q_And_A;
+			sourceTree = "<group>";
+		};
 		184A0B502472CBEA006EDDA3 /* Payment History Cell */ = {
 			isa = PBXGroup;
 			children = (
@@ -360,6 +385,9 @@
 				184B86D024D302C8003F4D3D /* OpenChannelUserMessageTableViewCell.swift */,
 				184B86D124D302C8003F4D3D /* OpenChannelUserMessageTableViewCell.xib */,
 				184B86D224D302C8003F4D3D /* OpenChannelTableViewCell.swift */,
+				18BAF3122588B9B300FBB9F3 /* Q_And_A_AnswerCell.swift */,
+				18BAF31B2588C1C300FBB9F3 /* Q_And_A_Cell.swift */,
+				18BAF3132588B9B300FBB9F3 /* Q_And_A_AnswerCell.xib */,
 			);
 			path = "Open Channel Cells";
 			sourceTree = "<group>";
@@ -508,6 +536,7 @@
 		189EBF4B245B385700C52B0E /* TableView Cells */ = {
 			isa = PBXGroup;
 			children = (
+				18408E79258925C0000F0F30 /* Q_And_A */,
 				184C49F72578CF2B007DEB51 /* SubscribedCell */,
 				18B1BEEB2559557E003E96FF /* SubscriptionCell */,
 				18122C98252B0C5800C28926 /* MultiStreamGuests */,
@@ -839,6 +868,7 @@
 				184B86D724D302C8003F4D3D /* OpenChannelUserMessageTableViewCell.xib in Resources */,
 				184A0B542472CC20006EDDA3 /* PaymentHistoryCell.xib in Resources */,
 				18DAF997248FBA1D00A6693A /* sr_health-wellness.png in Resources */,
+				18BAF3152588B9B300FBB9F3 /* Q_And_A_AnswerCell.xib in Resources */,
 				18DAF9A5248FDE8300A6693A /* DBSearchCVC.xib in Resources */,
 				182A5EFB2460163100FF6147 /* ButtonsCVC.xib in Resources */,
 				182A5F0C24616B4B00FF6147 /* charity-img.png in Resources */,
@@ -867,8 +897,10 @@
 				182A5EF8245F057800FF6147 /* FilterCVCell.xib in Resources */,
 				18EB81DE244B4341008EB09A /* awsconfiguration.json in Resources */,
 				182A5F06246166D700FF6147 /* CharityCell.xib in Resources */,
+				18408E8325892A5A000F0F30 /* Q_And_A_Footer.xib in Resources */,
 				180E003B253F404B00DDFD2D /* payload.apns in Resources */,
 				1826035E24D2A7CC00248E8B /* Poppins-Bold.ttf in Resources */,
+				18408E7F25892624000F0F30 /* Q_And_A_Section.xib in Resources */,
 				1826035A24D2A7CC00248E8B /* Poppins-Light.ttf in Resources */,
 				189E325324DAAF8700E63674 /* Default-Portrait-1242h@3x.png in Resources */,
 				182A5EF4245C59C700FF6147 /* SectionHeader.xib in Resources */,
@@ -977,6 +1009,7 @@
 				18EB81CE244ACC86008EB09A /* DashBoardVC.swift in Sources */,
 				18D48066244EDE4000640C1A /* ALToastView.m in Sources */,
 				184B86D624D302C8003F4D3D /* OpenChannelUserMessageTableViewCell.swift in Sources */,
+				18BAF3142588B9B300FBB9F3 /* Q_And_A_AnswerCell.swift in Sources */,
 				18DA10D02455F8D400E5C9EB /* DBCollectionViewCell.swift in Sources */,
 				1869F51924659D5F003153B1 /* SBOpenChatVC.swift in Sources */,
 				1822FED524F961B400AE57EA /* ACFloatingTextfield.swift in Sources */,
@@ -994,9 +1027,11 @@
 				18122C9D252B0CCC00C28926 /* MultiStreamGuestsCVC.swift in Sources */,
 				187D7B14246D615C0041D5AA /* AreveaAPIClient.swift in Sources */,
 				1891CA63244AC82B00EE1E45 /* AppDelegate.swift in Sources */,
+				18408E8425892A5A000F0F30 /* Q_And_A_Footer.swift in Sources */,
 				18EB81C4244ACC40008EB09A /* LoginVC.swift in Sources */,
 				18EB81BD244ACAB9008EB09A /* SplashVC.swift in Sources */,
 				1810E6F624C84BCA003EAF91 /* StreamDetailVC.swift in Sources */,
+				18BAF31C2588C1C300FBB9F3 /* Q_And_A_Cell.swift in Sources */,
 				184B86D824D302C8003F4D3D /* OpenChannelTableViewCell.swift in Sources */,
 				184B86D424D302C8003F4D3D /* OpenChannelMessageTableViewCellDelegate.swift in Sources */,
 				1822F8A324CF266E009E8E1A /* MyPurchasesVC.swift in Sources */,
@@ -1004,6 +1039,7 @@
 				184B86D524D302C8003F4D3D /* OpenChanannelChatDelegate.swift in Sources */,
 				18D480A724509F7700640C1A /* SideMenuCell.swift in Sources */,
 				1860DFBD24D40BA900ACB899 /* MyEventsCell.swift in Sources */,
+				18408E7B25892610000F0F30 /* Q_And_A_Section.swift in Sources */,
 				18D48069244EDF9800640C1A /* Testbed.swift in Sources */,
 				18122CA1252B0E0A00C28926 /* MultiStreamGuestsCell.swift in Sources */,
 				184A0B4F2472CA9E006EDDA3 /* PaymentHistoryVC.swift in Sources */,

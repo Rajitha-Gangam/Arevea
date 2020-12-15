@@ -39,7 +39,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
     @IBOutlet weak var viewRightShort: UIView!
     @IBOutlet weak var viewRightTitle: UIView!
     @IBOutlet weak var lblRightTitle: UILabel!
-
+    
     let appDelegate = UIApplication.shared.delegate as! AppDelegate
     @IBOutlet weak var btnPayPerView: UIButton!
     @IBOutlet weak var lblAmount: UILabel!
@@ -104,6 +104,8 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
     
     var messages: [SBDBaseMessage] = []
     var messages_q_and_a: [SBDBaseMessage] = []
+    var messages_q_and_a_answers_main: [SBDBaseMessage] = []
+    var messages_q_and_a_answers1: [SBDBaseMessage] = []
     
     var emojis: [SBDBaseMessage] = []
     var channel_name_subscription = ""
@@ -235,7 +237,10 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
     
     var arySubscriptionDetails = [Any]();
     @IBOutlet weak var trailConstraintRightView: NSLayoutConstraint?
-
+    var previouslySelectedHeaderIndex: Int?
+    var selectedHeaderIndex: Int?
+    var selectedItemIndex: Int?
+    
     // MARK: - View Life cycle
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -344,7 +349,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
             self.channel_name_subscription = " "
         }
         viewRight.isHidden = true
-       btn_Q_And_A.isHidden = true
+        btn_Q_And_A.isHidden = false
     }
     func delayWithSeconds(_ seconds: Double, completion: @escaping () -> ()) {
         DispatchQueue.main.asyncAfter(deadline: .now() + seconds) {
@@ -714,8 +719,9 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
     }
     func registerNibs() {
         tblComments.register(UINib(nibName: "OpenChannelUserMessageTableViewCell", bundle: nil), forCellReuseIdentifier: "OpenChannelUserMessageTableViewCell")
-        tbl_Q_And_A.register(UINib(nibName: "OpenChannelUserMessageTableViewCell", bundle: nil), forCellReuseIdentifier: "OpenChannelUserMessageTableViewCell")
-        
+        tbl_Q_And_A.register(UINib(nibName: "Q_And_A_AnswerCell", bundle: nil), forCellReuseIdentifier: "Q_And_A_AnswerCell")
+        tbl_Q_And_A.register(UINib(nibName: "Q_And_A_Section", bundle: nil), forHeaderFooterViewReuseIdentifier: "Q_And_A_Section")
+        tbl_Q_And_A.register(UINib(nibName: "Q_And_A_Footer", bundle: nil), forHeaderFooterViewReuseIdentifier: "Q_And_A_Footer")
         tblDonations.register(UINib(nibName: "CharityCell", bundle: nil), forCellReuseIdentifier: "CharityCell")
         tblSubscriptions.register(UINib(nibName: "SubscriptionCell", bundle: nil), forCellReuseIdentifier: "SubscriptionCell")
         
@@ -952,9 +958,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
     
     @IBAction func hideRightView(){
         hideAnimation()
-        setBtnDefaultBG()
         //viewRight.isHidden = true
-        viewRightShort.isHidden = false
     }
     @IBAction func tapInfo(){
         //print("info")
@@ -1071,16 +1075,18 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
         let movementDistance:CGFloat = -380;
         var movement:CGFloat = 0
         movement = -movementDistance
-        UIView.animate(withDuration: 1.0, animations: {
-            self.viewRight.frame = self.viewRight.frame.offsetBy(dx: movement, dy: 0)
-        })
+        UIView.animate(withDuration: 1.0, animations: { [self] in
+                        self.viewRight.frame = self.viewRight.frame.offsetBy(dx: movement, dy: 0)}, completion: { [self]_ in
+                            viewRightShort.isHidden = false
+                            setBtnDefaultBG()
+                        })
     }
     @IBAction func closeInfo(){
         viewInfo.isHidden = true
         btnInfo?.layer.borderColor = UIColor.black.cgColor
     }
     @IBAction func closeSubscriptions(){
-        viewSubscriptions.isHidden = true
+        viewSubscriptions.isHidden = true  
         btnSubscriptions?.layer.borderColor = UIColor.black.cgColor
     }
     @IBAction func closeDonations(){
@@ -1115,7 +1121,12 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
     //MARK:Tableview Delegates and Datasource Methods
     
     func numberOfSections(in tableView: UITableView) ->  Int {
-        return 1
+        if(tableView == tbl_Q_And_A){
+            return messages_q_and_a.count
+        }else{
+            return 1
+            
+        }
     }
     
     
@@ -1151,7 +1162,18 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                 lblNoData_Q_And_A.text = "Channel is unavailable"
                 
             }
-            return self.messages_q_and_a.count;
+            //return self.messages_q_and_a.count;
+            let question = messages_q_and_a[section]
+            //question.setValue([], forKey: "answers")
+            var answer_each =  [SBDBaseMessage]();
+            for answer in messages_q_and_a_answers1 {
+                print("answer.data:",answer.data)
+                print("question.messageId:",question.messageId)
+                if (answer.data == String(question.messageId)){
+                    answer_each.append(answer)
+                }
+            }
+            return answer_each.count
         }else if (tableView == tblSubscriptions ){
             if (self.arySubscriptions.count > 0){
                 lblNoDataSubscriptions.isHidden = true
@@ -1177,6 +1199,59 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
         return 44;
         
     }
+    func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+        return ""
+    }
+    
+    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        if(tableView == tbl_Q_And_A){
+            return 40
+        }
+        return 0
+    }
+    
+    func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
+        if(tableView == tbl_Q_And_A){
+            return 54
+        }else{
+            return 0
+        }
+    }
+    
+    
+    
+    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        if(tableView == tbl_Q_And_A){
+            let headerView = tableView.dequeueReusableHeaderFooterView(withIdentifier: "Q_And_A_Section") as! Q_And_A_Section
+            let userMessage = self.messages_q_and_a[section] as! SBDUserMessage
+            headerView.lblTitle.text = "Q. " + userMessage.message
+            
+            let headerTapped = UITapGestureRecognizer (target: self, action:#selector(sectionHeaderTapped(recognizer:)))
+            headerView.addGestureRecognizer(headerTapped)
+            return headerView
+        }else{
+            let headerView = UIView(frame: CGRect(x: 0, y: 0, width: 0, height: 0))
+            return headerView
+        }
+    }
+    func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
+        if(tableView == tbl_Q_And_A){
+            let footerView = tableView.dequeueReusableHeaderFooterView(withIdentifier: "Q_And_A_Footer") as! Q_And_A_Footer
+            return footerView
+        }else{
+            let footerView = UIView(frame: CGRect(x: 0, y: 0, width: 0, height: 0))
+            return footerView
+        }
+    }
+    
+    @objc func sectionHeaderTapped(recognizer: UITapGestureRecognizer) {
+        print("Tapping working")
+        print(recognizer.view?.tag)
+        
+        var indexPath : NSIndexPath = NSIndexPath(row: 0, section:(recognizer.view?.tag as Int?)!)
+        
+        
+    }
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         if (tableView == tblComments){
             var cell: UITableViewCell = UITableViewCell()
@@ -1190,7 +1265,6 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                     if indexPath.row > 0 {
                         //adminMessageCell.setPreviousMessage(self.messages[indexPath.row - 1])
                     }
-                    
                     cell = adminMessageCell
                 }
             }
@@ -1315,9 +1389,20 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
             return cell
         }else if (tableView == tbl_Q_And_A){
             var cell: UITableViewCell = UITableViewCell()
-            if self.messages_q_and_a[indexPath.row] is SBDAdminMessage {
-                if let adminMessage = self.messages_q_and_a[indexPath.row] as? SBDAdminMessage,
-                   let adminMessageCell = tableView.dequeueReusableCell(withIdentifier: "OpenChannelUserMessageTableViewCell") as? OpenChannelUserMessageTableViewCell {
+            let question = messages_q_and_a[indexPath.section]
+            //question.setValue([], forKey: "answers")
+            var answer_each =  [SBDBaseMessage]();
+            for answer in messages_q_and_a_answers1 {
+                print("answer.data:",answer.data)
+                print("question.messageId:",question.messageId)
+                if (answer.data == String(question.messageId)){
+                    answer_each.append(answer)
+                }
+            }
+            
+            if answer_each[indexPath.row] is SBDAdminMessage {
+                if let adminMessage = answer_each[indexPath.row] as? SBDAdminMessage,
+                   let adminMessageCell = tableView.dequeueReusableCell(withIdentifier: "Q_And_A_AnswerCell") as? Q_And_A_AnswerCell {
                     adminMessageCell.setMessage(adminMessage)
                     adminMessageCell.delegate = self
                     //adminMessageCell.profileImageView
@@ -1328,9 +1413,10 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                     cell = adminMessageCell
                 }
             }
-            else if self.messages_q_and_a[indexPath.row] is SBDUserMessage {
-                let userMessage = self.messages_q_and_a[indexPath.row] as! SBDUserMessage
-                if let userMessageCell = tableView.dequeueReusableCell(withIdentifier: "OpenChannelUserMessageTableViewCell") as? OpenChannelUserMessageTableViewCell,
+            else if answer_each[indexPath.row] is SBDUserMessage {
+                let userMessage = answer_each[indexPath.row] as! SBDUserMessage
+                
+                if let userMessageCell = tableView.dequeueReusableCell(withIdentifier: "Q_And_A_AnswerCell") as? Q_And_A_AnswerCell,
                    let sender = userMessage.sender {
                     userMessageCell.setMessage(userMessage)
                     userMessageCell.delegate = self
@@ -1716,7 +1802,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
         isSubscriptionNavigation = false
         UIApplication.shared.open(url)
         btnTips.setImage(UIImage.init(named: "s_tip"), for: .normal)
-
+        
     }
     @IBAction func subscribe(_ sender: Any) {
         let storyboard = UIStoryboard(name: "Main", bundle: nil);
@@ -2776,72 +2862,99 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
         if self.hasPrevious_q_and_a == false {
             return
         }
+        var CUSTOM_TYPE = "QUESTION";
+        let MESSAGE_TYPE = "MESG";
         
-        channel_q_and_a.getPreviousMessages(byTimestamp: timestamp, limit: 30, reverse: !initial, messageType: .all, customType: nil, completionHandler: { (msgs, error) in
+        channel_q_and_a.getPreviousMessages(byTimestamp: timestamp, limit: 30, reverse: !initial, messageType: .all, customType: CUSTOM_TYPE, completionHandler: { (questions, error) in
             if error != nil {
                 self.isLoading_q_and_a = false
                 
                 return
             }
+            let messageList = questions;
+            CUSTOM_TYPE = "ANSWER";
             
-            guard let messages_q_and_a = msgs else { return }
-            
-            if messages_q_and_a.count == 0 {
-                self.hasPrevious_q_and_a = false
-            }
-            
-            if initial {
-                if messages_q_and_a.count > 0 {
-                    DispatchQueue.main.async {
-                        self.messages_q_and_a.removeAll()
-                        
-                        for message in messages_q_and_a {
-                            self.messages_q_and_a.append(message)
-                            
-                            if self.minMessageTimestamp > message.createdAt {
-                                self.minMessageTimestamp = message.createdAt
+            channel_q_and_a.getPreviousMessages(byTimestamp: timestamp, limit: 30, reverse: !initial, messageType: .all, customType: CUSTOM_TYPE, completionHandler: { (answers, error) in
+                if error != nil {
+                    self.isLoading_q_and_a = false
+                    
+                    return
+                }
+                guard let messages_q_and_a = questions else { return }
+                let messages_q_and_a_answers = answers
+                self.messages_q_and_a_answers1 = answers ?? []
+                if messages_q_and_a.count == 0 {
+                    self.hasPrevious_q_and_a = false
+                }
+                
+                if initial {
+                    if messages_q_and_a.count > 0 {
+                        DispatchQueue.main.async {
+                            self.messages_q_and_a.removeAll()
+                            self.messages_q_and_a_answers_main.removeAll()
+                            var index = -1
+                            for question in messages_q_and_a {
+                                //question.setValue([], forKey: "answers")
+                                index = index + 1
+                                var answer_each =  [SBDBaseMessage]();
+                                for answer in messages_q_and_a_answers ?? [] {
+                                    print("answer.data:",answer.data)
+                                    print("question.messageId:",question.messageId)
+                                    if (answer.data == String(question.messageId)){
+                                        answer_each.append(answer)
+                                    }
+                                }
+                                // self.messages_q_and_a_answers_main.insert(contentsOf: answer_each, at: index)
+                                //  question.setValue(answer_each, forKey: "answers")
+                                //print("que:",question.messageId,",answer:",question.value(forKey: "answers"))
+                                //print("que:",question.messageId,",answer:",answer_each)
+                                print("self.messages_q_and_a_answers_main:",self.messages_q_and_a_answers_main)
+                                self.messages_q_and_a.append(question)
+                                if self.minMessageTimestamp > question.createdAt {
+                                    self.minMessageTimestamp = question.createdAt
+                                }
                             }
+                            
+                            self.initialLoading_q_and_a = true
+                            
+                            self.tbl_Q_And_A.reloadData()
+                            self.tbl_Q_And_A.layoutIfNeeded()
+                            
+                            self.scrollToBottom(force: true)
+                            self.initialLoading_q_and_a = false
+                            self.isLoading_q_and_a = false
                         }
-                        
-                        self.initialLoading_q_and_a = true
-                        
-                        self.tbl_Q_And_A.reloadData()
-                        self.tbl_Q_And_A.layoutIfNeeded()
-                        
-                        self.scrollToBottom(force: true)
-                        self.initialLoading_q_and_a = false
-                        self.isLoading_q_and_a = false
                     }
                 }
-            }
-            else {
-                if messages_q_and_a.count > 0 {
-                    DispatchQueue.main.async {
-                        var messageIndexPaths: [IndexPath] = []
-                        var row: Int = 0
-                        for message in messages_q_and_a {
-                            self.messages_q_and_a.insert(message, at: 0)
-                            
-                            if self.minMessageTimestamp > message.createdAt {
-                                self.minMessageTimestamp = message.createdAt
+                else {
+                    if messages_q_and_a.count > 0 {
+                        DispatchQueue.main.async {
+                            var messageIndexPaths: [IndexPath] = []
+                            var row: Int = 0
+                            for question in messages_q_and_a {
+                                self.messages_q_and_a.insert(question, at: 0)
+                                
+                                if self.minMessageTimestamp > question.createdAt {
+                                    self.minMessageTimestamp = question.createdAt
+                                }
+                                
+                                messageIndexPaths.append(IndexPath(row: row, section: 0))
+                                row += 1
                             }
                             
-                            messageIndexPaths.append(IndexPath(row: row, section: 0))
-                            row += 1
+                            self.tbl_Q_And_A.reloadData()
+                            self.tbl_Q_And_A.layoutIfNeeded()
+                            
+                            self.tbl_Q_And_A.scrollToRow(at: IndexPath(row: messages_q_and_a.count-1, section: 0), at: .top, animated: false)
+                            self.isLoading_q_and_a = false
                         }
-                        
-                        self.tbl_Q_And_A.reloadData()
-                        self.tbl_Q_And_A.layoutIfNeeded()
-                        
-                        self.tbl_Q_And_A.scrollToRow(at: IndexPath(row: messages_q_and_a.count-1, section: 0), at: .top, animated: false)
-                        self.isLoading_q_and_a = false
                     }
                 }
-            }
+            })
         })
         //print("msgs:",self.messages)
     }
-    @IBAction func send_Q_And_A() {
+    @IBAction func send_Q_And_A_Answer() {
         txt_Q_And_A.resignFirstResponder()
         txtTopOfToolBar.resignFirstResponder()
         let messageText = txt_Q_And_A.text!.trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
@@ -2887,14 +3000,14 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
         self.txt_Q_And_A.text = ""
         //self.sendUserMessageButton.isEnabled = false
         var preSendMessage: SBDUserMessage?
-        preSendMessage = channel.sendUserMessage(messageText) { (userMessage, error) in
+        preSendMessage = channel.sendUserMessage(messageText, data: "1210736391",customType: "ANSWER") { (userMessage, error) in
             if error != nil {
                 DispatchQueue.main.async {
                     guard let preSendMsg = preSendMessage else { return }
                     let requestId = preSendMsg.requestId
                     
-                    self.preSendMessages.removeValue(forKey: requestId)
-                    self.resendableMessages[requestId] = preSendMsg
+                    self.preSendMessages_q_and_a.removeValue(forKey: requestId)
+                    self.resendableMessages_q_and_a[requestId] = preSendMsg
                     self.tbl_Q_And_A.reloadData()
                     self.scrollToBottom(force: true)
                     
@@ -2912,7 +3025,101 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                     if let index = self.messages_q_and_a.firstIndex(of: preSendMessage) {
                         self.messages_q_and_a[index] = message
                         self.preSendMessages_q_and_a.removeValue(forKey: requestId)
-                        self.tbl_Q_And_A.reloadRows(at: [IndexPath(row: index, section: 0)], with: .none)
+                        self.tbl_Q_And_A.reloadData()
+                        self.scrollToBottom(force: true)
+                    }
+                }
+            }
+        }
+        
+        DispatchQueue.main.async {
+            self.determineScrollLock()
+            if let preSendMsg = preSendMessage {
+                let requestId = preSendMsg.requestId
+                self.preSendMessages_q_and_a[requestId] = preSendMsg
+                self.messages_q_and_a.append(preSendMsg)
+                self.tbl_Q_And_A.reloadData()
+                self.scrollToBottom(force: true)
+                
+            }
+        }
+    }
+    
+    @IBAction func send_Q_And_A() {
+        
+        txt_Q_And_A.resignFirstResponder()
+        txtTopOfToolBar.resignFirstResponder()
+        let messageText = txt_Q_And_A.text!.trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
+        if (messageText.count == 0){
+            showAlert(strMsg: "Please enter message")
+            return
+        }
+        send_Q_And_A_Answer()
+        return
+            
+            self.txt_Q_And_A.text = ""
+        self.txtTopOfToolBar.text = ""
+        if (!isChannelAvailable_q_and_a){
+            //print("sendBirdErrorCode:",sendBirdErrorCode)
+            switch sendBirdErrorCode_Q_And_A {
+            case 403100:
+                showAlert(strMsg: "Application id disabled/expired, Please contact admin.")
+            case 400300:
+                showAlert(strMsg: "Deactivated user not accessible, Please contact admin.")
+            case 400301:
+                showAlert(strMsg: "User not found, Please contact admin.")
+            case 400304:
+                showAlert(strMsg: "Application id not found, Please contact admin.")
+            case 400306:
+                showAlert(strMsg: "Paid quota exceeded, Please contact admin.")
+            case 400700:
+                showAlert(strMsg: "Blocked user send not allowed, Please contact admin.")
+            case 500910:
+                showAlert(strMsg: "Rate limit exceeded, Please contact admin.")
+            case 400201:
+                showAlert(strMsg: "Channel is not available, Please try again later.")
+            default:
+                showAlert(strMsg: "Channel is not available, Please try again later.")
+            //              showAlert(strMsg: "\(self.sbdError)")
+            }
+            return
+        }
+        
+        //print("channelName:",channelName)
+        guard let channel = self.channel_q_and_a else {
+            showAlert(strMsg: "Channel is not available, Please try again later.")
+            return
+        }
+        //print("channelName2:",self.channel?.name);
+        self.txt_Q_And_A.text = ""
+        //self.sendUserMessageButton.isEnabled = false
+        var preSendMessage: SBDUserMessage?
+        preSendMessage = channel.sendUserMessage(messageText, data: messageText,customType: "QUESTION") { (userMessage, error) in
+            if error != nil {
+                DispatchQueue.main.async {
+                    guard let preSendMsg = preSendMessage else { return }
+                    let requestId = preSendMsg.requestId
+                    
+                    self.preSendMessages_q_and_a.removeValue(forKey: requestId)
+                    self.resendableMessages_q_and_a[requestId] = preSendMsg
+                    self.tbl_Q_And_A.reloadData()
+                    self.scrollToBottom(force: true)
+                    
+                }
+                return
+            }
+            
+            guard let message = userMessage else { return }
+            let requestId = message.requestId
+            
+            DispatchQueue.main.async {
+                self.determineScrollLock()
+                
+                if let preSendMessage = self.preSendMessages_q_and_a[requestId] {
+                    if let index = self.messages_q_and_a.firstIndex(of: preSendMessage) {
+                        self.messages_q_and_a[index] = message
+                        self.preSendMessages_q_and_a.removeValue(forKey: requestId)
+                        self.tbl_Q_And_A.reloadData()
                         self.scrollToBottom(force: true)
                     }
                 }

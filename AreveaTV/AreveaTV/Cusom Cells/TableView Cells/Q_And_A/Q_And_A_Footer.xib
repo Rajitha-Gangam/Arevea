@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="17156" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+    <device id="retina4_7" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17125"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <customFonts key="customFonts">
+        <array key="Poppins-Regular.ttf">
+            <string>Poppins-Regular</string>
+        </array>
+    </customFonts>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view contentMode="scaleToFill" id="DWJ-xQ-C4O" customClass="Q_And_A_Footer" customModule="AreveaTV" customModuleProvider="target">
+            <rect key="frame" x="0.0" y="0.0" width="375" height="54"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+            <subviews>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ehE-Cq-ZbP">
+                    <rect key="frame" x="0.0" y="0.0" width="375" height="54"/>
+                    <subviews>
+                        <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="g31-1K-eHe" userLabel="View send msg">
+                            <rect key="frame" x="0.0" y="0.0" width="375" height="54"/>
+                            <subviews>
+                                <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" placeholder="Send a message" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="Bnt-1Q-qCo">
+                                    <rect key="frame" x="10" y="14.5" width="315" height="25.5"/>
+                                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                    <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                    <fontDescription key="fontDescription" name="Poppins-Regular" family="Poppins" pointSize="17"/>
+                                    <textInputTraits key="textInputTraits" returnKeyType="send"/>
+                                    <userDefinedRuntimeAttributes>
+                                        <userDefinedRuntimeAttribute type="color" keyPath="placeholderLabel.textColor">
+                                            <color key="value" white="0.66666666669999997" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        </userDefinedRuntimeAttribute>
+                                    </userDefinedRuntimeAttributes>
+                                    <variation key="heightClass=regular-widthClass=regular">
+                                        <fontDescription key="fontDescription" name="Poppins-Regular" family="Poppins" pointSize="24"/>
+                                    </variation>
+                                </textField>
+                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Hzv-Kq-Tqs">
+                                    <rect key="frame" x="335" y="12" width="30" height="30"/>
+                                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                    <constraints>
+                                        <constraint firstAttribute="width" constant="30" id="Idx-bx-H9N"/>
+                                        <constraint firstAttribute="height" constant="30" id="vNJ-xd-jaQ"/>
+                                    </constraints>
+                                    <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                    <state key="normal" image="send"/>
+                                </button>
+                            </subviews>
+                            <color key="backgroundColor" white="0.33333333333333331" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            <constraints>
+                                <constraint firstItem="Hzv-Kq-Tqs" firstAttribute="centerY" secondItem="g31-1K-eHe" secondAttribute="centerY" id="1e5-Xu-jTs"/>
+                                <constraint firstItem="Hzv-Kq-Tqs" firstAttribute="leading" secondItem="Bnt-1Q-qCo" secondAttribute="trailing" constant="10" id="N1d-II-d9l"/>
+                                <constraint firstAttribute="trailing" secondItem="Hzv-Kq-Tqs" secondAttribute="trailing" constant="10" id="anu-5p-NuT"/>
+                                <constraint firstItem="Bnt-1Q-qCo" firstAttribute="leading" secondItem="g31-1K-eHe" secondAttribute="leading" constant="10" id="mX3-Wl-3db"/>
+                                <constraint firstAttribute="height" constant="54" id="u4n-qj-wgC"/>
+                                <constraint firstItem="Bnt-1Q-qCo" firstAttribute="centerY" secondItem="g31-1K-eHe" secondAttribute="centerY" id="udU-BP-fZ1"/>
+                            </constraints>
+                            <userDefinedRuntimeAttributes>
+                                <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
+                                    <integer key="value" value="10"/>
+                                </userDefinedRuntimeAttribute>
+                            </userDefinedRuntimeAttributes>
+                        </view>
+                    </subviews>
+                    <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    <constraints>
+                        <constraint firstAttribute="bottom" secondItem="g31-1K-eHe" secondAttribute="bottom" id="PmM-3l-ogJ"/>
+                        <constraint firstItem="g31-1K-eHe" firstAttribute="top" secondItem="ehE-Cq-ZbP" secondAttribute="top" id="bB8-f4-cho"/>
+                        <constraint firstItem="g31-1K-eHe" firstAttribute="leading" secondItem="ehE-Cq-ZbP" secondAttribute="leading" id="g0b-lJ-JVt"/>
+                        <constraint firstAttribute="trailing" secondItem="g31-1K-eHe" secondAttribute="trailing" id="gIW-z8-AqS"/>
+                    </constraints>
+                </view>
+            </subviews>
+            <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+            <constraints>
+                <constraint firstAttribute="bottom" secondItem="ehE-Cq-ZbP" secondAttribute="bottom" id="BfZ-dP-3LE"/>
+                <constraint firstItem="ehE-Cq-ZbP" firstAttribute="leading" secondItem="DWJ-xQ-C4O" secondAttribute="leading" id="LHG-Er-rW0"/>
+                <constraint firstAttribute="trailing" secondItem="ehE-Cq-ZbP" secondAttribute="trailing" id="hHb-kx-TIc"/>
+                <constraint firstItem="ehE-Cq-ZbP" firstAttribute="top" secondItem="DWJ-xQ-C4O" secondAttribute="top" id="uUu-Ps-1ic"/>
+            </constraints>
+            <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
+            <point key="canvasLocation" x="12" y="-73.763118440779621"/>
+        </view>
+    </objects>
+    <resources>
+        <image name="send" width="44" height="44"/>
+    </resources>
+</document>
