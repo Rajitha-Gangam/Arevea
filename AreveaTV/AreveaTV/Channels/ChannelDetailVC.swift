@@ -889,7 +889,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
                             self.tblUpcoming.reloadData();
                         }else{
                             let strMsg = json["message"] as? String ?? ""
-                            self.showAlert(strMsg: strMsg)
+                           // self.showAlert(strMsg: strMsg)
                         }
                         
                     }
@@ -928,7 +928,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
                             self.tblVideos.reloadData();
                         }else{
                             let strMsg = json["message"] as? String ?? ""
-                            self.showAlert(strMsg: strMsg)
+                            //self.showAlert(strMsg: strMsg)
                         }
                         
                     }
@@ -965,7 +965,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
                             self.tblAudios.reloadData();
                         }else{
                             let strMsg = json["message"] as? String ?? ""
-                            self.showAlert(strMsg: strMsg)
+                           // self.showAlert(strMsg: strMsg)
                         }
                         
                     }
@@ -1031,7 +1031,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
                         }else{
                             let strError = json["message"] as? String
                             ////print("strError1:",strError ?? "")
-                            self.showAlert(strMsg: strError ?? "")
+                            //self.showAlert(strMsg: strError ?? "")
                         }
                         
                     }

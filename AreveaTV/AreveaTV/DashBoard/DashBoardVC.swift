@@ -53,8 +53,8 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
     var aryUpcomingData = [Any]();
     var aryMyListData = [Any]();
     var aryTrendingChannelsData = [Any]();
-    
-    
+    var isUpcoming = false;
+
     var isProfileLoaded = false;
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     
@@ -127,7 +127,48 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
             locationManager.startUpdatingLocation()
         }
         
+        getCurrency()
+       
+        
+
     }
+    func getCurrency(){
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        let url: String = appDelegate.getCurrencyURL
+        
+        AF.request(url, method: .get, encoding: JSONEncoding.default)
+            .responseJSON { response in
+                switch response.result {
+                case .success(let value):
+                    if let json = value as? [String: Any] {
+                        print("getCurrency JSON:",json)
+                        let currency  = json["currency"] as? [String:Any] ?? [:];
+                        let currencyCode = currency["code"] as? String ?? ""//based on user lcoation, currency code will come, that we need to pass currencies json, and get symbol
+                        print("currencyCode:",currencyCode)
+                        appDelegate.userCurrencyCode = currencyCode
+                        if let path = Bundle.main.path(forResource: "currencies", ofType: "json") {
+                            do {
+                                  let data = try Data(contentsOf: URL(fileURLWithPath: path), options: .mappedIfSafe)
+                                  let jsonResult = try JSONSerialization.jsonObject(with: data, options: .mutableLeaves)
+                                  if let jsonResult = jsonResult as? Dictionary<String, AnyObject>,
+                                     let currencySymbol = jsonResult[currencyCode] as? String {
+                                            // do stuff
+                                    print("currencySymbol:",currencySymbol)
+                                    appDelegate.userCurrencySymbol = currencySymbol
+                                  }
+                              } catch {
+                                   // handle error
+                              }
+                        }
+                        
+                    }
+                case .failure(let error):
+                    let errorDesc = error.localizedDescription.replacingOccurrences(of: "URLSessionTask failed with error:", with: "")
+                    //self.showAlert(strMsg: errorDesc)
+                }
+            }
+    }
+   
     @objc func handleRefresh(_ refreshControl: UIRefreshControl) {
         // Do some reloading of data and update the table view's data source
         // Fetch more objects from a web service, for example...
@@ -789,6 +830,10 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
             if (title == "dashboard_my_list"){
                 streamInfo = selectedOrg
             }
+            isUpcoming = false
+            if (title == "dashboard_up"){
+                isUpcoming = true
+            }
             let storyboard = UIStoryboard(name: "Main", bundle: nil);
             let number_of_creators = streamInfo["number_of_creators"] as? Int ?? 0
             let orgId = streamInfo["organization_id"] as? Int ?? 0
@@ -911,6 +956,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
                                     vc.performerId = performer_id
                                     vc.strTitle = stream_video_title
                                     vc.isVOD = isVOD
+                                    vc.isUpcoming = isUpcoming
                                     vc.channel_name_subscription = channelName
                                     self.navigationController?.pushViewController(vc, animated: true)
                                 }else{
@@ -922,6 +968,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
                                         vc.delegate = self
                                         vc.performerId = performer_id
                                         vc.strTitle = stream_video_title
+                                        vc.isUpcoming = isUpcoming
                                         vc.channel_name_subscription = channelName
                                         if(stream_status == "completed" && myList){
                                             vc.isVOD = true

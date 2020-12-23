@@ -98,12 +98,16 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate{
     @IBOutlet weak var btnSubscribe: UIButton!
     @IBOutlet weak var ageDesc: UILabel!
     @IBOutlet weak var shareEventTop: NSLayoutConstraint!
+    @IBOutlet weak var tblheight: NSLayoutConstraint!
     @IBOutlet weak var viewShareEvent: UIView!
     var channel_name_subscription = ""
     var arySubscriptionDetails = [Any]();
     var arySubscriptions = [Any]();
     var subscription_details = false
     var isUserSubscribe = true
+    var currency_type = ""
+
+    
     // MARK: - View Life cycle
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -118,10 +122,9 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate{
         }
         btnSubscribe.isHidden = true
         if(self.channel_name_subscription == ""){
-                   self.channel_name_subscription = " "
-               }
-
-        
+            self.channel_name_subscription = " "
+        }
+        btnSubscribe.isHidden = true
     }
     func delayWithSeconds(_ seconds: Double, completion: @escaping () -> ()) {
         DispatchQueue.main.asyncAfter(deadline: .now() + seconds) {
@@ -380,13 +383,13 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate{
                                 if(self.streamVideoDesc == "null"){
                                     self.streamVideoDesc = ""
                                 }
-                               
+                                
                                 // "currency_type" = USD;
-                                var currency_type = streamObj["currency_type"] as? String ?? ""
-                                if(currency_type == "GBP"){
-                                    currency_type = "£"
+                                self.currency_type = streamObj["currency_type"] as? String ?? ""
+                                if(self.currency_type == "GBP"){
+                                    self.currency_type = "£"
                                 }else{
-                                    currency_type = "$"
+                                    self.currency_type = "$"
                                 }
                                 var strAmount = "0.0"
                                 
@@ -397,7 +400,7 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate{
                                 }
                                 let doubleAmount = Double(strAmount)
                                 let amount = String(format: "%.02f", doubleAmount!)
-                                self.amountWithCurrencyType = currency_type + amount
+                                self.amountWithCurrencyType = self.currency_type + amount
                                 let titleWatchNow = "PAY | " + self.amountWithCurrencyType
                                 //self.btnPayPerView.setTitle(titleWatchNow, for: .normal)
                                 
@@ -439,7 +442,7 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate{
                                 }
                                 
                                 let stream_amounts = streamObj["stream_amounts"] as? String ?? "";
-                                print("stream_amounts:",stream_amounts)
+                                //print("stream_amounts:",stream_amounts)
                                 
                                 
                                 if (stream_amounts != ""){
@@ -512,7 +515,7 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate{
                                     
                                     var subCurrencyType = ""
                                     if(USDPrice.count > 0 && GBPPrice.count > 0){
-                                        if(currency_type == "£"){
+                                        if(self.currency_type == "£"){
                                             subCurrencyType = "GBP"
                                         }else{
                                             subCurrencyType = "USD"
@@ -591,7 +594,7 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate{
                                 //self.showAlert(strMsg: "This vidoe may be inappropriate for some users")
                                 self.btnGetTickets.isHidden = true;
                                 //self.btnGetTickets.isUserInteractionEnabled = false
-                               // self.btnGetTickets.setImage(UIImage.init(named: "eye-cross"), for: .normal)
+                                // self.btnGetTickets.setImage(UIImage.init(named: "eye-cross"), for: .normal)
                                 self.lblStreamUnavailable.text = "This vidoe may be inappropriate for some users"
                                 
                             }
@@ -699,11 +702,11 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate{
                                     self.streamVideoDesc = ""
                                 }
                                 // "currency_type" = USD;
-                                var currency_type = streamObj["currency_type"] as? String ?? ""
-                                if(currency_type == "GBP"){
-                                    currency_type = "£"
+                                self.currency_type = streamObj["currency_type"] as? String ?? ""
+                                if(self.currency_type == "GBP"){
+                                    self.currency_type = "£"
                                 }else{
-                                    currency_type = "$"
+                                    self.currency_type = "$"
                                 }
                                 var strAmount = "0.0"
                                 
@@ -714,7 +717,7 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate{
                                 }
                                 let doubleAmount = Double(strAmount)
                                 let amount = String(format: "%.02f", doubleAmount!)
-                                self.amountWithCurrencyType = currency_type + amount
+                                self.amountWithCurrencyType = self.currency_type + amount
                                 
                                 let streamBannerURL = streamObj["video_banner_image"] as? String ?? ""
                                 if let urlBanner = URL(string: streamBannerURL){
@@ -765,15 +768,15 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate{
                                     }
                                 }
                                 let stream_amounts = streamObj["stream_amounts"] as? String ?? "";
-                                //print("stream_amounts:",stream_amounts)
+                                // print("stream_amounts:",stream_amounts)
                                 
                                 if (stream_amounts != ""){
                                     self.dicAmounts = self.convertToDictionary(text: stream_amounts) ?? [:]
-                                    print("==dicAmounts:",self.dicAmounts)
+                                    // print("==dicAmounts:",self.dicAmounts)
                                     let sub_live_stream = self.dicAmounts["sub_live_stream"] as? [Any] ?? [Any]()
                                     if(isUserSubscribe && sub_live_stream.count > 0){
                                         aryStreamAmounts = sub_live_stream
-
+                                        
                                     }else if(isUserSubscribe && sub_live_stream.count == 0){
                                         let subscriberPayment = self.dicAmounts["subscriberPayment"] as? String ?? ""
                                         aryStreamAmounts = []
@@ -784,7 +787,7 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate{
                                         let live_stream = self.dicAmounts["live_stream"] as? [Any] ?? [Any]()
                                         aryStreamAmounts = live_stream
                                     }
-                                    //print("amounts:",self.aryStreamAmounts)
+                                    print("amounts:",self.aryStreamAmounts)
                                     // //print("amounts count::",amounts.count)
                                     for (index,_) in self.aryStreamAmounts.enumerated(){
                                         let element = self.aryStreamAmounts[index] as? [String : Any] ?? [String:Any]()
@@ -841,7 +844,7 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate{
                                     
                                     var subCurrencyType = ""
                                     if(USDPrice.count > 0 && GBPPrice.count > 0){
-                                        if(currency_type == "£"){
+                                        if(self.currency_type == "£"){
                                             subCurrencyType = "GBP"
                                         }else{
                                             subCurrencyType = "USD"
@@ -942,7 +945,6 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate{
                             }
                             let streamObj = self.aryStreamInfo
                             stream_status = streamObj["stream_status"] as? String ?? ""
-                            
                             if(stream_status == "completed"){
                                 //uncomment below line
                                 //self.setLiveStreamConfig()
@@ -971,7 +973,7 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate{
                                             let myString = formatter.string(from: startDate) // string purpose I add here
                                             self.lblStreamUnavailable.text = "Sale Starts On " + myString
                                             btnGetTickets.isHidden = true
-
+                                            
                                         }
                                     }else if(self.saleCompleted){
                                         self.btnGetTickets.isHidden = true
@@ -1011,7 +1013,7 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate{
                                                     let myString = formatter.string(from: startDate) // string purpose I add here
                                                     self.lblStreamUnavailable.text = "Sale Starts On " + myString
                                                     btnGetTickets.isHidden = true
-
+                                                    
                                                 }
                                             }else if(self.saleCompleted){
                                                 self.btnGetTickets.isHidden = true
@@ -1040,7 +1042,7 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate{
                                 //self.showAlert(strMsg: "This vidoe may be inappropriate for some users")
                                 self.btnGetTickets.isHidden = true;
                                 //self.btnGetTickets.isUserInteractionEnabled = false
-                               // self.btnGetTickets.setImage(UIImage.init(named: "eye-cross"), for: .normal)
+                                // self.btnGetTickets.setImage(UIImage.init(named: "eye-cross"), for: .normal)
                                 self.lblStreamUnavailable.text = "This vidoe may be inappropriate for some users"
                                 
                                 
@@ -1157,28 +1159,30 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate{
         NotificationCenter.default.removeObserver(self)
         
     }
-    func proceedToPayment(type:String,charityId:Int){
-        //let url: String = appDelegate.baseURL +  "/proceedToPayment"
-        let user_id = UserDefaults.standard.string(forKey: "user_id");
-        let strUserId = user_id ?? "1"
-        var queryString = "stream_id=" + String(streamId) + "&user_id=" + strUserId//ppv
-        if(type == "performer_tip"){
-            queryString =  queryString + "&performer_id=" + String(self.performerId)
-        }else if(type == "charity_donation"){
-            queryString = queryString + "&charity_id=" + String(charityId)
-        }
-        let urlOpen = appDelegate.paymentRedirectionURL + "/" + type + "?" + queryString
-        guard let url = URL(string: urlOpen) else { return }
-        print("url to open:",url)
-        UIApplication.shared.open(url)
-    }
+   
     @IBAction func payPerView(_ sender: Any) {
         if(self.lblAmount.text == "Free"){
             print("free")
             registerEvent()
         }else{
             print("paid")
-            proceedToPayment(type: "pay_per_view",charityId: 0)
+            let storyboard = UIStoryboard(name: "Main", bundle: nil);
+            let streamInfo = self.aryStreamInfo
+            let stream_video_title = streamInfo["stream_video_title"] as? String ?? "Channel Details"
+            appDelegate.isLiveLoad = "1"
+            let vc = storyboard.instantiateViewController(withIdentifier: "TicketTypesVC") as! TicketTypesVC
+            vc.orgId = orgId
+            vc.streamId = streamId
+            vc.delegate = self
+            vc.performerId = performerId
+            vc.strTitle = stream_video_title
+            vc.isCameFromGetTickets = true
+            vc.channel_name_subscription = channel_name_subscription
+            vc.isVOD = isVOD
+            vc.isUpcoming = isUpcoming
+            vc.aryStreamAmounts = aryStreamAmounts
+            self.navigationController?.pushViewController(vc, animated: true)
+            
         }
     }
     // MARK: - Button Actions
@@ -1228,7 +1232,7 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate{
                                 let streamObj = data[0] as? [String: Any] ?? [:]
                                 let subscription_status = streamObj["subscription_status"] as? Bool ?? false
                                 let subscription_status1 = streamObj["subscription_status"] as? Int ?? 0
-
+                                
                                 print("==subscription_status:",subscription_status)
                                 
                                 let subscription_end_date = streamObj["subscription_end_date"] as? String ?? "";
@@ -1253,20 +1257,12 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate{
                             }else {
                                 self.isUserSubscribe = false;
                             }
-                            if(self.isUserSubscribe){
-                                btnSubscribe.isHidden = true
-                                self.shareEventTop.constant = 0;
-                                viewShareEvent.layoutIfNeeded()
-                            }else{
-                                btnSubscribe.isHidden = false
-                                self.shareEventTop.constant = 55;
-                                viewShareEvent.layoutIfNeeded()
-                            }
+                            
                             getChannelSubscriptionPlans()
                         }else{
                             self.isUserSubscribe = false;
                             btnSubscribe.isHidden = true
-                            self.shareEventTop.constant = 0;
+                            self.shareEventTop.constant = 5;
                             viewShareEvent.layoutIfNeeded()
                             let strError = json["message"] as? String
                             ////print("strError1:",strError ?? "")
@@ -1341,12 +1337,25 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate{
                             if(arySubscriptionDetails.count > 0){
                                 subscription_details = true
                             }
+                           
+                            
                             //event does not have any plan
                             if(arySubscriptions.count == 0){
                                 btnSubscribe.isHidden = true
-                                self.shareEventTop.constant = 0;
+                                self.shareEventTop.constant = 5;
                                 viewShareEvent.layoutIfNeeded()
+                            }else{
+                                if(self.isUserSubscribe){
+                                    btnSubscribe.isHidden = true
+                                    self.shareEventTop.constant = 5;
+                                    viewShareEvent.layoutIfNeeded()
+                                }else{
+                                    btnSubscribe.isHidden = false
+                                    self.shareEventTop.constant = 65;
+                                    viewShareEvent.layoutIfNeeded()
+                                }
                             }
+                            
                         }else{
                             let strError = json["message"] as? String
                             ////print("strError1:",strError ?? "")
@@ -1366,6 +1375,8 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate{
     func getAmount(){
         
     }
+    
+    
 }
 extension String {
     func convertDateString() -> String? {
@@ -1400,6 +1411,21 @@ extension Date {
     func isSmallerThan(_ date: Date) -> Bool {
         return self < date
     }
+    
+    // Convert local time to UTC (or GMT)
+    func toGlobalTime() -> Date {
+        let timezone = TimeZone.current
+        let seconds = -TimeInterval(timezone.secondsFromGMT(for: self))
+        return Date(timeInterval: seconds, since: self)
+    }
+    
+    // Convert UTC (or GMT) to local time
+    func toLocalTime() -> Date {
+        let timezone = TimeZone.current
+        let seconds = TimeInterval(timezone.secondsFromGMT(for: self))
+        return Date(timeInterval: seconds, since: self)
+    }
+    
 }
 
 

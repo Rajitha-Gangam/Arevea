@@ -33,9 +33,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     let deviceToken = ""
     var strFCMToken = ""
     var sharedScreenBy = ""
-
+    var getCurrencyURL = "https://api.ipgeolocation.io/ipgeo?apiKey=3af47278566b46e58bb63b70fb6df99d"
+    var userCurrencyCode = ""
+    var userCurrencySymbol = ""
     // MARK: - Dev Environmet Variables Declaration
-    /*var baseURL = "https://dev1-apis.arevea.com";
+   /* var baseURL = "https://dev1-apis.arevea.com";
      var websiteURL = "https://dev1.arevea.com"
      var sendBirdAppId = "AE94EB49-0A01-43BF-96B4-8297EBB47F12";
      var profileURL = "https://dev1.arevea.com/api/user/v1";
@@ -105,8 +107,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
      var ol_client_secret = "67795bdcf01b42caeb145988f7e64bd71d00191e2abab99dc7e43bf86da3e50c"
      var ol_access_token = ""
     var FCMBaseURL = "https://preprod-apis.arevea.tv"
-     var socialLoginURL = "https://areveatv-sandbox.onelogin.com/access/initiate"*/
-
+     var socialLoginURL = "https://areveatv-sandbox.onelogin.com/access/initiate"
+*/
     
     
     //Pre-prod Variables END

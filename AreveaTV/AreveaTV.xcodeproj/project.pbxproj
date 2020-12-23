@@ -65,6 +65,10 @@
 		1891CA6A244AC82B00EE1E45 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1891CA68244AC82B00EE1E45 /* Main.storyboard */; };
 		1891CA6D244AC82B00EE1E45 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1891CA6B244AC82B00EE1E45 /* LaunchScreen.storyboard */; };
 		189695CA24E6DA19000B7B9D /* env.json in Resources */ = {isa = PBXBuildFile; fileRef = 189695C924E6DA19000B7B9D /* env.json */; };
+		189BC6362591F0FE00445423 /* TicketTypesCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 189BC6342591F0FD00445423 /* TicketTypesCell.swift */; };
+		189BC6372591F0FE00445423 /* TicketTypesCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 189BC6352591F0FD00445423 /* TicketTypesCell.xib */; };
+		189BC63E259261F600445423 /* currencies.json in Resources */ = {isa = PBXBuildFile; fileRef = 189BC63D259261F600445423 /* currencies.json */; };
+		189BC64125926A4900445423 /* TicketTypesVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 189BC64025926A4900445423 /* TicketTypesVC.swift */; };
 		189E324F24DAAF8700E63674 /* Default-Portrait-2436h@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 189E324824DAAF8500E63674 /* Default-Portrait-2436h@3x.png */; };
 		189E325024DAAF8700E63674 /* Default-Portrait-750h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 189E324924DAAF8500E63674 /* Default-Portrait-750h@2x.png */; };
 		189E325124DAAF8700E63674 /* Default-Portrait@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 189E324A24DAAF8600E63674 /* Default-Portrait@2x.png */; };
@@ -207,6 +211,10 @@
 		1891CA69244AC82B00EE1E45 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		1891CA6C244AC82B00EE1E45 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		189695C924E6DA19000B7B9D /* env.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = env.json; sourceTree = "<group>"; };
+		189BC6342591F0FD00445423 /* TicketTypesCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TicketTypesCell.swift; sourceTree = "<group>"; };
+		189BC6352591F0FD00445423 /* TicketTypesCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = TicketTypesCell.xib; sourceTree = "<group>"; };
+		189BC63D259261F600445423 /* currencies.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = currencies.json; sourceTree = "<group>"; };
+		189BC64025926A4900445423 /* TicketTypesVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TicketTypesVC.swift; sourceTree = "<group>"; };
 		189E324824DAAF8500E63674 /* Default-Portrait-2436h@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-Portrait-2436h@3x.png"; sourceTree = "<group>"; };
 		189E324924DAAF8500E63674 /* Default-Portrait-750h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-Portrait-750h@2x.png"; sourceTree = "<group>"; };
 		189E324A24DAAF8600E63674 /* Default-Portrait@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-Portrait@2x.png"; sourceTree = "<group>"; };
@@ -462,6 +470,15 @@
 			path = AreveaTV;
 			sourceTree = "<group>";
 		};
+		189BC6332591F0D300445423 /* TicketTypesCell */ = {
+			isa = PBXGroup;
+			children = (
+				189BC6342591F0FD00445423 /* TicketTypesCell.swift */,
+				189BC6352591F0FD00445423 /* TicketTypesCell.xib */,
+			);
+			path = TicketTypesCell;
+			sourceTree = "<group>";
+		};
 		189E324724DAAF6B00E63674 /* splash screens */ = {
 			isa = PBXGroup;
 			children = (
@@ -536,6 +553,7 @@
 		189EBF4B245B385700C52B0E /* TableView Cells */ = {
 			isa = PBXGroup;
 			children = (
+				189BC6332591F0D300445423 /* TicketTypesCell */,
 				18408E79258925C0000F0F30 /* Q_And_A */,
 				184C49F72578CF2B007DEB51 /* SubscribedCell */,
 				18B1BEEB2559557E003E96FF /* SubscriptionCell */,
@@ -628,6 +646,7 @@
 				1864AFCC2454A999004F3AED /* ChannelDetailVC.swift */,
 				1810E6F524C84BCA003EAF91 /* StreamDetailVC.swift */,
 				18B1BEE825594AF6003E96FF /* EventRegistrationVC.swift */,
+				189BC64025926A4900445423 /* TicketTypesVC.swift */,
 				188B0EA4248E8F7A0062EB1D /* VideoEditor.swift */,
 				18DDD1AF24C0A4A500CF0F1A /* Multi Stream */,
 			);
@@ -757,6 +776,7 @@
 		18EB81CF244AD305008EB09A /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				189BC63D259261F600445423 /* currencies.json */,
 				1826035924D2A7CC00248E8B /* Poppins-Bold.ttf */,
 				1826035524D2A7C600248E8B /* Poppins-Light.ttf */,
 				1826035824D2A7CB00248E8B /* Poppins-Medium.ttf */,
@@ -857,6 +877,7 @@
 				1826035D24D2A7CC00248E8B /* Poppins-Medium.ttf in Resources */,
 				1860DFBE24D40BA900ACB899 /* MyEventsCell.xib in Resources */,
 				18122CA2252B0E0A00C28926 /* MultiStreamGuestsCell.xib in Resources */,
+				189BC63E259261F600445423 /* currencies.json in Resources */,
 				189E325024DAAF8700E63674 /* Default-Portrait-750h@2x.png in Resources */,
 				18D2717D24A382A400F958BC /* search.png in Resources */,
 				180A8BDB24AF74500022FFE4 /* ButtonsCVC-iPad.xib in Resources */,
@@ -876,6 +897,7 @@
 				189E325424DAAF8700E63674 /* Default-Portrait-1792h@2x.png in Resources */,
 				189E325724DAB0BC00E63674 /* splash.png in Resources */,
 				18DAF995248FBA1D00A6693A /* sr_audio.png in Resources */,
+				189BC6372591F0FE00445423 /* TicketTypesCell.xib in Resources */,
 				18DAF990248FBA1D00A6693A /* sr_stream.png in Resources */,
 				189695CA24E6DA19000B7B9D /* env.json in Resources */,
 				182A5F012460837C00FF6147 /* GoogleService-Info.plist in Resources */,
@@ -991,6 +1013,7 @@
 				182A5EFC2460163100FF6147 /* ButtonsCVC.swift in Sources */,
 				18DAF977248FA98000A6693A /* CheckMarkCell.swift in Sources */,
 				18D480C62454552200640C1A /* ProfileVC.swift in Sources */,
+				189BC64125926A4900445423 /* TicketTypesVC.swift in Sources */,
 				18B1BEE925594AF6003E96FF /* EventRegistrationVC.swift in Sources */,
 				189EBF322459CEE500C52B0E /* VideoCell.swift in Sources */,
 				182A5EF2245C59C700FF6147 /* SectionHeader.swift in Sources */,
@@ -1016,6 +1039,7 @@
 				184B86D324D302C8003F4D3D /* OpenChannelMessageTableViewCell.swift in Sources */,
 				189EBED6245752B800C52B0E /* AudioCell.swift in Sources */,
 				18EB81CB244ACC5B008EB09A /* ResetPasswordVC.swift in Sources */,
+				189BC6362591F0FE00445423 /* TicketTypesCell.swift in Sources */,
 				18FE073C24D1CFB90011FDE3 /* MultiStreamVC.swift in Sources */,
 				188B0EA5248E8F7A0062EB1D /* VideoEditor.swift in Sources */,
 				18D48060244EDDA300640C1A /* BaseTest.swift in Sources */,
@@ -1198,7 +1222,7 @@
 				CODE_SIGN_ENTITLEMENTS = AreveaTV/AreveaTV.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1.43;
+				CURRENT_PROJECT_VERSION = 0.1;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = J7XKYVP7J4;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -1211,7 +1235,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1;
+				MARKETING_VERSION = 2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.prod.arevea;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -1229,7 +1253,7 @@
 				CODE_SIGN_ENTITLEMENTS = AreveaTV/AreveaTV.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1.43;
+				CURRENT_PROJECT_VERSION = 0.1;
 				DEVELOPMENT_TEAM = J7XKYVP7J4;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1241,7 +1265,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1;
+				MARKETING_VERSION = 2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.prod.arevea;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";

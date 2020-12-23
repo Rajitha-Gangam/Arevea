@@ -8,7 +8,9 @@
 
 import UIKit
 
-class Q_And_A_Footer: UITableViewHeaderFooterView {
+class Q_And_A_Footer: UITableViewCell {
+    @IBOutlet weak var btnSend: UIButton!
+    @IBOutlet weak var txtMsg: UITextField!
 
     /*
     // Only override draw() if you perform custom drawing.
