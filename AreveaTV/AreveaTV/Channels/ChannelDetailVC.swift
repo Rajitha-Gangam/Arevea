@@ -86,7 +86,8 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
     @IBOutlet weak var heightTopView: NSLayoutConstraint?
     @IBOutlet weak var viewTop: UIView!
     var subscription_details = false
-    
+    var jsonCurrencyList = [String:Any]()
+
     // MARK: - View Life cycle
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -112,7 +113,20 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
                    self.channel_name = " "
                }
 
-        
+        if let path = Bundle.main.path(forResource: "currencies", ofType: "json") {
+                    do {
+                        let data = try Data(contentsOf: URL(fileURLWithPath: path), options: .mappedIfSafe)
+                        let jsonResult = try JSONSerialization.jsonObject(with: data, options: .mutableLeaves)
+                        if let jsonResult = jsonResult as? Dictionary<String, AnyObject>
+                            {
+                            // do stuff
+                            jsonCurrencyList = jsonResult
+                        }
+                    } catch {
+                        // handle error
+                    }
+                }
+
     }
     
     
@@ -183,7 +197,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
         //bottom first object should show
         let infoLine = self.buttonCVC.viewWithTag(tag) as? UILabel
         let btnText = self.buttonCVC.viewWithTag(tag + 10) as? UIButton
-        let orange = UIColor(red: 254, green: 63, blue: 96);
+        let orange = UIColor(red: 95, green: 84, blue: 55);
         infoLine?.backgroundColor = orange;
         infoLine?.isHidden = false;
         btnText?.setTitleColor(orange, for: .normal)
@@ -263,7 +277,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
             let btnText = self.buttonCVC.viewWithTag(btnTag) as? UIButton
             if (name == title){
                 //print("btnTag:",btnTag)
-                let orange = UIColor(red: 254, green: 63, blue: 96);
+                let orange = UIColor(red: 95, green: 84, blue: 55);
                 lblLine?.backgroundColor = orange;
                 lblLine?.isHidden = false;
                 btnText?.setTitleColor(orange, for: .normal)
@@ -473,15 +487,46 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
             
             let feature_details = subscribeObj["feature_details"] as? [Any] ?? [Any]() ;
             // print("feature_details count:",feature_details.count)
+            var userIndex = -1
+            var creatorIndex = -1
+            let tier_amounts = subscribeObj["tier_amounts"] as? String ?? ""
+
+            let aryTierAmounts = self.convertToArray(text: tier_amounts)
+            for(j,_)in aryTierAmounts!.enumerated(){
+                let object = aryTierAmounts?[j] as? [String : Any] ?? [String:Any]()
+                let currency_type1 = object["currency_type"]as? String ?? "";
+                if(appDelegate.userCurrencyCode == currency_type1){
+                    userIndex = j
+                }
+//                if(self.currencyType == currency_type1){
+//                    creatorIndex = j
+//                }
+            }
+            var index = -1
+            if(userIndex != -1){
+                index = userIndex
+            }else {
+                index = creatorIndex
+            }
+            if(index != -1){
+                let object = aryTierAmounts?[index] as? [String : Any] ?? [String:Any]()
+                let tier_amount = object["payment_amount"] as? Double ?? 0.0
+                let currency_type = object["currency_type"] as? String ?? ""
+                let currencySymbol1 = jsonCurrencyList[currency_type] as? String
+                let currencySymbol = currencySymbol1 ?? "$"
+                let amount = String(format: "%.02f", tier_amount)
+                let amountWithCurrencyType = currencySymbol  + amount
+                cell.lblAmount.text = amountWithCurrencyType
+            }
+            
             var tier_amount = subscribeObj["tier_amount"] as? Double ?? 0.0
             // print("amount:",amount)
-            var currency_type = subscribeObj["currency_type"] as? String ?? ""
-            if(currency_type == "GBP"){
-                currency_type = "£"
-            }else{
-                currency_type = "$"
-            }
+            var currency_type = subscribeObj["currency"] as? String ?? ""
+            print("currency_type1:",currency_type)
+            let currencySymbol1 = jsonCurrencyList[currency_type] as? String
+            var currencySymbol = currencySymbol1 ?? "$"
             let tier_amount_mode = subscribeObj["tier_amount_mode"] as? String ?? ""
+            
             // print("tier_amount_mode:",tier_amount_mode)
             cell.lblAmountMode.text = tier_amount_mode
             var subscription_status = false
@@ -490,16 +535,17 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
                 let subscribeObj1 = self.arySubscriptionDetails[0] as? [String : Any] ?? [:];
                 subscription_status = subscribeObj1["subscription_status"] as? Bool ?? false
                 tier_amount = subscribeObj1["subscription_amount"] as? Double ?? 0.0
-
+                let currency_type1 = subscribeObj1["currency"] as? String ?? ""
+                let currencySymbol1 = jsonCurrencyList[currency_type1] as? String
+                currencySymbol = currencySymbol1 ?? "$"
             }
             let amount = String(format: "%.02f", tier_amount)
-            
-            let amountWithCurrencyType = currency_type + amount
+            let amountWithCurrencyType = currencySymbol + amount
             cell.lblAmount.text = amountWithCurrencyType
             
             //if user subscribed
             if(subscription_status){
-                let orange = UIColor(red: 254, green: 63, blue: 96);
+                let orange = UIColor(red: 95, green: 84, blue: 55);
                 cell.viewContent.layer.borderColor = orange.cgColor
                 cell.viewContent.layer.borderWidth = 2.0
                 cell.btnCheck.isHidden = false
@@ -541,7 +587,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
             cell.lblTitle.text = streamInfo?["stream_video_title"] as? String;
             let streamStatus = streamInfo?["stream_status"] as? String;
             cell.btnStatus.setTitle("NEW", for: .normal)
-            let gray = UIColor(red: 127, green: 125, blue: 124);
+            let gray = UIColor(red: 95, green: 84, blue: 55);
             cell.btnStatus.backgroundColor = gray
             if(streamStatus == "inprogress"){
                 cell.btnStatus.setTitle("LIVE", for: .normal)
@@ -567,11 +613,9 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
             let stream_payment_mode = streamInfo?["stream_payment_mode"] as? String;
             if(stream_payment_mode == "paid"){
                 var currency_type = streamInfo?["currency_type"] as? String ?? ""
-                if(currency_type == "GBP"){
-                    currency_type = "£"
-                }else{
-                    currency_type = "$"
-                }
+                let currencySymbol1 = jsonCurrencyList[currency_type] as? String
+                       let currencySymbol = currencySymbol1 ?? "$"
+               
                 var amount = "0.0"
                 
                 if (streamInfo?["stream_payment_amount"] as? Double) != nil {
@@ -580,7 +624,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
                     amount = String(streamInfo?["stream_payment_amount"] as? String ?? "0.0")
                 }
                 
-                let payment =  currency_type + amount
+                let payment =  currencySymbol + amount
                 cell.lblPayment.text = payment
             }else{
                 cell.lblPayment.text = "Free"
@@ -595,7 +639,16 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
         }
         
     }
-    
+    func convertToArray(text: String) -> [Any]? {
+        if let data = text.data(using: .utf8) {
+            do {
+                return try JSONSerialization.jsonObject(with: data, options: []) as? [Any] ?? []
+            } catch {
+                ////print(error.localizedDescription)
+            }
+        }
+        return nil
+    }
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         //           let storyboard = UIStoryboard(name: "Main", bundle: nil);
         //           let vc = storyboard.instantiateViewController(withIdentifier: "ChannelDetailVC") as! ChannelDetailVC
@@ -610,28 +663,11 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
             let streamId = streamInfo["id"] as? Int ?? 0
             //let streamVideoCode = streamInfo?["stream_video_code"] as? String ?? ""
             let orgId = streamInfo["organization_id"]as? Int ?? 0
-            if(number_of_creators > 1){
-                let storyboard = UIStoryboard(name: "Main", bundle: nil);
-                let vc = storyboard.instantiateViewController(withIdentifier: "MultiStreamVCBackUp") as! MultiStreamVCBackUp
-                let stream_video_title = streamInfo["stream_video_title"] as? String ?? "Stream Details"
-                vc.strTitle = stream_video_title
-                vc.orgId = orgId
-                print("==streamId:",streamId)
-                vc.streamId = streamId
-                //vc.delegate = self
-                vc.performerId = performerId
-                vc.strTitle = stream_video_title
-                isUpcoming = true
-                isVideo = false
-                isAudio = false
-                //vc.isVOD = isVOD
-                self.navigationController?.pushViewController(vc, animated: true)
-            }else{
-                isUpcoming = true
-                isVideo = false
-                isAudio = false
-                LiveEventById(streamInfo: streamInfo,upcoming: true)
-            }
+            isUpcoming = true
+            isVideo = false
+            isAudio = false
+            LiveEventById(streamInfo: streamInfo,upcoming: true)
+            
         }else if  (tableView == tblVideos){
             
             playVideoFromList(row: indexPath.row)
@@ -721,6 +757,20 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
     }
     func subscribe(row:Int){
         print("row:",row)
+        //print("row:",row)
+        let subscribeObj = self.arySubscriptions[row] as? [String : Any] ?? [:];
+        //print("subscribeObj:",subscribeObj)
+        let planId = subscribeObj["id"] as? Int ?? 0
+        //print("planId:",planId)
+        let user_id = UserDefaults.standard.string(forKey: "user_id");
+        let strUserId = user_id ?? "1"
+        // https://dev1.arevea.com/subscribe-payment?channel_name=chirantan-patel&user_id=101097275&plan_id=1311
+        let inputs = "&user_id=" + strUserId + "&plan_id=" + String(planId)
+        let urlOpen = appDelegate.websiteURL + "/subscribe-payment?channel_name=" + self.channel_name + inputs
+        guard let url = URL(string: urlOpen) else { return }
+        print("url to open:",url)
+        UIApplication.shared.open(url)
+        
     }
     func LiveEventById(streamInfo:[String: Any],upcoming:Bool) {
         print("streamInfo:",streamInfo)
@@ -881,7 +931,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
                 switch response.result {
                 case .success(let value):
                     if let json = value as? [String: Any] {
-                        //print("performerEvents JSON:",json)
+                        print("performerEvents JSON:",json)
                         if (json["statusCode"]as? String == "200" ){
                             ////print(json["message"] as? String ?? "")
                             self.aryUpcoming = json["Data"] as? [Any] ?? [Any]() ;

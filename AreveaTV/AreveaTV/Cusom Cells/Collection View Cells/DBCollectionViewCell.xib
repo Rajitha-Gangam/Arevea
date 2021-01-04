@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="16097" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="17156" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="16087"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17125"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -74,7 +74,7 @@
                                         <state key="normal" image="right-arrow"/>
                                     </button>
                                 </subviews>
-                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <color key="backgroundColor" red="0.18823529411764706" green="0.18823529411764706" blue="0.27843137254901962" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <constraints>
                                     <constraint firstItem="yRm-mJ-MUo" firstAttribute="top" secondItem="z8n-Zv-BVR" secondAttribute="top" id="7Ht-bE-SCL"/>
                                     <constraint firstItem="vL2-eZ-lBd" firstAttribute="leading" secondItem="z8n-Zv-BVR" secondAttribute="leading" id="8Dj-bg-8Hb"/>
@@ -97,7 +97,7 @@
                                 </constraints>
                             </view>
                         </subviews>
-                        <color key="backgroundColor" red="0.0039215686269999999" green="0.1137254902" blue="0.1529411765" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
                             <constraint firstItem="z8n-Zv-BVR" firstAttribute="top" secondItem="rEr-FQ-3MV" secondAttribute="top" id="35H-7V-Q0B"/>
                             <constraint firstAttribute="bottom" secondItem="z8n-Zv-BVR" secondAttribute="bottom" id="D8p-Ks-EtD"/>
@@ -107,14 +107,14 @@
                     </view>
                 </subviews>
             </view>
-            <color key="backgroundColor" red="0.14901960780000001" green="0.14901960780000001" blue="0.14901960780000001" alpha="1" colorSpace="calibratedRGB"/>
+            <viewLayoutGuide key="safeArea" id="2VE-NC-ox1"/>
+            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
             <constraints>
                 <constraint firstItem="rEr-FQ-3MV" firstAttribute="centerX" secondItem="Hj6-6u-8PQ" secondAttribute="centerX" id="15i-1q-wCB"/>
                 <constraint firstItem="rEr-FQ-3MV" firstAttribute="leading" secondItem="Hj6-6u-8PQ" secondAttribute="leading" id="C4n-8Q-8bk"/>
                 <constraint firstItem="rEr-FQ-3MV" firstAttribute="centerY" secondItem="Hj6-6u-8PQ" secondAttribute="centerY" id="d1C-hv-6hU"/>
                 <constraint firstItem="rEr-FQ-3MV" firstAttribute="top" secondItem="Hj6-6u-8PQ" secondAttribute="top" id="llD-UH-S2r"/>
             </constraints>
-            <viewLayoutGuide key="safeArea" id="2VE-NC-ox1"/>
             <connections>
                 <outlet property="btnLeft" destination="6b8-1l-UVv" id="05S-06-KSN"/>
                 <outlet property="btnRight" destination="BZV-CM-HAf" id="mD7-Vf-F51"/>

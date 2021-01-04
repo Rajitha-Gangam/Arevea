@@ -37,7 +37,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var userCurrencyCode = ""
     var userCurrencySymbol = ""
     // MARK: - Dev Environmet Variables Declaration
-   /* var baseURL = "https://dev1-apis.arevea.com";
+  /* var baseURL = "https://dev1-apis.arevea.com";
      var websiteURL = "https://dev1.arevea.com"
      var sendBirdAppId = "AE94EB49-0A01-43BF-96B4-8297EBB47F12";
      var profileURL = "https://dev1.arevea.com/api/user/v1";
@@ -60,7 +60,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
      var socialLoginURL = "https://areveatv-sandbox.onelogin.com/access/initiate"
     */
     //Dev Variables END
-    
+    /*
     // MARK: - QA Environmet Variables Declaration
     var baseURL = "https://qa1-apis.arevea.com"
     var websiteURL = "https://qa1.arevea.com"
@@ -83,11 +83,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var ol_access_token = ""
     var FCMBaseURL = "https://eku2g4rzxl.execute-api.us-west-2.amazonaws.com/dev"
      var socialLoginURL = "https://areveatv-sandbox.onelogin.com/access/initiate"
-
+*/
     //QA Variables END
     
     // MARK: - Pre-prod Environmet Variables Declaration
-    /*var baseURL = "https://preprod-apis.arevea.tv"
+   /* var baseURL = "https://preprod-apis.arevea.tv"
      var websiteURL = "https://preprod.arevea.tv"
      var sendBirdAppId = "2115A8A2-36D7-4ABC-A8CE-758500A54DFD";
      var profileURL = "https://preprod.arevea.tv/api/user/v1"
@@ -108,13 +108,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
      var ol_access_token = ""
     var FCMBaseURL = "https://preprod-apis.arevea.tv"
      var socialLoginURL = "https://areveatv-sandbox.onelogin.com/access/initiate"
-*/
-    
+
+    */
     
     //Pre-prod Variables END
     
     // MARK: - prod Environmet Variables Declaration
-   /*var baseURL = "https://prod-apis.arevea.com"
+   var baseURL = "https://prod-apis.arevea.com"
      var websiteURL = "https://www.arevea.com"
      var sendBirdAppId = "ED4D2A9B-A140-40FD-83BF-6D240903C5BF";
      var profileURL = "https://www.arevea.com/api/user/v1"
@@ -134,7 +134,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
      var ol_client_secret = "d5c29333a8e9e5164d203cd7540b17e4c1d7bf2c2f52d15a01460c506a60dbca"
      var ol_access_token = ""
     var FCMBaseURL = "https://prod-apis.arevea.com"
-    var socialLoginURL = "https://areveatv-dev.onelogin.com/access/initiate"*/
+    var socialLoginURL = "https://areveatv-dev.onelogin.com/access/initiate"
     //prod Variables END
     
     var emailPopulate = ""
@@ -591,29 +591,20 @@ extension AVPlayerViewController {
     }
 }
 extension UIColor {
-    public convenience init?(hex: String) {
-        let r, g, b, a: CGFloat
-        
-        if hex.hasPrefix("#") {
-            let start = hex.index(hex.startIndex, offsetBy: 1)
-            let hexColor = String(hex[start...])
-            
-            if hexColor.count == 8 {
-                let scanner = Scanner(string: hexColor)
-                var hexNumber: UInt64 = 0
-                
-                if scanner.scanHexInt64(&hexNumber) {
-                    r = CGFloat((hexNumber & 0xff000000) >> 24) / 255
-                    g = CGFloat((hexNumber & 0x00ff0000) >> 16) / 255
-                    b = CGFloat((hexNumber & 0x0000ff00) >> 8) / 255
-                    a = CGFloat(hexNumber & 0x000000ff) / 255
-                    
-                    self.init(red: r, green: g, blue: b, alpha: a)
-                    return
-                }
-            }
-        }
-        
-        return nil
-    }
+   convenience init(red: Int, green: Int, blue: Int) {
+       assert(red >= 0 && red <= 255, "Invalid red component")
+       assert(green >= 0 && green <= 255, "Invalid green component")
+       assert(blue >= 0 && blue <= 255, "Invalid blue component")
+
+       self.init(red: CGFloat(red) / 255.0, green: CGFloat(green) / 255.0, blue: CGFloat(blue) / 255.0, alpha: 1.0)
+   }
+
+   convenience init(rgb: Int) {
+       self.init(
+           red: (rgb >> 16) & 0xFF,
+           green: (rgb >> 8) & 0xFF,
+           blue: rgb & 0xFF
+       )
+   }
+    
 }

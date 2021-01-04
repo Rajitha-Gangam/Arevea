@@ -33,7 +33,7 @@
                                 <fontDescription key="fontDescription" name="Poppins-Regular" family="Poppins" pointSize="25"/>
                             </variation>
                         </label>
-                        <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="up_arrow" translatesAutoresizingMaskIntoConstraints="NO" id="zad-xn-JG6">
+                        <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="down_arrow" translatesAutoresizingMaskIntoConstraints="NO" id="zad-xn-JG6">
                             <rect key="frame" x="345" y="12.5" width="15" height="15"/>
                             <constraints>
                                 <constraint firstAttribute="height" constant="15" id="Z5z-Ax-dBP"/>
@@ -60,12 +60,13 @@
             </constraints>
             <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
             <connections>
+                <outlet property="imgArrow" destination="zad-xn-JG6" id="MK6-jZ-nwY"/>
                 <outlet property="lblTitle" destination="ZWF-GY-etI" id="Dtw-Wa-jbW"/>
             </connections>
             <point key="canvasLocation" x="12" y="-73.763118440779621"/>
         </view>
     </objects>
     <resources>
-        <image name="up_arrow" width="44" height="44"/>
+        <image name="down_arrow" width="44" height="44"/>
     </resources>
 </document>

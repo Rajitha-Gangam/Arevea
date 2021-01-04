@@ -40,8 +40,20 @@ class FBLoginVC: UIViewController,WKNavigationDelegate {
         viewActivity.isHidden = false
         webView.navigationDelegate = self
         webView.load(request)
+        self.assignbackground();
+
     }
-    
+    func assignbackground(){
+        let background = UIImage(named: "bg")
+        var imageView : UIImageView!
+        imageView = UIImageView(frame: view.bounds)
+        imageView.contentMode =  UIView.ContentMode.scaleAspectFill
+        imageView.clipsToBounds = true
+        imageView.image = background
+        imageView.center = view.center
+        view.addSubview(imageView)
+        self.view.sendSubviewToBack(imageView)
+    }
     func showAlert(strMsg: String){
         let alert = UIAlertController(title: "Alert", message: strMsg, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "OK", style: .cancel, handler: nil))

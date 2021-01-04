@@ -51,6 +51,8 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
     @IBOutlet weak var viewNoProfilePic: UIView!
     @IBOutlet weak var viewProfilePic: UIView!
     var isFlagLoad = false
+    @IBOutlet weak var btnCancel: UIButton!
+
     // MARK: - View Life cycle
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -77,7 +79,8 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
         }
         viewChangePWD.layer.borderColor = UIColor.white.cgColor
         viewNoProfilePic.layer.borderColor = UIColor.white.cgColor
-        
+        btnCancel.layer.borderColor = UIColor.white.cgColor
+
         viewProfilePic.isHidden = true
         viewNoProfilePic.isHidden = false
         
@@ -253,7 +256,7 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
                             return
                         }
                         let age = currentYear - pastYear
-                        //print("age:",age)
+                        print("age:",age)
                         
                         if (age > 17){
                             self.txtDOB.text = self.pickerData[2]
@@ -381,7 +384,7 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
             dateComponent.year = -16 // currentdate -16 years
         }else{
             selectedAgeIndex = 2
-            dateComponent.year = -18 // currentdate -18 years
+            dateComponent.year = -19 // currentdate -18 years
         }
         let pastDate = Calendar.current.date(byAdding: dateComponent, to: currentDate)
         ////print("currentDate:",currentDate)
@@ -394,6 +397,7 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
         let user_email = UserDefaults.standard.string(forKey: "user_email");
         
         let inputData: [String: Any] = ["user_id":user_id ?? "","user_first_name":strFirstName,"user_last_name":strLastName,"user_phone_number":strPhone,"user_email":user_email!,"user_display_name":strDisplayName,"date_of_birth":strDOB]
+        print("setProfile inputData:",inputData)
         let session_token = UserDefaults.standard.string(forKey: "session_token") ?? ""
         let headers : HTTPHeaders = [
             "Content-Type": "application/json",

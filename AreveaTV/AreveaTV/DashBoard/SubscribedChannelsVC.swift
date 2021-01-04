@@ -18,11 +18,26 @@ class SubscribedChannelsVC: UIViewController ,UITableViewDataSource,UITableViewD
     var arySubscriptions = [Any]();
     @IBOutlet weak var lblNoDataSubscriptions: UILabel!
     let appDelegate = UIApplication.shared.delegate as! AppDelegate
+    var jsonCurrencyList = [String:Any]()
 
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
         tblSubscriptions.register(UINib(nibName: "SubscribedCell", bundle: nil), forCellReuseIdentifier: "SubscribedCell")
+        if let path = Bundle.main.path(forResource: "currencies", ofType: "json") {
+                    do {
+                        let data = try Data(contentsOf: URL(fileURLWithPath: path), options: .mappedIfSafe)
+                        let jsonResult = try JSONSerialization.jsonObject(with: data, options: .mutableLeaves)
+                        if let jsonResult = jsonResult as? Dictionary<String, AnyObject>
+                            {
+                            // do stuff
+                            jsonCurrencyList = jsonResult
+                        }
+                    } catch {
+                        // handle error
+                    }
+                }
+
 
     }
     override func viewWillAppear(_ animated: Bool) {
@@ -64,7 +79,7 @@ class SubscribedChannelsVC: UIViewController ,UITableViewDataSource,UITableViewD
     }
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
             let cell = tableView.dequeueReusableCell(withIdentifier: "SubscribedCell") as! SubscribedCell
-            cell.viewContent.layer.borderColor = UIColor.gray.cgColor
+            cell.viewContent.layer.borderColor = UIColor.white.cgColor
             cell.viewContent.layer.borderWidth = 1.0
         cell.imgUser.layer.borderColor = UIColor.white.cgColor
         cell.imgUser.layer.borderWidth = 1.0
@@ -83,13 +98,12 @@ class SubscribedChannelsVC: UIViewController ,UITableViewDataSource,UITableViewD
             print("subscription_amount:", subscription_amount)
             let amount = String(format: "%.02f", subscription_amount)
             print("amount:",amount)
-            var currency_type = plan_details["currency_type"] as? String ?? ""
-            if(currency_type == "GBP"){
-                currency_type = "£"
-            }else{
-                currency_type = "$"
-            }
-            let amountWithCurrencyType = currency_type + amount
+            var currency_type = subscribeObj["currency"] as? String ?? ""
+        
+        let currencySymbol1 = jsonCurrencyList[currency_type] as? String
+        let currencySymbol = currencySymbol1 ?? "$"
+
+            let amountWithCurrencyType = currencySymbol + amount
             cell.lblAmount.text = amountWithCurrencyType
             let tier_amount_mode = plan_details["tier_amount_mode"] as? String ?? ""
             print("tier_amount_mode:",tier_amount_mode)

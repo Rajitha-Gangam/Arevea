@@ -23,6 +23,8 @@ class MyPurchasesVC: UIViewController , UITableViewDelegate,UITableViewDataSourc
     @IBOutlet weak var lblNoData: UILabel!
     var selectedFilters = [String]();
     var isFilter = false
+    var jsonCurrencyList = [String:Any]()
+
     // MARK: View Life Cycle
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -34,6 +36,19 @@ class MyPurchasesVC: UIViewController , UITableViewDelegate,UITableViewDataSourc
         if(UIDevice.current.userInterfaceIdiom == .pad){
             heightTopView?.constant = 60;
             viewTop.layoutIfNeeded()
+        }
+        if let path = Bundle.main.path(forResource: "currencies", ofType: "json") {
+            do {
+                let data = try Data(contentsOf: URL(fileURLWithPath: path), options: .mappedIfSafe)
+                let jsonResult = try JSONSerialization.jsonObject(with: data, options: .mutableLeaves)
+                if let jsonResult = jsonResult as? Dictionary<String, AnyObject>
+                    {
+                    // do stuff
+                    jsonCurrencyList = jsonResult
+                }
+            } catch {
+                // handle error
+            }
         }
         myList()
         
@@ -81,12 +96,10 @@ class MyPurchasesVC: UIViewController , UITableViewDelegate,UITableViewDataSourc
         cell.lblTypeOfDonation.text = "Pay Per View"
         let dateCreated = charity["created_on"] as? String ?? ""
         
-        var currency_type = charity["currency_type"] as? String ?? ""
-        if(currency_type == "GBP"){
-            currency_type = "£"
-        }else{
-            currency_type = "$"
-        }
+        let currency_type = charity["currency_type"] as? String ?? ""
+        let currencySymbol1 = jsonCurrencyList[currency_type] as? String
+        let currencySymbol = currencySymbol1 ?? "$"
+       
         var amount = "0.0"
         
         if (charity["transaction_user_paid_amount"] as? Double) != nil {
@@ -97,7 +110,7 @@ class MyPurchasesVC: UIViewController , UITableViewDelegate,UITableViewDataSourc
         if(amount == "0.0"){
             cell.lblAmount.text = "Free"
         }else{
-            cell.lblAmount.text = currency_type + amount
+            cell.lblAmount.text = currencySymbol + amount
         }
         
         let formatter = DateFormatter()
@@ -157,7 +170,7 @@ class MyPurchasesVC: UIViewController , UITableViewDelegate,UITableViewDataSourc
                       switch response.result {
                       case .success(let value):
                           if let json = value as? [String: Any] {
-                              //print("myList JSON:",json)
+                              print("myList JSON:",json)
                               if (json["statusCode"]as? String == "200" ){
                                 self.aryPaymentInfo = json["Data"] as? [[String: Any]] ?? [[String:Any]]()
                                 //print("Mylist count:",self.aryPaymentInfo.count)

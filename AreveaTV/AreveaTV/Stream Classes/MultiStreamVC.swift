@@ -1470,21 +1470,21 @@ class MultiStreamVC: UIViewController , R5StreamDelegate, UITableViewDelegate,UI
     @IBAction func tapInfo(){
         //print("info")
         setBtnDefaultBG()
-        let orange = UIColor.init(red: 254, green: 63, blue: 96)
+        let orange = UIColor.init(red: 95, green: 84, blue: 55)
         btnInfo?.layer.borderColor = orange.cgColor
         viewInfo.isHidden = false
     }
     @IBAction func tapSubscriptions(){
         //print("info")
         setBtnDefaultBG()
-        let orange = UIColor.init(red: 254, green: 63, blue: 96)
+        let orange = UIColor.init(red: 95, green: 84, blue: 55)
         btnSubscriptions?.layer.borderColor = orange.cgColor
         viewSubscriptions.isHidden = false
     }
     @IBAction func tapShare(){
         //print("share")
         setBtnDefaultBG()
-        let orange = UIColor.init(red: 254, green: 63, blue: 96)
+        let orange = UIColor.init(red: 95, green: 84, blue: 55)
         btnShare?.layer.borderColor = orange.cgColor
         let url = appDelegate.websiteURL + "/event/" + self.strSlug
         //print(url)
@@ -1502,7 +1502,7 @@ class MultiStreamVC: UIViewController , R5StreamDelegate, UITableViewDelegate,UI
     @IBAction func tapTips(){
         //print("tips")
         setBtnDefaultBG()
-        let orange = UIColor.init(red: 254, green: 63, blue: 96)
+        let orange = UIColor.init(red: 95, green: 84, blue: 55)
         btnTips?.layer.borderColor = orange.cgColor
         viewTips.isHidden = false
         selectedCreatorForTip = -1
@@ -1519,20 +1519,20 @@ class MultiStreamVC: UIViewController , R5StreamDelegate, UITableViewDelegate,UI
     @IBAction func tapDonations(){
         //print("donations")
         setBtnDefaultBG()
-        let orange = UIColor.init(red: 254, green: 63, blue: 96)
+        let orange = UIColor.init(red: 95, green: 84, blue: 55)
         btnDonations?.layer.borderColor = orange.cgColor
         viewDonations.isHidden = false
     }
     @IBAction func tapEmoji(){
         //print("emoji")
         setBtnDefaultBG()
-        let orange = UIColor.init(red: 254, green: 63, blue: 96)
+        let orange = UIColor.init(red: 95, green: 84, blue: 55)
         btnEmoji?.layer.borderColor = orange.cgColor
     }
     @IBAction func tapChat(){
         //print("chat")
         setBtnDefaultBG()
-        let orange = UIColor.init(red: 254, green: 63, blue: 96)
+        let orange = UIColor.init(red: 95, green: 84, blue: 55)
         btnChat?.layer.borderColor = orange.cgColor
         viewComments.isHidden = false
     }
@@ -2306,7 +2306,7 @@ class MultiStreamVC: UIViewController , R5StreamDelegate, UITableViewDelegate,UI
     //  Converted to Swift 5.2 by Swiftify v5.2.28138 - https://swiftify.com/
     @objc func txtEmojiTap(textField: UITextField) {
         setBtnDefaultBG()
-        let orange = UIColor.init(red: 254, green: 63, blue: 96)
+        let orange = UIColor.init(red: 95, green: 84, blue: 55)
         btnEmoji?.layer.borderColor = orange.cgColor
     }
     func emojiKeyBoardView(_ emojiKeyBoardView: AGEmojiKeyboardView?, didUseEmoji emoji: String?) {

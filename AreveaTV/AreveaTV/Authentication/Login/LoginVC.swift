@@ -41,7 +41,7 @@
             
             addDoneButton()
             // dismissPickerView()
-            //self.assignbackground();
+            self.assignbackground();
         }
         
         

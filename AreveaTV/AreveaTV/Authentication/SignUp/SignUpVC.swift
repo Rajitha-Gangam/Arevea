@@ -45,7 +45,6 @@ class SignUpVC: UIViewController ,UITextFieldDelegate,UIPickerViewDelegate, UIPi
         txtPassword.backgroundColor = .clear;
         txtCfrmPassword.backgroundColor = .clear;
         viewActivity.isHidden = true
-        //self.assignbackground();
         self.navigationController?.isNavigationBarHidden = true
         /*txtEmail.text = "grajitha2009@gmail.com"
          txtFirstName.text = "Rajitha";
@@ -68,7 +67,20 @@ class SignUpVC: UIViewController ,UITextFieldDelegate,UIPickerViewDelegate, UIPi
         listController.didSelect = { [weak self] country in
             self?.txtPhone.setFlag(countryCode: country.code)
         }
+        self.assignbackground();
 
+
+    }
+    func assignbackground(){
+        let background = UIImage(named: "bg")
+        var imageView : UIImageView!
+        imageView = UIImageView(frame: view.bounds)
+        imageView.contentMode =  UIView.ContentMode.scaleAspectFill
+        imageView.clipsToBounds = true
+        imageView.image = background
+        imageView.center = view.center
+        view.addSubview(imageView)
+        self.view.sendSubviewToBack(imageView)
     }
     @objc func dismissCountries() {
         listController.dismiss(animated: true, completion: nil)
@@ -114,17 +126,7 @@ class SignUpVC: UIViewController ,UITextFieldDelegate,UIPickerViewDelegate, UIPi
         txtDOB.resignFirstResponder();
         
     }
-    func assignbackground(){
-        let background = UIImage(named: "bg")
-        var imageView : UIImageView!
-        imageView = UIImageView(frame: view.bounds)
-        imageView.contentMode =  UIView.ContentMode.scaleAspectFill
-        imageView.clipsToBounds = true
-        imageView.image = background
-        imageView.center = view.center
-        view.addSubview(imageView)
-        self.view.sendSubviewToBack(imageView)
-    }
+    
     
     
     func showAlert(strMsg: String){
@@ -217,7 +219,7 @@ class SignUpVC: UIViewController ,UITextFieldDelegate,UIPickerViewDelegate, UIPi
             }else if (dob == "16-17"){
                 dateComponent.year = -16 // currentdate -16 years
             }else{
-                dateComponent.year = -18 // currentdate -18 years
+                dateComponent.year = -19 // currentdate -18 years
             }
             let pastDate = Calendar.current.date(byAdding: dateComponent, to: currentDate)
             ////print("currentDate:",currentDate)

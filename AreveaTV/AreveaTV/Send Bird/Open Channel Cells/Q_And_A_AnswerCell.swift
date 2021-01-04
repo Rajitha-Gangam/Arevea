@@ -12,7 +12,7 @@ import SendBirdSDK
 class Q_And_A_AnswerCell: Q_And_A_Cell {
     @IBOutlet weak var lblMsg: UILabel!
     @IBOutlet weak var lblName: UILabel!
-
+    @IBOutlet weak var imgCreator: UIImageView!
     
     override func awakeFromNib() {
         super.awakeFromNib()

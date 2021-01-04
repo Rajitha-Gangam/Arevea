@@ -26,7 +26,7 @@
                         <rect key="frame" x="10" y="10" width="355" height="70"/>
                         <subviews>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Name" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="nBo-jv-Elc" userLabel="Nickname Label">
-                                <rect key="frame" x="10" y="10" width="335" height="21"/>
+                                <rect key="frame" x="10" y="10" width="51.5" height="21"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="21" id="lqz-0M-rJ4"/>
                                 </constraints>
@@ -37,6 +37,13 @@
                                     <fontDescription key="fontDescription" name="Poppins-Regular" family="Poppins" pointSize="25"/>
                                 </variation>
                             </label>
+                            <imageView hidden="YES" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="chat_cr" translatesAutoresizingMaskIntoConstraints="NO" id="LuO-PL-xDs">
+                                <rect key="frame" x="71.5" y="10.5" width="20" height="20"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="20" id="9Io-nH-gdv"/>
+                                    <constraint firstAttribute="height" constant="20" id="AuC-pN-DfB"/>
+                                </constraints>
+                            </imageView>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Message" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Kxx-JP-00b" userLabel="Nickname Label">
                                 <rect key="frame" x="10" y="41" width="335" height="19"/>
                                 <fontDescription key="fontDescription" name="Poppins-Regular" family="Poppins" pointSize="17"/>
@@ -52,10 +59,11 @@
                             <constraint firstAttribute="trailing" secondItem="Kxx-JP-00b" secondAttribute="trailing" constant="10" id="QV0-8E-PP7"/>
                             <constraint firstItem="nBo-jv-Elc" firstAttribute="top" secondItem="aGe-Zb-l7m" secondAttribute="top" constant="10" id="Rcb-Q7-nu5"/>
                             <constraint firstItem="Kxx-JP-00b" firstAttribute="top" secondItem="nBo-jv-Elc" secondAttribute="bottom" constant="10" id="UzF-ba-3gs"/>
+                            <constraint firstItem="LuO-PL-xDs" firstAttribute="centerY" secondItem="nBo-jv-Elc" secondAttribute="centerY" id="W2N-Br-RKK"/>
                             <constraint firstItem="nBo-jv-Elc" firstAttribute="leading" secondItem="aGe-Zb-l7m" secondAttribute="leading" constant="10" id="XqA-bb-bmH"/>
                             <constraint firstAttribute="bottom" secondItem="Kxx-JP-00b" secondAttribute="bottom" constant="10" id="ZlF-VA-Sbt"/>
                             <constraint firstItem="Kxx-JP-00b" firstAttribute="leading" secondItem="aGe-Zb-l7m" secondAttribute="leading" constant="10" id="jRx-4B-csW"/>
-                            <constraint firstAttribute="trailing" secondItem="nBo-jv-Elc" secondAttribute="trailing" constant="10" id="wve-fF-Psa"/>
+                            <constraint firstItem="LuO-PL-xDs" firstAttribute="leading" secondItem="nBo-jv-Elc" secondAttribute="trailing" constant="10" id="xDH-a4-9aP"/>
                         </constraints>
                     </view>
                 </subviews>
@@ -70,10 +78,14 @@
             <viewLayoutGuide key="safeArea" id="G2E-rc-FRa"/>
             <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
             <connections>
+                <outlet property="imgCreator" destination="LuO-PL-xDs" id="IN7-iw-7B0"/>
                 <outlet property="lblMsg" destination="Kxx-JP-00b" id="ZOK-H8-TS0"/>
                 <outlet property="lblName" destination="nBo-jv-Elc" id="Oz7-U2-Iff"/>
             </connections>
-            <point key="canvasLocation" x="149.59999999999999" y="280.65967016491754"/>
+            <point key="canvasLocation" x="148.55072463768118" y="280.58035714285711"/>
         </tableViewCell>
     </objects>
+    <resources>
+        <image name="chat_cr" width="24" height="24"/>
+    </resources>
 </document>

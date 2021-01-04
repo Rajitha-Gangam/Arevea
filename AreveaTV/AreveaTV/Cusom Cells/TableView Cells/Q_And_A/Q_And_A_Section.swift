@@ -18,5 +18,6 @@ class Q_And_A_Section: UITableViewHeaderFooterView {
     }
     */
     @IBOutlet weak var lblTitle: UILabel!
+    @IBOutlet weak var imgArrow: UIImageView!
 
 }

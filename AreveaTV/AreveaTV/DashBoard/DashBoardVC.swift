@@ -12,25 +12,6 @@ import Alamofire
 import MaterialComponents.MaterialCollections
 import CoreLocation
 
-
-extension UIColor {
-    convenience init(red: Int, green: Int, blue: Int) {
-        assert(red >= 0 && red <= 255, "Invalid red component")
-        assert(green >= 0 && green <= 255, "Invalid green component")
-        assert(blue >= 0 && blue <= 255, "Invalid blue component")
-        
-        self.init(red: CGFloat(red) / 255.0, green: CGFloat(green) / 255.0, blue: CGFloat(blue) / 255.0, alpha: 1.0)
-    }
-    
-    convenience init(rgb: Int) {
-        self.init(
-            red: (rgb >> 16) & 0xFF,
-            green: (rgb >> 8) & 0xFF,
-            blue: rgb & 0xFF
-        )
-    }
-}
-
 class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,CollectionViewCellDelegate,UITextFieldDelegate,OpenChanannelChatDelegate,CLLocationManagerDelegate{
     
     //MARK: Variables Declaration
@@ -377,11 +358,15 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
                 case .success(let value):
                     if let json = value as? [String: Any] {
                        print("myList JSON:",json)
+                        print("my status code:",response.response?.statusCode)
                         if (json["statusCode"]as? String == "200" ){
                             self.aryMyListData  = json["Data"] as? [Any] ?? [Any]();
                             //print("Mylist count:",self.aryMyListData.count)
                             self.tblMain.reloadSections([2], with: .none)
                         }else{
+                            if(response.response?.statusCode == 403){
+                                self.showConfirmation1(strMsg: "You will be auto log out due to session issue.")
+                            }
                             let strMsg = json["message"] as? String ?? ""
                             //self.showAlert(strMsg: strMsg)
                         }
@@ -519,6 +504,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
                             return
                         }
                         let user_age_limit = currentYear - pastYear
+                        print("user_age_limit:",user_age_limit)
                        UserDefaults.standard.set(user_age_limit, forKey: "user_age_limit")
                         
                         self.appDelegate.USER_NAME = strName;
@@ -578,6 +564,22 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
                 }
             }
     }
+    func gotoLogin(){
+        UserDefaults.standard.set("0", forKey: "user_id")
+        var isLoginExists = false
+        for controller in self.navigationController!.viewControllers as Array {
+            if controller.isKind(of: LoginVC.self) {
+                self.navigationController!.popToViewController(controller, animated: true)
+                isLoginExists = true;
+                break
+            }
+        }
+        if (!isLoginExists){
+            let storyboard = UIStoryboard(name: "Main", bundle: nil);
+            let vc = storyboard.instantiateViewController(withIdentifier: "LoginVC") as! LoginVC
+            self.navigationController?.pushViewController(vc, animated: true)
+        }
+    }
     func logoutLambda(){
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         let url: String = appDelegate.baseURL +  "/logout"
@@ -591,28 +593,14 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
         ]
         viewActivity.isHidden = false
         AF.request(url, method: .post,parameters: inputData, encoding: JSONEncoding.default,headers:headers)
-            .responseJSON { response in
+            .responseJSON { [self] response in
                 self.viewActivity.isHidden = true
                 switch response.result {
                 case .success(let value):
                     if let json = value as? [String: Any] {
                         //print("logoutLambda JSON:",json)
                         if (json["statusCode"]as? String == "200" ){
-                            UserDefaults.standard.set("0", forKey: "user_id")
-                            var isLoginExists = false
-                            for controller in self.navigationController!.viewControllers as Array {
-                                if controller.isKind(of: LoginVC.self) {
-                                    self.navigationController!.popToViewController(controller, animated: true)
-                                    isLoginExists = true;
-                                    break
-                                }
-                            }
-                            if (!isLoginExists){
-                                let storyboard = UIStoryboard(name: "Main", bundle: nil);
-                                let vc = storyboard.instantiateViewController(withIdentifier: "LoginVC") as! LoginVC
-                                self.navigationController?.pushViewController(vc, animated: true)
-                            }
-                            
+                            self.gotoLogin()
                         }else{
                             let strMsg = json["message"] as? String ?? ""
                             self.showAlert(strMsg: strMsg)
@@ -636,6 +624,15 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
         alert.addAction(UIAlertAction(title: "Yes", style: .default, handler: { action in
             self.viewSideMenu.isHidden = true
             self.logoutOL();
+        }))
+        DispatchQueue.main.async {
+            self.present(alert, animated: true)
+        }
+    }
+    func showConfirmation1(strMsg: String){
+        let alert = UIAlertController(title: "Alert", message: strMsg, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { [self] action in
+            self.gotoLogin()
         }))
         DispatchQueue.main.async {
             self.present(alert, animated: true)
@@ -732,7 +729,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
             cell.backgroundColor = .clear
             
             let bgColorView = UIView()
-            bgColorView.backgroundColor = UIColor.init(red: 43, green: 31, blue: 48)
+            bgColorView.backgroundColor = UIColor.init(red: 35, green: 35, blue: 51)
             cell.selectedBackgroundView = bgColorView
             
             return cell;
@@ -822,7 +819,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
         hideSideMenu()
         let orgsList = didTappedInTableViewCell.rowWithItems
         let selectedOrg = orgsList[index] as? [String: Any] ?? [:]
-        //print("item:\(String(describing: selectedOrg))")
+        print("item:\(String(describing: selectedOrg))")
         
         //        //print("title:",title)
         if (title == "dashboard" || title == "dashboard_my_list" || title == "dashboard_up"){
@@ -845,26 +842,10 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
             
             let stream_video_title = streamInfo["stream_video_title"] as? String ?? "Channel Details"
             let channelName = streamInfo["channel_name"] as? String ?? ""
-            //if it is multi event, need to navigate multi stream
-            if(number_of_creators > 1){
-                let storyboard = UIStoryboard(name: "Main", bundle: nil);
-                let vc = storyboard.instantiateViewController(withIdentifier: "MultiStreamVCBackUp") as! MultiStreamVCBackUp
-                let stream_video_title = streamInfo["stream_video_title"] as? String ?? "Stream Details"
-                vc.strTitle = stream_video_title
-                vc.orgId = orgId
-               // print("==streamId:",streamId)
-                vc.streamId = streamId
-                //vc.delegate = self
-                vc.performerId = performer_id
-                vc.strTitle = stream_video_title
-                //vc.isVOD = isVOD
-                self.navigationController?.pushViewController(vc, animated: true)
+            if (title == "dashboard_my_list"){
+                LiveEventById(streamInfo:streamInfo,myList: true)
             }else{
-                if (title == "dashboard_my_list"){
-                    LiveEventById(streamInfo:streamInfo,myList: true)
-                }else{
-                    LiveEventById(streamInfo:streamInfo,myList: false)
-                }
+                LiveEventById(streamInfo:streamInfo,myList: false)
             }
             
         }else if(title == "dashboard_trending_channels"){
@@ -916,14 +897,14 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
         let headers: HTTPHeaders
         headers = [appDelegate.x_api_key: appDelegate.x_api_value]
         
-        //print("liveEvents params1:",params)
+        print("liveEvents params1:",params)
         AF.request(url, method: .post,parameters: params, encoding: JSONEncoding.default,headers:headers)
             .responseJSON { [self] response in
                 self.viewActivity.isHidden = true
                 switch response.result {
                 case .success(let value):
                     if let json = value as? [String: Any] {
-                        //print("LiveEventById JSON1:",json)
+                        print("LiveEventById JSON1:",json)
                         if (json["statusCode"]as? String == "200"){
                             let data = json["Data"] as? [String:Any]
                             let resultData = data ?? [:]

@@ -47,6 +47,8 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate{
     var aryStreamAmounts = [Any]()
     var dicAmounts = [String: Any]()
     var detailItem = [String:Any]();
+    var aryCurrencies = [Any]();
+    
     var isLoaded = 0;
     var detailStreamItem: NSDictionary? {
         didSet {
@@ -105,8 +107,13 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate{
     var arySubscriptions = [Any]();
     var subscription_details = false
     var isUserSubscribe = true
-    var currency_type = ""
-
+    var currencyType = ""
+    var currencySymbol = ""
+    
+    var aryCurrencyKeys = [String]()
+    var aryCurrencyValues = [Any]()
+    var aryDisplayCurrencies = [Any]()
+    var doubleDisplayCurrencies = [Double]()
     
     // MARK: - View Life cycle
     override func viewDidLoad() {
@@ -359,10 +366,7 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate{
                     if let json = value as? [String: Any] {
                         print("getVodById JSON:",json)
                         if (json["statusCode"]as? String == "200"){
-                            var USDPrice = [String]()
-                            var GBPPrice = [String]()
-                            var doubleGBPPrice = [Double]()
-                            var doubleUSDPrice = [Double]()
+                            var strPriceList = [String]()
                             
                             var eventStartDates = [Date]()
                             var eventEndDates = [Date]()
@@ -371,25 +375,39 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate{
                             self.aryStreamInfo = data?["stream_info"] as? [String:Any] ?? [:]
                             let stream_info_key_exists = self.aryStreamInfo["id"]
                             if (stream_info_key_exists != nil){
-                                
                                 let streamObj = self.aryStreamInfo
                                 self.streamId = streamObj["id"] as? Int ?? 0
                                 self.age_limit = streamObj["age_limit"] as? Int ?? 0
+                                if (self.age_limit <= 15) {
+                                    self.ageDesc.text = "Family Friendly";
+                                } else if (self.age_limit == 16 || self.age_limit <= 17) {
+                                    self.ageDesc.text = "Adults Supervision"
+                                } else if (self.age_limit == 18 || self.age_limit > 18) {
+                                    self.ageDesc.text = "Adults Only"
+                                }
                                 self.streamVideoCode = streamObj["stream_video_code"] as? String ?? ""
                                 let streamVideoTitle = streamObj["stream_video_title"] as? String ?? ""
-                                //print("==streamVideoTitle:",streamVideoTitle)
+                                self.number_of_creators = streamObj["number_of_creators"] as? Int ?? 1
                                 
                                 self.streamVideoDesc = streamObj["stream_video_description"] as? String ?? ""
                                 if(self.streamVideoDesc == "null"){
                                     self.streamVideoDesc = ""
                                 }
-                                
                                 // "currency_type" = USD;
-                                self.currency_type = streamObj["currency_type"] as? String ?? ""
-                                if(self.currency_type == "GBP"){
-                                    self.currency_type = "£"
-                                }else{
-                                    self.currency_type = "$"
+                                self.currencyType = streamObj["currency_type"] as? String ?? ""
+                                //based on currency type, get currency symbol
+                                if let path = Bundle.main.path(forResource: "currencies", ofType: "json") {
+                                    do {
+                                        let data = try Data(contentsOf: URL(fileURLWithPath: path), options: .mappedIfSafe)
+                                        let jsonResult = try JSONSerialization.jsonObject(with: data, options: .mutableLeaves)
+                                        if let jsonResult = jsonResult as? Dictionary<String, AnyObject>,
+                                           let currencySymbol = jsonResult[self.currencyType] as? String {
+                                            // do stuff
+                                            self.currencySymbol = currencySymbol
+                                        }
+                                    } catch {
+                                        // handle error
+                                    }
                                 }
                                 var strAmount = "0.0"
                                 
@@ -400,9 +418,7 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate{
                                 }
                                 let doubleAmount = Double(strAmount)
                                 let amount = String(format: "%.02f", doubleAmount!)
-                                self.amountWithCurrencyType = self.currency_type + amount
-                                let titleWatchNow = "PAY | " + self.amountWithCurrencyType
-                                //self.btnPayPerView.setTitle(titleWatchNow, for: .normal)
+                                self.amountWithCurrencyType = self.currencySymbol + amount
                                 
                                 let streamBannerURL = streamObj["video_banner_image"] as? String ?? ""
                                 if let urlBanner = URL(string: streamBannerURL){
@@ -414,7 +430,7 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate{
                                 }
                                 
                                 self.paymentAmount = streamObj["stream_payment_amount"]as? Int ?? 0
-                                //self.lblVideoTitle_info.text = streamVideoTitle
+                                // self.lblVideoTitle_info.text = streamVideoTitle
                                 self.streamPaymentMode = streamObj["stream_payment_mode"] as? String ?? ""
                                 self.strSlug = streamObj["slug"] as? String ?? "";
                                 
@@ -422,85 +438,64 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate{
                                 let expected_end_date_time = streamObj["expected_end_date_time"] as? String ?? "";
                                 let formatter = DateFormatter()
                                 formatter.timeZone = NSTimeZone(abbreviation: "UTC") as TimeZone?
+                                formatter.locale = Locale(identifier: "en_US_POSIX")
+                                
                                 formatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
                                 if let publishDate = formatter.date(from: publish_date_time){
                                     if let expectedEndDate = formatter.date(from: expected_end_date_time){
-                                        formatter.dateFormat = "E, dd MMM yyyy"
+                                        formatter.dateFormat = "E,MMM dd yyyy"
                                         let strPublishDate = formatter.string(from: publishDate)
-                                        formatter.dateFormat = "dd MMM yyyy"
+                                        formatter.dateFormat = "MMM dd yyyy"
                                         let strExpectedEndDate = formatter.string(from: expectedEndDate)
-                                        let dateFull = strPublishDate + " - " + strExpectedEndDate
+                                        let strStartDate = strPublishDate.convertDateString()
+                                        let strEndDate = strExpectedEndDate.convertDateString()
+                                        var dateFull = ""
+                                        if(strStartDate == strEndDate){
+                                            //if start and end dates are need to show one date
+                                            dateFull = strPublishDate
+                                        }else{
+                                            dateFull = strPublishDate + " - " + strExpectedEndDate
+                                        }
+                                        
                                         formatter.dateFormat = "hh:mm a"
                                         let startTime = formatter.string(from: publishDate)
                                         let endTime = formatter.string(from: expectedEndDate)
-                                        let timeFull = startTime + "-" + endTime
-                                        //print("timeFull:",timeFull)
-                                        //print("dateFull:",dateFull)
+                                        let localStartTime = utcToLocal(dateStr: startTime) ?? ""
+                                        let localEndTime = utcToLocal(dateStr: endTime) ?? ""
+                                        
+                                        let timeFull = localStartTime + " - " + localEndTime
                                         self.lblDate.text = dateFull
-                                        //self.lblTime.text = timeFull
+                                        self.lblTime.text = timeFull
                                     }
                                 }
-                                
                                 let stream_amounts = streamObj["stream_amounts"] as? String ?? "";
-                                //print("stream_amounts:",stream_amounts)
-                                
+                                // print("stream_amounts:",stream_amounts)
                                 
                                 if (stream_amounts != ""){
                                     self.dicAmounts = self.convertToDictionary(text: stream_amounts) ?? [:]
-                                    let sub_vod = self.dicAmounts["sub_vod"] as? [Any] ?? [Any]()
-                                    if(self.isUserSubscribe && sub_vod.count > 0){
-                                        self.aryStreamAmounts = sub_vod
-                                    }else if(self.isUserSubscribe && sub_vod.count == 0){
+                                    // print("==dicAmounts:",self.dicAmounts)
+                                    let sub_live_stream = self.dicAmounts["sub_vod"] as? [Any] ?? [Any]()
+                                    if(isUserSubscribe && sub_live_stream.count > 0){
+                                        aryStreamAmounts = sub_live_stream
+                                        
+                                    }else if(isUserSubscribe && sub_live_stream.count == 0){
                                         let subscriberPayment = self.dicAmounts["subscriberPayment"] as? String ?? ""
-                                        self.aryStreamAmounts = []
+                                        aryStreamAmounts = []
                                         if(subscriberPayment == "free"){
                                             self.lblAmount.text = "Free"
                                         }
                                     }else{
-                                        let vod = self.dicAmounts["vod"] as? [Any] ?? [Any]()
-                                        self.aryStreamAmounts = vod
+                                        let live_stream = self.dicAmounts["vod"] as? [Any] ?? [Any]()
+                                        aryStreamAmounts = live_stream
                                     }
-                                    
-                                    //print("amounts:",self.aryStreamAmounts)
-                                    // //print("amounts count::",amounts.count)
+                                    var aryCurrencies = [[String:Any]]()
                                     for (index,_) in self.aryStreamAmounts.enumerated(){
                                         let element = self.aryStreamAmounts[index] as? [String : Any] ?? [String:Any]()
-                                        //print("-- index:",index)
-                                        
-                                        //print("--amounts obj:",element)
-                                        let amounts = element["amounts"]as? [Any] ?? [Any]()
-                                        //print("--amounts:",amounts)
-                                        for(j,_)in amounts.enumerated(){
-                                            let object = amounts[j] as? [String : Any] ?? [String:Any]()
-                                            let currency_type1 = object["currency_type"]as? String ?? "";
-                                            var strAmount = "0.0"
-                                            
-                                            if (object["stream_payment_amount"] as? Double) != nil {
-                                                strAmount = String(object["stream_payment_amount"] as? Double ?? 0.0)
-                                            }else if (object["stream_payment_amount"] as? String) != nil {
-                                                strAmount = String(object["stream_payment_amount"] as? String ?? "0.0")
-                                            }
-                                            let doubleAmount = Double(strAmount)
-                                            let amount = String(format: "%.02f", doubleAmount!)
-                                            if (currency_type1 == "USD"){
-                                                USDPrice.append(amount);
-                                            }
-                                            else if (currency_type1 == "GBP"){
-                                                GBPPrice.append(amount);
-                                            }
-                                            
-                                        }
-                                        doubleGBPPrice = GBPPrice.compactMap(Double.init)//["5.00","100.00"] to [5,1000]
-                                        doubleGBPPrice.sort(by: <)//sort ascending
-                                        
-                                        doubleUSDPrice = USDPrice.compactMap(Double.init)//["5.00","100.00"] to [5,1000]
-                                        doubleUSDPrice.sort(by: <)//sort ascending
-                                        
                                         let booking_start_date = element["booking_start_date"] as? String ?? ""
                                         let booking_end_date = element["booking_end_date"] as? String ?? ""
-                                        
                                         let formatter = DateFormatter()
-                                        formatter.timeZone = NSTimeZone(abbreviation: "UTC") as TimeZone?
+                                        formatter.locale = Locale(identifier: "en_US_POSIX")
+                                        // formatter.timeZone = NSTimeZone(abbreviation: "UTC") as TimeZone?
                                         //formatter.locale = Locale(identifier: "en_US_POSIX")
                                         formatter.dateFormat = "yyyy-MM-dd HH:mm"
                                         if let startDate = formatter.date(from: booking_start_date) {
@@ -509,53 +504,138 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate{
                                         if let endDate = formatter.date(from: booking_end_date) {
                                             eventEndDates.append(endDate)
                                         }
+                                        let amounts = element["amounts"]as? [[String:Any]] ?? [[:]]
+                                        for(j,_)in amounts.enumerated(){
+                                            let object = amounts[j]
+                                            aryCurrencies.append(object)
+                                        }
                                     }
-                                    eventStartDates.sort()
-                                    eventEndDates.sort()
+                                    let currencyKeys = aryCurrencies.compactMap { $0["currency_type"] }//it contains all currency keys [USD, INR, USD, INR]
+                                    let currencyKeysUnique = NSMutableArray()
+                                    self.aryCurrencyKeys = []
+                                    self.aryCurrencyValues = []
+                                    self.aryDisplayCurrencies = []
+                                    self.doubleDisplayCurrencies = []
+                                    // we are removing duplicate currency keys
+                                    //[USD, INR]
+                                    for (_,element)in currencyKeys.enumerated(){
+                                        if(!currencyKeysUnique.contains(element)){
+                                            currencyKeysUnique.add(element)
+                                            let searchPredicate = NSPredicate(format: "currency_type = %@", element as! CVarArg)
+                                            let filteredArray = (aryCurrencies as NSArray).filtered(using: searchPredicate)
+                                            self.aryCurrencyKeys.append(element as! String)
+                                            self.aryCurrencyValues.append(filteredArray)
+                                        }
+                                    }
+                                    print("aryCurrencyKeys:",aryCurrencyKeys)
+                                    print("aryCurrencyValues:",aryCurrencyValues)
+                                    if(aryCurrencyKeys.count == 1){
+                                        for (index,_) in self.aryCurrencyValues.enumerated(){
+                                            let currencyAry = self.aryCurrencyValues[index] as? [Any] ?? [Any]()
+                                            for (_,element) in currencyAry.enumerated(){
+                                                print("currencyObj1:",element)
+                                                aryDisplayCurrencies.append(element)
+                                            }
+                                        }
+                                    }else{
+                                        let indexUser = aryCurrencyKeys.firstIndex(where: {$0 == appDelegate.userCurrencyCode}) ?? -1
+                                        //if user currency found in response
+                                        if(indexUser != -1){
+                                            self.currencySymbol = appDelegate.userCurrencySymbol
+                                            let currencyAry = self.aryCurrencyValues[indexUser] as? [Any] ?? [Any]()
+                                            for (_,element) in currencyAry.enumerated(){
+                                                print("currencyObj2:",element)
+                                                aryDisplayCurrencies.append(element)
+                                                
+                                            }
+                                        }
+                                        //if user currency not found in response
+                                        //need to check creator currency is there are not in response
+                                        else{
+                                            let indexCreator = aryCurrencyKeys.firstIndex(where: {$0 == self.currencySymbol}) ?? -1
+                                            //if creator currency is there in response
+                                            if(indexCreator != -1){
+                                                let currencyAry = self.aryCurrencyValues[indexCreator] as? [Any] ?? [Any]()
+                                                for (_,element) in currencyAry.enumerated(){
+                                                    print("currencyObj3:",element)
+                                                    aryDisplayCurrencies.append(element)
+                                                    
+                                                }
+                                            }
+                                            //if creator currency is not there in response
+                                            else{
+                                                
+                                            }
+                                        }
+                                    }
+                                    print("aryDisplayCurrencies:",aryDisplayCurrencies)
+                                    for (index,_) in self.aryDisplayCurrencies.enumerated(){
+                                        let element = self.aryDisplayCurrencies[index] as? [String : Any] ?? [String:Any]()
+                                        var strAmount = "0.0"
+                                        
+                                        if (element["stream_payment_amount"] as? Double) != nil {
+                                            strAmount = String(element["stream_payment_amount"] as? Double ?? 0.0)
+                                        }else if (element["stream_payment_amount"] as? String) != nil {
+                                            strAmount = String(element["stream_payment_amount"] as? String ?? "0.0")
+                                        }
+                                        let doubleAmount = Double(strAmount)
+                                        let amount = String(format: "%.02f", doubleAmount!)
+                                        strPriceList.append(amount)
+                                    }
+                                    doubleDisplayCurrencies = strPriceList.compactMap(Double.init)//["5.00","100.00"] to [5,1000]
+                                    doubleDisplayCurrencies.sort(by: <)//sort ascending
+                                    if(doubleDisplayCurrencies.count > 0){
+                                    let firstValue = String(doubleDisplayCurrencies[0])
+                                    let lastValue = String(doubleDisplayCurrencies[doubleDisplayCurrencies.count - 1]);
+                                    let amountDisplay = self.currencySymbol + firstValue + " - " + self.currencySymbol + lastValue;
+                                    // //print("====amount in Dollars:",amountDisplay)
+                                    if(firstValue == lastValue){
+                                        self.amountWithCurrencyType = self.currencySymbol + firstValue
+                                    }else{
+                                        self.amountWithCurrencyType = amountDisplay
+                                    }
+                                    }
+                                    self.lblAmount.text = self.amountWithCurrencyType
+                                    print("===eventStartDates:",eventStartDates)
+                                    print("===eventEndDates:",eventEndDates)
                                     
-                                    var subCurrencyType = ""
-                                    if(USDPrice.count > 0 && GBPPrice.count > 0){
-                                        if(self.currency_type == "£"){
-                                            subCurrencyType = "GBP"
-                                        }else{
-                                            subCurrencyType = "USD"
-                                        }
-                                    }
-                                    else if(USDPrice.count > 0){
-                                        subCurrencyType = "USD"
-                                    }else if(GBPPrice.count > 0){
-                                        subCurrencyType = "GBP"
-                                    }
-                                    if(subCurrencyType == "USD"){
-                                        let firstValue = String(doubleUSDPrice[0])
-                                        let lastValue = String(doubleUSDPrice[doubleUSDPrice.count - 1]);
-                                        let amountDisplay = "$" + firstValue + " - " + "$" + lastValue;
-                                        // //print("====amount in Dollars:",amountDisplay)
-                                        if(firstValue == lastValue){
-                                            self.amountWithCurrencyType = "$" + firstValue
-                                        }else{
-                                            self.amountWithCurrencyType = amountDisplay;
-                                        }
-                                        self.lblAmount.text = self.amountWithCurrencyType
+                                    if(eventStartDates.count > 0 && eventEndDates.count > 0){
+                                        let currentDate = Date()
+                                        let dateFormatter = DateFormatter()
+                                        // dateFormatter.timeZone = NSTimeZone(abbreviation: "UTC") as TimeZone?
+                                        dateFormatter.locale = Locale(identifier: "en_US_POSIX")
                                         
-                                    }else if(subCurrencyType == "GBP"){
-                                        let firstValue = String(doubleGBPPrice[0])
-                                        let lastValue = String(doubleGBPPrice[doubleGBPPrice.count - 1]);
-                                        let amountDisplay = "£" + firstValue + " - " + "£" + lastValue;
-                                        // //print("====amount in Euros:",amountDisplay)
-                                        if(firstValue == lastValue){
-                                            self.amountWithCurrencyType = "£" + firstValue
-                                        }else{
-                                            self.amountWithCurrencyType = amountDisplay
-                                        }
-                                        self.lblAmount.text = self.amountWithCurrencyType
+                                        dateFormatter.dateFormat = "MMM dd, yyyy"
+                                        let todaysDate = dateFormatter.string(from: currentDate)
+                                        let today = dateFormatter.date(from: todaysDate)
+                                        let startDate = eventStartDates[0]
+                                        let endDate = eventEndDates[eventEndDates.count-1]
                                         
+                                        //If start date is > today
+                                        if(startDate > today!)
+                                        {
+                                            print("==saleStarts")
+                                            self.saleStarts = true;
+                                        }
+                                        //today >= start date && today <= end date
+                                        else if(today! >= startDate && today! <= endDate)
+                                        {
+                                            print("==checkSale")
+                                            self.checkSale = true;
+                                        }
+                                        //If today is > endDate
+                                        else if(today! > endDate)
+                                        {
+                                            print("==saleCompleted")
+                                            self.saleCompleted = true;
+                                        }
                                     }
-                                    // //print("===eventStartDates:",eventStartDates)
-                                    // //print("===eventEndDates:",eventEndDates)
-                                }else{
+                                }//if (stream_amounts != "")
+                                else{
                                     self.lblAmount.text = "Free"//
                                 }
+                                
+                                
                             }
                             let user_subscription_info = data?["user_subscription_info"] != nil
                             if(user_subscription_info){
@@ -644,6 +724,7 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate{
                 }
             }
     }
+    
     func LiveEventById() {
         viewActivity.isHidden = false
         let netAvailable = appDelegate.isConnectedToInternet()
@@ -671,11 +752,7 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate{
                     if let json = value as? [String: Any] {
                         print("ERVC LiveEventById JSON:",json)
                         if (json["statusCode"]as? String == "200"){
-                            var USDPrice = [String]()
-                            var GBPPrice = [String]()
-                            var doubleGBPPrice = [Double]()
-                            var doubleUSDPrice = [Double]()
-                            
+                            var strPriceList = [String]()
                             var eventStartDates = [Date]()
                             var eventEndDates = [Date]()
                             let data = json["Data"] as? [String:Any]
@@ -702,11 +779,20 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate{
                                     self.streamVideoDesc = ""
                                 }
                                 // "currency_type" = USD;
-                                self.currency_type = streamObj["currency_type"] as? String ?? ""
-                                if(self.currency_type == "GBP"){
-                                    self.currency_type = "£"
-                                }else{
-                                    self.currency_type = "$"
+                                self.currencyType = streamObj["currency_type"] as? String ?? ""
+                                //based on currency type, get currency symbol
+                                if let path = Bundle.main.path(forResource: "currencies", ofType: "json") {
+                                    do {
+                                        let data = try Data(contentsOf: URL(fileURLWithPath: path), options: .mappedIfSafe)
+                                        let jsonResult = try JSONSerialization.jsonObject(with: data, options: .mutableLeaves)
+                                        if let jsonResult = jsonResult as? Dictionary<String, AnyObject>,
+                                           let currencySymbol = jsonResult[self.currencyType] as? String {
+                                            // do stuff
+                                            self.currencySymbol = currencySymbol
+                                        }
+                                    } catch {
+                                        // handle error
+                                    }
                                 }
                                 var strAmount = "0.0"
                                 
@@ -717,7 +803,7 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate{
                                 }
                                 let doubleAmount = Double(strAmount)
                                 let amount = String(format: "%.02f", doubleAmount!)
-                                self.amountWithCurrencyType = self.currency_type + amount
+                                self.amountWithCurrencyType = self.currencySymbol + amount
                                 
                                 let streamBannerURL = streamObj["video_banner_image"] as? String ?? ""
                                 if let urlBanner = URL(string: streamBannerURL){
@@ -769,10 +855,10 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate{
                                 }
                                 let stream_amounts = streamObj["stream_amounts"] as? String ?? "";
                                 // print("stream_amounts:",stream_amounts)
-                                
+                                print("isUserSubscribe:",isUserSubscribe)
                                 if (stream_amounts != ""){
                                     self.dicAmounts = self.convertToDictionary(text: stream_amounts) ?? [:]
-                                    // print("==dicAmounts:",self.dicAmounts)
+                                     print("==dicAmounts:",self.dicAmounts)
                                     let sub_live_stream = self.dicAmounts["sub_live_stream"] as? [Any] ?? [Any]()
                                     if(isUserSubscribe && sub_live_stream.count > 0){
                                         aryStreamAmounts = sub_live_stream
@@ -787,48 +873,13 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate{
                                         let live_stream = self.dicAmounts["live_stream"] as? [Any] ?? [Any]()
                                         aryStreamAmounts = live_stream
                                     }
-                                    print("amounts:",self.aryStreamAmounts)
-                                    // //print("amounts count::",amounts.count)
+                                    var aryCurrencies = [[String:Any]]()
                                     for (index,_) in self.aryStreamAmounts.enumerated(){
                                         let element = self.aryStreamAmounts[index] as? [String : Any] ?? [String:Any]()
-                                        //print("-- index:",index)
-                                        
-                                        //print("--amounts obj:",element)
-                                        let amounts = element["amounts"]as? [Any] ?? [Any]()
-                                        //print("--amounts:",amounts)
-                                        for(j,_)in amounts.enumerated(){
-                                            let object = amounts[j] as? [String : Any] ?? [String:Any]()
-                                            let currency_type1 = object["currency_type"]as? String ?? "";
-                                            var strAmount = "0.0"
-                                            
-                                            if (object["stream_payment_amount"] as? Double) != nil {
-                                                strAmount = String(object["stream_payment_amount"] as? Double ?? 0.0)
-                                            }else if (object["stream_payment_amount"] as? String) != nil {
-                                                strAmount = String(object["stream_payment_amount"] as? String ?? "0.0")
-                                            }
-                                            let doubleAmount = Double(strAmount)
-                                            let amount = String(format: "%.02f", doubleAmount!)
-                                            if (currency_type1 == "USD"){
-                                                USDPrice.append(amount);
-                                            }
-                                            else if (currency_type1 == "GBP"){
-                                                GBPPrice.append(amount);
-                                            }
-                                            
-                                        }
-                                        doubleGBPPrice = GBPPrice.compactMap(Double.init)//["5.00","100.00"] to [5,1000]
-                                        doubleGBPPrice.sort(by: <)//sort ascending
-                                        
-                                        doubleUSDPrice = USDPrice.compactMap(Double.init)//["5.00","100.00"] to [5,1000]
-                                        doubleUSDPrice.sort(by: <)//sort ascending
-                                        
-                                        
                                         let booking_start_date = element["booking_start_date"] as? String ?? ""
                                         let booking_end_date = element["booking_end_date"] as? String ?? ""
-                                        
                                         let formatter = DateFormatter()
                                         formatter.locale = Locale(identifier: "en_US_POSIX")
-                                        
                                         // formatter.timeZone = NSTimeZone(abbreviation: "UTC") as TimeZone?
                                         //formatter.locale = Locale(identifier: "en_US_POSIX")
                                         formatter.dateFormat = "yyyy-MM-dd HH:mm"
@@ -838,52 +889,101 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate{
                                         if let endDate = formatter.date(from: booking_end_date) {
                                             eventEndDates.append(endDate)
                                         }
-                                    }
-                                    eventStartDates.sort()
-                                    eventEndDates.sort()
-                                    
-                                    var subCurrencyType = ""
-                                    if(USDPrice.count > 0 && GBPPrice.count > 0){
-                                        if(self.currency_type == "£"){
-                                            subCurrencyType = "GBP"
-                                        }else{
-                                            subCurrencyType = "USD"
+                                        let amounts = element["amounts"]as? [[String:Any]] ?? [[:]]
+                                        for(j,_)in amounts.enumerated(){
+                                            let object = amounts[j]
+                                            aryCurrencies.append(object)
                                         }
                                     }
-                                    else if(USDPrice.count > 0){
-                                        subCurrencyType = "USD"
-                                    }else if(GBPPrice.count > 0){
-                                        subCurrencyType = "GBP"
+                                    let currencyKeys = aryCurrencies.compactMap { $0["currency_type"] }//it contains all currency keys [USD, INR, USD, INR]
+                                    let currencyKeysUnique = NSMutableArray()
+                                    self.aryCurrencyKeys = []
+                                    self.aryCurrencyValues = []
+                                    self.aryDisplayCurrencies = []
+                                    self.doubleDisplayCurrencies = []
+                                    // we are removing duplicate currency keys
+                                    //[USD, INR]
+                                    for (_,element)in currencyKeys.enumerated(){
+                                        if(!currencyKeysUnique.contains(element)){
+                                            currencyKeysUnique.add(element)
+                                            let searchPredicate = NSPredicate(format: "currency_type = %@", element as! CVarArg)
+                                            let filteredArray = (aryCurrencies as NSArray).filtered(using: searchPredicate)
+                                            self.aryCurrencyKeys.append(element as! String)
+                                            self.aryCurrencyValues.append(filteredArray)
+                                        }
                                     }
-                                    print("==currency_type:",currency_type)
-                                    print("==subCurrencyType:",subCurrencyType)
-                                    
-                                    if(subCurrencyType == "USD"){
-                                        let firstValue = String(doubleUSDPrice[0])
-                                        let lastValue = String(doubleUSDPrice[doubleUSDPrice.count - 1]);
-                                        let amountDisplay = "$" + firstValue + " - " + "$" + lastValue;
+                                    print("aryCurrencyKeys:",aryCurrencyKeys)
+                                    print("aryCurrencyValues:",aryCurrencyValues)
+                                    //if currency count 1, then we need to use its value
+                                    if(aryCurrencyKeys.count == 1){
+                                        for (index,_) in self.aryCurrencyValues.enumerated(){
+                                            let currencyAry = self.aryCurrencyValues[index] as? [Any] ?? [Any]()
+                                            for (_,element) in currencyAry.enumerated(){
+                                                print("currencyObj1:",element)
+                                                aryDisplayCurrencies.append(element)
+                                            }
+                                        }
+                                    }else{
+                                        let indexUser = aryCurrencyKeys.firstIndex(where: {$0 == appDelegate.userCurrencyCode}) ?? -1
+                                        //if user currency found in response
+                                        if(indexUser != -1){
+                                            self.currencySymbol = appDelegate.userCurrencySymbol
+                                            let currencyAry = self.aryCurrencyValues[indexUser] as? [Any] ?? [Any]()
+                                            for (_,element) in currencyAry.enumerated(){
+                                                print("currencyObj2:",element)
+                                                aryDisplayCurrencies.append(element)
+                                                
+                                            }
+                                        }
+                                        //if user currency not found in response
+                                        //need to check creator currency is there are not in response
+                                        else{
+                                            let indexCreator = aryCurrencyKeys.firstIndex(where: {$0 == self.currencyType}) ?? -1
+                                            //if creator currency is there in response
+                                            if(indexCreator != -1){
+                                                let currencyAry = self.aryCurrencyValues[indexCreator] as? [Any] ?? [Any]()
+                                                for (_,element) in currencyAry.enumerated(){
+                                                    print("currencyObj3:",element)
+                                                    aryDisplayCurrencies.append(element)
+                                                    
+                                                }
+                                            }
+                                            //if creator currency is not there in response
+                                            else{
+                                                
+                                            }
+                                        }
+                                    }
+                                    print("aryDisplayCurrencies:",aryDisplayCurrencies)
+                                    for (index,_) in self.aryDisplayCurrencies.enumerated(){
+                                        let element = self.aryDisplayCurrencies[index] as? [String : Any] ?? [String:Any]()
+                                        var strAmount = "0.0"
+                                        
+                                        if (element["stream_payment_amount"] as? Double) != nil {
+                                            strAmount = String(element["stream_payment_amount"] as? Double ?? 0.0)
+                                        }else if (element["stream_payment_amount"] as? String) != nil {
+                                            strAmount = String(element["stream_payment_amount"] as? String ?? "0.0")
+                                        }
+                                        let doubleAmount = Double(strAmount)
+                                        let amount = String(format: "%.02f", doubleAmount!)
+                                        strPriceList.append(amount)
+                                    }
+                                    doubleDisplayCurrencies = strPriceList.compactMap(Double.init)//["5.00","100.00"] to [5,1000]
+                                    doubleDisplayCurrencies.sort(by: <)//sort ascending
+                                    if(doubleDisplayCurrencies.count > 0){
+                                        let firstValue = String(doubleDisplayCurrencies[0])
+                                        let lastValue = String(doubleDisplayCurrencies[doubleDisplayCurrencies.count - 1]);
+                                        let amountDisplay = self.currencySymbol + firstValue + " - " + self.currencySymbol + lastValue;
                                         // //print("====amount in Dollars:",amountDisplay)
                                         if(firstValue == lastValue){
-                                            self.amountWithCurrencyType = "$" + firstValue
+                                            self.amountWithCurrencyType = self.currencySymbol + firstValue
                                         }else{
                                             self.amountWithCurrencyType = amountDisplay
                                         }
                                         self.lblAmount.text = self.amountWithCurrencyType
-                                        
-                                    }else if(subCurrencyType == "GBP"){
-                                        let firstValue = String(doubleGBPPrice[0])
-                                        let lastValue = String(doubleGBPPrice[doubleGBPPrice.count - 1]);
-                                        let amountDisplay = "£" + firstValue + " - " + "£" + lastValue;
-                                        // //print("====amount in Euros:",amountDisplay)
-                                        if(firstValue == lastValue){
-                                            self.amountWithCurrencyType = "£" + firstValue
-                                        }else{
-                                            self.amountWithCurrencyType = amountDisplay
-                                        }
-                                        self.lblAmount.text = self.amountWithCurrencyType
-                                        
-                                        
+
                                     }
+
                                     print("===eventStartDates:",eventStartDates)
                                     print("===eventEndDates:",eventEndDates)
                                     
@@ -898,13 +998,6 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate{
                                         let today = dateFormatter.date(from: todaysDate)
                                         let startDate = eventStartDates[0]
                                         let endDate = eventEndDates[eventEndDates.count-1]
-                                        //print("startDate:",startDate,";")
-                                        //print("endDate:",endDate,";")
-                                        //print("today:",today!)
-                                        
-                                        //print("startDate > today:",startDate > today!)
-                                        //print("today! >= startDate && today! <= endDate:",today! >= startDate && today! <= endDate)
-                                        //print("today! > endDate:",today! > endDate)
                                         
                                         //If start date is > today
                                         if(startDate > today!)
@@ -1159,7 +1252,7 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate{
         NotificationCenter.default.removeObserver(self)
         
     }
-   
+    
     @IBAction func payPerView(_ sender: Any) {
         if(self.lblAmount.text == "Free"){
             print("free")
@@ -1181,6 +1274,8 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate{
             vc.isVOD = isVOD
             vc.isUpcoming = isUpcoming
             vc.aryStreamAmounts = aryStreamAmounts
+            vc.currencyType = currencyType
+            vc.currencySymbol = currencySymbol
             self.navigationController?.pushViewController(vc, animated: true)
             
         }
@@ -1337,7 +1432,7 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate{
                             if(arySubscriptionDetails.count > 0){
                                 subscription_details = true
                             }
-                           
+                            
                             
                             //event does not have any plan
                             if(arySubscriptions.count == 0){
@@ -1375,6 +1470,17 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate{
     func getAmount(){
         
     }
+    func uniq<S : Sequence, T : Hashable>(source: S) -> [T] where S.Iterator.Element == T {
+        var buffer = [T]()
+        var added = Set<T>()
+        for elem in source {
+            if !added.contains(elem) {
+                buffer.append(elem)
+                added.insert(elem)
+            }
+        }
+        return buffer
+    }
     
     
 }
@@ -1396,6 +1502,7 @@ extension String {
         }
         return nil
     }
+    
     
 }
 extension Date {
@@ -1426,6 +1533,12 @@ extension Date {
         return Date(timeInterval: seconds, since: self)
     }
     
+}
+extension Sequence where Iterator.Element: Hashable {
+    func unique() -> [Iterator.Element] {
+        var seen: [Iterator.Element: Bool] = [:]
+        return self.filter { seen.updateValue(true, forKey: $0) == nil }
+    }
 }
 
 

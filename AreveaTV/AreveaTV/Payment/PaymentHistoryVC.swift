@@ -237,7 +237,7 @@ class PaymentHistoryVC: UIViewController, UITableViewDelegate,UITableViewDataSou
                       switch response.result {
                       case .success(let value):
                           if let json = value as? [String: Any] {
-                              //print("userDonations JSON:",json)
+                              print("userDonations JSON:",json)
                               if (json["statusCode"]as? String == "200" ){
                                 let paymentData = json["Data"] as? [[String: Any]] ?? [[String:Any]]()
                                 self.aryPaymentInfo = paymentData

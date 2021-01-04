@@ -29,7 +29,7 @@ class TicketTypesVC: UIViewController,UITableViewDataSource,UITableViewDelegate,
     var isUpcoming = false;
     let appDelegate = UIApplication.shared.delegate as! AppDelegate
     var aryStreamInfo = [String: Any]()
-
+    
     @IBOutlet weak var tblheight: NSLayoutConstraint!
     var aryStreamAmounts = [Any]()
     @IBOutlet weak var heightTopView: NSLayoutConstraint?
@@ -37,6 +37,10 @@ class TicketTypesVC: UIViewController,UITableViewDataSource,UITableViewDelegate,
     @IBOutlet weak var viewActivity: UIView!
     var aryUserSubscriptionInfo = [Any]()
     weak var delegate: OpenChanannelChatDelegate?
+    var currencyType = ""
+    var currencySymbol = ""
+    var jsonCurrencyList = [String:Any]()
+    @IBOutlet weak var btnCancel: UIButton!
 
     // MARK: - View Life cycle
     
@@ -45,11 +49,28 @@ class TicketTypesVC: UIViewController,UITableViewDataSource,UITableViewDelegate,
         
         // Do any additional setup after loading the view.
         tblTicketTypes.register(UINib(nibName: "TicketTypesCell", bundle: nil), forCellReuseIdentifier: "TicketTypesCell")
+        //print("tt - aryStreamAmounts:",aryStreamAmounts)
+        
+        if let path = Bundle.main.path(forResource: "currencies", ofType: "json") {
+            do {
+                let data = try Data(contentsOf: URL(fileURLWithPath: path), options: .mappedIfSafe)
+                let jsonResult = try JSONSerialization.jsonObject(with: data, options: .mutableLeaves)
+                if let jsonResult = jsonResult as? Dictionary<String, AnyObject>
+                    {
+                    // do stuff
+                    jsonCurrencyList = jsonResult
+                }
+            } catch {
+                // handle error
+            }
+        }
+        btnCancel.layer.borderColor = UIColor.white.cgColor
+
         
     }
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(true);
-       
+        
         NotificationCenter.default.addObserver(self, selector: #selector(applicationDidBecomeActive), name: UIApplication.didBecomeActiveNotification, object: nil)
         
     }
@@ -82,7 +103,7 @@ class TicketTypesVC: UIViewController,UITableViewDataSource,UITableViewDelegate,
         encoded_ticket_type_name = encoded_ticket_type_name.replacingOccurrences(of: ":", with: "%3A")
         encoded_ticket_type_name = encoded_ticket_type_name.replacingOccurrences(of: "=", with: "%3D")
         encoded_ticket_type_name = encoded_ticket_type_name.replacingOccurrences(of: "/", with: "%252F")
-       
+        
         let queryString = "stream_id=" + String(streamId) + "&user_id=" + strUserId + "&ticket_type_name=" + encoded_ticket_type_name//ppv
         print("queryString:",queryString)
         
@@ -127,25 +148,31 @@ class TicketTypesVC: UIViewController,UITableViewDataSource,UITableViewDelegate,
         if(indexSelectedTicketType == indexPath.row){
             cell.imgCheck.image = UIImage.init(named: "checked")
         }
-        var USDPrice = [String]()
-        var GBPPrice = [String]()
-        var doubleGBPPrice = [Double]()
-        var doubleUSDPrice = [Double]()
-        var eventStartDates = [Date]()
-        var eventEndDates = [Date]()
-        if(currency_type == "GBP"){
-            currency_type = "£"
-        }else{
-            currency_type = "$"
-        }
         var strAmount = "0.0"
-        var amountWithCurrencyType = ""
         let amounts = element["amounts"]as? [Any] ?? [Any]()
+        var userIndex = -1
+        var creatorIndex = -1
         for(j,_)in amounts.enumerated(){
             let object = amounts[j] as? [String : Any] ?? [String:Any]()
             let currency_type1 = object["currency_type"]as? String ?? "";
-            var strAmount = "0.0"
-            
+            if(appDelegate.userCurrencyCode == currency_type1){
+                self.currencySymbol = appDelegate.userCurrencySymbol
+                userIndex = j
+            }
+            if(self.currencyType == currency_type1){
+                creatorIndex = j
+            }
+        }
+        var index = -1
+        if(userIndex != -1){
+            index = userIndex
+        }else {
+            index = creatorIndex
+            let currencySymbol1 = jsonCurrencyList[self.currencyType] as? String
+            self.currencySymbol = currencySymbol1 ?? "$"
+        }
+        if(index != -1){
+            let object = amounts[index] as? [String : Any] ?? [String:Any]()
             if (object["stream_payment_amount"] as? Double) != nil {
                 strAmount = String(object["stream_payment_amount"] as? Double ?? 0.0)
             }else if (object["stream_payment_amount"] as? String) != nil {
@@ -153,74 +180,7 @@ class TicketTypesVC: UIViewController,UITableViewDataSource,UITableViewDelegate,
             }
             let doubleAmount = Double(strAmount)
             let amount = String(format: "%.02f", doubleAmount!)
-            if (currency_type1 == "USD"){
-                USDPrice.append(amount);
-            }
-            else if (currency_type1 == "GBP"){
-                GBPPrice.append(amount);
-            }
-            
-        }
-        doubleGBPPrice = GBPPrice.compactMap(Double.init)//["5.00","100.00"] to [5,1000]
-        doubleGBPPrice.sort(by: <)//sort ascending
-        
-        doubleUSDPrice = USDPrice.compactMap(Double.init)//["5.00","100.00"] to [5,1000]
-        doubleUSDPrice.sort(by: <)//sort ascending
-        
-        
-        let booking_start_date = element["booking_start_date"] as? String ?? ""
-        let booking_end_date = element["booking_end_date"] as? String ?? ""
-        
-        let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "en_US_POSIX")
-        
-        // formatter.timeZone = NSTimeZone(abbreviation: "UTC") as TimeZone?
-        //formatter.locale = Locale(identifier: "en_US_POSIX")
-        formatter.dateFormat = "yyyy-MM-dd HH:mm"
-        if let startDate = formatter.date(from: booking_start_date) {
-            eventStartDates.append(startDate)
-        }
-        if let endDate = formatter.date(from: booking_end_date) {
-            eventEndDates.append(endDate)
-        }
-        
-        eventStartDates.sort()
-        eventEndDates.sort()
-        
-        var subCurrencyType = ""
-        if(USDPrice.count > 0 && GBPPrice.count > 0){
-            if(currency_type == "£"){
-                subCurrencyType = "GBP"
-            }else{
-                subCurrencyType = "USD"
-            }
-        }
-        else if(USDPrice.count > 0){
-            subCurrencyType = "USD"
-        }else if(GBPPrice.count > 0){
-            subCurrencyType = "GBP"
-        }
-        if(subCurrencyType == "USD"){
-            let firstValue = String(doubleUSDPrice[0])
-            let lastValue = String(doubleUSDPrice[doubleUSDPrice.count - 1]);
-            let amountDisplay = "$" + firstValue + " - " + "$" + lastValue;
-            if(firstValue == lastValue){
-                amountWithCurrencyType = "$" + firstValue
-            }else{
-                amountWithCurrencyType = amountDisplay
-            }
-            cell.lblAmount.text = amountWithCurrencyType
-            
-        }else if(subCurrencyType == "GBP"){
-            let firstValue = String(doubleGBPPrice[0])
-            let lastValue = String(doubleGBPPrice[doubleGBPPrice.count - 1]);
-            let amountDisplay = "£" + firstValue + " - " + "£" + lastValue;
-            // //print("====amount in Euros:",amountDisplay)
-            if(firstValue == lastValue){
-                amountWithCurrencyType = "£" + firstValue
-            }else{
-                amountWithCurrencyType = amountDisplay
-            }
+            let amountWithCurrencyType = self.currencySymbol + amount
             cell.lblAmount.text = amountWithCurrencyType
         }
         return cell

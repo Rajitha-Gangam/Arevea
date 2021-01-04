@@ -60,7 +60,10 @@
 		1869F51924659D5F003153B1 /* SBOpenChatVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1869F51824659D5F003153B1 /* SBOpenChatVC.swift */; };
 		1871FA1E25495A0400131CFE /* FBLoginVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1871FA1D25495A0400131CFE /* FBLoginVC.swift */; };
 		187D7B14246D615C0041D5AA /* AreveaAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 187D7B13246D615C0041D5AA /* AreveaAPIClient.swift */; };
+		188826E525961CF0005BCBAD /* StreamHeaderCVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 188826E325961CF0005BCBAD /* StreamHeaderCVC.swift */; };
+		188826E625961CF0005BCBAD /* StreamHeaderCVC.xib in Resources */ = {isa = PBXBuildFile; fileRef = 188826E425961CF0005BCBAD /* StreamHeaderCVC.xib */; };
 		188B0EA5248E8F7A0062EB1D /* VideoEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 188B0EA4248E8F7A0062EB1D /* VideoEditor.swift */; };
+		188E41A1259C9F5500DEBC8D /* GradientView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 188E41A0259C9F5500DEBC8D /* GradientView.swift */; };
 		1891CA63244AC82B00EE1E45 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1891CA62244AC82B00EE1E45 /* AppDelegate.swift */; };
 		1891CA6A244AC82B00EE1E45 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1891CA68244AC82B00EE1E45 /* Main.storyboard */; };
 		1891CA6D244AC82B00EE1E45 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1891CA6B244AC82B00EE1E45 /* LaunchScreen.storyboard */; };
@@ -205,7 +208,10 @@
 		1871FA1D25495A0400131CFE /* FBLoginVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FBLoginVC.swift; sourceTree = "<group>"; };
 		187D7B0F246D59F80041D5AA /* AWSApiGatewayBridge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AWSApiGatewayBridge.h; sourceTree = "<group>"; };
 		187D7B13246D615C0041D5AA /* AreveaAPIClient.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AreveaAPIClient.swift; sourceTree = "<group>"; };
+		188826E325961CF0005BCBAD /* StreamHeaderCVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreamHeaderCVC.swift; sourceTree = "<group>"; };
+		188826E425961CF0005BCBAD /* StreamHeaderCVC.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = StreamHeaderCVC.xib; sourceTree = "<group>"; };
 		188B0EA4248E8F7A0062EB1D /* VideoEditor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VideoEditor.swift; sourceTree = "<group>"; };
+		188E41A0259C9F5500DEBC8D /* GradientView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GradientView.swift; sourceTree = "<group>"; };
 		1891CA5F244AC82B00EE1E45 /* AreveaTV.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AreveaTV.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1891CA62244AC82B00EE1E45 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		1891CA69244AC82B00EE1E45 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -526,6 +532,8 @@
 			children = (
 				18DA10CE2455F8D400E5C9EB /* DBCollectionViewCell.swift */,
 				18DA10CF2455F8D400E5C9EB /* DBCollectionViewCell.xib */,
+				188826E325961CF0005BCBAD /* StreamHeaderCVC.swift */,
+				188826E425961CF0005BCBAD /* StreamHeaderCVC.xib */,
 				182A5EFA2460163100FF6147 /* ButtonsCVC.swift */,
 				182A5EF92460163100FF6147 /* ButtonsCVC.xib */,
 				180A8BDA24AF74500022FFE4 /* ButtonsCVC-iPad.xib */,
@@ -769,6 +777,7 @@
 				1858EAD12484F51C00A69D10 /* HelpVC.swift */,
 				18E77E1D24C6E541003BBC39 /* MyEventsVC.swift */,
 				18EC6AB12577FE36001DE714 /* SubscribedChannelsVC.swift */,
+				188E41A0259C9F5500DEBC8D /* GradientView.swift */,
 			);
 			path = DashBoard;
 			sourceTree = "<group>";
@@ -919,6 +928,7 @@
 				182A5EF8245F057800FF6147 /* FilterCVCell.xib in Resources */,
 				18EB81DE244B4341008EB09A /* awsconfiguration.json in Resources */,
 				182A5F06246166D700FF6147 /* CharityCell.xib in Resources */,
+				188826E625961CF0005BCBAD /* StreamHeaderCVC.xib in Resources */,
 				18408E8325892A5A000F0F30 /* Q_And_A_Footer.xib in Resources */,
 				180E003B253F404B00DDFD2D /* payload.apns in Resources */,
 				1826035E24D2A7CC00248E8B /* Poppins-Bold.ttf in Resources */,
@@ -1030,6 +1040,7 @@
 				182A5EF7245F057800FF6147 /* FilterCVCell.swift in Sources */,
 				18B11E3425505C95006ECB9C /* ScreenShareVC.swift in Sources */,
 				18EB81CE244ACC86008EB09A /* DashBoardVC.swift in Sources */,
+				188826E525961CF0005BCBAD /* StreamHeaderCVC.swift in Sources */,
 				18D48066244EDE4000640C1A /* ALToastView.m in Sources */,
 				184B86D624D302C8003F4D3D /* OpenChannelUserMessageTableViewCell.swift in Sources */,
 				18BAF3142588B9B300FBB9F3 /* Q_And_A_AnswerCell.swift in Sources */,
@@ -1054,6 +1065,7 @@
 				18408E8425892A5A000F0F30 /* Q_And_A_Footer.swift in Sources */,
 				18EB81C4244ACC40008EB09A /* LoginVC.swift in Sources */,
 				18EB81BD244ACAB9008EB09A /* SplashVC.swift in Sources */,
+				188E41A1259C9F5500DEBC8D /* GradientView.swift in Sources */,
 				1810E6F624C84BCA003EAF91 /* StreamDetailVC.swift in Sources */,
 				18BAF31C2588C1C300FBB9F3 /* Q_And_A_Cell.swift in Sources */,
 				184B86D824D302C8003F4D3D /* OpenChannelTableViewCell.swift in Sources */,
@@ -1222,7 +1234,7 @@
 				CODE_SIGN_ENTITLEMENTS = AreveaTV/AreveaTV.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 0.1;
+				CURRENT_PROJECT_VERSION = 0.2;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = J7XKYVP7J4;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -1235,7 +1247,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 2;
+				MARKETING_VERSION = 5;
 				PRODUCT_BUNDLE_IDENTIFIER = com.prod.arevea;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -1253,7 +1265,7 @@
 				CODE_SIGN_ENTITLEMENTS = AreveaTV/AreveaTV.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 0.1;
+				CURRENT_PROJECT_VERSION = 0.2;
 				DEVELOPMENT_TEAM = J7XKYVP7J4;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1265,7 +1277,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 2;
+				MARKETING_VERSION = 5;
 				PRODUCT_BUNDLE_IDENTIFIER = com.prod.arevea;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";

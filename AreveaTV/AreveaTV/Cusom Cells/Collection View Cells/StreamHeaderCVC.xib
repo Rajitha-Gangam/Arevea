@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="17156" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17125"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="StreamHeaderCVC" id="jQv-E3-Aiz" customClass="StreamHeaderCVC" customModule="AreveaTV" customModuleProvider="target">
+            <rect key="frame" x="0.0" y="0.0" width="40" height="40"/>
+            <autoresizingMask key="autoresizingMask"/>
+            <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center">
+                <rect key="frame" x="0.0" y="0.0" width="40" height="40"/>
+                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                <subviews>
+                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="h5a-Lw-5DQ">
+                        <rect key="frame" x="0.0" y="0.0" width="40" height="40"/>
+                        <subviews>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="0V0-xW-phH">
+                                <rect key="frame" x="5" y="5" width="30" height="30"/>
+                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="30" id="8In-9c-iMY"/>
+                                    <constraint firstAttribute="height" constant="30" id="V0I-2K-QZk"/>
+                                </constraints>
+                                <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <state key="normal" image="s_info"/>
+                            </button>
+                        </subviews>
+                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <constraints>
+                            <constraint firstItem="0V0-xW-phH" firstAttribute="leading" secondItem="h5a-Lw-5DQ" secondAttribute="leading" constant="5" id="Fal-iZ-z6V"/>
+                            <constraint firstItem="0V0-xW-phH" firstAttribute="top" secondItem="h5a-Lw-5DQ" secondAttribute="top" constant="5" id="e61-G5-dED"/>
+                        </constraints>
+                    </view>
+                </subviews>
+            </view>
+            <viewLayoutGuide key="safeArea" id="1PJ-am-ScX"/>
+            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+            <constraints>
+                <constraint firstAttribute="bottom" secondItem="h5a-Lw-5DQ" secondAttribute="bottom" id="0xf-GQ-utE"/>
+                <constraint firstItem="h5a-Lw-5DQ" firstAttribute="top" secondItem="jQv-E3-Aiz" secondAttribute="top" id="9Wg-F7-wX3"/>
+                <constraint firstItem="h5a-Lw-5DQ" firstAttribute="leading" secondItem="jQv-E3-Aiz" secondAttribute="leading" id="LYE-E9-5HH"/>
+                <constraint firstAttribute="trailing" secondItem="h5a-Lw-5DQ" secondAttribute="trailing" id="hQj-83-Dge"/>
+            </constraints>
+            <connections>
+                <outlet property="btn" destination="0V0-xW-phH" id="3LP-x2-axp"/>
+                <outlet property="viewBG" destination="h5a-Lw-5DQ" id="TsT-VT-ypS"/>
+            </connections>
+            <point key="canvasLocation" x="166.66666666666669" y="126.5625"/>
+        </collectionViewCell>
+    </objects>
+    <resources>
+        <image name="s_info" width="30" height="30"/>
+    </resources>
+</document>
