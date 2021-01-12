@@ -51,7 +51,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
     @IBOutlet weak var webView: WKWebView!
     var txtTopOfToolBarChat : UITextField!
     var txtTopOfToolBarQAndA : UITextField!
-    
+
     var r5ViewController : BaseTest? = nil
     var r5ViewControllerScreenShare : BaseTest? = nil
     var index_selected_q_qnd_a = -1
@@ -502,8 +502,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
         self.sendBirdEmojiConfig()
         if(self.settings_q_and_a == 1){
             //uncomment after this release
-
-            //self.sendBird_Q_And_A_Config()
+            self.sendBird_Q_And_A_Config()
         }
         
         channelName = streamVideoCode
@@ -735,6 +734,21 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                     
                 }
                 self.viewLiveStream.bringSubviewToFront(self.lblStreamUnavailable)
+            }
+        }
+    }
+    @objc func Notification_Q_And_A_Reply_Handler(_ notification:Notification) {
+        if let msgInfo = notification.userInfo as? [String: Any]
+        {
+            print("msgInfo:",msgInfo)
+            let msgIndex = msgInfo["index"] as? Int ?? -1
+            let msg = msgInfo["msg"] as? String ?? ""
+
+            if(msgIndex >= 0 && msg != ""){
+                let question = messages_q_and_a[msgIndex]
+                let messageId = String(question.messageId)
+                print("messageId:",messageId)
+                send_Q_And_A_Answer(msg: msg, msgId: String(messageId))
             }
         }
     }
@@ -1022,6 +1036,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
     }
     
     @IBAction func hideRightView(){
+        print("send_Q_And_A_Answer")
         self.view.endEditing(true)
         hideAnimation()
         //viewRight.isHidden = true
@@ -1210,10 +1225,10 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                 let footerView = tbl_Q_And_A.dequeueReusableCell(withIdentifier: "Q_And_A_Footer", for: indexPath) as! Q_And_A_Footer
                 footerView.btnSend.tag = section
                 footerView.btnSend.addTarget(self, action: #selector(sendReply(_:)), for: .touchUpInside)
-                footerView.txtMsg.delegate = self
+               // footerView.txtMsg.delegate = self
                 footerView.txtMsg.tag = 100 + section
-                footerView.txtMsg.addTarget(self, action: #selector(editingDidEndOnExit), for: .editingDidEndOnExit)
-                addDoneButtonReply(txtfiled: footerView.txtMsg)
+                //addDoneButton_Q_And_A_Answer(footerView.txtMsg)
+                footerView.updateCellWith(index: section)
                 return footerView
             }else{
                 let footerView = UIView(frame: CGRect(x: 0, y: 0, width: 0, height: 0))
@@ -1225,22 +1240,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
         }
     }
     
-    
-    @objc func editingDidEndOnExit(_ textfield:UITextField){
-        print("editingDidEndOnExit text:",textfield.text)
-        print("tag:",textfield.tag)
-        let txtField = tbl_Q_And_A.viewWithTag(100 + textfield.tag) as? UITextField
-        print("txt1:",txtField?.text)
-        let messageText = txtField?.text?.trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
-        if (messageText?.count == 0){
-            showAlert(strMsg: "Please enter your reply")
-            return
-        }
-        let question = messages_q_and_a[textfield.tag]
-        let messageId = String(question.messageId)
-        send_Q_And_A_Answer(msg:messageText ?? "" , msgId:messageId )
-        
-    }
+   
     
     
     @objc func sectionHeaderTapped(recognizer: UITapGestureRecognizer) {
@@ -1441,6 +1441,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                         userMessageCell?.imgCreator.isHidden = true
                     }
                     cell = userMessageCell ?? cell
+                    
                     /*if indexPath.row == 0 && self.messages_q_and_a_answers_main.count > 0 && self.initialLoading_q_and_a == false && self.isLoading_q_and_a == false {
                      self.loadPrevious_Q_And_A(initial: false)
                      }*/
@@ -1701,10 +1702,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
         button.addTarget(self, action: #selector(sendChatMessage), for: UIControl.Event.touchUpInside)
         //set frame
         button.frame = CGRect(x: view.frame.size.width-180, y: 0, width: 20, height: 20)
-        
         let sendBtn = UIBarButtonItem(customView: button)
-        
-        
         toolbar.setItems([cancel,textfieldBarButton,flexButton,sendBtn], animated: true)
         toolbar.sizeToFit()
         txtComment.inputAccessoryView = toolbar;
@@ -1716,7 +1714,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
         toolbar.backgroundColor = .white
         txtTopOfToolBarQAndA =  UITextField(frame: CGRect(x: 50, y: 0, width: view.frame.size.width-150, height: 35))
         // let textfield =  UITextField()
-        txtTopOfToolBarQAndA.placeholder = "Send a message"
+        txtTopOfToolBarQAndA.placeholder = "Send a question"
         txtTopOfToolBarQAndA.delegate = self
         txtTopOfToolBarQAndA.backgroundColor = .clear
         //txtTopOfToolBarChat.isUserInteractionEnabled = false
@@ -1747,33 +1745,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
         txt_Q_And_A.inputAccessoryView = toolbar;
         
     }
-    func addDoneButton_Q_And_A_Answer(_ textfield:UITextField) {
-        let toolbar =  UIToolbar(frame: CGRect(x: 0, y: 0, width: view.frame.size.width, height: 35))
-        toolbar.backgroundColor = .white
-        
-        // UIToolbar expects an array of UIBarButtonItems:
-        
-        let flexButton = UIBarButtonItem(barButtonSystemItem: UIBarButtonItem.SystemItem.flexibleSpace, target: nil, action: nil)
-        
-        let cancel = UIBarButtonItem(title: "Cancel", style: .plain, target: self, action:#selector(resignKB(_:)))
-        
-        let button = UIButton.init(type: .custom)
-        //set image for button
-        button.setImage(UIImage(named: "blue-send"), for: UIControl.State.normal)
-        //add function for button
-        button.addTarget(self, action: #selector(send_Q_And_A), for: UIControl.Event.touchUpInside)
-        //set frame
-        button.frame = CGRect(x: view.frame.size.width-180, y: 0, width: 20, height: 20)
-        
-        let sendBtn = UIBarButtonItem(customView: button)
-        
-        
-        toolbar.setItems([cancel,flexButton,sendBtn], animated: true)
-        toolbar.sizeToFit()
-        txtTopOfToolBarQAndA.inputAccessoryView = toolbar;
-        txt_Q_And_A.inputAccessoryView = toolbar;
-        
-    }
+    
     func addDoneButtonEmoji() {
         let toolbar =  UIToolbar(frame: CGRect(x: 0, y: 0, width: view.frame.size.width, height: 35))
         
@@ -1785,33 +1757,11 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
         txtEmoji.inputAccessoryView = toolbar
         
     }
-    func addDoneButtonReply(txtfiled:UITextField) {
-        let toolbar =  UIToolbar(frame: CGRect(x: 0, y: 0, width: view.frame.size.width, height: 35))
-        toolbar.backgroundColor = .white
-        // UIToolbar expects an array of UIBarButtonItems:
-        
-        let flexButton = UIBarButtonItem(barButtonSystemItem: UIBarButtonItem.SystemItem.flexibleSpace, target: nil, action: nil)
-        
-        let cancel = UIBarButtonItem(title: "Cancel", style: .plain, target: self, action:#selector(resignKB(_:)))
-        
-        let button = UIButton.init(type: .custom)
-        //set image for button
-        button.setImage(UIImage(named: "blue-send"), for: UIControl.State.normal)
-        //add function for button
-        button.addTarget(self, action: #selector(sendChatMessage), for: UIControl.Event.touchUpInside)
-        //set frame
-        button.frame = CGRect(x: view.frame.size.width-180, y: 0, width: 20, height: 20)
-        
-        let sendBtn = UIBarButtonItem(customView: button)
-        toolbar.setItems([cancel,flexButton,sendBtn], animated: true)
-        toolbar.sizeToFit()
-        txtfiled.inputAccessoryView = toolbar;
-    }
+    
     // MARK: Text Field Delegate Methods
     
     func textFieldDidBeginEditing(_ textField: UITextField) {
-        if (txtComment == textField || txtTopOfToolBarChat == textField || txt_Q_And_A == textField || txtTopOfToolBarQAndA == textField){
-        }else if(txtEmoji == textField){
+        if(txtEmoji == textField){
             guard let index = buttonNames.firstIndex(where: {$0["title"]! == "emoji"})else {
                 return
             }
@@ -1825,19 +1775,13 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
         
     }
     func textFieldDidEndEditing(_ textField: UITextField) {
-        if (txtComment == textField || txtTopOfToolBarChat == textField || txt_Q_And_A == textField || txtTopOfToolBarQAndA == textField){
-            //            if(UIDevice.current.userInterfaceIdiom == .phone){
-            //                        self.viewComments.frame.origin.y = 0
-            //            }
-            
-        }
-        else if(txtEmoji == textField){
-            
-        }
-        textField.resignFirstResponder();
+      print("textFieldDidEndEditing")
+        //textField.resignFirstResponder();
     }
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        print("textFieldShouldReturn")
+
         textField.resignFirstResponder();
         if (textField == txtComment || txtTopOfToolBarChat == textField){
             sendChatMessage()
@@ -1852,6 +1796,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
         txtTopOfToolBarChat.text = txtAfterUpdate
         txtTopOfToolBarQAndA.text = txtAfterUpdate
         
+
         return true
     }
     // MARK: Keyboard  Delegate Methods
@@ -2214,12 +2159,12 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                                 }
                                 if(self.settings_q_and_a == 1){
                                     //uncomment after this release
-                                    /*let predicate = NSPredicate(format:"title == %@", "qa")
+                                    let predicate = NSPredicate(format:"title == %@", "qa")
                                     let filteredArray = (buttonNames as NSArray).filtered(using: predicate)
                                     if(filteredArray.count == 0){
                                         let dicItem = ["title":"qa","icon":"s_qa","icon_active":"s_qa_active"]
                                         self.buttonNames.append(dicItem)
-                                    }*/
+                                    }
                                 }
                                 self.streamHeaderCVC.reloadData()
                                 
@@ -3122,6 +3067,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
     }
     @IBAction func send_Q_And_A_Answer(msg:String,msgId:String) {
         self.view.endEditing(true)
+        print("send_Q_And_A_Answer")
         if (!isChannelAvailable_q_and_a){
             //print("sendBirdErrorCode:",sendBirdErrorCode)
             switch sendBirdErrorCode_Q_And_A {
@@ -3165,13 +3111,15 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                     
                     self.preSendMessages_q_and_a.removeValue(forKey: requestId)
                     self.resendableMessages_q_and_a[requestId] = preSendMsg
-                    self.tbl_Q_And_A.reloadData()
-                    self.scrollToBottom(force: true)
+                    //self.tbl_Q_And_A.reloadData()
+                    //self.scrollToBottom(force: true)
                     
+                    self.loadPrevious_Q_And_A(initial: true)
+
                 }
                 return
             }
-            self.tbl_Q_And_A.reloadData()
+            //self.tbl_Q_And_A.reloadData()
             
             /*guard let message = userMessage else { return }
              let requestId = message.requestId
@@ -3818,12 +3766,12 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                                 if(self.settings_q_and_a == 1){
                                     //uncomment after this release
 
-                                    /*let predicate = NSPredicate(format:"title == %@", "qa")
+                                    let predicate = NSPredicate(format:"title == %@", "qa")
                                     let filteredArray = (buttonNames as NSArray).filtered(using: predicate)
                                     if(filteredArray.count == 0){
                                         let dicItem = ["title":"qa","icon":"s_qa","icon_active":"s_qa_active"]
                                         self.buttonNames.append(dicItem)
-                                    }*/
+                                    }
                                 }
                                 self.streamHeaderCVC.reloadData()
                                 
@@ -4278,12 +4226,16 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
         NotificationCenter.default.addObserver(self, selector: #selector(applicationDidBecomeActive), name: UIApplication.didBecomeActiveNotification, object: nil)
         
         NotificationCenter.default.addObserver(self, selector: #selector(ScreenShareNotificationHandler(_:)), name: .didReceiveScreenShareData, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(Notification_Q_And_A_Reply_Handler(_:)), name: .Notification_Q_And_A_Reply, object: nil)
+
         
         if(UIDevice.current.userInterfaceIdiom == .phone){
             let value = UIInterfaceOrientation.landscapeRight.rawValue
             UIDevice.current.setValue(value, forKey: "orientation")
         }
         AppDelegate.AppUtility.lockOrientation(.landscapeRight)
+        
+
     }
     
     override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
@@ -4868,7 +4820,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                 lblRightTitle.text = "Q&A"
                 sender.setImage(UIImage.init(named: "s_qa_active"), for: .normal)
                 view_Q_And_A.isHidden = false
-                tbl_Q_And_A.reloadData()
+                loadPrevious_Q_And_A(initial: true)
                 
             default:
                 print("default")

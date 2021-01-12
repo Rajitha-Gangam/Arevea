@@ -12,7 +12,7 @@ import Alamofire
 import MaterialComponents.MaterialCollections
 import CoreLocation
 
-class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,CollectionViewCellDelegate,UITextFieldDelegate,OpenChanannelChatDelegate,CLLocationManagerDelegate{
+class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,CollectionViewCellDelegate,UITextFieldDelegate,OpenChanannelChatDelegate,CLLocationManagerDelegate,UIPopoverPresentationControllerDelegate{
     
     //MARK: Variables Declaration
     
@@ -35,7 +35,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
     var aryMyListData = [Any]();
     var aryTrendingChannelsData = [Any]();
     var isUpcoming = false;
-
+    
     var isProfileLoaded = false;
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     
@@ -60,6 +60,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
         return refreshControl
     }()
     var age_limit = 0;
+    @IBOutlet weak var viewContacts: UIView!
 
     // MARK: - View Life cycle
     override func viewDidLoad() {
@@ -109,9 +110,9 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
         }
         
         getCurrency()
-       
         
-
+        
+        
     }
     func getCurrency(){
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
@@ -129,27 +130,27 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
                         appDelegate.userCurrencyCode = currencyCode
                         if let path = Bundle.main.path(forResource: "currencies", ofType: "json") {
                             do {
-                                  let data = try Data(contentsOf: URL(fileURLWithPath: path), options: .mappedIfSafe)
-                                  let jsonResult = try JSONSerialization.jsonObject(with: data, options: .mutableLeaves)
-                                  if let jsonResult = jsonResult as? Dictionary<String, AnyObject>,
-                                     let currencySymbol = jsonResult[currencyCode] as? String {
-                                            // do stuff
+                                let data = try Data(contentsOf: URL(fileURLWithPath: path), options: .mappedIfSafe)
+                                let jsonResult = try JSONSerialization.jsonObject(with: data, options: .mutableLeaves)
+                                if let jsonResult = jsonResult as? Dictionary<String, AnyObject>,
+                                   let currencySymbol = jsonResult[currencyCode] as? String {
+                                    // do stuff
                                     print("currencySymbol:",currencySymbol)
                                     appDelegate.userCurrencySymbol = currencySymbol
-                                  }
-                              } catch {
-                                   // handle error
-                              }
+                                }
+                            } catch {
+                                // handle error
+                            }
                         }
                         
                     }
                 case .failure(let error):
                     let errorDesc = error.localizedDescription.replacingOccurrences(of: "URLSessionTask failed with error:", with: "")
-                    //self.showAlert(strMsg: errorDesc)
+                //self.showAlert(strMsg: errorDesc)
                 }
             }
     }
-   
+    
     @objc func handleRefresh(_ refreshControl: UIRefreshControl) {
         // Do some reloading of data and update the table view's data source
         // Fetch more objects from a web service, for example...
@@ -216,7 +217,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
          }
          tblMain.reloadData()*/
         UIApplication.shared.isIdleTimerDisabled = false //to device lock based on user settings when steraming is not running
-
+        
     }
     override func viewWillAppear(_ animated: Bool) {
         AppDelegate.AppUtility.lockOrientation(.portrait, andRotateTo: .portrait)
@@ -357,7 +358,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
                 switch response.result {
                 case .success(let value):
                     if let json = value as? [String: Any] {
-                       print("myList JSON:",json)
+                        print("myList JSON:",json)
                         print("my status code:",response.response?.statusCode)
                         if (json["statusCode"]as? String == "200" ){
                             self.aryMyListData  = json["Data"] as? [Any] ?? [Any]();
@@ -398,7 +399,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
                     switch response.result {
                     case .success(let value):
                         if let json = value as? [String: Any] {
-                           // print("trendingChannels JSON:",json)
+                            // print("trendingChannels JSON:",json)
                             if (json["statusCode"]as? String == "200"){
                                 //////print(json["message"] ?? "")
                                 self.aryTrendingChannelsData  = json["Data"] as? [Any] ?? [Any]();
@@ -505,7 +506,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
                         }
                         let user_age_limit = currentYear - pastYear
                         print("user_age_limit:",user_age_limit)
-                       UserDefaults.standard.set(user_age_limit, forKey: "user_age_limit")
+                        UserDefaults.standard.set(user_age_limit, forKey: "user_age_limit")
                         
                         self.appDelegate.USER_NAME = strName;
                         self.appDelegate.USER_NAME_FULL = (fn ?? "") + " " + (ln ?? "")
@@ -837,7 +838,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
             let performer_id = streamInfo["performer_id"] as? Int ?? 0
             var streamId = streamInfo["stream_video_id"] as? Int ?? 0
             if(title != "dashboard_my_list"){
-            streamId = streamInfo["id"] as? Int ?? 0
+                streamId = streamInfo["id"] as? Int ?? 0
             }
             
             let stream_video_title = streamInfo["stream_video_title"] as? String ?? "Channel Details"
@@ -866,12 +867,12 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
         }
     }
     func LiveEventById(streamInfo:[String: Any],myList:Bool) {
-       // print("streamInfo:",streamInfo)
+        // print("streamInfo:",streamInfo)
         var streamId = streamInfo["stream_video_id"] as? Int ?? 0
         if(!myList){
-        streamId = streamInfo["id"] as? Int ?? 0
+            streamId = streamInfo["id"] as? Int ?? 0
         }
-       // print("streamId:",streamId)
+        // print("streamId:",streamId)
         
         let channelName = streamInfo["channel_name"] as? String ?? ""
         
@@ -925,22 +926,22 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
                                 }
                                 let user_age_limit = UserDefaults.standard.integer(forKey:"user_age_limit");
                                 self.age_limit = streamObj["age_limit"] as? Int ?? 0
-
+                                
                                 if (self.age_limit <= user_age_limit || self.age_limit == 0){
-                                if (self.aryUserSubscriptionInfo.count == 0){
-                                    let vc = storyboard!.instantiateViewController(withIdentifier: "EventRegistrationVC") as! EventRegistrationVC
-                                    appDelegate.isLiveLoad = "1"
-                                    vc.orgId = orgId
-                                    //print("==streamId:",streamId)
-                                    vc.streamId = streamId
-                                    //vc.delegate = self
-                                    vc.performerId = performer_id
-                                    vc.strTitle = stream_video_title
-                                    vc.isVOD = isVOD
-                                    vc.isUpcoming = isUpcoming
-                                    vc.channel_name_subscription = channelName
-                                    self.navigationController?.pushViewController(vc, animated: true)
-                                }else{
+                                    if (self.aryUserSubscriptionInfo.count == 0){
+                                        let vc = storyboard!.instantiateViewController(withIdentifier: "EventRegistrationVC") as! EventRegistrationVC
+                                        appDelegate.isLiveLoad = "1"
+                                        vc.orgId = orgId
+                                        //print("==streamId:",streamId)
+                                        vc.streamId = streamId
+                                        //vc.delegate = self
+                                        vc.performerId = performer_id
+                                        vc.strTitle = stream_video_title
+                                        vc.isVOD = isVOD
+                                        vc.isUpcoming = isUpcoming
+                                        vc.channel_name_subscription = channelName
+                                        self.navigationController?.pushViewController(vc, animated: true)
+                                    }else{
                                         let vc = storyboard!.instantiateViewController(withIdentifier: "StreamDetailVC") as! StreamDetailVC
                                         appDelegate.isLiveLoad = "1"
                                         vc.orgId = orgId
@@ -957,7 +958,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
                                             vc.isVOD = isVOD
                                         }
                                         self.navigationController?.pushViewController(vc, animated: true)
-                                }
+                                    }
                                 }else{
                                     //showAlert(strMsg: "This video may be inappropriate for some users")
                                     let vc = storyboard!.instantiateViewController(withIdentifier: "EventRegistrationVC") as! EventRegistrationVC
@@ -973,7 +974,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
                                     self.navigationController?.pushViewController(vc, animated: true)
                                     
                                 }
-                        }
+                            }
                         }else{
                             let strError = json["message"] as? String
                             ////print("strError1:",strError ?? "")
@@ -999,6 +1000,25 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
         let storyboard = UIStoryboard(name: "Main", bundle: nil);
         let vc = storyboard.instantiateViewController(withIdentifier: "HelpVC") as! HelpVC
         self.navigationController?.pushViewController(vc, animated: true)
+    }
+    func adaptivePresentationStyle(for controller: UIPresentationController) -> UIModalPresentationStyle {
+            return .none
+        }
+    @IBAction func showPopoverButtonAction(_ sender: Any) {
+        let contactsVC = self.storyboard?.instantiateViewController(withIdentifier: "ContactsVC") as? ContactsVC
+        let screenRect = UIScreen.main.bounds
+        print("screenRect:",screenRect)
+        let screenHeight = screenRect.size.height/2
+        let screenWidth = screenRect.size.width - 100
+
+        let popupVC = PopupViewController(contentController: contactsVC!, position:.bottomRight(CGPoint(x: 0, y: 30)), popupWidth: screenWidth, popupHeight: screenHeight)
+        popupVC.backgroundAlpha = 0.3
+        popupVC.backgroundColor = .black
+        popupVC.canTapOutsideToDismiss = true
+        popupVC.cornerRadius = 10
+        popupVC.shadowEnabled = true
+        //popupVC.delegate = self
+        present(popupVC, animated: true, completion: nil)
     }
     //MARK: - location delegate methods
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {

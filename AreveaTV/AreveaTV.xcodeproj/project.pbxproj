@@ -53,6 +53,13 @@
 		184B86D824D302C8003F4D3D /* OpenChannelTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 184B86D224D302C8003F4D3D /* OpenChannelTableViewCell.swift */; };
 		184C49FA2578CF2B007DEB51 /* SubscribedCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 184C49F82578CF2B007DEB51 /* SubscribedCell.swift */; };
 		184C49FB2578CF2B007DEB51 /* SubscribedCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 184C49F92578CF2B007DEB51 /* SubscribedCell.xib */; };
+		18501B5125A846EA0046E58F /* Q_And_A_CVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18501B4D25A846E70046E58F /* Q_And_A_CVC.swift */; };
+		18501B5225A846EA0046E58F /* Q_And_A_Final_Cell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18501B4E25A846E80046E58F /* Q_And_A_Final_Cell.swift */; };
+		18501B5325A846EA0046E58F /* Q_And_A_CVC.xib in Resources */ = {isa = PBXBuildFile; fileRef = 18501B4F25A846E90046E58F /* Q_And_A_CVC.xib */; };
+		18501B5425A846EA0046E58F /* Q_And_A_Final_Cell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 18501B5025A846EA0046E58F /* Q_And_A_Final_Cell.xib */; };
+		18571EA825A60A3B008F5D22 /* ContactsCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18571EA625A60A3B008F5D22 /* ContactsCell.swift */; };
+		18571EA925A60A3B008F5D22 /* ContactsCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 18571EA725A60A3B008F5D22 /* ContactsCell.xib */; };
+		18571EAE25A61F6D008F5D22 /* AddContactVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18571EAD25A61F6D008F5D22 /* AddContactVC.swift */; };
 		1858EAD22484F51C00A69D10 /* HelpVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1858EAD12484F51C00A69D10 /* HelpVC.swift */; };
 		1860DFBD24D40BA900ACB899 /* MyEventsCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1860DFBB24D40BA900ACB899 /* MyEventsCell.swift */; };
 		1860DFBE24D40BA900ACB899 /* MyEventsCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1860DFBC24D40BA900ACB899 /* MyEventsCell.xib */; };
@@ -147,6 +154,8 @@
 		18EB81CC244ACC5B008EB09A /* NewPasswordVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18EB81CA244ACC5B008EB09A /* NewPasswordVC.swift */; };
 		18EB81CE244ACC86008EB09A /* DashBoardVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18EB81CD244ACC86008EB09A /* DashBoardVC.swift */; };
 		18EB81DE244B4341008EB09A /* awsconfiguration.json in Resources */ = {isa = PBXBuildFile; fileRef = 18EB81DD244B4340008EB09A /* awsconfiguration.json */; };
+		18EC36C925ADB6C800D70F29 /* PopupViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18EC36C825ADB6C800D70F29 /* PopupViewController.swift */; };
+		18EC36CD25ADDAF100D70F29 /* ContactsVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18EC36CC25ADDAF100D70F29 /* ContactsVC.swift */; };
 		18EC6AB22577FE36001DE714 /* SubscribedChannelsVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18EC6AB12577FE36001DE714 /* SubscribedChannelsVC.swift */; };
 		18FE073C24D1CFB90011FDE3 /* MultiStreamVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18FE073B24D1CFB90011FDE3 /* MultiStreamVC.swift */; };
 		C8D0A372F8CE8663D84930A1 /* Pods_AreveaTV.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9290EFE9F47E13554D29A225 /* Pods_AreveaTV.framework */; };
@@ -200,6 +209,13 @@
 		184B86D224D302C8003F4D3D /* OpenChannelTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OpenChannelTableViewCell.swift; sourceTree = "<group>"; };
 		184C49F82578CF2B007DEB51 /* SubscribedCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubscribedCell.swift; sourceTree = "<group>"; };
 		184C49F92578CF2B007DEB51 /* SubscribedCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = SubscribedCell.xib; sourceTree = "<group>"; };
+		18501B4D25A846E70046E58F /* Q_And_A_CVC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Q_And_A_CVC.swift; sourceTree = "<group>"; };
+		18501B4E25A846E80046E58F /* Q_And_A_Final_Cell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Q_And_A_Final_Cell.swift; sourceTree = "<group>"; };
+		18501B4F25A846E90046E58F /* Q_And_A_CVC.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = Q_And_A_CVC.xib; sourceTree = "<group>"; };
+		18501B5025A846EA0046E58F /* Q_And_A_Final_Cell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = Q_And_A_Final_Cell.xib; sourceTree = "<group>"; };
+		18571EA625A60A3B008F5D22 /* ContactsCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactsCell.swift; sourceTree = "<group>"; };
+		18571EA725A60A3B008F5D22 /* ContactsCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ContactsCell.xib; sourceTree = "<group>"; };
+		18571EAD25A61F6D008F5D22 /* AddContactVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddContactVC.swift; sourceTree = "<group>"; };
 		1858EAD12484F51C00A69D10 /* HelpVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelpVC.swift; sourceTree = "<group>"; };
 		1860DFBB24D40BA900ACB899 /* MyEventsCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyEventsCell.swift; sourceTree = "<group>"; };
 		1860DFBC24D40BA900ACB899 /* MyEventsCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MyEventsCell.xib; sourceTree = "<group>"; };
@@ -299,6 +315,8 @@
 		18EB81CA244ACC5B008EB09A /* NewPasswordVC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NewPasswordVC.swift; sourceTree = "<group>"; };
 		18EB81CD244ACC86008EB09A /* DashBoardVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashBoardVC.swift; sourceTree = "<group>"; };
 		18EB81DD244B4340008EB09A /* awsconfiguration.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = awsconfiguration.json; sourceTree = "<group>"; };
+		18EC36C825ADB6C800D70F29 /* PopupViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PopupViewController.swift; sourceTree = "<group>"; };
+		18EC36CC25ADDAF100D70F29 /* ContactsVC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContactsVC.swift; sourceTree = "<group>"; };
 		18EC6AB12577FE36001DE714 /* SubscribedChannelsVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscribedChannelsVC.swift; sourceTree = "<group>"; };
 		18FE073B24D1CFB90011FDE3 /* MultiStreamVC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MultiStreamVC.swift; sourceTree = "<group>"; };
 		783C47A52DE81D11826FBA5C /* Pods-AreveaTV.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AreveaTV.release.xcconfig"; path = "Target Support Files/Pods-AreveaTV/Pods-AreveaTV.release.xcconfig"; sourceTree = "<group>"; };
@@ -377,6 +395,10 @@
 				18408E7E25892624000F0F30 /* Q_And_A_Section.xib */,
 				18408E8225892A5A000F0F30 /* Q_And_A_Footer.swift */,
 				18408E8125892A5A000F0F30 /* Q_And_A_Footer.xib */,
+				18501B4D25A846E70046E58F /* Q_And_A_CVC.swift */,
+				18501B4F25A846E90046E58F /* Q_And_A_CVC.xib */,
+				18501B4E25A846E80046E58F /* Q_And_A_Final_Cell.swift */,
+				18501B5025A846EA0046E58F /* Q_And_A_Final_Cell.xib */,
 			);
 			path = Q_And_A;
 			sourceTree = "<group>";
@@ -413,6 +435,25 @@
 				184C49F92578CF2B007DEB51 /* SubscribedCell.xib */,
 			);
 			path = SubscribedCell;
+			sourceTree = "<group>";
+		};
+		18571EA525A609E7008F5D22 /* ContactsCell */ = {
+			isa = PBXGroup;
+			children = (
+				18571EA625A60A3B008F5D22 /* ContactsCell.swift */,
+				18571EA725A60A3B008F5D22 /* ContactsCell.xib */,
+			);
+			path = ContactsCell;
+			sourceTree = "<group>";
+		};
+		18571EAC25A61F52008F5D22 /* Private Chat */ = {
+			isa = PBXGroup;
+			children = (
+				18571EAD25A61F6D008F5D22 /* AddContactVC.swift */,
+				18EC36C825ADB6C800D70F29 /* PopupViewController.swift */,
+				18EC36CC25ADDAF100D70F29 /* ContactsVC.swift */,
+			);
+			path = "Private Chat";
 			sourceTree = "<group>";
 		};
 		1860DFBA24D40B8800ACB899 /* MyEventsCell */ = {
@@ -561,6 +602,7 @@
 		189EBF4B245B385700C52B0E /* TableView Cells */ = {
 			isa = PBXGroup;
 			children = (
+				18571EA525A609E7008F5D22 /* ContactsCell */,
 				189BC6332591F0D300445423 /* TicketTypesCell */,
 				18408E79258925C0000F0F30 /* Q_And_A */,
 				184C49F72578CF2B007DEB51 /* SubscribedCell */,
@@ -772,6 +814,7 @@
 			children = (
 				18D480C42454550100640C1A /* Profile */,
 				18EB81CD244ACC86008EB09A /* DashBoardVC.swift */,
+				18571EAC25A61F52008F5D22 /* Private Chat */,
 				18D4AA2224F56D5C005B0FD4 /* TestVC.swift */,
 				18404763248A79AC000573A2 /* SearchViewController.swift */,
 				1858EAD12484F51C00A69D10 /* HelpVC.swift */,
@@ -882,6 +925,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				18571EA925A60A3B008F5D22 /* ContactsCell.xib in Resources */,
 				18DAF98F248FBA1D00A6693A /* sr_music.png in Resources */,
 				1826035D24D2A7CC00248E8B /* Poppins-Medium.ttf in Resources */,
 				1860DFBE24D40BA900ACB899 /* MyEventsCell.xib in Resources */,
@@ -931,6 +975,7 @@
 				188826E625961CF0005BCBAD /* StreamHeaderCVC.xib in Resources */,
 				18408E8325892A5A000F0F30 /* Q_And_A_Footer.xib in Resources */,
 				180E003B253F404B00DDFD2D /* payload.apns in Resources */,
+				18501B5325A846EA0046E58F /* Q_And_A_CVC.xib in Resources */,
 				1826035E24D2A7CC00248E8B /* Poppins-Bold.ttf in Resources */,
 				18408E7F25892624000F0F30 /* Q_And_A_Section.xib in Resources */,
 				1826035A24D2A7CC00248E8B /* Poppins-Light.ttf in Resources */,
@@ -938,6 +983,7 @@
 				182A5EF4245C59C700FF6147 /* SectionHeader.xib in Resources */,
 				18DAF994248FBA1D00A6693A /* sr_video.png in Resources */,
 				1826035B24D2A7CC00248E8B /* Poppins-Regular.ttf in Resources */,
+				18501B5425A846EA0046E58F /* Q_And_A_Final_Cell.xib in Resources */,
 				189EBF45245ACD3400C52B0E /* FilterCell.xib in Resources */,
 				18DAF993248FBA1D00A6693A /* sr_all.png in Resources */,
 				18DAF978248FA98000A6693A /* CheckMarkCell.xib in Resources */,
@@ -1038,6 +1084,7 @@
 				1858EAD22484F51C00A69D10 /* HelpVC.swift in Sources */,
 				18D480C02452E00500640C1A /* PaymentVC.swift in Sources */,
 				182A5EF7245F057800FF6147 /* FilterCVCell.swift in Sources */,
+				18501B5125A846EA0046E58F /* Q_And_A_CVC.swift in Sources */,
 				18B11E3425505C95006ECB9C /* ScreenShareVC.swift in Sources */,
 				18EB81CE244ACC86008EB09A /* DashBoardVC.swift in Sources */,
 				188826E525961CF0005BCBAD /* StreamHeaderCVC.swift in Sources */,
@@ -1052,10 +1099,12 @@
 				18EB81CB244ACC5B008EB09A /* ResetPasswordVC.swift in Sources */,
 				189BC6362591F0FE00445423 /* TicketTypesCell.swift in Sources */,
 				18FE073C24D1CFB90011FDE3 /* MultiStreamVC.swift in Sources */,
+				18EC36C925ADB6C800D70F29 /* PopupViewController.swift in Sources */,
 				188B0EA5248E8F7A0062EB1D /* VideoEditor.swift in Sources */,
 				18D48060244EDDA300640C1A /* BaseTest.swift in Sources */,
 				18D4AA2324F56D5C005B0FD4 /* TestVC.swift in Sources */,
 				1864AFCD2454A999004F3AED /* ChannelDetailVC.swift in Sources */,
+				18EC36CD25ADDAF100D70F29 /* ContactsVC.swift in Sources */,
 				184A0B532472CC20006EDDA3 /* PaymentHistoryCell.swift in Sources */,
 				189EBF44245ACD3400C52B0E /* FilterCell.swift in Sources */,
 				18C4072C255AE5910087BD53 /* MultiStreamVCBackUp.swift in Sources */,
@@ -1071,7 +1120,9 @@
 				184B86D824D302C8003F4D3D /* OpenChannelTableViewCell.swift in Sources */,
 				184B86D424D302C8003F4D3D /* OpenChannelMessageTableViewCellDelegate.swift in Sources */,
 				1822F8A324CF266E009E8E1A /* MyPurchasesVC.swift in Sources */,
+				18571EAE25A61F6D008F5D22 /* AddContactVC.swift in Sources */,
 				1871FA1E25495A0400131CFE /* FBLoginVC.swift in Sources */,
+				18501B5225A846EA0046E58F /* Q_And_A_Final_Cell.swift in Sources */,
 				184B86D524D302C8003F4D3D /* OpenChanannelChatDelegate.swift in Sources */,
 				18D480A724509F7700640C1A /* SideMenuCell.swift in Sources */,
 				1860DFBD24D40BA900ACB899 /* MyEventsCell.swift in Sources */,
@@ -1082,6 +1133,7 @@
 				182A5EF3245C59C700FF6147 /* StickyHeadersCollectionViewFlowLayout.swift in Sources */,
 				180A78C82464243A0013AB0B /* ConnectionManager.swift in Sources */,
 				18D48057244EA59D00640C1A /* DashBoardCell.swift in Sources */,
+				18571EA825A60A3B008F5D22 /* ContactsCell.swift in Sources */,
 				1826036024D2CD7B00248E8B /* API.swift in Sources */,
 				18EC6AB22577FE36001DE714 /* SubscribedChannelsVC.swift in Sources */,
 				18EB81CC244ACC5B008EB09A /* NewPasswordVC.swift in Sources */,
@@ -1234,7 +1286,7 @@
 				CODE_SIGN_ENTITLEMENTS = AreveaTV/AreveaTV.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 0.2;
+				CURRENT_PROJECT_VERSION = 1.2;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = J7XKYVP7J4;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -1247,7 +1299,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 5;
+				MARKETING_VERSION = 2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.prod.arevea;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -1265,7 +1317,7 @@
 				CODE_SIGN_ENTITLEMENTS = AreveaTV/AreveaTV.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 0.2;
+				CURRENT_PROJECT_VERSION = 1.2;
 				DEVELOPMENT_TEAM = J7XKYVP7J4;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1277,7 +1329,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 5;
+				MARKETING_VERSION = 2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.prod.arevea;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";

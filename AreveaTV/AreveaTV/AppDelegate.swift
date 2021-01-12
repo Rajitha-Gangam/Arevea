@@ -37,7 +37,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var userCurrencyCode = ""
     var userCurrencySymbol = ""
     // MARK: - Dev Environmet Variables Declaration
-  /* var baseURL = "https://dev1-apis.arevea.com";
+   /*var baseURL = "https://dev1-apis.arevea.com";
      var websiteURL = "https://dev1.arevea.com"
      var sendBirdAppId = "AE94EB49-0A01-43BF-96B4-8297EBB47F12";
      var profileURL = "https://dev1.arevea.com/api/user/v1";
@@ -60,7 +60,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
      var socialLoginURL = "https://areveatv-sandbox.onelogin.com/access/initiate"
     */
     //Dev Variables END
-    /*
+    
     // MARK: - QA Environmet Variables Declaration
     var baseURL = "https://qa1-apis.arevea.com"
     var websiteURL = "https://qa1.arevea.com"
@@ -83,7 +83,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var ol_access_token = ""
     var FCMBaseURL = "https://eku2g4rzxl.execute-api.us-west-2.amazonaws.com/dev"
      var socialLoginURL = "https://areveatv-sandbox.onelogin.com/access/initiate"
-*/
+
     //QA Variables END
     
     // MARK: - Pre-prod Environmet Variables Declaration
@@ -114,7 +114,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     //Pre-prod Variables END
     
     // MARK: - prod Environmet Variables Declaration
-   var baseURL = "https://prod-apis.arevea.com"
+   /*var baseURL = "https://prod-apis.arevea.com"
      var websiteURL = "https://www.arevea.com"
      var sendBirdAppId = "ED4D2A9B-A140-40FD-83BF-6D240903C5BF";
      var profileURL = "https://www.arevea.com/api/user/v1"
@@ -135,6 +135,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
      var ol_access_token = ""
     var FCMBaseURL = "https://prod-apis.arevea.com"
     var socialLoginURL = "https://areveatv-dev.onelogin.com/access/initiate"
+ */
     //prod Variables END
     
     var emailPopulate = ""
@@ -607,4 +608,10 @@ extension UIColor {
        )
    }
     
+}
+extension Notification.Name {
+    static let didReceiveStreamData = Notification.Name("didReceiveStreamData")
+    static let didReceiveScreenShareData = Notification.Name("didReceiveScreenShareData")
+    static let StreamOrienationChange = Notification.Name("StreamOrienationChange")
+    static let Notification_Q_And_A_Reply = Notification.Name("Notification_Q_And_A_Reply")
 }

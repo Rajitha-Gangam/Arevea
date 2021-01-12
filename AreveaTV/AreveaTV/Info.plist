@@ -25,12 +25,11 @@
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
-			<key>CFBundleTypeRole</key>
-			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>com.prod.arevea</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>fb206375276576359</string>
-				<string>com.googleusercontent.apps.1052124816264-oqgsfgpmak01s0sdnepco8vn7p2dmm6h</string>
+				<string>areveatviosapp</string>
 			</array>
 		</dict>
 	</array>
