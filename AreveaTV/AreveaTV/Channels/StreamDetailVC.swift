@@ -51,7 +51,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
     @IBOutlet weak var webView: WKWebView!
     var txtTopOfToolBarChat : UITextField!
     var txtTopOfToolBarQAndA : UITextField!
-
+    
     var r5ViewController : BaseTest? = nil
     var r5ViewControllerScreenShare : BaseTest? = nil
     var index_selected_q_qnd_a = -1
@@ -359,8 +359,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
         NotificationCenter.default.addObserver(self, selector: #selector(self.ReceivedPN(notification:)),
                                                name: Notification.Name("PushNotification"), object: nil)
         viewShareScreen.isHidden = true
-        btnAudio?.setImage(UIImage.init(named: "unmute"), for: .normal);
-        btnVideo?.setImage(UIImage.init(named: "pause"), for: .normal);
+        
         self.viewControls?.isHidden = true
         self.lblLive.isHidden = true
         
@@ -383,8 +382,48 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                 // handle error
             }
         }
+        let notificationCenter = NotificationCenter.default
+        notificationCenter.addObserver(self, selector: #selector(appMovedToBackground), name: UIApplication.willResignActiveNotification, object: nil)
         
+        notificationCenter.addObserver(self, selector: #selector(appCameToForeground), name: UIApplication.didBecomeActiveNotification, object: nil)
+
+
     }
+    @objc func appMovedToBackground() {
+        print("App moved to background!")
+        if(isStreamStarted){
+        if(self.subscribeStream1 != nil && self.subscribeStream1?.audioController != nil) {
+            self.subscribeStream1?.pauseAudio = true
+            self.subscribeStream1?.audioController.volume = 0
+        }
+        }
+    }
+    @objc func appCameToForeground() {
+        print("App came to foreground!")
+        if(isStreamStarted){
+            print("== isStreamStarted")
+
+            var play = false
+            let imgBtn = btnAudio.image(for: .normal)
+            if ((imgBtn?.isEqual(UIImage.init(named: "unmute")))!)
+            {
+                play = true
+            }
+            let imgBtnVideo = btnVideo?.image(for: .normal)
+            if ((imgBtnVideo?.isEqual(UIImage.init(named: "pause")))!)
+            {
+                if (play)
+                {
+                    if(self.subscribeStream1 != nil && self.subscribeStream1?.audioController != nil) {
+                        self.subscribeStream1?.pauseAudio = false
+                        self.subscribeStream1?.audioController.volume = sliderVolume.value / 100
+                    }
+                }
+                
+            }
+        }
+    }
+
     func hexStringToUIColor (hex:String) -> UIColor {
         var cString:String = hex.trimmingCharacters(in: .whitespacesAndNewlines).uppercased()
         
@@ -502,7 +541,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
         self.sendBirdEmojiConfig()
         if(self.settings_q_and_a == 1){
             //uncomment after this release
-            self.sendBird_Q_And_A_Config()
+           // self.sendBird_Q_And_A_Config()
         }
         
         channelName = streamVideoCode
@@ -722,6 +761,8 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                     btnPlayStream.isHidden = true;
                 }else{
                     if(isUpcoming){
+                      //  var localTimeZoneAbbreviation: String { return TimeZone.current.abbreviation() ?? "" }
+
                         self.lblStreamUnavailable.text = "Please wait. The Stream will begin on \n" + self.strUpcomingDate
                         btnPlayStream.setImage(UIImage.init(named: "refresh"), for: .normal)
                         btnPlayStream.isHidden = true;
@@ -743,7 +784,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
             print("msgInfo:",msgInfo)
             let msgIndex = msgInfo["index"] as? Int ?? -1
             let msg = msgInfo["msg"] as? String ?? ""
-
+            
             if(msgIndex >= 0 && msg != ""){
                 let question = messages_q_and_a[msgIndex]
                 let messageId = String(question.messageId)
@@ -838,6 +879,8 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
             }else{
                 LiveEventById();
             }
+            btnAudio?.setImage(UIImage.init(named: "unmute"), for: .normal);
+            btnVideo?.setImage(UIImage.init(named: "pause"), for: .normal);
             //getPerformerOrgInfo();
             //viewInfo.isHidden = false
         }
@@ -1151,7 +1194,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
             }else{
                 lblNoDataSubscriptions.isHidden = false
             }
-            print("==arySubscriptions count:",arySubscriptions.count)
+            //print("==arySubscriptions count:",arySubscriptions.count)
             return arySubscriptions.count;
         }
         return 0;
@@ -1225,10 +1268,16 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                 let footerView = tbl_Q_And_A.dequeueReusableCell(withIdentifier: "Q_And_A_Footer", for: indexPath) as! Q_And_A_Footer
                 footerView.btnSend.tag = section
                 footerView.btnSend.addTarget(self, action: #selector(sendReply(_:)), for: .touchUpInside)
-               // footerView.txtMsg.delegate = self
+                footerView.btnInput.tag = section
+                footerView.btnInput.addTarget(self, action: #selector(showPopupWithInput(_:)), for: .touchUpInside)
+                footerView.btnInput.isHidden = false
+                footerView.txtMsg.isHidden = true
+
+                /* footerView.txtMsg.delegate = self
                 footerView.txtMsg.tag = 100 + section
                 //addDoneButton_Q_And_A_Answer(footerView.txtMsg)
-                footerView.updateCellWith(index: section)
+                footerView.updateCellWith(index: section)*/
+                
                 return footerView
             }else{
                 let footerView = UIView(frame: CGRect(x: 0, y: 0, width: 0, height: 0))
@@ -1240,7 +1289,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
         }
     }
     
-   
+    
     
     
     @objc func sectionHeaderTapped(recognizer: UITapGestureRecognizer) {
@@ -1771,17 +1820,18 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
             }
             viewRightTitle.isHidden = true
             imgEmoji.isHidden = true
+        }else{
         }
         
     }
     func textFieldDidEndEditing(_ textField: UITextField) {
-      print("textFieldDidEndEditing")
+        print("textFieldDidEndEditing")
         //textField.resignFirstResponder();
     }
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         print("textFieldShouldReturn")
-
+        
         textField.resignFirstResponder();
         if (textField == txtComment || txtTopOfToolBarChat == textField){
             sendChatMessage()
@@ -1796,7 +1846,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
         txtTopOfToolBarChat.text = txtAfterUpdate
         txtTopOfToolBarQAndA.text = txtAfterUpdate
         
-
+        
         return true
     }
     // MARK: Keyboard  Delegate Methods
@@ -2159,13 +2209,14 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                                 }
                                 if(self.settings_q_and_a == 1){
                                     //uncomment after this release
-                                    let predicate = NSPredicate(format:"title == %@", "qa")
-                                    let filteredArray = (buttonNames as NSArray).filtered(using: predicate)
-                                    if(filteredArray.count == 0){
-                                        let dicItem = ["title":"qa","icon":"s_qa","icon_active":"s_qa_active"]
-                                        self.buttonNames.append(dicItem)
-                                    }
+                                    /*let predicate = NSPredicate(format:"title == %@", "qa")
+                                     let filteredArray = (buttonNames as NSArray).filtered(using: predicate)
+                                     if(filteredArray.count == 0){
+                                     let dicItem = ["title":"qa","icon":"s_qa","icon_active":"s_qa_active"]
+                                     self.buttonNames.append(dicItem)
+                                     }*/
                                 }
+                                
                                 self.streamHeaderCVC.reloadData()
                                 
                                 self.viewLiveStream.isHidden = false;
@@ -2217,11 +2268,13 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                                 let expected_end_date_time = streamObj["expected_end_date_time"] as? String ?? "";
                                 let formatter = DateFormatter()
                                 formatter.timeZone = NSTimeZone(abbreviation: "UTC") as TimeZone?
+                                formatter.locale = Locale(identifier: "en_US_POSIX")
+                                
                                 formatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
                                 if let publishDate = formatter.date(from: publish_date_time){
                                     let localDate = publishDate.toLocalTime()
-                                    formatter.dateFormat = "dd MMM yyyy, hh:mm a z"
-                                    self.strUpcomingDate = formatter.string(from: publishDate)
+                                    formatter.dateFormat = "dd MMM yyyy, hh:mm a"
+                                    self.strUpcomingDate = formatter.string(from: localDate)
                                     if let expectedEndDate = formatter.date(from: expected_end_date_time){
                                         formatter.dateFormat = "E, dd MMM yyyy"
                                         let strPublishDate = formatter.string(from: publishDate)
@@ -2348,7 +2401,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                                         let startDate = eventStartDates[0]
                                         let endDate = eventEndDates[eventEndDates.count-1]
                                         //print("startDate:",startDate,";")
-                                        //print("endDate:",endDate,";")
+                                        print("endDate:",endDate,";")
                                         //print("today:",today!)
                                         
                                         //print("startDate > today:",startDate > today!)
@@ -3067,7 +3120,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
     }
     @IBAction func send_Q_And_A_Answer(msg:String,msgId:String) {
         self.view.endEditing(true)
-        print("send_Q_And_A_Answer")
+        //print("send_Q_And_A_Answer")
         if (!isChannelAvailable_q_and_a){
             //print("sendBirdErrorCode:",sendBirdErrorCode)
             switch sendBirdErrorCode_Q_And_A {
@@ -3115,7 +3168,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                     //self.scrollToBottom(force: true)
                     
                     self.loadPrevious_Q_And_A(initial: true)
-
+                    
                 }
                 return
             }
@@ -3582,6 +3635,10 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                     UIView.setAnimationsEnabled(true)
                 }
             }
+        }else if let channel = self.channel_q_and_a {
+            if sender == channel {
+                loadPrevious_Q_And_A(initial: true)
+            }
         }
     }
     func channel(_ sender: SBDBaseChannel, userWasMuted user: SBDUser) {
@@ -3677,7 +3734,37 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
     }
     // MARK: - orientation Handlers
     
-    
+    @objc func showPopupWithInput(_ sender: UIButton){
+        //print("==tag:",sender.tag)
+        //1. Create the alert controller.
+        let alert = UIAlertController(title: "Send a reply", message: nil, preferredStyle: .alert)
+
+        //2. Add the text field. You can configure it however you need.
+        alert.addTextField { (textField) in
+            textField.text = ""
+            textField.font = UIFont(name:"Poppins Regular", size: 17.0)
+
+        }
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+
+        // 3. Grab the value from the text field, and print it when the user clicks OK.
+        alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { [weak alert] (_) in
+            let textField = alert?.textFields![0] // Force unwrapping because we know it exists.
+            print("Text field: \(textField?.text)")
+            
+            let messageText = textField?.text?.trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
+            if (messageText?.count == 0){
+                self.showAlert(strMsg: "Please enter your reply")
+                return
+            }
+            let question = self.messages_q_and_a[sender.tag]
+            let messageId = String(question.messageId)
+            self.send_Q_And_A_Answer(msg:messageText ?? "" , msgId:messageId )
+        }))
+
+        // 4. Present the alert.
+        self.present(alert, animated: true, completion: nil)
+    }
     func getAppversion() -> String {
         let dictionary = Bundle.main.infoDictionary!
         let version = dictionary["CFBundleShortVersionString"] as! String
@@ -3765,13 +3852,13 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                                 }
                                 if(self.settings_q_and_a == 1){
                                     //uncomment after this release
-
-                                    let predicate = NSPredicate(format:"title == %@", "qa")
-                                    let filteredArray = (buttonNames as NSArray).filtered(using: predicate)
-                                    if(filteredArray.count == 0){
-                                        let dicItem = ["title":"qa","icon":"s_qa","icon_active":"s_qa_active"]
-                                        self.buttonNames.append(dicItem)
-                                    }
+                                    
+                                    /*  let predicate = NSPredicate(format:"title == %@", "qa")
+                                     let filteredArray = (buttonNames as NSArray).filtered(using: predicate)
+                                     if(filteredArray.count == 0){
+                                     let dicItem = ["title":"qa","icon":"s_qa","icon_active":"s_qa_active"]
+                                     self.buttonNames.append(dicItem)
+                                     }*/
                                 }
                                 self.streamHeaderCVC.reloadData()
                                 
@@ -3791,7 +3878,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                                 // "currency_type" = USD;
                                 var currency_type = streamObj["currency_type"] as? String ?? ""
                                 self.currencyType = currency_type
-
+                                
                                 if(currency_type == "GBP"){
                                     currency_type = "£"
                                 }else{
@@ -4227,7 +4314,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
         
         NotificationCenter.default.addObserver(self, selector: #selector(ScreenShareNotificationHandler(_:)), name: .didReceiveScreenShareData, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(Notification_Q_And_A_Reply_Handler(_:)), name: .Notification_Q_And_A_Reply, object: nil)
-
+        
         
         if(UIDevice.current.userInterfaceIdiom == .phone){
             let value = UIInterfaceOrientation.landscapeRight.rawValue
@@ -4235,7 +4322,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
         }
         AppDelegate.AppUtility.lockOrientation(.landscapeRight)
         
-
+        
     }
     
     override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
@@ -4383,7 +4470,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
         let accessToken = appDelegate.red5_acc_token
         // https:// livestream.arevea.com/streammanager/api/4.0/admin/event/meta/live/<stream_video_code>/?accessToken=YEOkGmERp08V
         let url = "https://" + host  + "/streammanager/api/" + version + "/admin/event/meta/live/" + stream1 + "?accessToken=" + accessToken
-        // print("metaLive url:",url)
+        //print("metaLive url:",url)
         //let stream = "1588832196500_taylorswiftevent"
         AF.request(url,method: .get, encoding: JSONEncoding.default)
             .responseJSON { response in
@@ -4441,7 +4528,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
         let url = "https://" + host  + "/streammanager/api/" + version + "/event/" +
             context + "/" + streamName + "?action=subscribe&region=" + appDelegate.strRegionCode;
         
-        // print("stream url:",url)
+        print("stream url:",url)
         //let url = "https:// livestream.arevea.com/streammanager/api/4.0/event/live/1588788669277_somethingnew?action=subscribe"
         ////print("findStream url:",url)
         //let stream = "1588832196500_taylorswiftevent"
@@ -4451,7 +4538,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                 switch response.result {
                 case .success(let value):
                     DispatchQueue.main.async {
-                        // print("stream manager API res:",value)
+                        print("stream manager API res:",value)
                     }
                     if let json = value as? [String: Any] {
                         if json["errorMessage"] != nil{
@@ -4462,9 +4549,16 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                                         self.lblStreamUnavailable.text = "We are working on the issue. We will be back shortly."
                                         self.btnPlayStream.isHidden = true;
                                     }else{
-                                        self.lblStreamUnavailable.text = "We are working on the issue. We will be back shortly."
-                                        self.btnPlayStream.setImage(UIImage.init(named: "refresh"), for: .normal)
-                                        self.btnPlayStream.isHidden = false;
+                                        if(self.isUpcoming){
+                                            //var localTimeZoneAbbreviation: String { return TimeZone.current.abbreviation() ?? "" }
+                                        self.lblStreamUnavailable.text = "Please wait. The Stream will begin on \n" + self.strUpcomingDate
+                                                self.btnPlayStream.setImage(UIImage.init(named: "refresh"), for: .normal)
+                                            self.btnPlayStream.isHidden = true;
+                                        }else{
+                                            self.lblStreamUnavailable.text = "We are working on the issue. We will be back shortly."
+                                            self.btnPlayStream.isHidden = false;
+                                            self.btnPlayStream.setImage(UIImage.init(named: "refresh"), for: .normal)
+                                        }
                                     }
                                     //self.viewOverlay?.isHidden = true// controls not working
                                 }
@@ -4530,22 +4624,38 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
         return r5View;
     }
     @IBAction func pauseAudio() {
+        //if video is pause mode, we should not hear audio
+        //handling code for this
+        var play = false
         let imgBtn = btnAudio.image(for: .normal)
         if ((imgBtn?.isEqual(UIImage.init(named: "unmute")))!)
         {
+            play = false
             btnAudio?.setImage(UIImage.init(named: "mute"), for: .normal);
-            if( self.subscribeStream1 != nil && self.subscribeStream1?.audioController != nil) {
-                self.subscribeStream1?.audioController.volume = 0
-                ALToastView.toast(in: self.view, withText:"Pausing Audio")
-            }
-        }
-        else{
+        }else{
+            play = true
             btnAudio?.setImage(UIImage.init(named: "unmute"), for: .normal);
-            if(self.subscribeStream1 != nil && self.subscribeStream1?.audioController != nil) {
-                self.subscribeStream1?.audioController.volume = sliderVolume.value / 100
-                ALToastView.toast(in: self.view, withText:"Playing Audio")
+        }
+        let imgBtnVideo = btnVideo?.image(for: .normal)
+        if ((imgBtnVideo?.isEqual(UIImage.init(named: "pause")))!)
+        {
+            if (play)
+            {
+                if(self.subscribeStream1 != nil && self.subscribeStream1?.audioController != nil) {
+                    self.subscribeStream1?.pauseAudio = false
+                    self.subscribeStream1?.audioController.volume = sliderVolume.value / 100
+                    ALToastView.toast(in: self.view, withText:"Playing Audio")
+                }
+            }
+            else{
+                if( self.subscribeStream1 != nil && self.subscribeStream1?.audioController != nil) {
+                    self.subscribeStream1?.pauseAudio = true
+                    self.subscribeStream1?.audioController.volume = 0
+                    ALToastView.toast(in: self.view, withText:"Pausing Audio")
+                }
             }
         }
+       
     }
     @IBAction func pauseVideo() {
         
@@ -4553,16 +4663,22 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
         if ((imgBtn?.isEqual(UIImage.init(named: "pause")))!)
         {
             btnVideo?.setImage(UIImage.init(named: "play"), for: .normal);
-            if( self.subscribeStream1 != nil) {
-                ALToastView.toast(in: self.view, withText:"Pausing Video")
+            if(self.subscribeStream1 != nil && self.subscribeStream1?.audioController != nil) {
+                self.subscribeStream1?.pauseAudio = true
+                self.subscribeStream1?.pauseVideo = true
                 self.subscribeStream1?.deactivate_display()
+                self.subscribeStream1?.audioController.volume = 0
+                ALToastView.toast(in: self.view, withText:"Pausing Video")
             }
         }
         else{
             btnVideo?.setImage(UIImage.init(named: "pause"), for: .normal);
-            if( self.subscribeStream1 != nil) {
-                ALToastView.toast(in: self.view, withText:"Playing Video")
+            if(self.subscribeStream1 != nil && self.subscribeStream1?.audioController != nil) {
+                self.subscribeStream1?.pauseAudio = false
+                self.subscribeStream1?.pauseVideo = false
                 self.subscribeStream1?.activate_display()
+                self.subscribeStream1?.audioController.volume = sliderVolume.value / 100
+                ALToastView.toast(in: self.view, withText:"Playing Video")
             }
         }
     }
@@ -4765,13 +4881,13 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
         }
     }
     @objc func headerBtnPressed(_ sender: UIButton) {
-        print("headerBtnPressed:",sender.tag)
+        //print("headerBtnPressed:",sender.tag)
         //streamHeaderCVC.reloadData()
         refreshHeaderBtns()
         if(sender.tag - 10 <= buttonNames.count){
             let selectedObj = buttonNames[sender.tag - 10]
             let title =  selectedObj["title"] ?? ""
-            print("title:",title)
+            //print("title:",title)
             setBtnDefaultBG()
             viewRightTitle.isHidden = false
             switch title {
@@ -4789,13 +4905,11 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                 // set up activity view controller
                 let activityViewController = UIActivityViewController(activityItems: textToShare, applicationActivities: nil)
                 activityViewController.excludedActivityTypes = [.airDrop]
-                
                 if let popoverController = activityViewController.popoverPresentationController {
                     popoverController.sourceRect = CGRect(x: UIScreen.main.bounds.width / 2, y: UIScreen.main.bounds.height / 2, width: 0, height: 0)
                     popoverController.sourceView = self.view
                     popoverController.permittedArrowDirections = UIPopoverArrowDirection(rawValue: 0)
                 }
-                
                 self.present(activityViewController, animated: true, completion: nil)
             case "emoji":
                 print("emoji")
@@ -4821,7 +4935,6 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                 sender.setImage(UIImage.init(named: "s_qa_active"), for: .normal)
                 view_Q_And_A.isHidden = false
                 loadPrevious_Q_And_A(initial: true)
-                
             default:
                 print("default")
             }

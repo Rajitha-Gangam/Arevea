@@ -111,8 +111,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
         
         getCurrency()
         
-        
-        
+        viewContacts.isHidden = true 
     }
     func getCurrency(){
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
@@ -428,7 +427,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
     func getEvents(inputData:[String: Any]){
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         let url: String = appDelegate.baseURL +  "/events"
-        //print("getEvents input:",inputData)
+        print("getEvents input:",inputData)
         viewActivity.isHidden = false
         let headers: HTTPHeaders
         headers = [appDelegate.x_api_key: appDelegate.x_api_value]
@@ -439,7 +438,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
                     switch response.result {
                     case .success(let value):
                         if let json = value as? [String: Any] {
-                            //print("events JSON:",json)
+                            print("events JSON:",json)
                             let data  = json["Data"] as? [String:Any];
                             self.aryLiveChannelsData = data?["live_events"] as? [Any] ?? [Any]();
                             self.aryUpcomingData = data?["upcoming_events"] as? [Any] ?? [Any]();
@@ -898,14 +897,14 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
         let headers: HTTPHeaders
         headers = [appDelegate.x_api_key: appDelegate.x_api_value]
         
-        print("liveEvents params1:",params)
+        //print("liveEvents params1:",params)
         AF.request(url, method: .post,parameters: params, encoding: JSONEncoding.default,headers:headers)
             .responseJSON { [self] response in
                 self.viewActivity.isHidden = true
                 switch response.result {
                 case .success(let value):
                     if let json = value as? [String: Any] {
-                        print("LiveEventById JSON1:",json)
+                       // print("LiveEventById JSON1:",json)
                         if (json["statusCode"]as? String == "200"){
                             let data = json["Data"] as? [String:Any]
                             let resultData = data ?? [:]
@@ -952,6 +951,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
                                         vc.strTitle = stream_video_title
                                         vc.isUpcoming = isUpcoming
                                         vc.channel_name_subscription = channelName
+                                        
                                         if(stream_status == "completed" && myList){
                                             vc.isVOD = true
                                         }else{
@@ -1033,15 +1033,16 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
             if (error != nil){
                 ////print("error in reverseGeocode")
             }
-            let placemark = placemarks! as [CLPlacemark]
-            if placemark.count>0{
-                let placemark = placemarks![0]
-                // print("country:",placemark.country!)
-                self.appDelegate.strCountry = placemark.country!
-                self.getRegion()
+            if(placemarks?.count ?? 0 > 0){
+                let placemark = placemarks! as [CLPlacemark]
+                if placemark.count > 0{
+                    let placemark = placemarks![0]
+                    // print("country:",placemark.country!)
+                    self.appDelegate.strCountry = placemark.country!
+                    self.getRegion()
+                }
             }
         }
-        
     }
     func getRegion(){
         for (i,_) in appDelegate.aryCountries.enumerated(){

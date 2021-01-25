@@ -10,6 +10,8 @@ import UIKit
 
 class Q_And_A_Footer: UITableViewCell,UITextFieldDelegate {
     @IBOutlet weak var btnSend: UIButton!
+    @IBOutlet weak var btnInput: UIButton!
+
     @IBOutlet weak var txtMsg: UITextField!
     var txtTopOfToolBarQAndA : UITextField!
 

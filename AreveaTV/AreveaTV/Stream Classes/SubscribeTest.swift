@@ -159,7 +159,7 @@ class SubscribeTest: BaseTest {
         let url = "https://" + host  + "/streammanager/api/" + version + "/event/" +
             context + "/" + streamName + "?action=subscribe&region=" + appDelegate.strRegionCode;
         
-        //print("url:",url)
+        print("url:",url)
         //let url = "https:// livestream.arevea.com/streammanager/api/4.0/event/live/1588788669277_somethingnew?action=subscribe"
         ////print("findStream url:",url)
         //let stream = "1588832196500_taylorswiftevent"

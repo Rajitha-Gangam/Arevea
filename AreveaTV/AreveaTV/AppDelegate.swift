@@ -82,7 +82,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var ol_client_secret = "67795bdcf01b42caeb145988f7e64bd71d00191e2abab99dc7e43bf86da3e50c"
     var ol_access_token = ""
     var FCMBaseURL = "https://eku2g4rzxl.execute-api.us-west-2.amazonaws.com/dev"
-     var socialLoginURL = "https://areveatv-sandbox.onelogin.com/access/initiate"
+    var socialLoginURL = "https://areveatv-sandbox.onelogin.com/access/initiate"
 
     //QA Variables END
     
@@ -157,7 +157,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, supportedInterfaceOrientationsFor window: UIWindow?) -> UIInterfaceOrientationMask {
         return self.orientationLock
     }
-    
+    public func removeTimeStamp(fromDate: Date) -> Date {
+        guard let date = Calendar.current.date(from: Calendar.current.dateComponents([.year, .month, .day], from: fromDate)) else {
+            fatalError("Failed to strip time from Date object")
+        }
+        return date
+    }
     // MARK: - Application Life cycle
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         
@@ -222,8 +227,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             
             // Enable or disable features based on the authorization.
         }
-        
-        
+
         return true
     }
     
@@ -608,6 +612,123 @@ extension UIColor {
        )
    }
     
+}
+extension Date {
+    
+    func isEqualTo(_ date: Date) -> Bool {
+        return self == date
+    }
+    
+    func isGreaterThan(_ date: Date) -> Bool {
+        return self > date
+    }
+    
+    func isSmallerThan(_ date: Date) -> Bool {
+        return self < date
+    }
+    
+    // Convert local time to UTC (or GMT)
+    func toGlobalTime() -> Date {
+        let timezone = TimeZone.current
+        let seconds = -TimeInterval(timezone.secondsFromGMT(for: self))
+        return Date(timeInterval: seconds, since: self)
+    }
+    
+    // Convert UTC (or GMT) to local time
+    func toLocalTime() -> Date {
+        let timezone = TimeZone.current
+        let seconds = TimeInterval(timezone.secondsFromGMT(for: self))
+        return Date(timeInterval: seconds, since: self)
+    }
+    static func getFormattedDate(strDate: String , formatter:String) -> String{
+           let dateFormatterGet = DateFormatter()
+           dateFormatterGet.dateFormat = formatter
+
+           let dateFormatterPrint = DateFormatter()
+           dateFormatterPrint.dateFormat = "MMM dd,yyyy"
+
+           let date: Date? = dateFormatterGet.date(from: strDate)
+           return dateFormatterPrint.string(from: date!);
+       }
+    
+}
+extension String {
+    func convertDateString() -> String? {
+        return convert(dateString: self, fromDateFormat: "yyyy-MM-dd HH:mm:ss", toDateFormat: "yyyy-MM-dd")
+    }
+   
+    func convert(dateString: String, fromDateFormat: String, toDateFormat: String) -> String? {
+        let fromDateFormatter = DateFormatter()
+        fromDateFormatter.dateFormat = fromDateFormat
+        if let fromDateObject = fromDateFormatter.date(from: dateString) {
+            let toDateFormatter = DateFormatter()
+            toDateFormatter.dateFormat = toDateFormat
+            let newDateString = toDateFormatter.string(from: fromDateObject)
+            return newDateString
+        }
+        return nil
+    }
+    static func getFormattedDate(strDate: String , formatter:String) -> Date{
+        let dateFormatterGet = DateFormatter()
+        dateFormatterGet.dateFormat = formatter
+        dateFormatterGet.timeZone = NSTimeZone(abbreviation: "UTC") as TimeZone?
+        let dateFormatterPrint = DateFormatter()
+        dateFormatterPrint.dateFormat = "MMM dd, yyyy"
+
+        let date: Date? = dateFormatterGet.date(from: formatter)
+        return date ?? Date()
+    }
+    static func getFormattedDate1(strDate: String , formatter:String) -> Date{
+        let dateFormatterGet = DateFormatter()
+        dateFormatterGet.dateFormat = formatter
+        dateFormatterGet.timeZone = NSTimeZone(abbreviation: "UTC") as TimeZone?
+        dateFormatterGet.locale = Locale(identifier: "en_US_POSIX")
+
+        let dateFormatterPrint = DateFormatter()
+        dateFormatterPrint.dateFormat = "dd-MMM-yyyy HH:mm"
+
+        let date: Date? = dateFormatterGet.date(from: formatter)
+        return date ?? Date()
+    }
+
+    func image() -> UIImage? {
+        let size = CGSize(width: 45, height: 45)
+        UIGraphicsBeginImageContextWithOptions(size, false, 0)
+        UIColor.clear.set()
+        let rect = CGRect(origin: .zero, size: size)
+        UIRectFill(CGRect(origin: .zero, size: size))
+        (self as AnyObject).draw(in: rect, withAttributes: [.font: UIFont.systemFont(ofSize: 40)])
+        let image = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        return image
+    }
+    var htmlToAttributedString: NSAttributedString? {
+        guard let data = data(using: .utf8) else { return NSAttributedString() }
+        do {
+            return try NSAttributedString(data: data, options: [.documentType: NSAttributedString.DocumentType.html, .characterEncoding:String.Encoding.utf8.rawValue], documentAttributes: nil)
+        } catch {
+            return NSAttributedString()
+        }
+    }
+    var htmlToString: String {
+        return htmlToAttributedString?.string ?? ""
+    }
+    
+}
+extension Array where Element : Equatable  {
+    public mutating func removeObject(_ item: Element) {
+        if let index = self.firstIndex(of: item) {
+            self.remove(at: index)
+        }
+    }
+}
+
+
+extension Sequence where Iterator.Element: Hashable {
+    func unique() -> [Iterator.Element] {
+        var seen: [Iterator.Element: Bool] = [:]
+        return self.filter { seen.updateValue(true, forKey: $0) == nil }
+    }
 }
 extension Notification.Name {
     static let didReceiveStreamData = Notification.Name("didReceiveStreamData")

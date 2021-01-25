@@ -29,7 +29,7 @@ class TicketTypesVC: UIViewController,UITableViewDataSource,UITableViewDelegate,
     var isUpcoming = false;
     let appDelegate = UIApplication.shared.delegate as! AppDelegate
     var aryStreamInfo = [String: Any]()
-    
+    var tempAryDisplayCurrencies = [Any]()
     @IBOutlet weak var tblheight: NSLayoutConstraint!
     var aryStreamAmounts = [Any]()
     @IBOutlet weak var heightTopView: NSLayoutConstraint?
@@ -41,7 +41,11 @@ class TicketTypesVC: UIViewController,UITableViewDataSource,UITableViewDelegate,
     var currencySymbol = ""
     var jsonCurrencyList = [String:Any]()
     @IBOutlet weak var btnCancel: UIButton!
-
+    
+    var aryCurrencyKeys = [String]()
+    var aryCurrencyValues = [Any]()
+    var aryDisplayCurrencies = [Any]()
+    var doubleDisplayCurrencies = [Double]()
     // MARK: - View Life cycle
     
     override func viewDidLoad() {
@@ -49,7 +53,8 @@ class TicketTypesVC: UIViewController,UITableViewDataSource,UITableViewDelegate,
         
         // Do any additional setup after loading the view.
         tblTicketTypes.register(UINib(nibName: "TicketTypesCell", bundle: nil), forCellReuseIdentifier: "TicketTypesCell")
-        //print("tt - aryStreamAmounts:",aryStreamAmounts)
+        print("tt - aryStreamAmounts:",tempAryDisplayCurrencies)
+       
         
         if let path = Bundle.main.path(forResource: "currencies", ofType: "json") {
             do {
@@ -131,9 +136,9 @@ class TicketTypesVC: UIViewController,UITableViewDataSource,UITableViewDelegate,
         return 1
     }
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        tblheight.constant = CGFloat(rowHeight * aryStreamAmounts.count)
+        tblheight.constant = CGFloat(rowHeight * tempAryDisplayCurrencies.count)
         self.tblTicketTypes.layoutIfNeeded()
-        return aryStreamAmounts.count
+        return tempAryDisplayCurrencies.count
     }
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) ->  CGFloat {
         return CGFloat(rowHeight);
@@ -141,48 +146,22 @@ class TicketTypesVC: UIViewController,UITableViewDataSource,UITableViewDelegate,
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "TicketTypesCell") as! TicketTypesCell
         cell.backgroundColor = UIColor.clear
-        let element = self.aryStreamAmounts[indexPath.row] as? [String : Any] ?? [String:Any]()
+        let element = self.tempAryDisplayCurrencies[indexPath.row] as? [String : Any] ?? [String:Any]()
         let ticket_type_name = element["ticket_type_name"]as? String ?? ""
+        var strAmount = "0.0"
+        if (element["stream_payment_amount"] as? Double) != nil {
+            strAmount = String(element["stream_payment_amount"] as? Double ?? 0.00)
+        }else if (element["stream_payment_amount"] as? String) != nil {
+            strAmount = String(element["stream_payment_amount"] as? String ?? "0.00")
+        }
         cell.lblTitle.text = ticket_type_name
         cell.imgCheck.image = UIImage.init(named: "check")
         if(indexSelectedTicketType == indexPath.row){
             cell.imgCheck.image = UIImage.init(named: "checked")
         }
-        var strAmount = "0.0"
-        let amounts = element["amounts"]as? [Any] ?? [Any]()
-        var userIndex = -1
-        var creatorIndex = -1
-        for(j,_)in amounts.enumerated(){
-            let object = amounts[j] as? [String : Any] ?? [String:Any]()
-            let currency_type1 = object["currency_type"]as? String ?? "";
-            if(appDelegate.userCurrencyCode == currency_type1){
-                self.currencySymbol = appDelegate.userCurrencySymbol
-                userIndex = j
-            }
-            if(self.currencyType == currency_type1){
-                creatorIndex = j
-            }
-        }
-        var index = -1
-        if(userIndex != -1){
-            index = userIndex
-        }else {
-            index = creatorIndex
-            let currencySymbol1 = jsonCurrencyList[self.currencyType] as? String
-            self.currencySymbol = currencySymbol1 ?? "$"
-        }
-        if(index != -1){
-            let object = amounts[index] as? [String : Any] ?? [String:Any]()
-            if (object["stream_payment_amount"] as? Double) != nil {
-                strAmount = String(object["stream_payment_amount"] as? Double ?? 0.0)
-            }else if (object["stream_payment_amount"] as? String) != nil {
-                strAmount = String(object["stream_payment_amount"] as? String ?? "0.0")
-            }
-            let doubleAmount = Double(strAmount)
-            let amount = String(format: "%.02f", doubleAmount!)
-            let amountWithCurrencyType = self.currencySymbol + amount
-            cell.lblAmount.text = amountWithCurrencyType
-        }
+        let  amountWithCurrencyType = self.currencySymbol + strAmount
+       cell.lblAmount.text = amountWithCurrencyType
+        
         return cell
     }
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {

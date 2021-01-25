@@ -1338,36 +1338,5 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
     }
 }
 
-extension String {
-    func image() -> UIImage? {
-        let size = CGSize(width: 45, height: 45)
-        UIGraphicsBeginImageContextWithOptions(size, false, 0)
-        UIColor.clear.set()
-        let rect = CGRect(origin: .zero, size: size)
-        UIRectFill(CGRect(origin: .zero, size: size))
-        (self as AnyObject).draw(in: rect, withAttributes: [.font: UIFont.systemFont(ofSize: 40)])
-        let image = UIGraphicsGetImageFromCurrentImageContext()
-        UIGraphicsEndImageContext()
-        return image
-    }
-    var htmlToAttributedString: NSAttributedString? {
-        guard let data = data(using: .utf8) else { return NSAttributedString() }
-        do {
-            return try NSAttributedString(data: data, options: [.documentType: NSAttributedString.DocumentType.html, .characterEncoding:String.Encoding.utf8.rawValue], documentAttributes: nil)
-        } catch {
-            return NSAttributedString()
-        }
-    }
-    var htmlToString: String {
-        return htmlToAttributedString?.string ?? ""
-    }
-    
-}
-extension Array where Element : Equatable  {
-    public mutating func removeObject(_ item: Element) {
-        if let index = self.firstIndex(of: item) {
-            self.remove(at: index)
-        }
-    }
-}
+
 
