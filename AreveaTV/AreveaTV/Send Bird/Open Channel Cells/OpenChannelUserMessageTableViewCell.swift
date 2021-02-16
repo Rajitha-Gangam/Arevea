@@ -23,7 +23,7 @@ class OpenChannelUserMessageTableViewCell: OpenChannelMessageTableViewCell {
     
     func setMessage(_ message: SBDUserMessage) {
         self.msg = message
-        
+        print("==>self.msg:",self.msg)
         //self.resendButton.addTarget(self, action: #selector(OpenChannelUserMessageTableViewCell.clickResendUserMessageButton(_:)), for: .touchUpInside)
         
         let longClickMessageContainerGesture = UILongPressGestureRecognizer(target: self, action: #selector(OpenChannelUserMessageTableViewCell.longClickUserMessage(_:)))

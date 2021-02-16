@@ -24,20 +24,6 @@
                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="g31-1K-eHe" userLabel="View send msg">
                             <rect key="frame" x="10" y="10" width="355" height="54"/>
                             <subviews>
-                                <textField opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Send a reply" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="zHK-gl-FtJ">
-                                    <rect key="frame" x="10" y="10" width="295" height="34"/>
-                                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                    <fontDescription key="fontDescription" name="Poppins-Regular" family="Poppins" pointSize="17"/>
-                                    <textInputTraits key="textInputTraits"/>
-                                    <userDefinedRuntimeAttributes>
-                                        <userDefinedRuntimeAttribute type="color" keyPath="placeholderLabel.textColor">
-                                            <color key="value" white="0.66666666666666663" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                        </userDefinedRuntimeAttribute>
-                                    </userDefinedRuntimeAttributes>
-                                    <connections>
-                                        <outlet property="delegate" destination="DWJ-xQ-C4O" id="eQ5-vK-CFh"/>
-                                    </connections>
-                                </textField>
                                 <button hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="leading" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Dwm-Sm-RZR">
                                     <rect key="frame" x="10" y="9" width="295" height="36"/>
                                     <fontDescription key="fontDescription" name="Poppins-Regular" family="Poppins" pointSize="17"/>
@@ -56,18 +42,14 @@
                                     <state key="normal" image="send"/>
                                 </button>
                             </subviews>
-                            <color key="backgroundColor" red="0.11372549019607843" green="0.11372549019607843" blue="0.11372549019607843" alpha="1" colorSpace="calibratedRGB"/>
+                            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             <constraints>
                                 <constraint firstItem="Hzv-Kq-Tqs" firstAttribute="centerY" secondItem="g31-1K-eHe" secondAttribute="centerY" id="1e5-Xu-jTs"/>
-                                <constraint firstItem="zHK-gl-FtJ" firstAttribute="leading" secondItem="Dwm-Sm-RZR" secondAttribute="leading" id="1nn-vH-M3N"/>
                                 <constraint firstItem="Dwm-Sm-RZR" firstAttribute="leading" secondItem="g31-1K-eHe" secondAttribute="leading" constant="10" id="Crq-i1-O69"/>
-                                <constraint firstItem="zHK-gl-FtJ" firstAttribute="top" secondItem="Dwm-Sm-RZR" secondAttribute="top" id="EFz-To-tnk"/>
                                 <constraint firstItem="Hzv-Kq-Tqs" firstAttribute="leading" secondItem="Dwm-Sm-RZR" secondAttribute="trailing" constant="10" id="EfN-e9-lqy"/>
-                                <constraint firstItem="zHK-gl-FtJ" firstAttribute="trailing" secondItem="Dwm-Sm-RZR" secondAttribute="trailing" id="Ffj-h8-yL2"/>
                                 <constraint firstAttribute="trailing" secondItem="Hzv-Kq-Tqs" secondAttribute="trailing" constant="10" id="anu-5p-NuT"/>
                                 <constraint firstItem="Dwm-Sm-RZR" firstAttribute="centerY" secondItem="g31-1K-eHe" secondAttribute="centerY" id="cRJ-x5-o4F"/>
                                 <constraint firstAttribute="height" constant="54" id="u4n-qj-wgC"/>
-                                <constraint firstItem="zHK-gl-FtJ" firstAttribute="bottom" secondItem="Dwm-Sm-RZR" secondAttribute="bottom" id="xbs-E1-3jQ"/>
                             </constraints>
                             <userDefinedRuntimeAttributes>
                                 <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
@@ -75,13 +57,26 @@
                                 </userDefinedRuntimeAttribute>
                             </userDefinedRuntimeAttributes>
                         </view>
+                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="HrE-LK-4XW">
+                            <rect key="frame" x="0.0" y="72" width="375" height="1"/>
+                            <color key="backgroundColor" white="0.66666666666666663" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            <constraints>
+                                <constraint firstAttribute="height" constant="1" id="V3v-WT-WBh"/>
+                            </constraints>
+                            <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                            <nil key="textColor"/>
+                            <nil key="highlightedColor"/>
+                        </label>
                     </subviews>
-                    <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    <color key="backgroundColor" red="0.22352941176470587" green="0.22352941176470587" blue="0.32549019607843138" alpha="1" colorSpace="calibratedRGB"/>
                     <constraints>
+                        <constraint firstItem="HrE-LK-4XW" firstAttribute="leading" secondItem="ehE-Cq-ZbP" secondAttribute="leading" id="Bg5-JG-7E5"/>
                         <constraint firstAttribute="bottom" secondItem="g31-1K-eHe" secondAttribute="bottom" constant="10" id="PmM-3l-ogJ"/>
+                        <constraint firstAttribute="trailing" secondItem="HrE-LK-4XW" secondAttribute="trailing" id="RdZ-nZ-CTE"/>
                         <constraint firstItem="g31-1K-eHe" firstAttribute="top" secondItem="ehE-Cq-ZbP" secondAttribute="top" constant="10" id="bB8-f4-cho"/>
                         <constraint firstItem="g31-1K-eHe" firstAttribute="leading" secondItem="ehE-Cq-ZbP" secondAttribute="leading" constant="10" id="g0b-lJ-JVt"/>
                         <constraint firstAttribute="trailing" secondItem="g31-1K-eHe" secondAttribute="trailing" constant="10" id="gIW-z8-AqS"/>
+                        <constraint firstAttribute="bottom" secondItem="HrE-LK-4XW" secondAttribute="bottom" constant="1" id="vco-kg-ujX"/>
                     </constraints>
                 </view>
             </subviews>
@@ -96,7 +91,7 @@
             <connections>
                 <outlet property="btnInput" destination="Dwm-Sm-RZR" id="V19-e5-cum"/>
                 <outlet property="btnSend" destination="Hzv-Kq-Tqs" id="yWR-Ud-kHX"/>
-                <outlet property="txtMsg" destination="zHK-gl-FtJ" id="1NP-nY-0UL"/>
+                <outlet property="viewSendReply" destination="g31-1K-eHe" id="rE3-z5-Puy"/>
             </connections>
             <point key="canvasLocation" x="12" y="-73.763118440779621"/>
         </view>

@@ -106,64 +106,27 @@ class SplashVC: UIViewController {
     }
     func initOL(){
         // UserDefaults.standard.set("101059776", forKey: "user_id")
+        let user = UserDefaults.standard.string(forKey: "user")
+        var userIdExists = false
+        if(user == "logged-in-user"){
+            let userId = UserDefaults.standard.string(forKey: "user_id")
+            if (userId != nil && userId != "0")  {
+                userIdExists = true
+            }
+        }
         
-        let userId = UserDefaults.standard.string(forKey: "user_id")
-        if (userId != nil && userId != "0")  {
+        if (userIdExists)  {
+            appDelegate.isGuest = false
             self.sendBirdConnect()
         }else{
+            UserDefaults.standard.set("0", forKey: "user_id")
+            appDelegate.isGuest = true
             let storyboard = UIStoryboard(name: "Main", bundle: nil);
-            let vc = storyboard.instantiateViewController(withIdentifier: "LoginVC") as! LoginVC
+            let vc = storyboard.instantiateViewController(withIdentifier: "DashBoardVC") as! DashBoardVC
             self.navigationController?.pushViewController(vc, animated: true)
         }
     }
-    func initAWS(){
-        let netAvailable = appDelegate.isConnectedToInternet()
-        if(!netAvailable){
-            showAlert(strMsg: "Please check your internet connection!")
-            return
-        }
-        //self.viewActivity.isHidden = false
-        
-        AWSMobileClient.default().initialize { (userState, error) in
-            if let error = error {
-                ////print("error: \(error.localizedDescription)")
-                return
-            }
-            
-            guard let userState = userState else {
-                return
-            }
-            //self.viewActivity.isHidden = true
-            
-            ////print("The user is \(userState.rawValue).")
-            
-            
-            // Check if user availability
-            switch userState {
-            case .signedIn:
-                NSLog("signedIn");
-                if UserDefaults.standard.string(forKey: "user_id") != nil  {
-                    self.sendBirdConnect()
-                }else{
-                    //if user is in signed in state, but app deleted, then we do not user values
-                    AWSMobileClient.default().signOut() { error in
-                        if let error = error {
-                            ////print(error)
-                            return
-                        }
-                    }
-                    let storyboard = UIStoryboard(name: "Main", bundle: nil);
-                    let vc = storyboard.instantiateViewController(withIdentifier: "LoginVC") as! LoginVC
-                    self.navigationController?.pushViewController(vc, animated: true)
-                }
-            default:
-                NSLog("default");
-                let storyboard = UIStoryboard(name: "Main", bundle: nil);
-                let vc = storyboard.instantiateViewController(withIdentifier: "LoginVC") as! LoginVC
-                self.navigationController?.pushViewController(vc, animated: true)
-            }
-        }
-    }
+    
     
     func assignbackground(){
         let background = UIImage(named: "splash")

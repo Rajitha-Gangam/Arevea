@@ -3,6 +3,14 @@
 <plist version="1.0">
 <dict>
 	<key>aps-environment</key>
-	<string>production</string>
+	<string>development</string>
+	<key>com.apple.developer.associated-domains</key>
+	<array>
+		<string>applinks:dev1.arevea.com</string>
+		<string>applinks:www.arevea.com</string>
+		<string>applinks:qa1.arevea.com</string>
+		<string>applinks:preprod.arevea.tv</string>
+		<string>applinks:arevea.com</string>
+	</array>
 </dict>
 </plist>

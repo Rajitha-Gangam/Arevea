@@ -144,21 +144,20 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
         strLastName = txtLastName.text!.trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
         let phone = txtPhone.getRawPhoneNumber() ?? "0"// if its valid, number returns, else 0 assigning
         strDisplayName = txtDisplayName.text!.trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
-        let dob = txtDOB.text!
         strPhone = countryCode + phone
         if (strFirstName.count == 0){
             showAlert(strMsg: "Please enter first name");
         }else if (strLastName.count == 0){
             showAlert(strMsg: "Please enter last name");
-        }else if (strPhone.count == 0){
-            showAlert(strMsg: "Please enter phone number");
-        }else if (phone == "0"){
-            showAlert(strMsg: "Please enter valid phone number");
         }else if (strDisplayName.count == 0){
             showAlert(strMsg: "Please enter display name");
-        }else if (dob.count == 0){
-            showAlert(strMsg: "Please select age");
         }else{
+            if (txtPhone.text?.count != 0){
+                if (phone == "0"){
+                    showAlert(strMsg: "Please enter valid phone number");
+                    return
+                }
+            }
             setProfile()
         }
     }
@@ -237,43 +236,44 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
                         self.txtDisplayName.text = custom_attributes["user_display_name"]as? String
                         //print("txtDIsplay:",self.txtDisplayName.text)
                         let dob = custom_attributes["date_of_birth"]as? String ?? ""
-                        //self.txtDOB.text = dob;
-                        
-                        let dateFormatter = DateFormatter()
-                        dateFormatter.dateFormat = "YYYY-MM-dd"
-                        let date = dateFormatter.date(from: dob)
-                        
-                        let dateFormatterYear = DateFormatter()
-                        dateFormatterYear.dateFormat = "YYYY"
-                        let pastdate = dateFormatterYear.string(from: date ?? Date());
-                        
-                        let todaysDate = Date()
-                        let currentDate = dateFormatterYear.string(from: todaysDate);
-                        ////print("currentDate:",currentDate)
-                        ////print("pastdate:",pastdate)
-                        guard let currentYear = Int(currentDate), let pastYear = Int(pastdate) else {
-                            ////print("Some value is nil")
-                            return
+                        if(dob != ""){
+                            let dateFormatter = DateFormatter()
+                            dateFormatter.dateFormat = "YYYY-MM-dd"
+                            let date = dateFormatter.date(from: dob)
+                            
+                            let dateFormatterYear = DateFormatter()
+                            dateFormatterYear.dateFormat = "YYYY"
+                            let pastdate = dateFormatterYear.string(from: date ?? Date());
+                            
+                            let todaysDate = Date()
+                            let currentDate = dateFormatterYear.string(from: todaysDate);
+                            ////print("currentDate:",currentDate)
+                            ////print("pastdate:",pastdate)
+                            guard let currentYear = Int(currentDate), let pastYear = Int(pastdate) else {
+                                ////print("Some value is nil")
+                                return
+                            }
+                            let age = currentYear - pastYear
+                            print("age:",age)
+                            
+                            if (age > 17){
+                                self.txtDOB.text = self.pickerData[2]
+                                ////print("second:",self.pickerData[1])
+                                self.selectedAgeIndex = 2
+                                self.pickerView.selectRow(2, inComponent: 0, animated: true)
+                            }
+                            else if (age == 16 || age == 17 ){
+                                self.txtDOB.text = self.pickerData[1]
+                                ////print("second:",self.pickerData[1])
+                                self.selectedAgeIndex = 1
+                                self.pickerView.selectRow(1, inComponent: 0, animated: true)
+                            }else{
+                                self.txtDOB.text = self.pickerData[0]
+                                self.selectedAgeIndex = 0
+                                self.pickerView.selectRow(0, inComponent: 0, animated: true)
+                            }
                         }
-                        let age = currentYear - pastYear
-                        print("age:",age)
                         
-                        if (age > 17){
-                            self.txtDOB.text = self.pickerData[2]
-                            ////print("second:",self.pickerData[1])
-                            self.selectedAgeIndex = 2
-                            self.pickerView.selectRow(2, inComponent: 0, animated: true)
-                        }
-                        else if (age == 16 || age == 17 ){
-                            self.txtDOB.text = self.pickerData[1]
-                            ////print("second:",self.pickerData[1])
-                            self.selectedAgeIndex = 1
-                            self.pickerView.selectRow(1, inComponent: 0, animated: true)
-                        }else{
-                            self.txtDOB.text = self.pickerData[0]
-                            self.selectedAgeIndex = 0
-                            self.pickerView.selectRow(0, inComponent: 0, animated: true)
-                        }
                         //let diff = Int(currentDate) - Int(pastdate)
                         
                         let strURL = custom_attributes["profile_pic"]as? String ?? ""
@@ -370,33 +370,39 @@ class ProfileVC: UIViewController,UITextFieldDelegate,UIImagePickerControllerDel
         }
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         let dob = txtDOB.text!
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "YYYY-MM-dd"
-        
-        let currentDate = Date()
-        var dateComponent = DateComponents()
-        
-        if (dob == "Under 16"){
-            selectedAgeIndex = 0
-            dateComponent.year = -15 // currentdate -15 years
-        }else if (dob == "16-17"){
-            selectedAgeIndex = 1
-            dateComponent.year = -16 // currentdate -16 years
-        }else{
-            selectedAgeIndex = 2
-            dateComponent.year = -19 // currentdate -18 years
+        if(dob != ""){
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = "YYYY-MM-dd"
+            
+            let currentDate = Date()
+            var dateComponent = DateComponents()
+            
+            if (dob == "Under 16"){
+                selectedAgeIndex = 0
+                dateComponent.year = -15 // currentdate -15 years
+            }else if (dob == "16-17"){
+                selectedAgeIndex = 1
+                dateComponent.year = -16 // currentdate -16 years
+            }else{
+                selectedAgeIndex = 2
+                dateComponent.year = -19 // currentdate -18 years
+            }
+            let pastDate = Calendar.current.date(byAdding: dateComponent, to: currentDate)
+            ////print("currentDate:",currentDate)
+            ////print("pastDate:",pastDate!)
+            let dobPast = dateFormatter.string(from:pastDate!)
+            strDOB = dobPast
+            print("strDOB:",strDOB)
+
         }
-        let pastDate = Calendar.current.date(byAdding: dateComponent, to: currentDate)
-        ////print("currentDate:",currentDate)
-        ////print("pastDate:",pastDate!)
-        let dobPast = dateFormatter.string(from:pastDate!)
-        strDOB = dobPast
         
         let url: String = appDelegate.baseURL +  "/setProfile"
         let user_id = UserDefaults.standard.string(forKey: "user_id");
         let user_email = UserDefaults.standard.string(forKey: "user_email");
         
+        
         let inputData: [String: Any] = ["user_id":user_id ?? "","user_first_name":strFirstName,"user_last_name":strLastName,"user_phone_number":strPhone,"user_email":user_email!,"user_display_name":strDisplayName,"date_of_birth":strDOB]
+        
         print("setProfile inputData:",inputData)
         let session_token = UserDefaults.standard.string(forKey: "session_token") ?? ""
         let headers : HTTPHeaders = [

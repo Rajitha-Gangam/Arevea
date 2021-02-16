@@ -38,8 +38,6 @@
 		182A5F06246166D700FF6147 /* CharityCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 182A5F04246166D700FF6147 /* CharityCell.xib */; };
 		182A5F0C24616B4B00FF6147 /* charity-img.png in Resources */ = {isa = PBXBuildFile; fileRef = 182A5F0B24616B4A00FF6147 /* charity-img.png */; };
 		18404764248A79AC000573A2 /* SearchViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18404763248A79AC000573A2 /* SearchViewController.swift */; };
-		18408E7B25892610000F0F30 /* Q_And_A_Section.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18408E7A25892610000F0F30 /* Q_And_A_Section.swift */; };
-		18408E7F25892624000F0F30 /* Q_And_A_Section.xib in Resources */ = {isa = PBXBuildFile; fileRef = 18408E7E25892624000F0F30 /* Q_And_A_Section.xib */; };
 		18408E8325892A5A000F0F30 /* Q_And_A_Footer.xib in Resources */ = {isa = PBXBuildFile; fileRef = 18408E8125892A5A000F0F30 /* Q_And_A_Footer.xib */; };
 		18408E8425892A5A000F0F30 /* Q_And_A_Footer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18408E8225892A5A000F0F30 /* Q_And_A_Footer.swift */; };
 		184A0B4F2472CA9E006EDDA3 /* PaymentHistoryVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 184A0B4E2472CA9E006EDDA3 /* PaymentHistoryVC.swift */; };
@@ -57,6 +55,7 @@
 		18501B5225A846EA0046E58F /* Q_And_A_Final_Cell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18501B4E25A846E80046E58F /* Q_And_A_Final_Cell.swift */; };
 		18501B5325A846EA0046E58F /* Q_And_A_CVC.xib in Resources */ = {isa = PBXBuildFile; fileRef = 18501B4F25A846E90046E58F /* Q_And_A_CVC.xib */; };
 		18501B5425A846EA0046E58F /* Q_And_A_Final_Cell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 18501B5025A846EA0046E58F /* Q_And_A_Final_Cell.xib */; };
+		185064F925C06807009099E0 /* ContactChatVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 185064F825C06807009099E0 /* ContactChatVC.swift */; };
 		18571EA825A60A3B008F5D22 /* ContactsCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18571EA625A60A3B008F5D22 /* ContactsCell.swift */; };
 		18571EA925A60A3B008F5D22 /* ContactsCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 18571EA725A60A3B008F5D22 /* ContactsCell.xib */; };
 		18571EAE25A61F6D008F5D22 /* AddContactVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18571EAD25A61F6D008F5D22 /* AddContactVC.swift */; };
@@ -102,7 +101,6 @@
 		18BAF3142588B9B300FBB9F3 /* Q_And_A_AnswerCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18BAF3122588B9B300FBB9F3 /* Q_And_A_AnswerCell.swift */; };
 		18BAF3152588B9B300FBB9F3 /* Q_And_A_AnswerCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 18BAF3132588B9B300FBB9F3 /* Q_And_A_AnswerCell.xib */; };
 		18BAF31C2588C1C300FBB9F3 /* Q_And_A_Cell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18BAF31B2588C1C300FBB9F3 /* Q_And_A_Cell.swift */; };
-		18C4072C255AE5910087BD53 /* MultiStreamVCBackUp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18C4072B255AE5900087BD53 /* MultiStreamVCBackUp.swift */; };
 		18D2717D24A382A400F958BC /* search.png in Resources */ = {isa = PBXBuildFile; fileRef = 18D2717C24A382A300F958BC /* search.png */; };
 		18D48042244E8F2B00640C1A /* libc++.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 18D48041244E8F2B00640C1A /* libc++.tbd */; };
 		18D48044244E8F4500640C1A /* libz.1.2.11.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 18D48043244E8F4500640C1A /* libz.1.2.11.tbd */; };
@@ -127,6 +125,8 @@
 		18D480C62454552200640C1A /* ProfileVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18D480C52454552200640C1A /* ProfileVC.swift */; };
 		18D4AA2324F56D5C005B0FD4 /* TestVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18D4AA2224F56D5C005B0FD4 /* TestVC.swift */; };
 		18D4AA2524F5713B005B0FD4 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 18D4AA2424F5713B005B0FD4 /* WebKit.framework */; };
+		18D7EA4825CB07A600E87DD0 /* Q_And_A_Section.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18D7EA4625CB07A600E87DD0 /* Q_And_A_Section.swift */; };
+		18D7EA4925CB07A600E87DD0 /* Q_And_A_Section.xib in Resources */ = {isa = PBXBuildFile; fileRef = 18D7EA4725CB07A600E87DD0 /* Q_And_A_Section.xib */; };
 		18DA10D02455F8D400E5C9EB /* DBCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18DA10CE2455F8D400E5C9EB /* DBCollectionViewCell.swift */; };
 		18DA10D12455F8D400E5C9EB /* DBCollectionViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 18DA10CF2455F8D400E5C9EB /* DBCollectionViewCell.xib */; };
 		18DAF977248FA98000A6693A /* CheckMarkCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18DAF975248FA98000A6693A /* CheckMarkCell.swift */; };
@@ -157,7 +157,6 @@
 		18EC36C925ADB6C800D70F29 /* PopupViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18EC36C825ADB6C800D70F29 /* PopupViewController.swift */; };
 		18EC36CD25ADDAF100D70F29 /* ContactsVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18EC36CC25ADDAF100D70F29 /* ContactsVC.swift */; };
 		18EC6AB22577FE36001DE714 /* SubscribedChannelsVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18EC6AB12577FE36001DE714 /* SubscribedChannelsVC.swift */; };
-		18FE073C24D1CFB90011FDE3 /* MultiStreamVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18FE073B24D1CFB90011FDE3 /* MultiStreamVC.swift */; };
 		E2122E2C51E285D939963426 /* Pods_AreveaTV.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4CD5B02C0B32204C54D14CB5 /* Pods_AreveaTV.framework */; };
 /* End PBXBuildFile section */
 
@@ -195,8 +194,6 @@
 		182A5F04246166D700FF6147 /* CharityCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = CharityCell.xib; sourceTree = "<group>"; };
 		182A5F0B24616B4A00FF6147 /* charity-img.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "charity-img.png"; sourceTree = "<group>"; };
 		18404763248A79AC000573A2 /* SearchViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchViewController.swift; sourceTree = "<group>"; };
-		18408E7A25892610000F0F30 /* Q_And_A_Section.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Q_And_A_Section.swift; sourceTree = "<group>"; };
-		18408E7E25892624000F0F30 /* Q_And_A_Section.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = Q_And_A_Section.xib; sourceTree = "<group>"; };
 		18408E8125892A5A000F0F30 /* Q_And_A_Footer.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = Q_And_A_Footer.xib; sourceTree = "<group>"; };
 		18408E8225892A5A000F0F30 /* Q_And_A_Footer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Q_And_A_Footer.swift; sourceTree = "<group>"; };
 		184A0B4E2472CA9E006EDDA3 /* PaymentHistoryVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PaymentHistoryVC.swift; path = AreveaTV/Payment/PaymentHistoryVC.swift; sourceTree = SOURCE_ROOT; };
@@ -214,6 +211,7 @@
 		18501B4E25A846E80046E58F /* Q_And_A_Final_Cell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Q_And_A_Final_Cell.swift; sourceTree = "<group>"; };
 		18501B4F25A846E90046E58F /* Q_And_A_CVC.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = Q_And_A_CVC.xib; sourceTree = "<group>"; };
 		18501B5025A846EA0046E58F /* Q_And_A_Final_Cell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = Q_And_A_Final_Cell.xib; sourceTree = "<group>"; };
+		185064F825C06807009099E0 /* ContactChatVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactChatVC.swift; sourceTree = "<group>"; };
 		18571EA625A60A3B008F5D22 /* ContactsCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactsCell.swift; sourceTree = "<group>"; };
 		18571EA725A60A3B008F5D22 /* ContactsCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ContactsCell.xib; sourceTree = "<group>"; };
 		18571EAD25A61F6D008F5D22 /* AddContactVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddContactVC.swift; sourceTree = "<group>"; };
@@ -261,7 +259,6 @@
 		18BAF3122588B9B300FBB9F3 /* Q_And_A_AnswerCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Q_And_A_AnswerCell.swift; sourceTree = "<group>"; };
 		18BAF3132588B9B300FBB9F3 /* Q_And_A_AnswerCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = Q_And_A_AnswerCell.xib; sourceTree = "<group>"; };
 		18BAF31B2588C1C300FBB9F3 /* Q_And_A_Cell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Q_And_A_Cell.swift; sourceTree = "<group>"; };
-		18C4072B255AE5900087BD53 /* MultiStreamVCBackUp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultiStreamVCBackUp.swift; sourceTree = "<group>"; };
 		18D2717C24A382A300F958BC /* search.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = search.png; sourceTree = "<group>"; };
 		18D48041244E8F2B00640C1A /* libc++.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libc++.tbd"; path = "usr/lib/libc++.tbd"; sourceTree = SDKROOT; };
 		18D48043244E8F4500640C1A /* libz.1.2.11.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.1.2.11.tbd; path = usr/lib/libz.1.2.11.tbd; sourceTree = SDKROOT; };
@@ -289,6 +286,8 @@
 		18D4AA2224F56D5C005B0FD4 /* TestVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestVC.swift; sourceTree = "<group>"; };
 		18D4AA2424F5713B005B0FD4 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
 		18D53FE7253D87C30099CA40 /* AreveaTV.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; path = AreveaTV.entitlements; sourceTree = "<group>"; };
+		18D7EA4625CB07A600E87DD0 /* Q_And_A_Section.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Q_And_A_Section.swift; sourceTree = "<group>"; };
+		18D7EA4725CB07A600E87DD0 /* Q_And_A_Section.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = Q_And_A_Section.xib; sourceTree = "<group>"; };
 		18DA10CE2455F8D400E5C9EB /* DBCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DBCollectionViewCell.swift; sourceTree = "<group>"; };
 		18DA10CF2455F8D400E5C9EB /* DBCollectionViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = DBCollectionViewCell.xib; sourceTree = "<group>"; };
 		18DAF975248FA98000A6693A /* CheckMarkCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckMarkCell.swift; sourceTree = "<group>"; };
@@ -319,7 +318,6 @@
 		18EC36C825ADB6C800D70F29 /* PopupViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PopupViewController.swift; sourceTree = "<group>"; };
 		18EC36CC25ADDAF100D70F29 /* ContactsVC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContactsVC.swift; sourceTree = "<group>"; };
 		18EC6AB12577FE36001DE714 /* SubscribedChannelsVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscribedChannelsVC.swift; sourceTree = "<group>"; };
-		18FE073B24D1CFB90011FDE3 /* MultiStreamVC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MultiStreamVC.swift; sourceTree = "<group>"; };
 		4CD5B02C0B32204C54D14CB5 /* Pods_AreveaTV.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_AreveaTV.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		EE717321098165DDB7C49DEC /* Pods-AreveaTV.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AreveaTV.release.xcconfig"; path = "Target Support Files/Pods-AreveaTV/Pods-AreveaTV.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -391,14 +389,14 @@
 		18408E79258925C0000F0F30 /* Q_And_A */ = {
 			isa = PBXGroup;
 			children = (
-				18408E7A25892610000F0F30 /* Q_And_A_Section.swift */,
-				18408E7E25892624000F0F30 /* Q_And_A_Section.xib */,
 				18408E8225892A5A000F0F30 /* Q_And_A_Footer.swift */,
 				18408E8125892A5A000F0F30 /* Q_And_A_Footer.xib */,
 				18501B4D25A846E70046E58F /* Q_And_A_CVC.swift */,
 				18501B4F25A846E90046E58F /* Q_And_A_CVC.xib */,
 				18501B4E25A846E80046E58F /* Q_And_A_Final_Cell.swift */,
 				18501B5025A846EA0046E58F /* Q_And_A_Final_Cell.xib */,
+				18D7EA4625CB07A600E87DD0 /* Q_And_A_Section.swift */,
+				18D7EA4725CB07A600E87DD0 /* Q_And_A_Section.xib */,
 			);
 			path = Q_And_A;
 			sourceTree = "<group>";
@@ -452,6 +450,7 @@
 				18571EAD25A61F6D008F5D22 /* AddContactVC.swift */,
 				18EC36C825ADB6C800D70F29 /* PopupViewController.swift */,
 				18EC36CC25ADDAF100D70F29 /* ContactsVC.swift */,
+				185064F825C06807009099E0 /* ContactChatVC.swift */,
 			);
 			path = "Private Chat";
 			sourceTree = "<group>";
@@ -672,8 +671,6 @@
 				18D4805E244EDDA200640C1A /* BaseTest.swift */,
 				18D480A924519D1100640C1A /* SubscribeTest.swift */,
 				18B11E3325505C95006ECB9C /* ScreenShareVC.swift */,
-				18FE073B24D1CFB90011FDE3 /* MultiStreamVC.swift */,
-				18C4072B255AE5900087BD53 /* MultiStreamVCBackUp.swift */,
 			);
 			path = "Stream Classes";
 			sourceTree = "<group>";
@@ -693,11 +690,11 @@
 			isa = PBXGroup;
 			children = (
 				18D480B02451A30E00640C1A /* ChannelsVC.swift */,
-				1864AFCC2454A999004F3AED /* ChannelDetailVC.swift */,
 				1810E6F524C84BCA003EAF91 /* StreamDetailVC.swift */,
 				18B1BEE825594AF6003E96FF /* EventRegistrationVC.swift */,
 				189BC64025926A4900445423 /* TicketTypesVC.swift */,
 				188B0EA4248E8F7A0062EB1D /* VideoEditor.swift */,
+				1864AFCC2454A999004F3AED /* ChannelDetailVC.swift */,
 				18DDD1AF24C0A4A500CF0F1A /* Multi Stream */,
 			);
 			path = Channels;
@@ -819,7 +816,6 @@
 				18404763248A79AC000573A2 /* SearchViewController.swift */,
 				1858EAD12484F51C00A69D10 /* HelpVC.swift */,
 				18E77E1D24C6E541003BBC39 /* MyEventsVC.swift */,
-				18EC6AB12577FE36001DE714 /* SubscribedChannelsVC.swift */,
 				188E41A0259C9F5500DEBC8D /* GradientView.swift */,
 			);
 			path = DashBoard;
@@ -828,6 +824,7 @@
 		18EB81CF244AD305008EB09A /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				18EC6AB12577FE36001DE714 /* SubscribedChannelsVC.swift */,
 				189BC63D259261F600445423 /* currencies.json */,
 				1826035924D2A7CC00248E8B /* Poppins-Bold.ttf */,
 				1826035524D2A7C600248E8B /* Poppins-Light.ttf */,
@@ -972,12 +969,12 @@
 				182A5EF8245F057800FF6147 /* FilterCVCell.xib in Resources */,
 				18EB81DE244B4341008EB09A /* awsconfiguration.json in Resources */,
 				182A5F06246166D700FF6147 /* CharityCell.xib in Resources */,
+				18D7EA4925CB07A600E87DD0 /* Q_And_A_Section.xib in Resources */,
 				188826E625961CF0005BCBAD /* StreamHeaderCVC.xib in Resources */,
 				18408E8325892A5A000F0F30 /* Q_And_A_Footer.xib in Resources */,
 				180E003B253F404B00DDFD2D /* payload.apns in Resources */,
 				18501B5325A846EA0046E58F /* Q_And_A_CVC.xib in Resources */,
 				1826035E24D2A7CC00248E8B /* Poppins-Bold.ttf in Resources */,
-				18408E7F25892624000F0F30 /* Q_And_A_Section.xib in Resources */,
 				1826035A24D2A7CC00248E8B /* Poppins-Light.ttf in Resources */,
 				189E325324DAAF8700E63674 /* Default-Portrait-1242h@3x.png in Resources */,
 				182A5EF4245C59C700FF6147 /* SectionHeader.xib in Resources */,
@@ -1098,16 +1095,15 @@
 				189EBED6245752B800C52B0E /* AudioCell.swift in Sources */,
 				18EB81CB244ACC5B008EB09A /* ResetPasswordVC.swift in Sources */,
 				189BC6362591F0FE00445423 /* TicketTypesCell.swift in Sources */,
-				18FE073C24D1CFB90011FDE3 /* MultiStreamVC.swift in Sources */,
 				18EC36C925ADB6C800D70F29 /* PopupViewController.swift in Sources */,
 				188B0EA5248E8F7A0062EB1D /* VideoEditor.swift in Sources */,
 				18D48060244EDDA300640C1A /* BaseTest.swift in Sources */,
 				18D4AA2324F56D5C005B0FD4 /* TestVC.swift in Sources */,
+				185064F925C06807009099E0 /* ContactChatVC.swift in Sources */,
 				1864AFCD2454A999004F3AED /* ChannelDetailVC.swift in Sources */,
 				18EC36CD25ADDAF100D70F29 /* ContactsVC.swift in Sources */,
 				184A0B532472CC20006EDDA3 /* PaymentHistoryCell.swift in Sources */,
 				189EBF44245ACD3400C52B0E /* FilterCell.swift in Sources */,
-				18C4072C255AE5910087BD53 /* MultiStreamVCBackUp.swift in Sources */,
 				18122C9D252B0CCC00C28926 /* MultiStreamGuestsCVC.swift in Sources */,
 				187D7B14246D615C0041D5AA /* AreveaAPIClient.swift in Sources */,
 				1891CA63244AC82B00EE1E45 /* AppDelegate.swift in Sources */,
@@ -1125,8 +1121,8 @@
 				18501B5225A846EA0046E58F /* Q_And_A_Final_Cell.swift in Sources */,
 				184B86D524D302C8003F4D3D /* OpenChanannelChatDelegate.swift in Sources */,
 				18D480A724509F7700640C1A /* SideMenuCell.swift in Sources */,
+				18D7EA4825CB07A600E87DD0 /* Q_And_A_Section.swift in Sources */,
 				1860DFBD24D40BA900ACB899 /* MyEventsCell.swift in Sources */,
-				18408E7B25892610000F0F30 /* Q_And_A_Section.swift in Sources */,
 				18D48069244EDF9800640C1A /* Testbed.swift in Sources */,
 				18122CA1252B0E0A00C28926 /* MultiStreamGuestsCell.swift in Sources */,
 				184A0B4F2472CA9E006EDDA3 /* PaymentHistoryVC.swift in Sources */,
@@ -1286,7 +1282,7 @@
 				CODE_SIGN_ENTITLEMENTS = AreveaTV/AreveaTV.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 0.5;
+				CURRENT_PROJECT_VERSION = 1.0;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = J7XKYVP7J4;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -1299,7 +1295,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 5;
+				MARKETING_VERSION = 7;
 				PRODUCT_BUNDLE_IDENTIFIER = com.prod.arevea;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -1317,7 +1313,7 @@
 				CODE_SIGN_ENTITLEMENTS = AreveaTV/AreveaTV.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 0.5;
+				CURRENT_PROJECT_VERSION = 1.0;
 				DEVELOPMENT_TEAM = J7XKYVP7J4;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1329,7 +1325,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 5;
+				MARKETING_VERSION = 7;
 				PRODUCT_BUNDLE_IDENTIFIER = com.prod.arevea;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";

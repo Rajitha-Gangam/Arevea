@@ -18,7 +18,7 @@ import FirebaseMessaging
 import UserNotifications
 import Firebase
 @UIApplicationMain
-class AppDelegate: UIResponder, UIApplicationDelegate {
+class AppDelegate: UIResponder, UIApplicationDelegate , OpenChanannelChatDelegate{
     // MARK: - Variables Declaration
     var window: UIWindow? // <-- Here
     
@@ -36,8 +36,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var getCurrencyURL = "https://api.ipgeolocation.io/ipgeo?apiKey=3af47278566b46e58bb63b70fb6df99d"
     var userCurrencyCode = ""
     var userCurrencySymbol = ""
+    var urlCloudFront = "https://d3vv6h15bemsva.cloudfront.net/live/"
+    var isGuest = false
+
     // MARK: - Dev Environmet Variables Declaration
-   /*var baseURL = "https://dev1-apis.arevea.com";
+    /*var baseURL = "https://dev1-apis.arevea.com";
      var websiteURL = "https://dev1.arevea.com"
      var sendBirdAppId = "AE94EB49-0A01-43BF-96B4-8297EBB47F12";
      var profileURL = "https://dev1.arevea.com/api/user/v1";
@@ -58,11 +61,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
      var ol_access_token = ""
      var FCMBaseURL = "https://r5ibd3yzp7.execute-api.us-west-2.amazonaws.com/devel"
      var socialLoginURL = "https://areveatv-sandbox.onelogin.com/access/initiate"
-    */
+     */
     //Dev Variables END
     
     // MARK: - QA Environmet Variables Declaration
-    var baseURL = "https://qa1-apis.arevea.com"
+    /*var baseURL = "https://qa1-apis.arevea.com"
     var websiteURL = "https://qa1.arevea.com"
     var sendBirdAppId = "7AF38850-F099-4C47-BD19-F7F84DAFECF8";
     var profileURL = "https://qa1.arevea.com/api/user/v1"
@@ -83,11 +86,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var ol_access_token = ""
     var FCMBaseURL = "https://eku2g4rzxl.execute-api.us-west-2.amazonaws.com/dev"
     var socialLoginURL = "https://areveatv-sandbox.onelogin.com/access/initiate"
-
     //QA Variables END
-    
+    */
     // MARK: - Pre-prod Environmet Variables Declaration
-   /* var baseURL = "https://preprod-apis.arevea.tv"
+     var baseURL = "https://preprod-apis.arevea.tv"
      var websiteURL = "https://preprod.arevea.tv"
      var sendBirdAppId = "2115A8A2-36D7-4ABC-A8CE-758500A54DFD";
      var profileURL = "https://preprod.arevea.tv/api/user/v1"
@@ -106,15 +108,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
      var ol_client_id = "4e42c39db6ada915afaf60448254cd10033604c982128c55d1548e218b983279"
      var ol_client_secret = "67795bdcf01b42caeb145988f7e64bd71d00191e2abab99dc7e43bf86da3e50c"
      var ol_access_token = ""
-    var FCMBaseURL = "https://preprod-apis.arevea.tv"
+     var FCMBaseURL = "https://preprod-apis.arevea.tv"
      var socialLoginURL = "https://areveatv-sandbox.onelogin.com/access/initiate"
-
-    */
+     var strSlug = ""
+     
     
     //Pre-prod Variables END
     
     // MARK: - prod Environmet Variables Declaration
-   /*var baseURL = "https://prod-apis.arevea.com"
+    /*var baseURL = "https://prod-apis.arevea.com"
      var websiteURL = "https://www.arevea.com"
      var sendBirdAppId = "ED4D2A9B-A140-40FD-83BF-6D240903C5BF";
      var profileURL = "https://www.arevea.com/api/user/v1"
@@ -133,9 +135,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
      var ol_client_id = "4f4a70d46e9cb24ce5f723837402343a1b622bca17dc041df218991c1f5eb247"
      var ol_client_secret = "d5c29333a8e9e5164d203cd7540b17e4c1d7bf2c2f52d15a01460c506a60dbca"
      var ol_access_token = ""
-    var FCMBaseURL = "https://prod-apis.arevea.com"
-    var socialLoginURL = "https://areveatv-dev.onelogin.com/access/initiate"
- */
+     var FCMBaseURL = "https://prod-apis.arevea.com"
+     var socialLoginURL = "https://areveatv-dev.onelogin.com/access/initiate"
+     */
     //prod Variables END
     
     var emailPopulate = ""
@@ -151,7 +153,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         case pad   // iPad style UI (also includes macOS Catalyst)
     }
     var appSyncClient: AWSAppSyncClient?
-    
+    var isVOD = false
     var orientationLock = UIInterfaceOrientationMask.all
     
     func application(_ application: UIApplication, supportedInterfaceOrientationsFor window: UIWindow?) -> UIInterfaceOrientationMask {
@@ -178,7 +180,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         self.window?.makeKeyAndVisible()
         // Use Firebase library to configure APIs
         FirebaseApp.configure()
-       Messaging.messaging().delegate = self
+        Messaging.messaging().delegate = self
         
         //SBDMain.initWithApplicationId("9308C3B1-A36D-47E2-BA3C-8F6F362C35AF")
         SBDMain.initWithApplicationId(sendBirdAppId)
@@ -204,20 +206,20 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
          }*/
         appLoaded = true
         /*if #available(iOS 10.0, *) {
-            // For iOS 10 display notification (sent via APNS)
-            UNUserNotificationCenter.current().delegate = self
-            
-            let authOptions: UNAuthorizationOptions = []
-            UNUserNotificationCenter.current().requestAuthorization(
-                options: authOptions,
-                completionHandler: {_, _ in })
-        } else {
-            let settings: UIUserNotificationSettings =
-                UIUserNotificationSettings(types: [], categories: nil)
-            application.registerUserNotificationSettings(settings)
-        }
-        
-        application.registerForRemoteNotifications()*/
+         // For iOS 10 display notification (sent via APNS)
+         UNUserNotificationCenter.current().delegate = self
+         
+         let authOptions: UNAuthorizationOptions = []
+         UNUserNotificationCenter.current().requestAuthorization(
+         options: authOptions,
+         completionHandler: {_, _ in })
+         } else {
+         let settings: UIUserNotificationSettings =
+         UIUserNotificationSettings(types: [], categories: nil)
+         application.registerUserNotificationSettings(settings)
+         }
+         
+         application.registerForRemoteNotifications()*/
         let center = UNUserNotificationCenter.current()
         center.requestAuthorization(options: []) { granted, error in
             
@@ -227,7 +229,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             
             // Enable or disable features based on the authorization.
         }
-
+        
         return true
     }
     
@@ -287,7 +289,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         // Print ful l message.
         print(userInfo)
-
+        
         NotificationCenter.default.post(name: Notification.Name("PushNotification"), object: nil, userInfo: userInfo)
         completionHandler(UIBackgroundFetchResult.newData)
     }
@@ -307,6 +309,154 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         print("APNs token retrieved: \(deviceToken)")
         // With swizzling disabled you must set the APNs token here.
         // Messaging.messaging().apnsToken = deviceToken
+    }
+    // MARK: Send Bird Methods
+    func sendBirdConnect(streamInfo:[String:Any]) {
+        
+        // self.view.endEditing(true)
+        if SBDMain.getConnectState() == .open {
+            SBDMain.disconnect {
+                //                    DispatchQueue.main.async {
+                //                        //self.setUIsForDefault()
+                //                    }
+                self.sendBirdConnect(streamInfo: streamInfo)
+            }
+            ////print("sendBirdConnect disconnect")
+        }
+        else {
+            let userId = UserDefaults.standard.string(forKey: "user_id");
+            let nickname = self.USER_NAME_FULL
+            let userDefault = UserDefaults.standard
+            userDefault.setValue(userId, forKey: "sendbird_user_id")
+            userDefault.setValue(nickname, forKey: "sendbird_user_nickname")
+            
+            //self.setUIsWhileConnecting()
+            
+            ConnectionManager.login(userId: userId ?? "1", nickname: nickname) { user, error in
+                guard error == nil else {
+                    DispatchQueue.main.async {
+                        // self.setUIsForDefault()
+                    }
+                    // self.showAlert(strMsg:error?.localizedDescription ?? "" )
+                    return
+                }
+                
+                DispatchQueue.main.async {
+                    self.gotoStreamDetails(streamInfo: streamInfo)
+                }
+            }
+        }
+    }
+    func getTicketDetails(ticketkey:String){
+        print("==getTicketDetails")
+        // let params: [String: Any] = ["userid":user_id ?? "","performer_id":"101","stream_id": "0"]
+        let url: String = self.baseURL +  "/getTicketDetails"
+        let headers: HTTPHeaders
+        headers = [self.x_api_key: self.x_api_value]
+        let params: [String: Any] = ["ticket_key": ticketkey]
+         print("getTicketDetails params:",params)
+        
+        AF.request(url, method: .post,parameters: params, encoding: JSONEncoding.default,headers:headers)
+            .responseJSON { [self] response in
+                switch response.result {
+                case .success(let value):
+                    if let json = value as? [String: Any] {
+                        print("getTicketDetails JSON:",json)
+                        if (json["statusCode"]as? String == "200" ){
+                            let data = json["Data"] as? [String: Any] ?? [:]
+                            let userInfo = data["UserInfo"] as? [String: Any] ?? [:]
+                            let streamInfo1 = data["stream_info"] as? [String: Any] ?? [:]
+                            let streamInfo = streamInfo1["stream_info"] as? [String: Any] ?? [:]
+                            let strSlug = streamInfo1["slug"] as? String ?? ""
+                            let userID = userInfo["id"]as? String ?? ""
+                            print("streamInfo:",streamInfo)
+                            UserDefaults.standard.set(userID, forKey: "user_id")
+                            UserDefaults.standard.set(userInfo["access_token"], forKey: "session_token")
+                            UserDefaults.standard.set("guest-user", forKey: "user")
+
+                            let fn = userInfo["user_first_name"] as? String ?? ""
+                            let ln = userInfo["user_last_name"]as? String ?? ""
+                            let displayName = userInfo["user_display_name"]as? String ?? ""
+                            let strName = String((fn.first ?? "A")) + String((ln.first ?? "B"))
+                            self.USER_NAME = strName;
+                            self.USER_NAME_FULL = (fn ) + " " + (ln )
+                            self.USER_DISPLAY_NAME = displayName
+                            self.isLiveLoad = "1"
+                            sendBirdConnect(streamInfo: streamInfo)
+                        }else{
+                            let strMsg = json["message"] as? String ?? ""
+                            //self.showAlert(strMsg: strMsg)
+                        }
+                        
+                    }
+                case .failure(let error):
+                    let errorDesc = error.localizedDescription.replacingOccurrences(of: "URLSessionTask failed with error:", with: "")
+                    //self.showAlert(strMsg: errorDesc)
+                    
+                }
+            }
+    }
+//when user click (watch) Button on Mail, Navigation Hadle
+    func application(_ application: UIApplication, continue userActivity: NSUserActivity, restorationHandler: @escaping ([UIUserActivityRestoring]?) -> Void) -> Bool {
+        print("Continue User Activity called: ")
+        if userActivity.activityType == NSUserActivityTypeBrowsingWeb {
+            let url = userActivity.webpageURL!
+            print(url.absoluteString)
+            // alternative: not case sensitive
+            //https://qa1.arevea.com/stream/1898-101059776-d85HRNgYlGhi
+            let url1 = url.absoluteString
+            //handle url and open whatever page you want to open.
+            if url1.range(of:"/stream/") != nil {
+                let link = url1.components(separatedBy: "/stream/")
+                if(link.count > 1){
+                    let ticketKey: String = link[1]
+                    print("ticketKey:",ticketKey)
+                    isVOD = false
+                    getTicketDetails(ticketkey: ticketKey)
+                }
+            }else if url1.range(of:"/watch/") != nil {
+                let link = url1.components(separatedBy: "/watch/")
+                if(link.count > 1){
+                    let ticketKey: String = link[1]
+                    print("ticketKey:",ticketKey)
+                    isVOD = true
+                    getTicketDetails(ticketkey: ticketKey)
+                }
+            }else{
+                print("url to open:",url)
+                UIApplication.shared.open(url)
+            }
+        }
+        return true
+    }
+    func gotoStreamDetails(streamInfo:[String:Any]){
+        print("gotoStreamDetails")
+        let storyboard = UIStoryboard(name: "Main", bundle: nil);
+         let stream_video_title = streamInfo["stream_video_title"] as? String ?? "Channel Details"
+
+        let vc = storyboard.instantiateViewController(withIdentifier: "StreamDetailVC") as! StreamDetailVC
+       let orgId = streamInfo["organization_id"] as? Int ?? 0
+       let streamId = streamInfo["id"] as? Int ?? 0
+       let performerId = streamInfo["performer_id"] as? Int ?? 0
+       let channelName = streamInfo["channel_name"] as? String ?? ""
+
+        vc.orgId = orgId
+        vc.streamId = streamId
+        vc.delegate = self
+        vc.performerId = performerId
+        vc.strTitle = stream_video_title
+        //vc.isCameFromGetTickets = true
+        vc.channel_name_subscription = channelName
+       self.isGuest = true
+        vc.isVOD = isVOD
+        if(!isVOD){
+            vc.isUpcoming = true
+        }
+       vc.strSlug = strSlug
+       let rootViewController = self.window!.rootViewController as! UINavigationController
+       print("Nav from mail")
+       rootViewController.pushViewController(vc, animated: true)
+        
     }
     // MARK: UISceneSession Lifecycle
     
@@ -335,7 +485,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func applicationWillTerminate(_ application: UIApplication) {
         // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
     }
-   
+    
     func application(_ application: UIApplication, shouldSaveApplicationState coder: NSCoder) -> Bool {
         return true
     }
@@ -382,8 +532,8 @@ extension AppDelegate : UNUserNotificationCenterDelegate {
         
         // Print full message.
         print("---ui:",userInfo)
-       // NotificationCenter.default.post(name: Notification.Name("PushNotification"), object: nil, userInfo: userInfo)
-
+        // NotificationCenter.default.post(name: Notification.Name("PushNotification"), object: nil, userInfo: userInfo)
+        
         // Change this to your preferred presentation option
         completionHandler([[.alert, .sound]])
     }
@@ -402,7 +552,7 @@ extension AppDelegate : UNUserNotificationCenterDelegate {
         
         // Print full message.
         print(userInfo)
-
+        
         completionHandler()
     }
 }
@@ -492,7 +642,7 @@ private extension UITextField {
     func setClearButton(color: UIColor) {
         ClearButtonImage.getImage { [weak self] image in
             guard   let image = image,
-                let button = self?.getClearButton() else { return }
+                    let button = self?.getClearButton() else { return }
             button.imageView?.tintColor = color
             button.setImage(image.withRenderingMode(.alwaysTemplate), for: .normal)
         }
@@ -513,8 +663,8 @@ private extension UITextField {
 extension UIImage {
     func isEqual(to image: UIImage) -> Bool {
         guard let data1: Data = self.pngData(),
-            let data2: Data = image.pngData() else {
-                return false
+              let data2: Data = image.pngData() else {
+            return false
         }
         return data1.elementsEqual(data2)
     }
@@ -528,7 +678,7 @@ extension UIImageView {
                 let mimeType = response?.mimeType, mimeType.hasPrefix("image"),
                 let data = data, error == nil,
                 let image = UIImage(data: data)
-                else { return }
+            else { return }
             DispatchQueue.main.async() { [weak self] in
                 self?.image = image
             }
@@ -596,21 +746,38 @@ extension AVPlayerViewController {
     }
 }
 extension UIColor {
-   convenience init(red: Int, green: Int, blue: Int) {
-       assert(red >= 0 && red <= 255, "Invalid red component")
-       assert(green >= 0 && green <= 255, "Invalid green component")
-       assert(blue >= 0 && blue <= 255, "Invalid blue component")
-
-       self.init(red: CGFloat(red) / 255.0, green: CGFloat(green) / 255.0, blue: CGFloat(blue) / 255.0, alpha: 1.0)
-   }
-
-   convenience init(rgb: Int) {
-       self.init(
-           red: (rgb >> 16) & 0xFF,
-           green: (rgb >> 8) & 0xFF,
-           blue: rgb & 0xFF
-       )
-   }
+    convenience init(red: Int, green: Int, blue: Int) {
+        assert(red >= 0 && red <= 255, "Invalid red component")
+        assert(green >= 0 && green <= 255, "Invalid green component")
+        assert(blue >= 0 && blue <= 255, "Invalid blue component")
+        
+        self.init(red: CGFloat(red) / 255.0, green: CGFloat(green) / 255.0, blue: CGFloat(blue) / 255.0, alpha: 1.0)
+    }
+    
+    convenience init(rgb: Int) {
+        self.init(
+            red: (rgb >> 16) & 0xFF,
+            green: (rgb >> 8) & 0xFF,
+            blue: rgb & 0xFF
+        )
+    }
+    convenience init(hexString: String) {
+            let hex = hexString.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
+            var int = UInt64()
+            Scanner(string: hex).scanHexInt64(&int)
+            let a, r, g, b: UInt64
+            switch hex.count {
+            case 3: // RGB (12-bit)
+                (a, r, g, b) = (255, (int >> 8) * 17, (int >> 4 & 0xF) * 17, (int & 0xF) * 17)
+            case 6: // RGB (24-bit)
+                (a, r, g, b) = (255, int >> 16, int >> 8 & 0xFF, int & 0xFF)
+            case 8: // ARGB (32-bit)
+                (a, r, g, b) = (int >> 24, int >> 16 & 0xFF, int >> 8 & 0xFF, int & 0xFF)
+            default:
+                (a, r, g, b) = (255, 0, 0, 0)
+            }
+            self.init(red: CGFloat(r) / 255, green: CGFloat(g) / 255, blue: CGFloat(b) / 255, alpha: CGFloat(a) / 255)
+        }
     
 }
 extension Date {
@@ -641,22 +808,22 @@ extension Date {
         return Date(timeInterval: seconds, since: self)
     }
     static func getFormattedDate(strDate: String , formatter:String) -> String{
-           let dateFormatterGet = DateFormatter()
-           dateFormatterGet.dateFormat = formatter
-
-           let dateFormatterPrint = DateFormatter()
-           dateFormatterPrint.dateFormat = "MMM dd,yyyy"
-
-           let date: Date? = dateFormatterGet.date(from: strDate)
-           return dateFormatterPrint.string(from: date!);
-       }
+        let dateFormatterGet = DateFormatter()
+        dateFormatterGet.dateFormat = formatter
+        
+        let dateFormatterPrint = DateFormatter()
+        dateFormatterPrint.dateFormat = "MMM dd,yyyy"
+        
+        let date: Date? = dateFormatterGet.date(from: strDate)
+        return dateFormatterPrint.string(from: date!);
+    }
     
 }
 extension String {
     func convertDateString() -> String? {
         return convert(dateString: self, fromDateFormat: "yyyy-MM-dd HH:mm:ss", toDateFormat: "yyyy-MM-dd")
     }
-   
+    
     func convert(dateString: String, fromDateFormat: String, toDateFormat: String) -> String? {
         let fromDateFormatter = DateFormatter()
         fromDateFormatter.dateFormat = fromDateFormat
@@ -674,7 +841,7 @@ extension String {
         dateFormatterGet.timeZone = NSTimeZone(abbreviation: "UTC") as TimeZone?
         let dateFormatterPrint = DateFormatter()
         dateFormatterPrint.dateFormat = "MMM dd, yyyy"
-
+        
         let date: Date? = dateFormatterGet.date(from: formatter)
         return date ?? Date()
     }
@@ -683,14 +850,14 @@ extension String {
         dateFormatterGet.dateFormat = formatter
         dateFormatterGet.timeZone = NSTimeZone(abbreviation: "UTC") as TimeZone?
         dateFormatterGet.locale = Locale(identifier: "en_US_POSIX")
-
+        
         let dateFormatterPrint = DateFormatter()
         dateFormatterPrint.dateFormat = "dd-MMM-yyyy HH:mm"
-
+        
         let date: Date? = dateFormatterGet.date(from: formatter)
         return date ?? Date()
     }
-
+    
     func image() -> UIImage? {
         let size = CGSize(width: 45, height: 45)
         UIGraphicsBeginImageContextWithOptions(size, false, 0)

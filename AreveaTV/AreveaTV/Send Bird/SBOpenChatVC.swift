@@ -257,22 +257,9 @@ class SBOpenChatVC: UIViewController,UITableViewDelegate,UITableViewDataSource,O
                 userMessageCell.setMessage(userMessage)
                // userMessageCell.delegate = self as! OpenChannelMessageTableViewCellDelegate
                 
-                if sender.userId == SBDMain.getCurrentUser()!.userId {
-                    // Outgoing message
-                    let requestId = userMessage.requestId
-                        if self.resendableMessages[requestId] != nil {
-                            userMessageCell.showElementsForFailure()
-                        }
-                        else {
-                            userMessageCell.hideElementsForFailure()
-                        }
-                    
-                }
-                else {
-                    // Incoming message
-                    userMessageCell.hideElementsForFailure()
-                }
                 
+                userMessageCell.hideElementsForFailure()
+
                 DispatchQueue.main.async {
                     guard let updateCell = tableView.cellForRow(at: indexPath) else { return }
                     guard let updateUserMessageCell = updateCell as? OpenChannelUserMessageTableViewCell else { return }

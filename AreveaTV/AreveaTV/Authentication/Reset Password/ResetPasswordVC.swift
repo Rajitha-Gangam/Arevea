@@ -144,11 +144,18 @@ class ResetPasswordVC: UIViewController ,UITextFieldDelegate{
         }
     }
     @IBAction func dismiss(_ sender: Any) {
+        var isLoginExists = false
         for controller in self.navigationController!.viewControllers as Array {
             if controller.isKind(of: LoginVC.self) {
                 self.navigationController!.popToViewController(controller, animated: true)
+                isLoginExists = true;
                 break
             }
+        }
+        if (!isLoginExists){
+            let storyboard = UIStoryboard(name: "Main", bundle: nil);
+            let vc = storyboard.instantiateViewController(withIdentifier: "LoginVC") as! LoginVC
+            self.navigationController?.pushViewController(vc, animated: true)
         }
     }
     // MARK: Text Field Delegate Methods

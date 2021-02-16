@@ -34,7 +34,7 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate{
     @IBOutlet weak var lblDate: UILabel!
     @IBOutlet weak var lblTime: UILabel!
     @IBOutlet weak var imgWallet: UIImageView!
-
+    
     var dicPerformerInfo = [String: Any]()
     var aryStreamInfo = [String: Any]()
     var aryUserSubscriptionInfo = [Any]()
@@ -131,11 +131,19 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate{
             heightTopView?.constant = 60;
             viewTop.layoutIfNeeded()
         }
+        /*if(appDelegate.isGuest){
+            btnSubscribe.isHidden = false
+            self.shareEventTop.constant = 65;
+            viewShareEvent.layoutIfNeeded()
+        }else{
+            btnSubscribe.isHidden = true
+        }*/
         btnSubscribe.isHidden = true
         if(self.channel_name_subscription == ""){
             self.channel_name_subscription = " "
         }
-        btnSubscribe.isHidden = true
+        //for testing
+        //appDelegate.isGuest = true
     }
     func delayWithSeconds(_ seconds: Double, completion: @escaping () -> ()) {
         DispatchQueue.main.asyncAfter(deadline: .now() + seconds) {
@@ -153,7 +161,7 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate{
     
     @objc func applicationDidBecomeActive(notification: NSNotification) {
         // Application is back in the foreground
-        //print("====applicationDidBecomeActive")
+        print("====applicationDidBecomeActive ER")
         //if user comes from payment redirection, need to refresh stream/vod
         getSubscriptionStatus()
     }
@@ -168,10 +176,21 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate{
         }else{
             //self.imgStreamThumbNail.image = UIImage.init(named: "sample_vod_square")
         }
-        
-        getSubscriptionStatus()
+        if(appDelegate.isGuest){
+            if(isVOD || isAudio){
+                getVodById()
+            }else{
+                getEventBySlug()//to handle payments calling this method after getSubscriptionStatus() called
+            }
+            getSubscriptionStatus()
+        }else{
+            getSubscriptionStatus()
+        }
     }
-    
+    override func viewDidDisappear(_ animated: Bool) {
+        NotificationCenter.default.removeObserver(self, name:UIApplication.didBecomeActiveNotification , object: nil)
+        NotificationCenter.default.removeObserver(self)
+    }
     func delay(_ delay:Double, closure:@escaping ()->()) {
         DispatchQueue.main.asyncAfter(
             deadline: DispatchTime.now() + Double(Int64(delay * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC), execute: closure)
@@ -179,16 +198,19 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate{
     
     
     @IBAction func back(_ sender: Any) {
+        
         self.navigationController?.popViewController(animated: true)
     }
     
     @IBAction func subscribeBtnPressed(_ sender: UIButton){
-        if(arySubscriptions.count > 0){
-            subscribe(row: 0)
+        if(appDelegate.isGuest){
+            gotoLogin()
+        }else{
+            if(arySubscriptions.count > 0){
+                subscribe(row: 0)
+            }
         }
     }
-    
-    
     func convertToDictionary(text: String) -> [String: Any]? {
         if let data = text.data(using: .utf8) {
             do {
@@ -215,8 +237,11 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate{
         viewActivity.isHidden = false
         let url: String = appDelegate.baseURL +  "/getEventBySlug"
         let user_id = UserDefaults.standard.string(forKey: "user_id");
-        let params: [String: Any] = ["userid":user_id ?? "","slug":strSlug]
-        
+        var params: [String: Any] = ["slug":strSlug]
+        if(!appDelegate.isGuest){
+            params["userid"] = user_id ?? ""
+        }
+        print("getEventBySlug params:",params)
         let headers: HTTPHeaders
         headers = [appDelegate.x_api_key: appDelegate.x_api_value]
         AF.request(url, method: .post,parameters: params, encoding: JSONEncoding.default,headers:headers)
@@ -225,9 +250,508 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate{
                 switch response.result {
                 case .success(let value):
                     if let json = value as? [String: Any] {
-                        ////print("getEventBySlug JSON:",json)
+                        print("getEventBySlug JSON:",json)
                         if (json["statusCode"]as? String == "200"){
+                            var strPriceList = [String]()
+                            var eventStartDates = [Date]()
+                            var eventEndDates = [Date]()
+                            let data = json["Data"] as? [String:Any]
+                            self.resultData = data ?? [:]
+                            self.current_time = data?["current_time"] as? String ?? "";
                             
+                            let dfSales = DateFormatter()
+                            dfSales.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
+                            self.currentDate = dfSales.date(from: self.current_time) ?? Date()
+                            
+                            self.aryStreamInfo = data?["stream_info"] as? [String:Any] ?? [:]
+                            print("==>self.aryStreamInfo:",self.aryStreamInfo)
+                            let stream_info_key_exists = self.aryStreamInfo["id"]
+                            if (stream_info_key_exists != nil){
+                                let streamObj = self.aryStreamInfo
+                                self.streamId = streamObj["id"] as? Int ?? 0
+                                self.age_limit = streamObj["age_limit"] as? Int ?? 0
+                                if (self.age_limit <= 15) {
+                                    self.ageDesc.text = "Family Friendly";
+                                } else if (self.age_limit == 16 || self.age_limit <= 17) {
+                                    self.ageDesc.text = "Adults Supervision"
+                                } else if (self.age_limit == 18 || self.age_limit > 18) {
+                                    self.ageDesc.text = "Adults Only"
+                                }
+                                self.streamVideoCode = streamObj["stream_video_code"] as? String ?? ""
+                                _ = streamObj["stream_video_title"] as? String ?? ""
+                                self.number_of_creators = streamObj["number_of_creators"] as? Int ?? 1
+                                
+                                self.streamVideoDesc = streamObj["stream_video_description"] as? String ?? ""
+                                if(self.streamVideoDesc == "null"){
+                                    self.streamVideoDesc = ""
+                                }
+                                // "currency_type" = USD;
+                                self.currencyType = streamObj["currency_type"] as? String ?? ""
+                                //based on currency type, get currency symbol
+                                if let path = Bundle.main.path(forResource: "currencies", ofType: "json") {
+                                    do {
+                                        let data = try Data(contentsOf: URL(fileURLWithPath: path), options: .mappedIfSafe)
+                                        let jsonResult = try JSONSerialization.jsonObject(with: data, options: .mutableLeaves)
+                                        if let jsonResult = jsonResult as? Dictionary<String, AnyObject>,
+                                           let currencySymbol = jsonResult[self.currencyType] as? String {
+                                            // do stuff
+                                            self.currencySymbol = currencySymbol
+                                        }
+                                    } catch {
+                                        // handle error
+                                    }
+                                }
+                                var strAmount = "0.0"
+                                
+                                if (streamObj["stream_payment_amount"] as? Double) != nil {
+                                    strAmount = String(streamObj["stream_payment_amount"] as? Double ?? 0.0)
+                                }else if (streamObj["stream_payment_amount"] as? String) != nil {
+                                    strAmount = String(streamObj["stream_payment_amount"] as? String ?? "0.0")
+                                }
+                                let doubleAmount = Double(strAmount)
+                                let amount = String(format: "%.02f", doubleAmount!)
+                                self.amountWithCurrencyType = self.currencySymbol + amount
+                                
+                                let streamBannerURL = streamObj["video_banner_image"] as? String ?? ""
+                                if let urlBanner = URL(string: streamBannerURL){
+                                    var imageName = "sample_vod_square"
+                                    if(UIDevice.current.userInterfaceIdiom == .pad){
+                                        imageName = "sample-event"
+                                    }
+                                    self.imgStreamThumbNail.sd_setImage(with:urlBanner, placeholderImage: UIImage(named: imageName))
+                                }
+                                
+                                self.paymentAmount = streamObj["stream_payment_amount"]as? Int ?? 0
+                                // self.lblVideoTitle_info.text = streamVideoTitle
+                                self.streamPaymentMode = streamObj["stream_payment_mode"] as? String ?? ""
+                                self.strSlug = streamObj["slug"] as? String ?? "";
+                                
+                                let publish_date_time = streamObj["publish_date_time"] as? String ?? "";
+                                let expected_end_date_time = streamObj["expected_end_date_time"] as? String ?? "";
+                                let formatter = DateFormatter()
+                                formatter.timeZone = NSTimeZone(abbreviation: "UTC") as TimeZone?
+                                formatter.locale = Locale(identifier: "en_US_POSIX")
+                                
+                                formatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
+                                if let publishDate = formatter.date(from: publish_date_time){
+                                    if let expectedEndDate = formatter.date(from: expected_end_date_time){
+                                        formatter.dateFormat = "E, MMM dd yyyy"
+                                        let strPublishDate = formatter.string(from: publishDate)
+                                        formatter.dateFormat = "MMM dd yyyy"
+                                        let strExpectedEndDate = formatter.string(from: expectedEndDate)
+                                        let strStartDate = strPublishDate.convertDateString()
+                                        let strEndDate = strExpectedEndDate.convertDateString()
+                                        var dateFull = ""
+                                        
+                                        if(strStartDate == strEndDate){
+                                            //if start and end dates are need to show one date
+                                            dateFull = strPublishDate
+                                        }else{
+                                            dateFull = strPublishDate + " - " + strExpectedEndDate
+                                        }
+                                        
+                                        formatter.dateFormat = "hh:mm a"
+                                        let startTime = formatter.string(from: publishDate)
+                                        let endTime = formatter.string(from: expectedEndDate)
+                                        let localStartTime = self.utcToLocal(dateStr: startTime) ?? ""
+                                        let localEndTime = self.utcToLocal(dateStr: endTime) ?? ""
+                                        let localStartDate = self.utcToLocalDate(dateStr:strPublishDate )
+                                        print("localStartDate:",localStartDate)
+                                        let timeFull = localStartTime + " - " + localEndTime
+                                        self.lblDate.text = localStartDate
+                                        self.lblTime.text = timeFull
+                                    }
+                                }
+                                let stream_amounts = streamObj["stream_amounts"] as? String ?? "";
+                                print("stream_amounts:",stream_amounts)
+                                //print("isUserSubscribe:",isUserSubscribe)
+                                if (stream_amounts != ""){
+                                    self.dicAmounts = self.convertToDictionary(text: stream_amounts) ?? [:]
+                                    print("==dicAmounts:",self.dicAmounts)
+                                    let sub_live_stream = self.dicAmounts["sub_live_stream"] as? [Any] ?? [Any]()
+                                    if(self.appDelegate.isGuest){
+                                        let live_stream = self.dicAmounts["live_stream"] as? [Any] ?? [Any]()
+                                        self.aryStreamAmounts = live_stream
+                                    }else{
+                                        if(self.isUserSubscribe && sub_live_stream.count > 0){
+                                            self.aryStreamAmounts = sub_live_stream
+                                            
+                                        }else if(self.isUserSubscribe && sub_live_stream.count == 0){
+                                            let subscriberPayment = self.dicAmounts["subscriberPayment"] as? String ?? ""
+                                            self.aryStreamAmounts = []
+                                            if(subscriberPayment == "free"){
+                                                self.lblAmount.text = "Free"
+                                            }
+                                        }else{
+                                            let live_stream = self.dicAmounts["live_stream"] as? [Any] ?? [Any]()
+                                            self.aryStreamAmounts = live_stream
+                                        }
+                                    }
+                                    
+                                    print("self.aryStreamAmounts:",self.aryStreamAmounts)
+                                    var aryCurrencies = [[String:Any]]()
+                                    for (index,_) in self.aryStreamAmounts.enumerated(){
+                                        let element = self.aryStreamAmounts[index] as? [String : Any] ?? [String:Any]()
+                                        let booking_start_date = element["booking_start_date"] as? String ?? ""
+                                        let booking_end_date = element["booking_end_date"] as? String ?? ""
+                                        let ticket_type_name = element["ticket_type_name"] as? String ?? ""
+                                        let formatter = DateFormatter()
+                                        formatter.dateFormat = "yyyy-MM-dd HH:mm"
+                                        var startDateTemp = Date()
+                                        var endDateTemp = Date()
+                                        if let startDate = formatter.date(from: booking_start_date) {
+                                            eventStartDates.append(startDate)
+                                            startDateTemp = startDate
+                                        }
+                                        if let endDate = formatter.date(from: booking_end_date) {
+                                            eventEndDates.append(endDate)
+                                            endDateTemp = endDate
+                                        }
+                                        let amounts = element["amounts"]as? [[String:Any]] ?? [[:]]
+                                        for(j,_)in amounts.enumerated(){
+                                            var object = amounts[j]
+                                            object["booking_start_date"] = startDateTemp
+                                            object["booking_end_date"] = endDateTemp
+                                            object["ticket_type_name"] = ticket_type_name
+                                            aryCurrencies.append(object)
+                                        }
+                                    }
+                                    print("eventStartDates:",eventStartDates)
+                                    print("eventEndDates:",eventEndDates)
+                                    let currencyKeys = aryCurrencies.compactMap { $0["currency_type"] }//it contains all currency keys [USD, INR, USD, INR]
+                                    let currencyKeysUnique = NSMutableArray()
+                                    self.aryCurrencyKeys = []
+                                    self.aryCurrencyValues = []
+                                    self.aryDisplayCurrencies = []
+                                    self.doubleDisplayCurrencies = []
+                                    // we are removing duplicate currency keys
+                                    //[USD, INR]
+                                    for (_,element)in currencyKeys.enumerated(){
+                                        if(!currencyKeysUnique.contains(element)){
+                                            currencyKeysUnique.add(element)
+                                            let searchPredicate = NSPredicate(format: "currency_type = %@", element as! CVarArg)
+                                            let filteredArray = (aryCurrencies as NSArray).filtered(using: searchPredicate)
+                                            self.aryCurrencyKeys.append(element as! String)
+                                            self.aryCurrencyValues.append(filteredArray)
+                                        }
+                                    }
+                                    //print("aryCurrencyKeys:",aryCurrencyKeys)
+                                    //print("aryCurrencyValues:",aryCurrencyValues)
+                                    //if currency count 1, then we need to use its value
+                                    if(self.aryCurrencyKeys.count == 1){
+                                        for (index,_) in self.aryCurrencyValues.enumerated(){
+                                            let currencyAry = self.aryCurrencyValues[index] as? [Any] ?? [Any]()
+                                            for (_,element) in currencyAry.enumerated(){
+                                                //print("currencyObj1:",element)
+                                                self.aryDisplayCurrencies.append(element)
+                                            }
+                                        }
+                                    }else{
+                                        let indexUser = self.aryCurrencyKeys.firstIndex(where: {$0 == self.appDelegate.userCurrencyCode}) ?? -1
+                                        //if user currency found in response
+                                        print("indexUser:",indexUser)
+                                        
+                                        if(indexUser != -1){
+                                            self.currencySymbol = self.appDelegate.userCurrencySymbol
+                                            let currencyAry = self.aryCurrencyValues[indexUser] as? [Any] ?? [Any]()
+                                            for (_,element) in currencyAry.enumerated(){
+                                                //print("currencyObj2:",element)
+                                                self.aryDisplayCurrencies.append(element)
+                                                
+                                            }
+                                        }
+                                        //if user currency not found in response
+                                        //need to check creator currency is there are not in response
+                                        else{
+                                            let indexCreator = self.aryCurrencyKeys.firstIndex(where: {$0 == self.currencyType}) ?? -1
+                                            //if creator currency is there in response
+                                            if(indexCreator != -1){
+                                                let currencyAry = self.aryCurrencyValues[indexCreator] as? [Any] ?? [Any]()
+                                                for (_,element) in currencyAry.enumerated(){
+                                                    //print("currencyObj3:",element)
+                                                    self.aryDisplayCurrencies.append(element)
+                                                }
+                                            }
+                                            //if creator currency is not there in response
+                                            else{
+                                                
+                                            }
+                                            print("indexCreator:",indexCreator)
+                                            
+                                        }
+                                    }
+                                    
+                                    
+                                    //print("aryDisplayCurrencies:",aryDisplayCurrencies)
+                                    self.tempAryDisplayCurrencies = []
+                                    for (index,_) in self.aryDisplayCurrencies.enumerated(){
+                                        let element = self.aryDisplayCurrencies[index] as? [String : Any] ?? [String:Any]()
+                                        let booking_start_date = element["booking_start_date"] as? Date
+                                        let booking_end_date = element["booking_end_date"] as? Date
+                                        
+                                        let dateFormatter = DateFormatter()
+                                        dateFormatter.dateFormat = "yyyy-MM-dd"
+                                        //                                        print("==currentDate:",currentDate)
+                                        //                                        print("booking_start_date:",booking_start_date)
+                                        //                                        print("booking_end_date:",booking_end_date)
+                                        
+                                        // current_time 2021-01-19T20:47:00.193Z"
+                                        // if we take whole value, if time is more, then next day event coming
+                                        let aryCurrentTime = self.current_time.split{$0 == "T"}.map(String.init)
+                                        var today = Date()
+                                        if(aryCurrentTime.count > 0){
+                                            let strDateCurrent  = aryCurrentTime[0]
+                                            today = dateFormatter.date(from: strDateCurrent)!
+                                        }
+                                        
+                                        let calendar = Calendar.current
+                                        var componentsToday = calendar.dateComponents([.year,.month,.day,.hour,.minute,.second], from: today)
+                                        
+                                        var componentsStart = calendar.dateComponents([.year,.month,.day,.hour,.minute,.second], from: booking_start_date!)
+                                        
+                                        var componentsEnd = calendar.dateComponents([.year,.month,.day,.hour,.minute,.second], from: booking_end_date!)
+                                        
+                                        print("componentsToday:",componentsToday)
+                                        print("componentsStart:",componentsStart)
+                                        print("componentsEnd:",componentsEnd)
+                                        
+                                        if (componentsToday.year == componentsStart.year && componentsToday.year == componentsEnd.year && componentsToday.day! >= componentsStart.day! && componentsToday.day! <= componentsEnd.day!) {
+                                            var strAmount = "0.0"
+                                            if (element["stream_payment_amount"] as? Double) != nil {
+                                                strAmount = String(element["stream_payment_amount"] as? Double ?? 0.0)
+                                            }else if (element["stream_payment_amount"] as? String) != nil {
+                                                strAmount = String(element["stream_payment_amount"] as? String ?? "0.0")
+                                            }
+                                            let doubleAmount = Double(strAmount)
+                                            let amount = String(format: "%.02f", doubleAmount!)
+                                            strPriceList.append(amount)
+                                            self.tempAryDisplayCurrencies.append(element)
+                                        }
+                                    }
+                                    print("tempAryDisplayCurrencies:",self.tempAryDisplayCurrencies)
+                                    //if event is not free, and booking date is not fall under current day
+                                    if(self.lblAmount.text != "Free" && self.tempAryDisplayCurrencies.count == 0){
+                                        self.imgWallet.isHidden = true
+                                    }
+                                    
+                                    //print("tempAryDisplayCurrencies:",tempAryDisplayCurrencies)
+                                    self.doubleDisplayCurrencies = strPriceList.compactMap(Double.init)//["5.00","100.00"] to [5,1000]
+                                    
+                                    self.doubleDisplayCurrencies.sort(by: <)//sort ascending
+                                    if(self.doubleDisplayCurrencies.count > 0){
+                                        let firstValue = String(format: "%.02f",self.doubleDisplayCurrencies[0])
+                                        let lastValue = String(format: "%.02f",self.doubleDisplayCurrencies[self.doubleDisplayCurrencies.count - 1]);
+                                        let amountDisplay = self.currencySymbol + firstValue + " - " + self.currencySymbol + lastValue;
+                                        // ////print("====amount in Dollars:",amountDisplay)
+                                        if(firstValue == lastValue){
+                                            self.amountWithCurrencyType = self.currencySymbol + firstValue
+                                        }else{
+                                            self.amountWithCurrencyType = amountDisplay
+                                        }
+                                        self.lblAmount.text = self.amountWithCurrencyType
+                                        
+                                    }
+                                    //print("doubleDisplayCurrencies:",doubleDisplayCurrencies)
+                                    
+                                    //print("===eventStartDates:",eventStartDates)
+                                    //print("===eventEndDates:",eventEndDates)
+                                    
+                                    if(eventStartDates.count > 0 && eventEndDates.count > 0){
+                                        let dateFormatter = DateFormatter()
+                                        dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
+                                        
+                                        let dfToday = DateFormatter()
+                                        dfToday.dateFormat = "yyyy-MM-dd"
+                                        let aryCurrentTime = self.current_time.split{$0 == "T"}.map(String.init)
+                                        var today = Date()
+                                        if(aryCurrentTime.count > 0){
+                                            let strDateCurrent  = aryCurrentTime[0]
+                                            today = dfToday.date(from: strDateCurrent)!
+                                        }
+                                        
+                                        /*let todaysDate = dateFormatter.string(from: currentDate )
+                                         let today = dateFormatter.date(from: todaysDate)*/
+                                        let startDate = eventStartDates[0]
+                                        let endDate = eventEndDates[eventEndDates.count-1]
+                                        print("==>startDate:",startDate)
+                                        print("==>today:",today)
+                                        
+                                        //If start date is > today
+                                        if(startDate > today)
+                                        {
+                                            print("==saleStarts")
+                                            self.saleStarts = true;
+                                        }
+                                        //today >= start date && today <= end date
+                                        else if(today >= startDate && today <= endDate)
+                                        {
+                                            //print("==checkSale")
+                                            self.checkSale = true;
+                                        }
+                                        //If today is > endDate
+                                        else if(today > endDate)
+                                        {
+                                            print("==saleCompleted")
+                                            self.saleCompleted = true;
+                                        }
+                                    }
+                                }//if (stream_amounts != "")
+                                else{
+                                    self.lblAmount.text = "Free"//
+                                }
+                            }else{
+                                
+                            }
+                            let user_subscription_info = data?["user_subscription_info"] != nil
+                            if(user_subscription_info){
+                                self.aryUserSubscriptionInfo = data?["user_subscription_info"] as? [Any] ?? [Any]()
+                            }
+                            let user_age_limit = UserDefaults.standard.integer(forKey:"user_age_limit");
+                            print("==user_age_limit:",user_age_limit)
+                            if(self.streamPaymentMode == "free"){
+                                self.lblAmount.text = "Free"
+                            }
+                            let streamObj = self.aryStreamInfo
+                            self.stream_status = streamObj["stream_status"] as? String ?? ""
+                            if(self.stream_status == "completed"){
+                                //uncomment below line
+                                //self.setLiveStreamConfig()
+                                self.lblStreamUnavailable.text = "Sale is completed!"
+                                self.btnGetTickets.isHidden = true
+                                return
+                                
+                            }
+                            if (self.aryUserSubscriptionInfo.count == 0){
+                                //if user does not pay amount
+                                self.btnGetTickets.isHidden = false
+                                if(self.lblAmount.text == "Free")
+                                {
+                                    self.btnGetTickets.isHidden = false
+                                }
+                                //if event is not free need to check conditions
+                                else{
+                                    if(self.saleStarts){
+                                        //print("==self.saleStarts")
+                                        if(eventStartDates.count > 0){
+                                            self.btnGetTickets.isHidden = true
+                                            let startDate = eventStartDates[0]
+                                            let formatter = DateFormatter()
+                                            //                                                formatter.timeZone = NSTimeZone(abbreviation: "UTC") as TimeZone?
+                                            //                                                formatter.locale = Locale(identifier: "en_US_POSIX")
+                                            formatter.dateFormat = "dd MMM yyyy"
+                                            let myString = formatter.string(from: startDate) // string purpose I add here
+                                            self.lblStreamUnavailable.text = "Sale Starts On " + myString
+                                            self.btnGetTickets.isHidden = true
+                                        }
+                                    }
+                                }
+                                // this we need to check for free & paid events
+                                if(self.saleCompleted){
+                                    self.btnGetTickets.isHidden = true
+                                    self.lblStreamUnavailable.text = "Sale is completed!"
+                                }
+                            }else{
+                                self.btnGetTickets.isHidden = true
+                                if (stream_info_key_exists != nil){
+                                    let streamObj = self.aryStreamInfo
+                                    if (streamObj["stream_vod"]as? String == "stream" && self.isVOD == false && self.isAudio == false){
+                                        if(self.checkSale && !self.saleStarts){
+                                            self.gotoStreamDetails()
+                                        }else if(self.saleStarts){
+                                            //print("==self.saleStarts")
+                                            if(eventStartDates.count > 0){
+                                                let startDate = eventStartDates[0]
+                                                let formatter = DateFormatter()
+                                                formatter.timeZone = NSTimeZone(abbreviation: "UTC") as TimeZone?
+                                                formatter.locale = Locale(identifier: "en_US_POSIX")
+                                                formatter.dateFormat = "dd MMM yyyy"
+                                                let myString = formatter.string(from: startDate) // string purpose I add here
+                                                self.lblStreamUnavailable.text = "Sale Starts On " + myString
+                                            }
+                                        }else if(self.saleCompleted){
+                                            self.lblStreamUnavailable.text = "Sale is completed!"
+                                        }
+                                        if(!self.checkSale && !self.saleStarts && !self.saleCompleted && self.lblAmount.text == "Free"){
+                                            self.gotoStreamDetails()
+                                        }
+                                    }else{
+                                        self.isStream = false;
+                                        if (self.isVOD || streamObj["stream_vod"]as? String == "vod"){
+                                        }else{
+                                            if(self.isAudio){
+                                                //audio
+                                            }else{
+                                                //if stream_vod value is not stream or not vod
+                                                
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            if (self.age_limit <= user_age_limit || self.age_limit == 0){
+                            }
+                            else{
+                                if(!self.appDelegate.isGuest && user_age_limit != 0){
+                                    self.btnGetTickets.isHidden = true;
+                                    self.lblStreamUnavailable.text = "This video may be inappropriate for some users"
+                                }
+                            }
+                            
+                            let performer_info = data?["performer_info"] != nil
+                            if(performer_info){
+                                self.dicPerformerInfo = data?["performer_info"] as? [String : Any] ?? [String:Any]()
+                                let performerName = self.dicPerformerInfo["performer_display_name"] as? String ?? ""
+                                var firstChar = ""
+                                
+                                let fullNameArr = performerName.components(separatedBy: " ")
+                                let firstName: String = fullNameArr[0]
+                                var lastName = ""
+                                if (fullNameArr.count > 1){
+                                    lastName = fullNameArr[1]
+                                }
+                                if (lastName == ""){
+                                    firstChar = String(firstName.first!)
+                                }else{
+                                    firstChar = String(firstName.first!) + String(lastName.first!)
+                                }
+                                // self.lblPerformerName.text = firstChar
+                                /* var performer_bio = self.dicPerformerInfo["performer_bio"] as? String ?? ""
+                                 performer_bio = performer_bio.htmlToString
+                                 
+                                 self.txtProfile.text = performerName + "\n" + performer_bio*/
+                                let videoDesc = self.streamVideoDesc;
+                                print("videoDesc:",videoDesc)
+                                let creatorName = "Creator Name: " + performerName;
+                                var fullText = videoDesc  + "\n" + creatorName
+                                /*let attributes: [NSAttributedString.Key: Any] = [
+                                    .foregroundColor: UIColor.white,
+                                    .backgroundColor: UIColor.red,
+                                    .font: UIFont.boldSystemFont(ofSize: 36)
+                                ]*/
+                              
+                                fullText = fullText.trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
+                                //self.txtVideoDesc_Info.attributedText = fullText.htmlToAttributedString
+                                self.txtVideoDesc_Info.text = fullText.htmlToString
+
+                                
+                                if (stream_info_key_exists == nil){
+                                    //performer_profile_banner
+                                    let performer_profile_banner = self.dicPerformerInfo["performer_profile_banner"] as? String ?? ""
+                                    if let urlBanner = URL(string: performer_profile_banner){
+                                        self.imgStreamThumbNail.sd_setImage(with: urlBanner, placeholderImage: UIImage(named: "sample_vod_square"))
+                                    }
+                                }
+                                let performer_profile_banner1 = self.dicPerformerInfo["performer_profile_pic"] as? String ?? ""
+                                if let urlBanner = URL(string: performer_profile_banner1){
+                                    //                                    self.imgPerformer.sd_setImage(with: urlBanner, placeholderImage: UIImage(named: "user"))
+                                    //                                    self.imgPerformer.layer.cornerRadius = self.imgPerformer.frame.size.width/2
+                                    //                                    self.imgPerformer.isHidden = false
+                                }else{
+                                    //                                    self.imgPerformer.layer.cornerRadius = 0
+                                    //                                    self.imgPerformer.isHidden = true
+                                }
+                                //////print("self.app_id_for_adds:",self.app_id_for_adds)
+                            }
                         }else{
                             let strError = json["message"] as? String
                             //////print("strError1:",strError ?? "")
@@ -254,7 +778,7 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate{
         }
         viewActivity.isHidden = false
         let url: String = appDelegate.paymentBaseURL +  "/registerEvent"
-        let user_id = UserDefaults.standard.string(forKey: "user_id");
+        _ = UserDefaults.standard.string(forKey: "user_id");
         let streamObj = self.aryStreamInfo
         let currency_type = streamObj["currency_type"] as? String ?? ""
         let stream_video_title = streamObj["stream_video_title"] as? String ?? ""
@@ -354,6 +878,7 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate{
         vc.channel_name_subscription = channel_name_subscription
         vc.isVOD = isVOD
         vc.isUpcoming = isUpcoming
+        vc.strSlug = strSlug
         self.navigationController?.pushViewController(vc, animated: true)
         
     }
@@ -602,15 +1127,15 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate{
                                     doubleDisplayCurrencies = strPriceList.compactMap(Double.init)//["5.00","100.00"] to [5,1000]
                                     doubleDisplayCurrencies.sort(by: <)//sort ascending
                                     if(doubleDisplayCurrencies.count > 0){
-                                    let firstValue = String(doubleDisplayCurrencies[0])
-                                    let lastValue = String(doubleDisplayCurrencies[doubleDisplayCurrencies.count - 1]);
-                                    let amountDisplay = self.currencySymbol + firstValue + " - " + self.currencySymbol + lastValue;
-                                    // ////print("====amount in Dollars:",amountDisplay)
-                                    if(firstValue == lastValue){
-                                        self.amountWithCurrencyType = self.currencySymbol + firstValue
-                                    }else{
-                                        self.amountWithCurrencyType = amountDisplay
-                                    }
+                                        let firstValue = String(format: "%.02f",doubleDisplayCurrencies[0])
+                                        let lastValue = String(format: "%.02f",doubleDisplayCurrencies[doubleDisplayCurrencies.count - 1]);
+                                        let amountDisplay = self.currencySymbol + firstValue + " - " + self.currencySymbol + lastValue;
+                                        // ////print("====amount in Dollars:",amountDisplay)
+                                        if(firstValue == lastValue){
+                                            self.amountWithCurrencyType = self.currencySymbol + firstValue
+                                        }else{
+                                            self.amountWithCurrencyType = amountDisplay
+                                        }
                                     }
                                     self.lblAmount.text = self.amountWithCurrencyType
                                     //print("===eventStartDates:",eventStartDates)
@@ -662,7 +1187,6 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate{
                             if(self.streamPaymentMode == "free"){
                                 self.lblAmount.text = "Free"//Free
                             }
-                            if (self.age_limit <= user_age_limit || self.age_limit == 0){
                                 if (self.aryUserSubscriptionInfo.count == 0 && self.isVOD){
                                     //if user does not pay amount
                                     self.btnGetTickets.isHidden = false
@@ -678,22 +1202,18 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate{
                                         self.isStream = false;
                                         if (self.isVOD){
                                             
-                                            
                                         }else{
                                             //audio
-                                            
                                         }
                                     }
                                 }
-                            }else{
-                                //self.showAlert(strMsg: "This vidoe may be inappropriate for some users")
+                            if (self.age_limit <= user_age_limit || self.age_limit == 0){
+                            } else{
+                                if(!self.appDelegate.isGuest && user_age_limit != 0){
                                 self.btnGetTickets.isHidden = true;
-                                //self.btnGetTickets.isUserInteractionEnabled = false
-                                // self.btnGetTickets.setImage(UIImage.init(named: "eye-cross"), for: .normal)
-                                self.lblStreamUnavailable.text = "This vidoe may be inappropriate for some users"
-                                
+                                self.lblStreamUnavailable.text = "this video may be inappropriate for some users"
+                                }
                             }
-                            
                             let performer_info = data?["performer_info"] != nil
                             if(performer_info){
                                 self.dicPerformerInfo = data?["performer_info"] as? [String : Any] ?? [String:Any]()
@@ -713,7 +1233,11 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate{
                                 
                                 let videoDesc = self.streamVideoDesc;
                                 let creatorName = "Creator Name: " + performerName;
-                                self.txtVideoDesc_Info.text = videoDesc  + "\n\n" + creatorName
+                                var fullText = videoDesc  + "\n" + creatorName
+                                                               fullText = fullText.trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
+                                                               self.txtVideoDesc_Info.text = fullText.htmlToString
+
+
                                 if (stream_info_key_exists == nil){
                                     //performer_profile_banner
                                     let performer_profile_banner = self.dicPerformerInfo["performer_profile_banner"] as? String ?? ""
@@ -881,7 +1405,7 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate{
                                 //print("isUserSubscribe:",isUserSubscribe)
                                 if (stream_amounts != ""){
                                     self.dicAmounts = self.convertToDictionary(text: stream_amounts) ?? [:]
-                                     //print("==dicAmounts:",self.dicAmounts)
+                                    //print("==dicAmounts:",self.dicAmounts)
                                     let sub_live_stream = self.dicAmounts["sub_live_stream"] as? [Any] ?? [Any]()
                                     if(isUserSubscribe && sub_live_stream.count > 0){
                                         aryStreamAmounts = sub_live_stream
@@ -957,7 +1481,7 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate{
                                         let indexUser = aryCurrencyKeys.firstIndex(where: {$0 == appDelegate.userCurrencyCode}) ?? -1
                                         //if user currency found in response
                                         print("indexUser:",indexUser)
-
+                                        
                                         if(indexUser != -1){
                                             self.currencySymbol = appDelegate.userCurrencySymbol
                                             let currencyAry = self.aryCurrencyValues[indexUser] as? [Any] ?? [Any]()
@@ -984,11 +1508,11 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate{
                                                 
                                             }
                                             print("indexCreator:",indexCreator)
-
+                                            
                                         }
                                     }
                                     
-
+                                    
                                     //print("aryDisplayCurrencies:",aryDisplayCurrencies)
                                     tempAryDisplayCurrencies = []
                                     for (index,_) in self.aryDisplayCurrencies.enumerated(){
@@ -998,10 +1522,10 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate{
                                         
                                         let dateFormatter = DateFormatter()
                                         dateFormatter.dateFormat = "yyyy-MM-dd"
-//                                        print("==currentDate:",currentDate)
-//                                        print("booking_start_date:",booking_start_date)
-//                                        print("booking_end_date:",booking_end_date)
-
+                                        //                                        print("==currentDate:",currentDate)
+                                        //                                        print("booking_start_date:",booking_start_date)
+                                        //                                        print("booking_end_date:",booking_end_date)
+                                        
                                         // current_time 2021-01-19T20:47:00.193Z"
                                         // if we take whole value, if time is more, then next day event coming
                                         let aryCurrentTime = current_time.split{$0 == "T"}.map(String.init)
@@ -1010,18 +1534,18 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate{
                                             let strDateCurrent  = aryCurrentTime[0]
                                             today = dateFormatter.date(from: strDateCurrent)!
                                         }
-                                       
+                                        
                                         let calendar = Calendar.current
                                         var componentsToday = calendar.dateComponents([.year,.month,.day,.hour,.minute,.second], from: today)
                                         
                                         var componentsStart = calendar.dateComponents([.year,.month,.day,.hour,.minute,.second], from: booking_start_date!)
-                                       
+                                        
                                         var componentsEnd = calendar.dateComponents([.year,.month,.day,.hour,.minute,.second], from: booking_end_date!)
-                                       
+                                        
                                         print("componentsToday:",componentsToday)
                                         print("componentsStart:",componentsStart)
                                         print("componentsEnd:",componentsEnd)
-
+                                        
                                         if (componentsToday.year == componentsStart.year && componentsToday.year == componentsEnd.year && componentsToday.day! >= componentsStart.day! && componentsToday.day! <= componentsEnd.day!) {
                                             var strAmount = "0.0"
                                             if (element["stream_payment_amount"] as? Double) != nil {
@@ -1045,8 +1569,8 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate{
                                     doubleDisplayCurrencies = strPriceList.compactMap(Double.init)//["5.00","100.00"] to [5,1000]
                                     doubleDisplayCurrencies.sort(by: <)//sort ascending
                                     if(doubleDisplayCurrencies.count > 0){
-                                        let firstValue = String(doubleDisplayCurrencies[0])
-                                        let lastValue = String(doubleDisplayCurrencies[doubleDisplayCurrencies.count - 1]);
+                                        let firstValue = String(format: "%.02f",doubleDisplayCurrencies[0])
+                                        let lastValue = String(format: "%.02f",doubleDisplayCurrencies[doubleDisplayCurrencies.count - 1]);
                                         let amountDisplay = self.currencySymbol + firstValue + " - " + self.currencySymbol + lastValue;
                                         // ////print("====amount in Dollars:",amountDisplay)
                                         if(firstValue == lastValue){
@@ -1055,10 +1579,10 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate{
                                             self.amountWithCurrencyType = amountDisplay
                                         }
                                         self.lblAmount.text = self.amountWithCurrencyType
-
+                                        
                                     }
                                     //print("doubleDisplayCurrencies:",doubleDisplayCurrencies)
-
+                                    
                                     //print("===eventStartDates:",eventStartDates)
                                     //print("===eventEndDates:",eventEndDates)
                                     
@@ -1076,12 +1600,12 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate{
                                         }
                                         
                                         /*let todaysDate = dateFormatter.string(from: currentDate )
-                                        let today = dateFormatter.date(from: todaysDate)*/
+                                         let today = dateFormatter.date(from: todaysDate)*/
                                         let startDate = eventStartDates[0]
                                         let endDate = eventEndDates[eventEndDates.count-1]
                                         print("==>startDate:",startDate)
                                         print("==>today:",today)
-
+                                        
                                         //If start date is > today
                                         if(startDate > today)
                                         {
@@ -1144,8 +1668,8 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate{
                                                 self.btnGetTickets.isHidden = true
                                                 let startDate = eventStartDates[0]
                                                 let formatter = DateFormatter()
-//                                                formatter.timeZone = NSTimeZone(abbreviation: "UTC") as TimeZone?
-//                                                formatter.locale = Locale(identifier: "en_US_POSIX")
+                                                //                                                formatter.timeZone = NSTimeZone(abbreviation: "UTC") as TimeZone?
+                                                //                                                formatter.locale = Locale(identifier: "en_US_POSIX")
                                                 formatter.dateFormat = "dd MMM yyyy"
                                                 let myString = formatter.string(from: startDate) // string purpose I add here
                                                 self.lblStreamUnavailable.text = "Sale Starts On " + myString
@@ -1197,11 +1721,10 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate{
                                     }
                                 }
                             }else{
-                                //self.showAlert(strMsg: "This vidoe may be inappropriate for some users")
                                 self.btnGetTickets.isHidden = true;
                                 //self.btnGetTickets.isUserInteractionEnabled = false
                                 // self.btnGetTickets.setImage(UIImage.init(named: "eye-cross"), for: .normal)
-                                self.lblStreamUnavailable.text = "This vidoe may be inappropriate for some users"
+                                self.lblStreamUnavailable.text = "this video may be inappropriate for some users"
                             }
                             
                             let performer_info = data?["performer_info"] != nil
@@ -1228,8 +1751,11 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate{
                                  self.txtProfile.text = performerName + "\n" + performer_bio*/
                                 let videoDesc = self.streamVideoDesc;
                                 let creatorName = "Creator Name: " + performerName;
-                                self.txtVideoDesc_Info.text = videoDesc  + "\n" + creatorName
-                                self.txtVideoDesc_Info.text = self.txtVideoDesc_Info.text.trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
+                                var fullText = videoDesc  + "\n" + creatorName
+                                                               fullText = fullText.trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
+                                                               self.txtVideoDesc_Info.text = fullText.htmlToString
+
+
                                 //self.txtVideoDesc_Info.backgroundColor = UIColor.red
                                 
                                 if (stream_info_key_exists == nil){
@@ -1315,33 +1841,83 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate{
         NotificationCenter.default.removeObserver(self)
         
     }
-    
-    @IBAction func payPerView(_ sender: Any) {
+    func gotoTicketTypes(){
+        let storyboard = UIStoryboard(name: "Main", bundle: nil);
+        let streamInfo = self.aryStreamInfo
+        let stream_video_title = streamInfo["stream_video_title"] as? String ?? "Channel Details"
+        appDelegate.isLiveLoad = "1"
+        let vc = storyboard.instantiateViewController(withIdentifier: "TicketTypesVC") as! TicketTypesVC
+        vc.orgId = orgId
+        vc.streamId = streamId
+        vc.delegate = self
+        vc.performerId = performerId
+        vc.strTitle = stream_video_title
+        vc.isCameFromGetTickets = true
+        vc.channel_name_subscription = channel_name_subscription
+        vc.isVOD = isVOD
+        vc.isUpcoming = isUpcoming
+        vc.aryStreamAmounts = aryStreamAmounts
+        vc.currencyType = currencyType
+        vc.currencySymbol = currencySymbol
+        vc.tempAryDisplayCurrencies = tempAryDisplayCurrencies
+        vc.number_of_creators = number_of_creators
+        vc.strSlug = self.strSlug
+        vc.aryStreamInfo = self.aryStreamInfo
         if(self.lblAmount.text == "Free"){
-            //print("free")
-            registerEvent()
+            vc.stream_payment_mode = "Free"
+        }
+        self.navigationController?.pushViewController(vc, animated: true)
+    }
+    func showConfirmation(strAge:String){
+        let strMsg = "This video intended for person " + strAge + " years or older. I agree that my age is " + strAge + " or above."
+        let alert = UIAlertController(title: "Alert", message: strMsg, preferredStyle: .alert)
+        
+        alert.addAction(UIAlertAction(title: "Yes", style: .default, handler: { [self] action in
+            if(self.lblAmount.text == "Free" && (!appDelegate.isGuest)){
+                registerEvent()
+            }else{
+                //print("paid") or guest
+                gotoTicketTypes()
+            }
+        }))
+        alert.addAction(UIAlertAction(title: "No", style: .cancel, handler: { [self] action in
+            showAlert(strMsg: "This video may be inappropriate for some users")
+        }))
+        
+        DispatchQueue.main.async {
+            self.present(alert, animated: true)
+        }
+    }
+    @IBAction func payPerView(_ sender: Any) {
+        let user_age_limit = UserDefaults.standard.integer(forKey:"user_age_limit");
+        //for guest user or for logged in user age not given
+        if((!self.appDelegate.isGuest && user_age_limit == 0) || appDelegate.isGuest){
+            if (self.age_limit <= 15) {
+                // "Family Friendly";
+                //free and logged in user
+                if(self.lblAmount.text == "Free" && (!appDelegate.isGuest)){
+                    registerEvent()
+                }else{
+                    //print("paid") or guest
+                    gotoTicketTypes()
+                }
+            }
+            else if (self.age_limit == 16 || self.age_limit <= 17) {
+                // "Adults Supervision"
+                showConfirmation(strAge: "16")
+            }else if (self.age_limit == 18 || self.age_limit > 18) {
+                //"Adults Only"
+                showConfirmation(strAge: "18")
+            }
         }else{
-            //print("paid")
-            let storyboard = UIStoryboard(name: "Main", bundle: nil);
-            let streamInfo = self.aryStreamInfo
-            let stream_video_title = streamInfo["stream_video_title"] as? String ?? "Channel Details"
-            appDelegate.isLiveLoad = "1"
-            let vc = storyboard.instantiateViewController(withIdentifier: "TicketTypesVC") as! TicketTypesVC
-            vc.orgId = orgId
-            vc.streamId = streamId
-            vc.delegate = self
-            vc.performerId = performerId
-            vc.strTitle = stream_video_title
-            vc.isCameFromGetTickets = true
-            vc.channel_name_subscription = channel_name_subscription
-            vc.isVOD = isVOD
-            vc.isUpcoming = isUpcoming
-            vc.aryStreamAmounts = aryStreamAmounts
-            vc.currencyType = currencyType
-            vc.currencySymbol = currencySymbol
-            vc.tempAryDisplayCurrencies = tempAryDisplayCurrencies
-            self.navigationController?.pushViewController(vc, animated: true)
-            
+            //for normal user, which age has given
+            if(self.lblAmount.text == "Free" && (!appDelegate.isGuest)){
+                //print("free")
+                registerEvent()
+            }else{
+                //print("paid")
+                    gotoTicketTypes()
+            }
         }
     }
     // MARK: - Button Actions
@@ -1430,7 +2006,7 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate{
                         if(isVOD || isAudio){
                             getVodById()
                         }else{
-                            LiveEventById()//to handle payments calling this method after getSubscriptionStatus() called
+                            getEventBySlug()//to handle payments calling this method after getSubscriptionStatus() called
                         }
                     }
                     
@@ -1443,21 +2019,41 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate{
                 }
             }
     }
-    
+    func gotoLogin(){
+        var isLoginExists = false
+        for controller in self.navigationController!.viewControllers as Array {
+            if controller.isKind(of: LoginVC.self) {
+                self.navigationController!.popToViewController(controller, animated: true)
+                isLoginExists = true;
+                break
+            }
+        }
+        if (!isLoginExists){
+            let storyboard = UIStoryboard(name: "Main", bundle: nil);
+            let vc = storyboard.instantiateViewController(withIdentifier: "LoginVC") as! LoginVC
+            self.navigationController?.pushViewController(vc, animated: true)
+        }
+    }
     func subscribe(row:Int){
-        ////print("row:",row)
-        let subscribeObj = self.arySubscriptions[row] as? [String : Any] ?? [:];
-        ////print("subscribeObj:",subscribeObj)
-        let planId = subscribeObj["id"] as? Int ?? 0
-        ////print("planId:",planId)
-        let user_id = UserDefaults.standard.string(forKey: "user_id");
-        let strUserId = user_id ?? "1"
-        // https://dev1.arevea.com/subscribe-payment?channel_name=chirantan-patel&user_id=101097275&plan_id=1311
+        print("==subscribe")
+        if(appDelegate.isGuest){
+            gotoLogin()
+        }else{
+            ////print("row:",row)
+            let subscribeObj = self.arySubscriptions[row] as? [String : Any] ?? [:];
+            ////print("subscribeObj:",subscribeObj)
+            let planId = subscribeObj["id"] as? Int ?? 0
+            ////print("planId:",planId)
+            let user_id = UserDefaults.standard.string(forKey: "user_id");
+            let strUserId = user_id ?? "1"
+            // https://dev1.arevea.com/subscribe-payment?channel_name=chirantan-patel&user_id=101097275&plan_id=1311
+            
+            let urlOpen = appDelegate.websiteURL + "/subscribe-payment?channel_name=" + self.channel_name_subscription + "&user_id=" + strUserId + "&plan_id=" + String(planId)
+            guard let url = URL(string: urlOpen) else { return }
+            //print("url to open:",url)
+            UIApplication.shared.open(url)
+        }
         
-        let urlOpen = appDelegate.websiteURL + "/subscribe-payment?channel_name=" + self.channel_name_subscription + "&user_id=" + strUserId + "&plan_id=" + String(planId)
-        guard let url = URL(string: urlOpen) else { return }
-        //print("url to open:",url)
-        UIApplication.shared.open(url)
     }
     // MARK: Handler for getChannelSubscriptionPlans API
     func getChannelSubscriptionPlans(){

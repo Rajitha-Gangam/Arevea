@@ -46,8 +46,8 @@
         
         
         override func viewWillAppear(_ animated: Bool) {
-            AppDelegate.AppUtility.lockOrientation(.portrait)
-            
+            AppDelegate.AppUtility.lockOrientation(.portrait, andRotateTo: .portrait)
+
             txtUserName.text = appDelegate.emailPopulate// if user comes from reset pwd / confirm sign up, auto pupulate email
             txtPassword.text = "";
 //            txtUserName.text = "gangamrajitha3@gmail.com";
@@ -194,8 +194,8 @@
                                     let userID = user["id"]as? String ?? ""
                                     //print("====userId:",userID)
                                     UserDefaults.standard.set(userID, forKey: "user_id")
-                                    
-                                    UserDefaults.standard.set(user["id"], forKey: "user_id")
+                                    UserDefaults.standard.set("logged-in-user", forKey: "user")
+
                                     UserDefaults.standard.set(user["user_type"], forKey: "user_type")
                                     UserDefaults.standard.set(user["session_token"], forKey: "session_token")
                                     let fn = user["user_first_name"] as? String ?? ""
@@ -204,7 +204,7 @@
                                     
                                     let strName = String((fn.first ?? "A")) + String((ln.first ?? "B"))
                                     self.appDelegate.USER_NAME = strName;
-                                    self.appDelegate.USER_NAME_FULL = (fn ?? "") + " " + (ln ?? "")
+                                    self.appDelegate.USER_NAME_FULL = (fn ) + " " + (ln )
                                     self.appDelegate.USER_DISPLAY_NAME = displayName
                                     
                                     UserDefaults.standard.set(self.appDelegate.USER_NAME, forKey: "USER_NAME")
@@ -433,6 +433,7 @@
                     DispatchQueue.main.async {
                         // self.setUIsForDefault()
                         ////print("Logged In With SendBird Successfully")
+                        self.appDelegate.isGuest = false
                         let storyboard = UIStoryboard(name: "Main", bundle: nil);
                         let vc = storyboard.instantiateViewController(withIdentifier: "DashBoardVC") as! DashBoardVC
                         self.navigationController?.pushViewController(vc, animated: true)
@@ -461,10 +462,25 @@
             vc.strSocialMedia = "linkedin"
             self.navigationController?.pushViewController(vc, animated: true)
         }
+        override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+            super.viewWillTransition(to: size, with: coordinator)
+            AppDelegate.AppUtility.lockOrientation(.portrait, andRotateTo: .portrait)
+            
+            if UIDevice.current.orientation.isLandscape {
+                //print("DB Landscape")
+                DispatchQueue.main.async {
+                    //  AppDelegate.AppUtility.lockOrientation(.portrait)
+                }
+            } else {
+                // AppDelegate.AppUtility.lockOrientation(.portrait)
+                //print("DB Portrait")
+            }
+        }
         
     }
     extension LoginVC: AWSSignInDelegate {
         func onLogin(signInProvider: AWSSignInProvider, result: Any?, error: Error?) {
             ////print(result)
         }
+        
     }

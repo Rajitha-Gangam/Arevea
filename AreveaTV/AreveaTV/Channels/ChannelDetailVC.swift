@@ -956,7 +956,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
         let url: String = appDelegate.baseURL +  "/performerVideos"
         
         let inputData: [String: Any] = ["channel_name": self.channel_name,"orgId": orgId,"type": "video"]
-        // print("performerVideos params:",inputData)
+         print("performerVideos params:",inputData)
         let session_token = UserDefaults.standard.string(forKey: "session_token") ?? ""
         let headers : HTTPHeaders = [
             "Content-Type": "application/json",
@@ -970,7 +970,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
                 switch response.result {
                 case .success(let value):
                     if let json = value as? [String: Any] {
-                        // print("performerVideos JSON:",json)
+                         print("performerVideos JSON:",json)
                         if (json["statusCode"]as? String == "200" ){
                             ////print(json["message"] as? String ?? "")
                             self.aryVideos = json["Data"] as? [Any] ?? [Any]() ;
@@ -1227,7 +1227,11 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
         //print("Remove NotificationCenter Deinit")
         NotificationCenter.default.removeObserver(self)
     }
-    
+    override func viewDidDisappear(_ animated: Bool) {
+        NotificationCenter.default.removeObserver(self, name:UIApplication.didBecomeActiveNotification , object: nil)
+        NotificationCenter.default.removeObserver(self)
+
+    }
     func downloadImage(from url: URL) {
         //print("Download Started")
         getData(from: url) { data, response, error in

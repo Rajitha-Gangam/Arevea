@@ -78,7 +78,8 @@ class OpenChannelMessageTableViewCell: UITableViewCell {
     
     func setMessage(_ message: SBDBaseMessage) {
         self.msg = message
-        
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+
         let longClickProfileGesture = UILongPressGestureRecognizer(target: self, action: #selector(self.longClickProfile(_:)))
         self.profileContainerView.addGestureRecognizer(longClickProfileGesture)
         
@@ -93,6 +94,7 @@ class OpenChannelMessageTableViewCell: UITableViewCell {
 //            self.layoutIfNeeded()
         }
         if let sender = (self.msg as? SBDFileMessage)?.sender {
+            sender.nickname = sender.nickname?.trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
             if sender.nickname?.count == 0 {
                 self.nicknameLabel.text = ""
             }
@@ -100,10 +102,21 @@ class OpenChannelMessageTableViewCell: UITableViewCell {
                 self.nicknameLabel.text = sender.nickname ?? ""
             }
         } else if let sender = (self.msg as? SBDUserMessage)?.sender {
+
+            sender.nickname = sender.nickname?.trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
+
             var firstChar = ""
+            print("==sender.nickname:",sender.nickname)
+            print("==sender.nickname count:",sender.nickname?.count)
+
             if sender.nickname?.count == 0 {
-                self.nicknameLabel.text = "Anonymous"
-                firstChar = "A"
+                /*if(appDelegate.isGuest){
+                    self.nicknameLabel.text = "Guest"
+                    firstChar = "G"
+                }else{
+                    self.nicknameLabel.text = "Anonymous"
+                    firstChar = "A"
+                }*/
             }
             else {
                 self.nicknameLabel.text = sender.nickname ?? ""
@@ -114,9 +127,9 @@ class OpenChannelMessageTableViewCell: UITableViewCell {
                     lastName = fullNameArr?[1] ?? ""
                 }
                 if (lastName == ""){
-                    firstChar = String(firstName.first!)
+                    firstChar = String(firstName.first ?? "A")
                 }else{
-                    firstChar = String(firstName.first!) + String(lastName.first!)
+                    firstChar = String(firstName.first ?? "A") + String(lastName.first ?? " ")
                 }
             }
             self.userName.setTitle(firstChar, for: .normal)
@@ -137,18 +150,15 @@ class OpenChannelMessageTableViewCell: UITableViewCell {
             }
 //            self.profileImageView.isHidden = true
 //            self.userName.isHidden = false
-            if sender.userId == SBDMain.getCurrentUser()!.userId {
-                self.nicknameLabel.textColor = .orange
-                self.userName.backgroundColor = .orange
-            }
-            else {
-                let greenColor = UIColor.init(red: 88, green: 204, blue: 237)
-                self.nicknameLabel.textColor = greenColor
-                self.userName.backgroundColor = greenColor
+            if let hexColor = COLORLIST.randomElement() {
+                let txtColor = UIColor(hexString: hexColor)
+                self.nicknameLabel.textColor = txtColor
+                self.userName.backgroundColor = txtColor
+
             }
             //self.nicknameLabel.intrinsicContentSize().width
             let nickName = self.nicknameLabel.text
-            self.nicknameLabel.text = nickName! + ":"
+            self.nicknameLabel.text = nickName! + " :"
             var rect: CGRect = nicknameLabel.frame //get frame of label
             rect.size = (nicknameLabel.text?.size(withAttributes: [NSAttributedString.Key.font: UIFont(name: nicknameLabel.font.fontName , size: nicknameLabel.font.pointSize)!]))! //Calculate as per label font
             nicknameLabelWidth.constant = rect.width + 2// set width to Constraint outlet

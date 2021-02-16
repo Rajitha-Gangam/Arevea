@@ -143,6 +143,20 @@ class ContactsVC: UIViewController, UITableViewDelegate, UITableViewDataSource,U
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         print("You tapped cell number \(indexPath.row).")
         btnAddContact.isHidden = true
+        let contactsVC = self.storyboard?.instantiateViewController(withIdentifier: "ContactChatVC") as? ContactChatVC
+        let screenRect = UIScreen.main.bounds
+        print("screenRect:",screenRect)
+        let screenHeight = screenRect.size.height/2
+        let screenWidth = screenRect.size.width - 100
+        let popupVC = PopupViewController(contentController: contactsVC!, position:.bottomRight(CGPoint(x: 0, y: 30)), popupWidth: screenWidth, popupHeight: screenHeight)
+        popupVC.backgroundAlpha = 0.3
+        popupVC.backgroundColor = .black
+        popupVC.canTapOutsideToDismiss = true
+        popupVC.cornerRadius = 10
+        popupVC.shadowEnabled = true
+        //popupVC.delegate = self
+        present(popupVC, animated: true, completion: nil)
+        
 
     }
     @IBAction func moreTap(_ sender: Any) {

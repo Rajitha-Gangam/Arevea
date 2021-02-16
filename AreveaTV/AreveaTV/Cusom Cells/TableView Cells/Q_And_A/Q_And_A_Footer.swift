@@ -14,6 +14,7 @@ class Q_And_A_Footer: UITableViewCell,UITextFieldDelegate {
 
     @IBOutlet weak var txtMsg: UITextField!
     var txtTopOfToolBarQAndA : UITextField!
+    @IBOutlet weak var viewSendReply: UIView!
 
     /*
     // Only override draw() if you perform custom drawing.

@@ -18,10 +18,8 @@ class SignUpVC: UIViewController ,UITextFieldDelegate,UIPickerViewDelegate, UIPi
     @IBOutlet weak var txtFirstName: UITextField!
     @IBOutlet weak var txtLastName: UITextField!
     @IBOutlet weak var txtEmail: UITextField!
-    @IBOutlet weak var txtPhone: FPNTextField!
     @IBOutlet weak var txtPassword: UITextField!
     @IBOutlet weak var txtCfrmPassword: UITextField!
-    @IBOutlet weak var txtDOB: UITextField!
     @IBOutlet weak var btnCheckTermsAndCond: UIButton!
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     @IBOutlet private weak var scrollView: UIScrollView!
@@ -40,8 +38,6 @@ class SignUpVC: UIViewController ,UITextFieldDelegate,UIPickerViewDelegate, UIPi
         txtFirstName.backgroundColor = .clear;
         txtLastName.backgroundColor = .clear;
         txtEmail.backgroundColor = .clear;
-        txtPhone.backgroundColor = .clear;
-        txtDOB.backgroundColor = .clear;
         txtPassword.backgroundColor = .clear;
         txtCfrmPassword.backgroundColor = .clear;
         viewActivity.isHidden = true
@@ -57,16 +53,7 @@ class SignUpVC: UIViewController ,UITextFieldDelegate,UIPickerViewDelegate, UIPi
         
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
-        txtPhone.displayMode = .list
-        txtPhone.textColor = .white
-        txtPhone.delegate = self
-        //phoneNumberTextField.flagButtonSize = CGSize(width: 44, height: 44)
-
-        listController.setup(repository: txtPhone.countryRepository)
-        
-        listController.didSelect = { [weak self] country in
-            self?.txtPhone.setFlag(countryCode: country.code)
-        }
+       
         self.assignbackground();
 
 
@@ -94,7 +81,7 @@ class SignUpVC: UIViewController ,UITextFieldDelegate,UIPickerViewDelegate, UIPi
         }
     }
     @objc func keyboardWillHide(notification: Notification) {
-        if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameBeginUserInfoKey] as? NSValue)?.cgRectValue {
+        if ((notification.userInfo?[UIResponder.keyboardFrameBeginUserInfoKey] as? NSValue)?.cgRectValue) != nil {
             self.view.frame.origin.y = 0;
             
         }
@@ -109,21 +96,17 @@ class SignUpVC: UIViewController ,UITextFieldDelegate,UIPickerViewDelegate, UIPi
         txtFirstName.inputAccessoryView = toolbar;
         txtLastName.inputAccessoryView = toolbar;
         txtEmail.inputAccessoryView = toolbar;
-        txtPhone.inputAccessoryView = toolbar;
         txtPassword.inputAccessoryView = toolbar;
         txtCfrmPassword.inputAccessoryView = toolbar;
-        txtDOB.inputAccessoryView = toolbar
-        txtDOB.inputView = pickerView
+       
         
     }
     @IBAction func resignKB(_ sender: Any) {
         txtFirstName.resignFirstResponder();
         txtLastName.resignFirstResponder();
         txtEmail.resignFirstResponder();
-        txtPhone.resignFirstResponder();
         txtPassword.resignFirstResponder();
         txtCfrmPassword.resignFirstResponder();
-        txtDOB.resignFirstResponder();
         
     }
     
@@ -140,11 +123,18 @@ class SignUpVC: UIViewController ,UITextFieldDelegate,UIPickerViewDelegate, UIPi
     
     @IBAction func signIn(_ sender: Any)
     {
+        var isLoginExists = false
         for controller in self.navigationController!.viewControllers as Array {
             if controller.isKind(of: LoginVC.self) {
                 self.navigationController!.popToViewController(controller, animated: true)
+                isLoginExists = true;
                 break
             }
+        }
+        if (!isLoginExists){
+            let storyboard = UIStoryboard(name: "Main", bundle: nil);
+            let vc = storyboard.instantiateViewController(withIdentifier: "LoginVC") as! LoginVC
+            self.navigationController?.pushViewController(vc, animated: true)
         }
     }
     @IBAction func termsAndCond(){
@@ -180,11 +170,9 @@ class SignUpVC: UIViewController ,UITextFieldDelegate,UIPickerViewDelegate, UIPi
         }
         let firstName = txtFirstName.text!.trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
         let lastName = txtLastName.text!.trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
-        let phone = txtPhone.getRawPhoneNumber() ?? "0"// if its valid, number returns, else 0 assigning
         let email = txtEmail.text!.lowercased().trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
         let pwd = txtPassword.text!.trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
         let cfrmPwd = txtCfrmPassword.text!.trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
-        let dob = txtDOB.text!;
         if (firstName.count == 0){
             showAlert(strMsg: "Please enter first name");
         }else if (lastName.count == 0){
@@ -193,12 +181,6 @@ class SignUpVC: UIViewController ,UITextFieldDelegate,UIPickerViewDelegate, UIPi
             showAlert(strMsg: "Please enter email");
         }else if (!isValidEmail()){
             showAlert(strMsg: "Please enter valid email");
-        }else if (phone.count == 0){
-            showAlert(strMsg: "Please enter phone number");
-        }else if (phone == "0"){
-            showAlert(strMsg: "Please enter valid phone number");
-        }else if(dob.count == 0){
-            showAlert(strMsg: "Please select age");
         }else if (pwd.count == 0){
             showAlert(strMsg: "Please enter password");
         }else if (cfrmPwd.count == 0){
@@ -214,22 +196,15 @@ class SignUpVC: UIViewController ,UITextFieldDelegate,UIPickerViewDelegate, UIPi
             
             let currentDate = Date()
             var dateComponent = DateComponents()
-            if (dob == "Under 16"){
-                dateComponent.year = -15 // currentdate -15 years
-            }else if (dob == "16-17"){
-                dateComponent.year = -16 // currentdate -16 years
-            }else{
-                dateComponent.year = -19 // currentdate -18 years
-            }
+            
             let pastDate = Calendar.current.date(byAdding: dateComponent, to: currentDate)
             ////print("currentDate:",currentDate)
             ////print("pastDate:",pastDate!)
             let dobPast = dateFormatter.string(from:pastDate!)
             
             let appDelegate = UIApplication.shared.delegate as! AppDelegate
-            let phoneWithCC = countryCode + phone
             let url: String = appDelegate.profileURL + "/fanSignup"
-            let inputData = ["firstname" : firstName,"lastname" : lastName,"email" : email,"username" : email,"phone" : phoneWithCC,"password" : pwd,"password_confirmation" : pwd,"custom_attributes" : ["date_of_birth" : dobPast,"plan" : planID,"profile_pic" : "","user_display_name" : firstName + " " + lastName,"user_type" : 3,"is_user_verify" : 0]
+            let inputData = ["firstname" : firstName,"lastname" : lastName,"email" : email,"username" : email,"password" : pwd,"password_confirmation" : pwd,"custom_attributes" : ["plan" : planID,"profile_pic" : "","user_display_name" : firstName + " " + lastName,"user_type" : 3,"is_user_verify" : 0]
                 ] as [String : Any]
             
             
@@ -245,7 +220,7 @@ class SignUpVC: UIViewController ,UITextFieldDelegate,UIPickerViewDelegate, UIPi
                     case .success(let value):
                         if let json = value as? [String: Any] {
                             print("signUP JSON:",json)
-                            if (json["status"]as? Int == 1 ){
+                            if (json["status"]as? Int == 1 || json["status"]as? Int == 0){
                                 //let user_id = json["id"] as? Int ?? 0
                                 let strMsg = "Confirmation code sent via email to " + email
                                 let alert = UIAlertController(title: "Code Sent",
@@ -342,7 +317,7 @@ class SignUpVC: UIViewController ,UITextFieldDelegate,UIPickerViewDelegate, UIPi
     
     func textFieldDidBeginEditing(_ textField: UITextField) {
         viewUp = false;
-        if (textField==txtPassword || textField==txtCfrmPassword || textField==txtDOB || textField == txtPhone || textField == txtEmail){
+        if (textField==txtPassword || textField==txtCfrmPassword  ||  textField == txtEmail){
             viewUp = true;
         }
     }
@@ -380,7 +355,7 @@ class SignUpVC: UIViewController ,UITextFieldDelegate,UIPickerViewDelegate, UIPi
     
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
         let selectedItem = pickerData[row]
-        txtDOB.text = selectedItem
+       // txtDOB.text = selectedItem
     }
     deinit {
         //print("Remove NotificationCenter Deinit")
@@ -417,7 +392,7 @@ extension SignUpVC: FPNTextFieldDelegate {
     }
     
     func fpnDidSelectCountry(name: String, dialCode: String, code: String) {
-        txtPhone.text = ""
+        //txtPhone.text = ""
         countryCode = dialCode
         //print(name, dialCode, code)
     }

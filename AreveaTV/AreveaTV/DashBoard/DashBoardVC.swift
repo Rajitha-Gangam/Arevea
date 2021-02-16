@@ -42,6 +42,8 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
     @IBOutlet var imgProfilePic: UIImageView!
     
     var arySideMenu : [[String: String]] = [["name":"Home","icon":"home"],["name":"My Profile","icon":"user-white"],["name":"My Events","icon":"event"],["name":"My Payments","icon":"donation"],["name":"My Purchases","icon":"purchase"],["name":"Subscribed Channels","icon":"video-sub"],["name":"Help","icon":"help"],["name":"Logout","icon":"logout"]];
+    var arySideMenuGuest : [[String: String]] = [["name":"Home","icon":"home"],["name":"Help","icon":"help"]];
+    
     var sectionTitles = ["Live Events","Upcoming Events","My List","Trending Channels"]
     var locationManager:CLLocationManager!
     
@@ -49,6 +51,8 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
     
     @IBOutlet weak var viewActivity: UIView!
     @IBOutlet weak var heightTopView: NSLayoutConstraint?
+    @IBOutlet weak var topForLeftTable: NSLayoutConstraint?
+    
     @IBOutlet weak var viewTop: UIView!
     var aryUserSubscriptionInfo = [Any]()
     
@@ -61,7 +65,10 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
     }()
     var age_limit = 0;
     @IBOutlet weak var viewContacts: UIView!
-
+    var strSlug = ""
+    @IBOutlet weak var btnSignIn: UIButton!
+    @IBOutlet weak var btnSignUp: UIButton!
+    
     // MARK: - View Life cycle
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -111,7 +118,11 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
         
         getCurrency()
         
-        viewContacts.isHidden = true 
+        viewContacts.isHidden = true
+        let yellow = UIColor(red: 241, green: 213, blue: 141);
+        btnSignIn.layer.borderColor = yellow.cgColor
+        btnSignUp.layer.borderColor = UIColor.white.cgColor
+        
     }
     func getCurrency(){
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
@@ -219,13 +230,30 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
         
     }
     override func viewWillAppear(_ animated: Bool) {
+        print("===fb viewWillAppear")
         AppDelegate.AppUtility.lockOrientation(.portrait, andRotateTo: .portrait)
         // AppDelegate.AppUtility.lockOrientation(.portrait)
         let indexPath = IndexPath(row: 0, section: 0)
         tblSide.selectRow(at: indexPath, animated: true, scrollPosition: .bottom)
         //tblSide.delegate?.tableView!(myTableView, didSelectRowAt: indexPath)
-        
-        self.lblUserName.text = self.appDelegate.USER_DISPLAY_NAME
+        NotificationCenter.default.addObserver(self, selector: #selector(applicationDidBecomeActive), name: UIApplication.didBecomeActiveNotification, object: nil)
+
+        if(appDelegate.isGuest){
+            self.lblUserName.text = "Guest"
+            // UserDefaults.standard.set("0", forKey: "user_id")
+            btnSignIn.isHidden = false
+            btnSignUp.isHidden = false
+            topForLeftTable?.constant = 80
+            tblSide.layoutIfNeeded()
+            
+        }else{
+            self.lblUserName.text = self.appDelegate.USER_DISPLAY_NAME
+            btnSignIn.isHidden = true
+            btnSignUp.isHidden = true
+            topForLeftTable?.constant = 20
+            tblSide.layoutIfNeeded()
+            
+        }
         
         //if user comes from search by selecting  type "genre"
         if (appDelegate.genreId != 0){
@@ -239,8 +267,13 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
             // onGoingEvents()
             getEvents(inputData: [:]);
         }
-        
-        myList()
+        if(!appDelegate.isGuest){
+            myList()
+        }else{
+            //mylist should not be there for guest
+            self.aryMyListData  = [Any]();
+            self.tblMain.reloadSections([2], with: .none)
+        }
         trendingChannels()
         
         appDelegate.detailToShow = "stream"
@@ -273,6 +306,10 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
         
         
         //test()
+    }
+    override func viewDidDisappear(_ animated: Bool) {
+        NotificationCenter.default.removeObserver(self, name:UIApplication.didBecomeActiveNotification , object: nil)
+        NotificationCenter.default.removeObserver(self)
     }
     func enablePN(){
         let alertController = UIAlertController(title: "Alert", message: "Please enable push notifictaions for this app, as it impacts more on app", preferredStyle: .alert)
@@ -461,75 +498,94 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
     // MARK: Handler for events(events) API
     
     func getProfile(){
-        let user_id = UserDefaults.standard.string(forKey: "user_id");
-        //print("getProfile:",user_id)
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        let url: String = appDelegate.ol_base_url + "/api/2/users/" + user_id!
-        viewActivity.isHidden = false
-        let headers: HTTPHeaders = [
-            "Authorization": "Bearer " + appDelegate.ol_access_token,
-            "Accept": "application/json"
-        ]
-        AF.request(url, method: .get, encoding: JSONEncoding.default,headers:headers)
-            .responseJSON { response in
-                self.viewActivity.isHidden = true
-                switch response.result {
-                case .success(let value):
-                    if let json = value as? [String: Any] {
-                        //print("getProfile JSON:",json)
-                        let user = json
-                        let custom_attributes = json["custom_attributes"]as?[String: Any] ?? [:]
-                        
-                        let fn = user["firstname"] as? String
-                        let ln = user["lastname"]as? String
-                        let strName = String((fn?.first ?? "A")) + String((ln?.first ?? "B"))
-                        
-                        let dob = custom_attributes["date_of_birth"]as? String ?? ""
-                        //self.txtDOB.text = dob;
-                        
-                        let dateFormatter = DateFormatter()
-                        dateFormatter.dateFormat = "YYYY-MM-dd"
-                        let date = dateFormatter.date(from: dob)
-                        
-                        let dateFormatterYear = DateFormatter()
-                        dateFormatterYear.dateFormat = "YYYY"
-                        let pastdate = dateFormatterYear.string(from: date ?? Date());
-                        
-                        let todaysDate = Date()
-                        let currentDate = dateFormatterYear.string(from: todaysDate);
-                        ////print("currentDate:",currentDate)
-                        ////print("pastdate:",pastdate)
-                        guard let currentYear = Int(currentDate), let pastYear = Int(pastdate) else {
-                            ////print("Some value is nil")
-                            return
+        if(appDelegate.isGuest){
+            UserDefaults.standard.set(0, forKey: "user_age_limit")
+            self.appDelegate.USER_NAME = "";
+            self.appDelegate.USER_NAME_FULL = ""
+            self.appDelegate.USER_DISPLAY_NAME = ""
+            UserDefaults.standard.set(self.appDelegate.USER_NAME, forKey: "USER_NAME")
+            UserDefaults.standard.set(self.appDelegate.USER_NAME_FULL, forKey: "USER_NAME_FULL")
+            if(appDelegate.isGuest){
+                self.lblUserName.text = "Guest"
+            }else{
+                self.lblUserName.text = self.appDelegate.USER_DISPLAY_NAME
+            }
+                self.imgProfilePic.image = UIImage.init(named: "user")
+        }
+        else{
+            let user_id = UserDefaults.standard.string(forKey: "user_id");
+            //print("getProfile:",user_id)
+            let appDelegate = UIApplication.shared.delegate as! AppDelegate
+            let url: String = appDelegate.ol_base_url + "/api/2/users/" + user_id!
+            viewActivity.isHidden = false
+            let headers: HTTPHeaders = [
+                "Authorization": "Bearer " + appDelegate.ol_access_token,
+                "Accept": "application/json"
+            ]
+            AF.request(url, method: .get, encoding: JSONEncoding.default,headers:headers)
+                .responseJSON { response in
+                    self.viewActivity.isHidden = true
+                    switch response.result {
+                    case .success(let value):
+                        if let json = value as? [String: Any] {
+                            //print("getProfile JSON:",json)
+                            let user = json
+                            let custom_attributes = json["custom_attributes"]as?[String: Any] ?? [:]
+                            
+                            let fn = user["firstname"] as? String
+                            let ln = user["lastname"]as? String
+                            let strName = String((fn?.first ?? "A")) + String((ln?.first ?? "B"))
+                            
+                            let dob = custom_attributes["date_of_birth"]as? String ?? ""
+                            //self.txtDOB.text = dob;
+                            
+                            let dateFormatter = DateFormatter()
+                            dateFormatter.dateFormat = "YYYY-MM-dd"
+                            let date = dateFormatter.date(from: dob)
+                            
+                            let dateFormatterYear = DateFormatter()
+                            dateFormatterYear.dateFormat = "YYYY"
+                            let pastdate = dateFormatterYear.string(from: date ?? Date());
+                            
+                            let todaysDate = Date()
+                            let currentDate = dateFormatterYear.string(from: todaysDate);
+                            ////print("currentDate:",currentDate)
+                            ////print("pastdate:",pastdate)
+                            guard let currentYear = Int(currentDate), let pastYear = Int(pastdate) else {
+                                ////print("Some value is nil")
+                                return
+                            }
+                            let user_age_limit = currentYear - pastYear
+                            print("user_age_limit:",user_age_limit)
+                            UserDefaults.standard.set(user_age_limit, forKey: "user_age_limit")
+                            
+                            self.appDelegate.USER_NAME = strName;
+                            self.appDelegate.USER_NAME_FULL = (fn ?? "") + " " + (ln ?? "")
+                            self.appDelegate.USER_DISPLAY_NAME = custom_attributes["user_display_name"] as? String ?? ""
+                            UserDefaults.standard.set(self.appDelegate.USER_NAME, forKey: "USER_NAME")
+                            UserDefaults.standard.set(self.appDelegate.USER_NAME_FULL, forKey: "USER_NAME_FULL")
+                            if(appDelegate.isGuest){
+                                self.lblUserName.text = "Guest"
+                            }else{
+                                self.lblUserName.text = self.appDelegate.USER_DISPLAY_NAME
+                            }
+                            let strURL = custom_attributes["profile_pic"]as? String ?? ""
+                            if let url = URL(string: strURL){
+                                self.imgProfilePic.sd_setImage(with: url, placeholderImage: UIImage(named: "user"))
+                            }else{
+                                self.viewActivity.isHidden = true
+                                self.imgProfilePic.image = UIImage.init(named: "user")
+                            }
+                            
                         }
-                        let user_age_limit = currentYear - pastYear
-                        print("user_age_limit:",user_age_limit)
-                        UserDefaults.standard.set(user_age_limit, forKey: "user_age_limit")
-                        
-                        self.appDelegate.USER_NAME = strName;
-                        self.appDelegate.USER_NAME_FULL = (fn ?? "") + " " + (ln ?? "")
-                        self.appDelegate.USER_DISPLAY_NAME = custom_attributes["user_display_name"] as? String ?? ""
-                        UserDefaults.standard.set(self.appDelegate.USER_NAME, forKey: "USER_NAME")
-                        UserDefaults.standard.set(self.appDelegate.USER_NAME_FULL, forKey: "USER_NAME_FULL")
-                        self.lblUserName.text = self.appDelegate.USER_DISPLAY_NAME
-                        
-                        let strURL = custom_attributes["profile_pic"]as? String ?? ""
-                        if let url = URL(string: strURL){
-                            self.imgProfilePic.sd_setImage(with: url, placeholderImage: UIImage(named: "user"))
-                        }else{
-                            self.viewActivity.isHidden = true
-                            self.imgProfilePic.image = UIImage.init(named: "user")
-                        }
+                    case .failure(let error):
+                        let errorDesc = error.localizedDescription.replacingOccurrences(of: "URLSessionTask failed with error:", with: "")
+                        //print("getProfile error:",error)
+                        self.showAlert(strMsg: errorDesc)
                         
                     }
-                case .failure(let error):
-                    let errorDesc = error.localizedDescription.replacingOccurrences(of: "URLSessionTask failed with error:", with: "")
-                    //print("getProfile error:",error)
-                    self.showAlert(strMsg: errorDesc)
-                    
                 }
-            }
+        }
     }
     func logoutOL(){
         
@@ -580,6 +636,25 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
             self.navigationController?.pushViewController(vc, animated: true)
         }
     }
+    @IBAction func gotoSignUp(){
+        UserDefaults.standard.set("0", forKey: "user_id")
+        var isSignUpExists = false
+        for controller in self.navigationController!.viewControllers as Array {
+            if controller.isKind(of: SignUpVC.self) {
+                self.navigationController!.popToViewController(controller, animated: true)
+                isSignUpExists = true;
+                break
+            }
+        }
+        if (!isSignUpExists){
+            let storyboard = UIStoryboard(name: "Main", bundle: nil);
+            let vc = storyboard.instantiateViewController(withIdentifier: "SignUpVC") as! SignUpVC
+            self.navigationController?.pushViewController(vc, animated: true)
+        }
+    }
+    @IBAction func signInPressed(){
+        gotoLogin()
+    }
     func logoutLambda(){
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         let url: String = appDelegate.baseURL +  "/logout"
@@ -600,7 +675,23 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
                     if let json = value as? [String: Any] {
                         //print("logoutLambda JSON:",json)
                         if (json["statusCode"]as? String == "200" ){
-                            self.gotoLogin()
+                            //self.gotoLogin()
+                            showAlert(strMsg: "You've successfully logged out")
+                            UserDefaults.standard.set("0", forKey: "user_id")
+                            appDelegate.isGuest = true
+                            if(appDelegate.isGuest){
+                                self.lblUserName.text = "Guest"
+                                btnSignIn.isHidden = false
+                                btnSignUp.isHidden = false
+                                topForLeftTable?.constant = 80
+                                tblSide.layoutIfNeeded()
+                                getProfile()
+                            }
+                            self.tblSide.reloadData()
+                            self.aryMyListData  =  [Any]();
+                            //print("Mylist count:",self.aryMyListData.count)
+                            self.tblMain.reloadSections([2], with: .none)
+                            
                         }else{
                             let strMsg = json["message"] as? String ?? ""
                             self.showAlert(strMsg: strMsg)
@@ -674,8 +765,14 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
                 return 0;
             }
             return 1;
+        }else{
+            if(appDelegate.isGuest){
+                return arySideMenuGuest.count;
+            }else{
+                return arySideMenu.count;
+            }
         }
-        return arySideMenu.count;
+        
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) ->  CGFloat {
@@ -721,7 +818,12 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
         }
         else{
             let cell = tblSide.dequeueReusableCell(withIdentifier: "SideMenuCell", for: indexPath) as! SideMenuCell
-            let selectedItem = arySideMenu[indexPath.row];
+            var selectedItem = [String:String]()
+            if(appDelegate.isGuest){
+                selectedItem = arySideMenuGuest[indexPath.row];
+            }else{
+                selectedItem = arySideMenu[indexPath.row];
+            }
             let name = selectedItem["name"];
             cell.lblName.text = name
             let imageNamed = selectedItem["icon"];
@@ -741,7 +843,12 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
             tableView.deselectRow(at: indexPath, animated: true)
         }
         else{
-            let selectedItem = arySideMenu[indexPath.row];
+            var selectedItem = [String:String]()
+            if(appDelegate.isGuest){
+                selectedItem = arySideMenuGuest[indexPath.row];
+            }else{
+                selectedItem = arySideMenu[indexPath.row];
+            }
             let name = selectedItem["name"];
             switch  name?.lowercased(){
             case "logout":
@@ -836,11 +943,13 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
             let orgId = streamInfo["organization_id"] as? Int ?? 0
             let performer_id = streamInfo["performer_id"] as? Int ?? 0
             var streamId = streamInfo["stream_video_id"] as? Int ?? 0
+            self.strSlug = streamInfo["slug"] as? String ?? ""
+            print("===strSlug:",strSlug)
             if(title != "dashboard_my_list"){
                 streamId = streamInfo["id"] as? Int ?? 0
             }
             
-            let stream_video_title = streamInfo["stream_video_title"] as? String ?? "Channel Details"
+            let stream_video_title = streamInfo["stream_video_title"] as? String ?? "Event Details"
             let channelName = streamInfo["channel_name"] as? String ?? ""
             if (title == "dashboard_my_list"){
                 LiveEventById(streamInfo:streamInfo,myList: true)
@@ -874,7 +983,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
         // print("streamId:",streamId)
         
         let channelName = streamInfo["channel_name"] as? String ?? ""
-        
+        print("===?channelName:",channelName)
         let user_id = UserDefaults.standard.string(forKey: "user_id");
         var streamIdLocal = "0"
         if (streamId != 0){
@@ -897,14 +1006,14 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
         let headers: HTTPHeaders
         headers = [appDelegate.x_api_key: appDelegate.x_api_value]
         
-        //print("liveEvents params1:",params)
+        print("liveEvents params1:",params)
         AF.request(url, method: .post,parameters: params, encoding: JSONEncoding.default,headers:headers)
             .responseJSON { [self] response in
                 self.viewActivity.isHidden = true
                 switch response.result {
                 case .success(let value):
                     if let json = value as? [String: Any] {
-                       // print("LiveEventById JSON1:",json)
+                        print("LiveEventById JSON1:",json)
                         if (json["statusCode"]as? String == "200"){
                             let data = json["Data"] as? [String:Any]
                             let resultData = data ?? [:]
@@ -913,10 +1022,13 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
                             if (stream_info_key_exists != nil){
                                 let streamObj = aryStreamInfo
                                 let stream_status = streamObj["stream_status"] as? String ?? ""
+                                strSlug = streamObj["slug"] as? String ?? ""
+                                
                                 let user_subscription_info = data?["user_subscription_info"] != nil
                                 if(user_subscription_info){
                                     self.aryUserSubscriptionInfo = data?["user_subscription_info"] as? [Any] ?? [Any]()
                                 }
+                                print("self.aryUserSubscriptionInfo:",self.aryUserSubscriptionInfo.count)
                                 var isVOD = false
                                 if (streamObj["stream_vod"]as? String == "stream"){
                                     isVOD = false
@@ -925,22 +1037,23 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
                                 }
                                 let user_age_limit = UserDefaults.standard.integer(forKey:"user_age_limit");
                                 self.age_limit = streamObj["age_limit"] as? Int ?? 0
-                                
-                                if (self.age_limit <= user_age_limit || self.age_limit == 0){
-                                    if (self.aryUserSubscriptionInfo.count == 0){
-                                        let vc = storyboard!.instantiateViewController(withIdentifier: "EventRegistrationVC") as! EventRegistrationVC
-                                        appDelegate.isLiveLoad = "1"
-                                        vc.orgId = orgId
-                                        //print("==streamId:",streamId)
-                                        vc.streamId = streamId
-                                        //vc.delegate = self
-                                        vc.performerId = performer_id
-                                        vc.strTitle = stream_video_title
-                                        vc.isVOD = isVOD
-                                        vc.isUpcoming = isUpcoming
-                                        vc.channel_name_subscription = channelName
-                                        self.navigationController?.pushViewController(vc, animated: true)
-                                    }else{
+                                if (self.aryUserSubscriptionInfo.count == 0 || appDelegate.isGuest){
+                                    let vc = storyboard!.instantiateViewController(withIdentifier: "EventRegistrationVC") as! EventRegistrationVC
+                                    appDelegate.isLiveLoad = "1"
+                                    vc.orgId = orgId
+                                    //print("==streamId:",streamId)
+                                    vc.streamId = streamId
+                                    //vc.delegate = self
+                                    vc.performerId = performer_id
+                                    vc.strTitle = stream_video_title
+                                    vc.isVOD = isVOD
+                                    vc.isUpcoming = isUpcoming
+                                    print("====strSlug:",strSlug)
+                                    vc.strSlug = strSlug
+                                    vc.channel_name_subscription = channelName
+                                    self.navigationController?.pushViewController(vc, animated: true)
+                                }else{
+                                    
                                         let vc = storyboard!.instantiateViewController(withIdentifier: "StreamDetailVC") as! StreamDetailVC
                                         appDelegate.isLiveLoad = "1"
                                         vc.orgId = orgId
@@ -951,30 +1064,20 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
                                         vc.strTitle = stream_video_title
                                         vc.isUpcoming = isUpcoming
                                         vc.channel_name_subscription = channelName
-                                        
+                                        vc.strSlug = strSlug
+                                        print("====strSlug:",strSlug)
+                                        if(myList){
+                                            vc.mylist = true
+                                        }
                                         if(stream_status == "completed" && myList){
                                             vc.isVOD = true
                                         }else{
                                             vc.isVOD = isVOD
                                         }
                                         self.navigationController?.pushViewController(vc, animated: true)
-                                    }
-                                }else{
-                                    //showAlert(strMsg: "This video may be inappropriate for some users")
-                                    let vc = storyboard!.instantiateViewController(withIdentifier: "EventRegistrationVC") as! EventRegistrationVC
-                                    appDelegate.isLiveLoad = "1"
-                                    vc.orgId = orgId
-                                    //print("==streamId:",streamId)
-                                    vc.streamId = streamId
-                                    //vc.delegate = self
-                                    vc.performerId = performer_id
-                                    vc.strTitle = stream_video_title
-                                    vc.isVOD = isVOD
-                                    vc.channel_name_subscription = channelName
-                                    self.navigationController?.pushViewController(vc, animated: true)
-                                    
                                 }
-                            }
+                               
+                        }
                         }else{
                             let strError = json["message"] as? String
                             ////print("strError1:",strError ?? "")
@@ -989,6 +1092,14 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
                 }
             }
     }
+    @objc func applicationDidBecomeActive(notification: NSNotification) {
+        print("==db applicationDidBecomeActive")
+        if(appDelegate.isGuest){
+            self.aryMyListData  = [Any]();
+            self.tblMain.reloadSections([2], with: .none)
+        }
+
+    }
     //MARK: UISearchbar delegate
     @IBAction func searchTapped(_ sender: UIButton){
         let storyboard = UIStoryboard(name: "Main", bundle: nil);
@@ -1002,15 +1113,15 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
         self.navigationController?.pushViewController(vc, animated: true)
     }
     func adaptivePresentationStyle(for controller: UIPresentationController) -> UIModalPresentationStyle {
-            return .none
-        }
+        return .none
+    }
     @IBAction func showPopoverButtonAction(_ sender: Any) {
         let contactsVC = self.storyboard?.instantiateViewController(withIdentifier: "ContactsVC") as? ContactsVC
         let screenRect = UIScreen.main.bounds
         print("screenRect:",screenRect)
         let screenHeight = screenRect.size.height/2
         let screenWidth = screenRect.size.width - 100
-
+        
         let popupVC = PopupViewController(contentController: contactsVC!, position:.bottomRight(CGPoint(x: 0, y: 30)), popupWidth: screenWidth, popupHeight: screenHeight)
         popupVC.backgroundAlpha = 0.3
         popupVC.backgroundColor = .black

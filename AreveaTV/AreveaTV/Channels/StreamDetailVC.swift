@@ -147,9 +147,9 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
     @IBOutlet weak var lblScreenShareUnavailable: UILabel!
     
     var toolTipView = EasyTipView(text: "");
-    var isChannelAvailable = false;
-    var isChannelAvailable_emoji = false;
-    var isChannelAvailable_q_and_a = false;
+    //var isChannelAvailable = false;
+    //var isChannelAvailable_emoji = false;
+    //var isChannelAvailable_q_and_a = false;
     var sendBirdErrorCode = 0;
     var sendBirdErrorCode_Emoji = 0;
     var sendBirdErrorCode_Q_And_A = 0;
@@ -269,7 +269,11 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
     
     @IBOutlet weak var streamHeaderCVC: UICollectionView!
     var jsonCurrencyList = [String:Any]()
-    
+    @IBOutlet weak var viewSend_Q_and_A: UIView!
+    @IBOutlet weak var viewSend_Chat: UIView!
+    @IBOutlet weak var btnGoLive: UIButton!
+    var isChatActive = false
+    var isQ_And_A_Active = false
     // MARK: - View Life cycle
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -286,8 +290,9 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
         lblNoDataComments.text = ""
         lblNoDataDonations.text = "No donations found"
         lblTitle.text = strTitle
-        //sendBirdConnect()
-        
+        if(appDelegate.isGuest){
+            //sendBirdConnect()
+        }
         // txtComment.textInputMode?.primaryLanguage = "emoji"
         //imgEmoji.isHidden = true
         let emojiKeyboardView = AGEmojiKeyboardView(frame: CGRect(x: 0, y: 0, width: view.frame.size.width, height: 216), dataSource: self)
@@ -386,8 +391,39 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
         notificationCenter.addObserver(self, selector: #selector(appMovedToBackground), name: UIApplication.willResignActiveNotification, object: nil)
         
         notificationCenter.addObserver(self, selector: #selector(appCameToForeground), name: UIApplication.didBecomeActiveNotification, object: nil)
-
-
+        viewSend_Q_and_A.layer.borderColor = UIColor.gray.cgColor
+        viewSend_Q_and_A.layer.cornerRadius = 5
+        
+        viewSend_Chat.layer.borderColor = UIColor.gray.cgColor
+        viewSend_Chat.layer.cornerRadius = 5
+        //btnGoLive.layer.borderColor = UIColor.gray.cgColor
+        btnGoLive.isHidden = true
+    }
+    @IBAction func goLiveTapped(){
+        print("goLiveTapped")
+        configureStreamView()
+    }
+    func sendBirdConnect() {
+        
+        if SBDMain.getConnectState() == .open {
+            SBDMain.disconnect {
+                self.sendBirdConnect()
+            }
+        }
+        else {
+            let userId = UserDefaults.standard.string(forKey: "user_id");
+            let nickname = appDelegate.USER_NAME_FULL
+            
+            let userDefault = UserDefaults.standard
+            userDefault.setValue(userId, forKey: "sendbird_user_id")
+            userDefault.setValue(nickname, forKey: "sendbird_user_nickname")
+            
+            ConnectionManager.login(userId: userId ?? "1", nickname: nickname) { user, error in
+                guard error == nil else {
+                    return
+                }
+            }
+        }
     }
     @objc func appMovedToBackground() {
         print("App moved to background!")
@@ -504,7 +540,6 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
             isNetConnected = false
         case .none:
             print("--none")
-            
         }
     }
     func setBtnDefaultBG(){
@@ -541,7 +576,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
         self.sendBirdEmojiConfig()
         if(self.settings_q_and_a == 1){
             //uncomment after this release
-           // self.sendBird_Q_And_A_Config()
+            self.sendBird_Q_And_A_Config()
         }
         
         channelName = streamVideoCode
@@ -555,31 +590,10 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                 self.sendBirdErrorCode = error?.code ?? 0
                 //self.showAlert(strMsg:errorDesc )
                 ////print("sendBirdErrorCode:",sendBirdErrorCode)
-                switch self.sendBirdErrorCode {
-                case 403100:
-                    self.lblNoDataComments.text = "Application id disabled/expired, Please contact admin."
-                case 400300:
-                    self.lblNoDataComments.text = "Deactivated user not accessible, Please contact admin."
-                case 400301:
-                    self.lblNoDataComments.text = "User not found, Please contact admin."
-                case 400304:
-                    self.lblNoDataComments.text = "Application id not found, Please contact admin."
-                case 400306:
-                    self.lblNoDataComments.text = "Paid quota exceeded, Please contact admin."
-                case 400700:
-                    self.lblNoDataComments.text = "Blocked user send not allowed, Please contact admin."
-                case 500910:
-                    self.lblNoDataComments.text = "Rate limit exceeded, Please contact admin."
-                case 400201:
-                    self.lblNoDataComments.text = "Channel is not available, Please try again later."
-                default:
-                    self.lblNoDataComments.text = "Channel is not available, Please try again later."
-                //              showAlert(strMsg: "\(self.sbdError)")
-                }
                 // return
                 self.messages.removeAll()
                 self.channel = nil
-                self.isChannelAvailable = false
+                //self.isChannelAvailable = false
                 self.tblComments.reloadData()
                 return
             }
@@ -606,43 +620,23 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
         })
     }
     func sendBird_Q_And_A_Config(){
-        isChannelAvailable_q_and_a = true
+        //isChannelAvailable_q_and_a = true
         channelName_Q_And_A = String(self.streamId) + "_qa"
         print("channelName in sendBird_Q_And_A_Config:",channelName_Q_And_A)
         SBDOpenChannel.getWithUrl(channelName_Q_And_A, completionHandler: { (openChannel, error) in
             guard error == nil else {   // Error.
-                let errorDesc = "Chat Error:" + error!.localizedDescription
+                let errorDesc = "QA Chat Error:" + error!.localizedDescription
                 print("Send Bird Error:\(String(describing: error))")
                 //print(errorDesc)
                 //self.sbdError = error ?? error?.localizedDescription as! SBDError
                 self.sendBirdErrorCode_Q_And_A = error?.code ?? 0
                 //self.showAlert(strMsg:errorDesc )
                 ////print("sendBirdErrorCode:",sendBirdErrorCode)
-                switch self.sendBirdErrorCode_Q_And_A {
-                case 403100:
-                    self.lblNoData_Q_And_A.text = "Application id disabled/expired, Please contact admin."
-                case 400300:
-                    self.lblNoData_Q_And_A.text = "Deactivated user not accessible, Please contact admin."
-                case 400301:
-                    self.lblNoData_Q_And_A.text = "User not found, Please contact admin."
-                case 400304:
-                    self.lblNoData_Q_And_A.text = "Application id not found, Please contact admin."
-                case 400306:
-                    self.lblNoData_Q_And_A.text = "Paid quota exceeded, Please contact admin."
-                case 400700:
-                    self.lblNoData_Q_And_A.text = "Blocked user send not allowed, Please contact admin."
-                case 500910:
-                    self.lblNoData_Q_And_A.text = "Rate limit exceeded, Please contact admin."
-                case 400201:
-                    self.lblNoData_Q_And_A.text = "Channel is not available, Please try again later."
-                default:
-                    self.lblNoData_Q_And_A.text = "Channel is not available, Please try again later."
-                //              showAlert(strMsg: "\(self.sbdError)")
-                }
+                
                 // return
                 self.messages_q_and_a.removeAll()
                 self.channel_q_and_a = nil
-                self.isChannelAvailable_q_and_a = false
+                //self.isChannelAvailable_q_and_a = false
                 self.tbl_Q_And_A.reloadData()
                 return
             }
@@ -673,13 +667,13 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
         ////print("channelName_Emoji in sendBirdEmojiConfig:",channelName_Emoji)
         SBDOpenChannel.getWithUrl(channelName_Emoji, completionHandler: { (openChannel, error) in
             guard error == nil else {   // Error.
-                let errorDesc = "Chat Error:" + error!.localizedDescription
+                let errorDesc = "Emoji Chat Error:" + error!.localizedDescription
                 ////print("Send Bird Error:\(error!)")
                 ////print(errorDesc)
-                self.isChannelAvailable_emoji = false
+                //self.isChannelAvailable_emoji = false
                 return
             }
-            self.isChannelAvailable_emoji = true
+            //self.isChannelAvailable_emoji = true
             self.channel_emoji = openChannel
             self.title = self.channel_emoji?.name
             self.loadPreviousEmojis(initial: true)
@@ -740,22 +734,13 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
             startSession()
         }
         if(strValue == "stopped"){
-            
             UIApplication.shared.isIdleTimerDisabled = false //to avoid device lock when steraming is running
-            
-            if(self.subscribeStream1 != nil) {
-                self.subscribeStream1?.delegate = nil;
-                self.subscribeStream1!.stop()
-            }
-            self.viewLiveStream.bringSubviewToFront(lblStreamUnavailable)
-            
-            Timer.scheduledTimer(timeInterval: 5.0, target: self, selector: #selector(self.repeatMethod), userInfo: nil, repeats: false)//after 5 seconds need to call only for once
-            
-            self.timer = Timer.scheduledTimer(timeInterval: 15.0, target: self, selector: #selector(self.repeatMethod), userInfo: nil, repeats: true)
             isStreamStartedAlias = false
+            LiveEventByIdStatus()
         }else if(strValue == "not_available"){
             viewActivity.isHidden = true
-            if (viewLiveStream.isHidden == false){
+            showHLSVideo()
+            /*if (viewLiveStream.isHidden == false){
                 if(isStreamStarted){
                     lblStreamUnavailable.text = "We are working on the issue. We will be back shortly."
                     btnPlayStream.isHidden = true;
@@ -775,24 +760,10 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                     
                 }
                 self.viewLiveStream.bringSubviewToFront(self.lblStreamUnavailable)
-            }
+            }*/
         }
     }
-    @objc func Notification_Q_And_A_Reply_Handler(_ notification:Notification) {
-        if let msgInfo = notification.userInfo as? [String: Any]
-        {
-            print("msgInfo:",msgInfo)
-            let msgIndex = msgInfo["index"] as? Int ?? -1
-            let msg = msgInfo["msg"] as? String ?? ""
-            
-            if(msgIndex >= 0 && msg != ""){
-                let question = messages_q_and_a[msgIndex]
-                let messageId = String(question.messageId)
-                print("messageId:",messageId)
-                send_Q_And_A_Answer(msg: msg, msgId: String(messageId))
-            }
-        }
-    }
+   
     @objc func ScreenShareNotificationHandler(_ notification:Notification) {
         // Do something now
         ////print("====ScreenShareNotificationHandler")
@@ -824,7 +795,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
     }
     @objc func applicationDidBecomeActive(notification: NSNotification) {
         // Application is back in the foreground
-        print("====active:isPaymentNavigation",isPaymentNavigation)
+        print("====active STream:isPaymentNavigation",isPaymentNavigation)
         print("====active:isSubscriptionNavigation",isSubscriptionNavigation)
         
         //if user comes from payment redirection, need to refresh stream/vod
@@ -836,9 +807,18 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                 //LiveEventById();
                 //setLiveStreamConfig()
             }
-            
         }else if(isSubscriptionNavigation){
             getChannelSubscriptionPlans()
+        }
+        //from mail navigation
+        else{
+            if(appDelegate.isGuest){
+                //LiveEventById()
+            }
+        }
+        //when skype call or any other call happens app come sto bg and when call disconnects app come to this state
+        if(isStreamStarted){
+            LiveEventById()
         }
     }
     func registerNibs() {
@@ -890,10 +870,8 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
         tbl_Q_And_A.rowHeight = 90
         tbl_Q_And_A.estimatedRowHeight = UITableView.automaticDimension
         self.viewLiveStream.bringSubviewToFront(self.viewOverlay!)
-        getChannelSubscriptionPlans();
-        getSubscriptionStatus()
-        
-        
+            getChannelSubscriptionPlans();
+            getSubscriptionStatus()
     }
     func showVideo(strURL : String){
         // print("showVideo strURL:",strURL)
@@ -916,6 +894,61 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
         viewVOD.isHidden = false;
         videoPlayer.play()
         isVODPlaying = true
+        // Environment and player data that persists until the player is destroyed
+        let playerData = MUXSDKCustomerPlayerData(environmentKey:"dev")
+        playerData?.viewerUserId = "1234"
+        playerData?.experimentName = "player_test_A"
+        playerData?.playerName = "My Main Player"
+        playerData?.playerVersion = "1.0.0"
+        
+        // Video metadata (cleared with videoChangeForPlayer:withVideoData:)
+        let videoData = MUXSDKCustomerVideoData()
+        videoData.videoId = "abcd123"
+        videoData.videoTitle = "My Great Video"
+        videoData.videoSeries = "Weekly Great Videos"
+        videoData.videoDuration = 120000 // in milliseconds
+        videoData.videoIsLive = false
+        videoData.videoCdn = "cdn"
+        
+        MUXSDKStats.monitorAVPlayerViewController(controller, withPlayerName: "Player Name", playerData: playerData!, videoData: videoData)
+        
+    }
+    func showHLSVideo(){
+        // print("showVideo strURL:",strURL)
+        //comment or remove below line
+        //self.streamVideoCode = "1988_1612446057162_hls_ios_test"
+        self.viewLiveStream.isHidden = true;
+        self.viewControls?.isHidden = true
+        self.lblLive.isHidden = true
+        self.viewVOD.isHidden = false;
+        self.closeStream()
+       let strURL = appDelegate.urlCloudFront + self.streamVideoCode + "/master.m3u8"
+       //let strURL = "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
+        print("strURL:",strURL)
+        var urlToOpen = URL(string: strURL)//in case of invalid url, we need to open this to dispaly vod UI, even though it does not play.
+        if let url = URL(string: strURL){
+            urlToOpen = url
+        }
+        videoPlayer = AVPlayer(url: urlToOpen!)
+        let controller = AVPlayerViewController()
+        controller.player = videoPlayer
+        controller.allowsPictureInPicturePlayback = true
+        controller.view.frame = self.viewVOD.bounds
+        controller.view.frame.origin.y = 44
+        controller.view.frame.size.height = self.viewVOD.bounds.size.height - 44
+        controller.videoGravity = AVLayerVideoGravity.resize
+        controller.setValue(true, forKey: "requiresLinearPlayback")//for hide forward and backward buttons
+        
+
+        self.viewVOD.addSubview(controller.view)
+        self.addChild(controller)
+        btnPlayStream.isHidden = true;
+        viewLiveStream.isHidden = true;
+        viewVOD.isHidden = false;
+        videoPlayer.play()
+        isVODPlaying = true
+        btnGoLive.isHidden = false
+
         // Environment and player data that persists until the player is destroyed
         let playerData = MUXSDKCustomerPlayerData(environmentKey:"dev")
         playerData?.viewerUserId = "1234"
@@ -1055,31 +1088,27 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
         viewRightShort.isHidden = true
         setBtnDefaultBG()
         viewRightTitle.isHidden = false
-        
-        if(isShowChat){
+        isChatActive = false
+
             let index = buttonNames.firstIndex(where: {$0["title"]! == "chat"}) ?? -1
             print("index:",index)
-            if(index > 0){
+            if(index > 0 && stream_status == "progress"){
                 lblRightTitle.text = "Chat"
                 let btn = self.streamHeaderCVC.viewWithTag(10 + index) as? UIButton
                 btn?.setImage(UIImage.init(named: "s_chat_active"), for: .normal)
                 viewComments.isHidden = false
+                isChatActive = true
             }else{
                 lblRightTitle.text = "Info"
                 let btn = self.streamHeaderCVC.viewWithTag(10) as? UIButton
                 btn?.setImage(UIImage.init(named: "s_info_active"), for: .normal)
                 viewInfo.isHidden = false
+
             }
-        }else{
-            lblRightTitle.text = "Info"
-            let btn = self.streamHeaderCVC.viewWithTag(10) as? UIButton
-            btn?.setImage(UIImage.init(named: "s_info_active"), for: .normal)
-            viewInfo.isHidden = false
-        }
+        
     }
     
     @IBAction func hideRightView(){
-        print("send_Q_And_A_Answer")
         self.view.endEditing(true)
         hideAnimation()
         //viewRight.isHidden = true
@@ -1160,7 +1189,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
             return aryCharityInfo.count;
         }
         else if(tableView == tblComments){
-            if (isChannelAvailable && self.messages.count > 0){
+            if (self.messages.count > 0){
                 tblComments.isHidden = false
                 lblNoDataComments.text = ""
             }else{
@@ -1171,13 +1200,11 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
             return self.messages.count;
         }else if(tableView == tbl_Q_And_A){
             //print("messages_q_and_a:",messages_q_and_a)
-            
-            if (isChannelAvailable_q_and_a && self.messages_q_and_a.count > 0){
+            if (self.messages_q_and_a.count > 0){
                 tbl_Q_And_A.isHidden = false
                 lblNoData_Q_And_A.text = ""
             }else{
                 tbl_Q_And_A.isHidden = true
-                lblNoData_Q_And_A.text = "Channel is unavailable"
             }
             //return self.messages_q_and_a.count;
             let question = messages_q_and_a[section]
@@ -1223,7 +1250,13 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
     
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
         if(tableView == tbl_Q_And_A){
-            return 40
+            let userMessage = self.messages_q_and_a[section] as! SBDUserMessage
+            let text = "Q. " + userMessage.message
+            let height = heightForView(text: text, width: 380)
+            print("height:",height)
+            print("section:",section)
+
+            return (height*3)
         }
         return 0
     }
@@ -1239,14 +1272,24 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
             return 0
         }
     }
-    
-    
-    
+    func heightForView(text:String, width:CGFloat) -> CGFloat{
+        let label:UILabel = UILabel(frame: CGRect(x: 0, y: 0, width: width, height: CGFloat.greatestFiniteMagnitude))
+        label.numberOfLines = 0
+        label.lineBreakMode = NSLineBreakMode.byWordWrapping
+        label.font = UIFont.systemFont(ofSize: 18.0)
+        label.text = text
+        label.sizeToFit()
+        return label.frame.height
+    }
+
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         if(tableView == tbl_Q_And_A){
             let headerView = tableView.dequeueReusableHeaderFooterView(withIdentifier: "Q_And_A_Section") as! Q_And_A_Section
+            
             let userMessage = self.messages_q_and_a[section] as! SBDUserMessage
             headerView.lblTitle.text = "Q. " + userMessage.message
+            print("hl text:",headerView.lblTitle.text)
+            headerView.lblTitle.sizeToFit()
             if(index_selected_q_qnd_a == section){
                 headerView.imgArrow.image = UIImage.init(named: "up_arrow")
             }else{
@@ -1271,8 +1314,8 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                 footerView.btnInput.tag = section
                 footerView.btnInput.addTarget(self, action: #selector(showPopupWithInput(_:)), for: .touchUpInside)
                 footerView.btnInput.isHidden = false
-                footerView.txtMsg.isHidden = true
-
+                footerView.viewSendReply.layer.borderColor = UIColor.lightGray.cgColor
+                footerView.viewSendReply.layer.borderWidth = 1.0
                 /* footerView.txtMsg.delegate = self
                 footerView.txtMsg.tag = 100 + section
                 //addDoneButton_Q_And_A_Answer(footerView.txtMsg)
@@ -1329,7 +1372,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                     userMessageCell.setMessage(userMessage)
                     userMessageCell.delegate = self
                     
-                    if sender.userId == SBDMain.getCurrentUser()!.userId {
+                    /*if sender.userId == SBDMain.getCurrentUser()!.userId {
                         // Outgoing message
                         let requestId = userMessage.requestId
                         if self.resendableMessages[requestId] != nil {
@@ -1342,7 +1385,9 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                     else {
                         // Incoming message
                         userMessageCell.hideElementsForFailure()
-                    }
+                    }*/
+                    userMessageCell.hideElementsForFailure()
+
                     //userMessageCell.profileImageView
                     DispatchQueue.main.async {
                         guard let updateCell = tableView.cellForRow(at: indexPath) else { return }
@@ -1477,6 +1522,8 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                 if(filteredArray.count > indexPath.row){
                     let object = filteredArray[indexPath.row] as? [String:Any] ?? [:]
                     let userMessageCell = tableView.dequeueReusableCell(withIdentifier: "Q_And_A_AnswerCell") as? Q_And_A_AnswerCell
+                   
+
                     userMessageCell?.lblMsg.text = object["message"] as? String ?? ""
                     userMessageCell?.lblName.text = object["sender"] as? String ?? ""
                     //let color = COLORLIST[indexPath.row]
@@ -1494,7 +1541,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                     /*if indexPath.row == 0 && self.messages_q_and_a_answers_main.count > 0 && self.initialLoading_q_and_a == false && self.isLoading_q_and_a == false {
                      self.loadPrevious_Q_And_A(initial: false)
                      }*/
-                    self.loadPrevious_Q_And_A(initial: true)
+                    //self.loadPrevious_Q_And_A(initial: true)
                     
                 }else{
                     cell.backgroundColor = UIColor.clear
@@ -1533,15 +1580,34 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
             viewBGTap()
         }
     }
+    func gotoLogin(){
+        var isLoginExists = false
+        for controller in self.navigationController!.viewControllers as Array {
+            if controller.isKind(of: LoginVC.self) {
+                self.navigationController!.popToViewController(controller, animated: true)
+                isLoginExists = true;
+                break
+            }
+        }
+        if (!isLoginExists){
+            let storyboard = UIStoryboard(name: "Main", bundle: nil);
+            let vc = storyboard.instantiateViewController(withIdentifier: "LoginVC") as! LoginVC
+            self.navigationController?.pushViewController(vc, animated: true)
+        }
+    }
     @objc func subscribeBtnPressed(_ sender: UIButton){
-        //for subscribe
-        if(!subscription_details){
-            subscribe(row:sender.tag)
-        }
-        //for reactivate
-        else{
-            reActivateChannelSubscription(row: sender.tag)
-        }
+        print("subscribeBtnPressed")
+        
+            //for subscribe
+            if(!subscription_details){
+                subscribe(row:sender.tag)
+            }
+            //for reactivate
+            else{
+                reActivateChannelSubscription(row: sender.tag)
+            }
+        
+       
     }
     func subscribe(row:Int){
         //print("row:",row)
@@ -1883,14 +1949,17 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
         let user_id = UserDefaults.standard.string(forKey: "user_id");
         let strUserId = user_id ?? "1"
         var queryString = "stream_id=" + String(streamId) + "&user_id=" + strUserId//ppv
+        let session_token = UserDefaults.standard.string(forKey: "session_token") ?? ""
+
         if(type == "performer_tip"){
             queryString =  queryString + "&performer_id=" + String(self.performerId)
         }else if(type == "charity_donation"){
             queryString = queryString + "&charity_id=" + String(charityId)
         }
+        queryString = queryString + "&token=" + session_token
         let urlOpen = appDelegate.paymentRedirectionURL + "/" + type + "?" + queryString
         guard let url = URL(string: urlOpen) else { return }
-        // print("url to open:",url)
+        print("url to open:",url)
         isPaymentNavigation = true
         isSubscriptionNavigation = false
         UIApplication.shared.open(url)
@@ -1956,7 +2025,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                 switch response.result {
                 case .success(let value):
                     if let json = value as? [String: Any] {
-                        //print("getEventBySlug JSON:",json)
+                        print("getEventBySlug JSON:",json)
                         if (json["statusCode"]as? String == "200"){
                             
                         }else{
@@ -2043,9 +2112,112 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
             }
     }
     //this will be called when stream has ended due to tab close or any error occured
-    @objc func repeatMethod(){
-        // print("====repeatMethod")
-        LiveEventByIdStatus()
+    
+    func getTicketDetails(){
+        print("==getTicketDetails")
+        // let params: [String: Any] = ["userid":user_id ?? "","performer_id":"101","stream_id": "0"]
+        let url: String = appDelegate.baseURL +  "/getTicketDetails"
+        let user_id = UserDefaults.standard.string(forKey: "user_id");
+        var streamIdLocal = "0"
+        if (streamId != 0){
+            streamIdLocal = String(streamId)
+        }
+        let headers: HTTPHeaders
+        headers = [appDelegate.x_api_key: appDelegate.x_api_value]
+        
+        let params: [String: Any] = ["ticket_key": "1863-101059776-26pLyiTtnY2N"]
+         print("getTicketDetails params:",params)
+        
+        AF.request(url, method: .post,parameters: params, encoding: JSONEncoding.default,headers:headers)
+            .responseJSON { [self] response in
+                switch response.result {
+                case .success(let value):
+                    if let json = value as? [String: Any] {
+                        print("getTicketDetails JSON:",json)
+                        if (json["statusCode"]as? String == "200" ){
+                            
+                            
+                        }else{
+                            let strMsg = json["message"] as? String ?? ""
+                            //self.showAlert(strMsg: strMsg)
+                        }
+                        
+                    }
+                case .failure(let error):
+                    let errorDesc = error.localizedDescription.replacingOccurrences(of: "URLSessionTask failed with error:", with: "")
+                    //self.showAlert(strMsg: errorDesc)
+                    self.viewActivity.isHidden = true
+                    
+                }
+            }
+    }
+    func LiveEventByIdStatus1(){
+        // let params: [String: Any] = ["userid":user_id ?? "","performer_id":"101","stream_id": "0"]
+        let url: String = appDelegate.baseURL +  "/LiveEventById"
+        let user_id = UserDefaults.standard.string(forKey: "user_id");
+        var streamIdLocal = "0"
+        if (streamId != 0){
+            streamIdLocal = String(streamId)
+        }
+        let headers: HTTPHeaders
+        headers = [appDelegate.x_api_key: appDelegate.x_api_value]
+        
+        let params: [String: Any] = ["userid":user_id ?? "","performer_id":performerId,"stream_id": streamIdLocal]
+        // print("liveEvents params:",params)
+        
+        AF.request(url, method: .post,parameters: params, encoding: JSONEncoding.default,headers:headers)
+            .responseJSON { [self] response in
+                switch response.result {
+                case .success(let value):
+                    if let json = value as? [String: Any] {
+                        //print("startSession JSON:",json)
+                        if (json["statusCode"]as? String == "200" ){
+                            let data = json["Data"] as? [String:Any]
+                            let aryStreamInfo = data?["stream_info"] as? [String:Any] ?? [:]
+                            let stream_info_key_exists = aryStreamInfo["id"]
+                            if (stream_info_key_exists != nil){
+                                let streamObj = aryStreamInfo
+                                stream_status = streamObj["stream_status"] as? String ?? ""
+                                
+                                if(stream_status == "completed"){
+                                    self.lblStreamUnavailable.text = "The stream has ended."
+                                    ALToastView.toast(in: self.view, withText:"The stream has ended")
+                                    delayWithSeconds(5.0){
+                                        self.viewControls?.isHidden = true
+                                        self.lblLive.isHidden = true
+                                        
+                                        if (self.timer != nil)
+                                        {
+                                            self.timer!.invalidate()
+                                            self.timer = nil
+                                        }
+                                        closeStream()
+                                        self.endSession()
+                                        goBack()
+                                        return
+                                    }
+                                }else{
+                                    r5ViewController?.closeTest()
+                                    self.viewLiveStream.isHidden = false;
+                                    self.btnPayPerView.isHidden = true
+                                    self.lblStreamUnavailable.text = "We are working on the issue. We will be back shortly."
+                                    self.viewActions?.isHidden = true
+                                    self.LiveEventById()
+                                }
+                            }
+                        }else{
+                            let strMsg = json["message"] as? String ?? ""
+                            //self.showAlert(strMsg: strMsg)
+                        }
+                        
+                    }
+                case .failure(let error):
+                    let errorDesc = error.localizedDescription.replacingOccurrences(of: "URLSessionTask failed with error:", with: "")
+                    //self.showAlert(strMsg: errorDesc)
+                    self.viewActivity.isHidden = true
+                    
+                }
+            }
     }
     func LiveEventByIdStatus(){
         // let params: [String: Any] = ["userid":user_id ?? "","performer_id":"101","stream_id": "0"]
@@ -2074,6 +2246,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                             if (stream_info_key_exists != nil){
                                 let streamObj = aryStreamInfo
                                 stream_status = streamObj["stream_status"] as? String ?? ""
+                                print("stream_status--:",stream_status)
                                 if(stream_status == "completed"){
                                     self.lblStreamUnavailable.text = "The stream has ended."
                                     ALToastView.toast(in: self.view, withText:"The stream has ended")
@@ -2092,12 +2265,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                                         return
                                     }
                                 }else{
-                                    r5ViewController?.closeTest()
-                                    self.viewLiveStream.isHidden = false;
-                                    self.btnPayPerView.isHidden = true
-                                    self.lblStreamUnavailable.text = "We are working on the issue. We will be back shortly."
-                                    self.viewActions?.isHidden = true
-                                    self.LiveEventById()
+                                    showHLSVideo()
                                 }
                             }
                         }else{
@@ -2168,6 +2336,8 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                             if (stream_info_key_exists != nil){
                                 let streamObj = self.aryStreamInfo
                                 let settings_json = streamObj["settings_json"] as? String ?? ""
+                                stream_status = streamObj["stream_status"] as? String ?? ""
+
                                 let dicSettingsJson = self.convertToDictionary(text: settings_json)
                                 print("dicSettingsJson:",dicSettingsJson)
                                 self.settings_q_and_a = dicSettingsJson?["q_and_a"] as? Int ?? 0
@@ -2178,10 +2348,15 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                                 if(self.settings_fan_chat == 1){
                                     let predicate = NSPredicate(format:"title == %@", "chat")
                                     let filteredArray = (buttonNames as NSArray).filtered(using: predicate)
-                                    if(filteredArray.count == 0){
+                                    //for live only enable chat
+                                    print("==>filteredArray.count:",filteredArray.count)
+                                    print("==>stream_status:",stream_status)
+
+                                    if(filteredArray.count == 0 && stream_status == "progress"){
                                         let dicItem = ["title":"chat","icon":"s_chat","icon_active":"s_chat_active"]
                                         self.buttonNames.append(dicItem)
                                     }
+                                   
                                 }
                                 if(self.settings_donation == 1){
                                     let predicate = NSPredicate(format:"title == %@", "donation")
@@ -2209,12 +2384,12 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                                 }
                                 if(self.settings_q_and_a == 1){
                                     //uncomment after this release
-                                    /*let predicate = NSPredicate(format:"title == %@", "qa")
+                                    let predicate = NSPredicate(format:"title == %@", "qa")
                                      let filteredArray = (buttonNames as NSArray).filtered(using: predicate)
-                                     if(filteredArray.count == 0){
+                                     if(filteredArray.count == 0 && stream_status == "progress"){
                                      let dicItem = ["title":"qa","icon":"s_qa","icon_active":"s_qa_active"]
                                      self.buttonNames.append(dicItem)
-                                     }*/
+                                     }
                                 }
                                 
                                 self.streamHeaderCVC.reloadData()
@@ -2230,7 +2405,6 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                                 self.number_of_creators = streamObj["number_of_creators"] as? Int ?? 1
                                 
                                 //print("==streamVideoTitle:",streamVideoTitle)
-                                self.isChannelAvailable = true
                                 self.sendBirdChatConfig()
                                 self.streamVideoDesc = streamObj["stream_video_description"] as? String ?? ""
                                 // "currency_type" = USD;
@@ -2467,11 +2641,10 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                              self.lblStreamUnavailable.text = "Sale is completed!"
                              }*/
                             if(self.streamPaymentMode == "free"){
-                                self.lblAmount.text = "Free"
+                                //self.lblAmount.text = "Free"
                             }
                             let streamObj = self.aryStreamInfo
-                            stream_status = streamObj["stream_status"] as? String ?? ""
-                            
+                            print("==stream_status:",stream_status)
                             if(stream_status == "completed"){
                                 //uncomment below line
                                 //self.setLiveStreamConfig()
@@ -2484,13 +2657,10 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                                 
                                 return
                             }
-                            if (self.age_limit <= user_age_limit || self.age_limit == 0){
                                 if (self.aryUserSubscriptionInfo.count == 0){
                                     //if user does not pay amount
                                     self.btnPayPerView.isHidden = false
                                     self.viewVOD.isHidden = false
-                                    self.isChannelAvailable = false
-                                    self.isShowChat = false
                                     self.viewActions?.isHidden = true
                                 }else{
                                     self.btnPayPerView.isHidden = true
@@ -2511,28 +2681,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                                             //print("==saleStarts:",self.saleStarts)
                                             //print("==saleCompleted:",self.saleCompleted)
                                             
-                                            if(self.checkSale && !self.saleStarts){
-                                                self.setLiveStreamConfig()
-                                            }else if(self.saleStarts){
-                                                if(eventStartDates.count > 0){
-                                                    self.btnPayPerView.isHidden = true
-                                                    let startDate = eventStartDates[0]
-                                                    let formatter = DateFormatter()
-                                                    formatter.timeZone = NSTimeZone(abbreviation: "UTC") as TimeZone?
-                                                    formatter.dateFormat = "dd MMM yyyy"
-                                                    let myString = formatter.string(from: startDate) // string purpose I add here
-                                                    self.lblStreamUnavailable.text = "Sale Starts On " + myString
-                                                    self.viewActions?.isHidden = true
-                                                }
-                                            }else if(self.saleCompleted){
-                                                self.btnPayPerView.isHidden = true
-                                                self.lblStreamUnavailable.text = "Sale is completed!"
-                                                self.viewActions?.isHidden = true
-                                                
-                                            }
-                                            if(!self.checkSale && !self.saleStarts && !self.saleCompleted && self.streamPaymentMode == "free"){
-                                                self.setLiveStreamConfig()
-                                            }
+                                            self.setLiveStreamConfig()
                                         }else{
                                             self.lblVODUnavailable.text = ""
                                             self.viewVOD.isHidden = false
@@ -2587,14 +2736,18 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                                         }
                                     }
                                 }
-                            }else{
-                                self.isChannelAvailable = false
-                                self.btnPlayStream.isHidden = false;
-                                self.btnPlayStream.isUserInteractionEnabled = false
-                                self.btnPlayStream.setImage(UIImage.init(named: "eye-cross"), for: .normal)
-                                self.lblStreamUnavailable.text = "This video may be inappropriate for some users"
-                                self.isShowChat = false
-                                self.isAgeAllowed = false
+                            if (self.age_limit <= user_age_limit || self.age_limit == 0){
+                            }
+                            else{
+                                if(!appDelegate.isGuest){
+                                    //self.isChannelAvailable = false
+//                                    self.btnPlayStream.isHidden = false;
+//                                    self.btnPlayStream.isUserInteractionEnabled = false
+//                                    self.btnPlayStream.setImage(UIImage.init(named: "eye-cross"), for: .normal)
+//                                    self.lblStreamUnavailable.text = "This video may be inappropriate for some users"
+//                                    self.isShowChat = false
+//                                    self.isAgeAllowed = false
+                                }
                             }
                             let charity_info = data?["charity_info"] != nil
                             if(charity_info){
@@ -2626,7 +2779,10 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                                 let videoDesc = self.streamVideoDesc;
                                 let creatorName = "Creator Name: " + performerName;
                                 
-                                self.txtVideoDesc_Info.text = videoDesc  + "\n\n" + creatorName
+                                var fullText = videoDesc  + "\n" + creatorName
+                                                               fullText = fullText.trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
+                                                               self.txtVideoDesc_Info.text = fullText.htmlToString
+
                                 
                                 self.app_id_for_adds = self.dicPerformerInfo["app_id"] as? String ?? "0"
                                 if (stream_info_key_exists == nil){
@@ -2726,7 +2882,11 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
         self.configureStreamView()
     }
     func configureStreamView() {
-        
+        self.viewLiveStream.isHidden = false;
+        self.viewVOD.isHidden = true;
+        self.stopVideo()
+        self.btnGoLive.isHidden = true
+
         // Update the user interface for the detail item.
         // Access the static shared interface to ensure it's loaded
         //if number_of_creators > 1 multi stream
@@ -2749,13 +2909,18 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
              r5ViewController?.view.frame = self.viewLiveStream.bounds
              self.viewLiveStream.addSubview(r5ViewController!.view)
              self.addChild(r5ViewController!)*/
-            metaLive()
-            self.viewLiveStream.bringSubviewToFront(webView)
-            self.viewLiveStream.bringSubviewToFront(self.viewOverlay!)
-            self.viewLiveStream.bringSubviewToFront(lblStreamUnavailable)
-            
+            if(stream_status == "progress"){
+                metaLive()
+                self.viewLiveStream.bringSubviewToFront(webView)
+                self.viewLiveStream.bringSubviewToFront(self.viewOverlay!)
+                self.viewLiveStream.bringSubviewToFront(lblStreamUnavailable)
+            }else{
+                viewActivity.isHidden = true
+                self.lblStreamUnavailable.text = "Please wait. The Stream will begin on \n" + self.strUpcomingDate
+                btnPlayStream.setImage(UIImage.init(named: "refresh"), for: .normal)
+                btnPlayStream.isHidden = true;
+            }
         }
-        
     }
     @objc func showInfo(){
         let alert = UIAlertView()
@@ -3026,13 +3191,13 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                 guard let messages_q_and_a = questions else { return }
                 let messages_q_and_a_answers = answers
                 self.messages_q_and_a_answers1 = answers ?? []
-                //print("messages_q_and_a_answers1:",self.messages_q_and_a_answers1)
+                print("messages_q_and_a_answers1:",self.messages_q_and_a_answers1)
                 self.messages_q_and_a_answers_main.removeAll()
                 for answer in messages_q_and_a_answers ?? [] {
                     //print("answer.data:",answer.data)
                     let metaData = answer.sender?.metaData
                     var color = "#58CCED"
-                    if answer.sender?.userId == SBDMain.getCurrentUser()!.userId {
+                    if answer.sender?.userId == SBDMain.getCurrentUser()?.userId {
                         //self.nicknameLabel.textColor = .orange
                         //self.userName.backgroundColor = .orange
                         color = "#C71585"
@@ -3065,12 +3230,13 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                                     self.minMessageTimestamp = question.createdAt
                                 }
                             }
-                            self.initialLoading_q_and_a = true
+                            
                             self.tbl_Q_And_A.reloadData()
                             self.tbl_Q_And_A.layoutIfNeeded()
-                            self.scrollToBottom(force: true)
                             self.initialLoading_q_and_a = false
                             self.isLoading_q_and_a = false
+                            self.scrollToBottom_Q_And_A(force: true)
+
                         }
                     }
                 }
@@ -3092,9 +3258,9 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                             
                             self.tbl_Q_And_A.reloadData()
                             self.tbl_Q_And_A.layoutIfNeeded()
-                            
-                            self.tbl_Q_And_A.scrollToRow(at: IndexPath(row: messages_q_and_a.count-1, section: 0), at: .top, animated: false)
                             self.isLoading_q_and_a = false
+                            self.scrollToBottom_Q_And_A(force: true)
+
                         }
                     }
                 }
@@ -3104,25 +3270,12 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
     }
     @objc func sendReply(_ sender: UIButton) {
         self.view.endEditing(true)
-        print("tag:",sender.tag)
-        let txtField = tbl_Q_And_A.viewWithTag(100 + sender.tag) as? UITextField
-        print("txt1:",txtField?.text)
-        let messageText = txtField?.text?.trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
-        if (messageText?.count == 0){
-            showAlert(strMsg: "Please enter your reply")
-            return
-        }
-        let question = messages_q_and_a[sender.tag]
-        let messageId = String(question.messageId)
-        send_Q_And_A_Answer(msg:messageText ?? "" , msgId:messageId )
-        //tbl_Q_And_A.reloadData()
-        
+        showAlert(strMsg: "Please enter your reply")
     }
     @IBAction func send_Q_And_A_Answer(msg:String,msgId:String) {
         self.view.endEditing(true)
-        //print("send_Q_And_A_Answer")
-        if (!isChannelAvailable_q_and_a){
             //print("sendBirdErrorCode:",sendBirdErrorCode)
+         
             switch sendBirdErrorCode_Q_And_A {
             case 403100:
                 showAlert(strMsg: "Application id disabled/expired, Please contact admin.")
@@ -3141,12 +3294,9 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
             case 400201:
                 showAlert(strMsg: "Channel is not available, Please try again later.")
             default:
-                showAlert(strMsg: "Channel is not available, Please try again later.")
+                print("")
             //              showAlert(strMsg: "\(self.sbdError)")
             }
-            return
-        }
-        
         //print("channelName:",channelName)
         guard let channel = self.channel_q_and_a else {
             showAlert(strMsg: "Channel is not available, Please try again later.")
@@ -3165,13 +3315,15 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                     self.preSendMessages_q_and_a.removeValue(forKey: requestId)
                     self.resendableMessages_q_and_a[requestId] = preSendMsg
                     //self.tbl_Q_And_A.reloadData()
-                    //self.scrollToBottom(force: true)
-                    
                     self.loadPrevious_Q_And_A(initial: true)
-                    
+
+
                 }
                 return
             }
+            self.loadPrevious_Q_And_A(initial: true)
+
+
             //self.tbl_Q_And_A.reloadData()
             
             /*guard let message = userMessage else { return }
@@ -3215,7 +3367,6 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
         }
         self.txt_Q_And_A.text = ""
         self.txtTopOfToolBarQAndA.text = ""
-        if (!isChannelAvailable_q_and_a){
             //print("sendBirdErrorCode:",sendBirdErrorCode)
             switch sendBirdErrorCode_Q_And_A {
             case 403100:
@@ -3235,11 +3386,9 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
             case 400201:
                 showAlert(strMsg: "Channel is not available, Please try again later.")
             default:
-                showAlert(strMsg: "Channel is not available, Please try again later.")
+               print("")
             //              showAlert(strMsg: "\(self.sbdError)")
             }
-            return
-        }
         
         //print("channelName:",channelName)
         guard let channel = self.channel_q_and_a else {
@@ -3259,7 +3408,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                     self.preSendMessages_q_and_a.removeValue(forKey: requestId)
                     self.resendableMessages_q_and_a[requestId] = preSendMsg
                     self.tbl_Q_And_A.reloadData()
-                    self.scrollToBottom(force: true)
+                    self.scrollToBottom_Q_And_A(force: true)
                     
                 }
                 return
@@ -3289,7 +3438,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                 self.preSendMessages_q_and_a[requestId] = preSendMsg
                 self.messages_q_and_a.append(preSendMsg)
                 self.tbl_Q_And_A.reloadData()
-                self.scrollToBottom(force: true)
+                self.scrollToBottom_Q_And_A(force: true)
                 
             }
         }
@@ -3306,8 +3455,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
         self.txtComment.text = ""
         self.txtTopOfToolBarChat.text = ""
         
-        if (!isChannelAvailable){
-            //print("sendBirdErrorCode:",sendBirdErrorCode)
+            print("sendBirdErrorCode:",sendBirdErrorCode)
             switch sendBirdErrorCode {
             case 403100:
                 showAlert(strMsg: "Application id disabled/expired, Please contact admin.")
@@ -3326,12 +3474,9 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
             case 400201:
                 showAlert(strMsg: "Channel is not available, Please try again later.")
             default:
-                showAlert(strMsg: "Channel is not available, Please try again later.")
+                print("")
             //              showAlert(strMsg: "\(self.sbdError)")
             }
-            return
-        }
-        
         //print("channelName:",channelName)
         guard let channel = self.channel else {
             showAlert(strMsg: "Channel is not available, Please try again later.")
@@ -3388,7 +3533,6 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
     @IBAction func sendEmoji(strEmoji: String) {
         txtEmoji.resignFirstResponder()
         
-        if (!isChannelAvailable_emoji){
             ////print("sendBirdErrorCode:",sendBirdErrorCode_Emoji)
             switch sendBirdErrorCode_Emoji {
             case 403100:
@@ -3408,11 +3552,9 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
             case 400201:
                 showAlert(strMsg: "Channel is not available, Please try again later.")
             default:
-                showAlert(strMsg: "Channel is not available, Please try again later.")
+                print("")
             //showAlert(strMsg: "\(self.sbdError_emoji)")
             }
-            return
-        }
         
         ////print("channelName:",channelName_Emoji)
         guard let channel_emoji = self.channel_emoji else {
@@ -3481,6 +3623,31 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
         let currentRowNumber = self.tblComments.numberOfRows(inSection: 0)
         
         self.tblComments.scrollToRow(at: IndexPath(row: currentRowNumber - 1, section: 0), at: .bottom, animated: false)
+    }
+    func scrollToBottom_Q_And_A(force: Bool) {
+        /*if self.messages_q_and_a.count == 0 {
+            return
+        }
+        
+        if  force == false {
+            return
+        }
+        if(index_selected_q_qnd_a >= 0){
+            if(messages_q_and_a.count > 0){
+                let question = messages_q_and_a[index_selected_q_qnd_a]
+                                let searchPredicate = NSPredicate(format: "data = %@", String(question.messageId))
+                                let filteredArray = (messages_q_and_a_answers_main as NSArray).filtered(using: searchPredicate)
+                self.tbl_Q_And_A.scrollToRow(at: IndexPath(row: filteredArray.count-1, section: index_selected_q_qnd_a), at: .top, animated: false)
+
+            }
+           
+        }else{
+            if(messages_q_and_a.count > 0){
+            self.tbl_Q_And_A.scrollToRow(at: IndexPath(row: NSNotFound, section: messages_q_and_a.count-1), at: .bottom, animated: false)
+            }
+
+        }*/
+
     }
     // MARK: - Keyboard
     func determineScrollLock() {
@@ -3624,6 +3791,8 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
     }
     // MARK: - SBDChannelDelegate
     func channel(_ sender: SBDBaseChannel, didReceive message: SBDBaseMessage) {
+        print("didReceive:",message)
+        
         if let channel = self.channel {
             if sender == channel {
                 DispatchQueue.main.async {
@@ -3633,11 +3802,30 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                     self.tblComments.insertRows(at: [IndexPath(row: self.messages.count - 1, section: 0)], with: .none)
                     self.scrollToBottom(force: false)
                     UIView.setAnimationsEnabled(true)
+                    let index = self.buttonNames.firstIndex(where: {$0["title"]! == "chat"}) ?? 0
+                    print("index:",index)
+                    //for chat  show dot on header, if chat is not active
+                    if(index  > 0 && !self.isChatActive){
+                        let blinkTag = 100 + index;
+                        let lblBlink = self.streamHeaderCVC.viewWithTag(blinkTag) as? UILabel
+                        lblBlink?.isHidden = false
+                    }
+
                 }
             }
-        }else if let channel = self.channel_q_and_a {
+        }
+        if let channel = self.channel_q_and_a {
             if sender == channel {
                 loadPrevious_Q_And_A(initial: true)
+                let index = self.buttonNames.firstIndex(where: {$0["title"]! == "qa"}) ?? 0
+                print("index:",index)
+                //for Q_and_A  show dot on header, if Q_And_A is not active
+
+                if(index  > 0 && !self.isQ_And_A_Active){
+                    let blinkTag = 100 + index;
+                    let lblBlink = self.streamHeaderCVC.viewWithTag(blinkTag) as? UILabel
+                    lblBlink?.isHidden = false
+                }
             }
         }
     }
@@ -3825,6 +4013,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                                         let dicItem = ["title":"chat","icon":"s_chat","icon_active":"s_chat_active"]
                                         self.buttonNames.append(dicItem)
                                     }
+                                    
                                 }
                                 if(self.settings_donation == 1){
                                     let predicate = NSPredicate(format:"title == %@", "donation")
@@ -3853,12 +4042,12 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                                 if(self.settings_q_and_a == 1){
                                     //uncomment after this release
                                     
-                                    /*  let predicate = NSPredicate(format:"title == %@", "qa")
+                                      let predicate = NSPredicate(format:"title == %@", "qa")
                                      let filteredArray = (buttonNames as NSArray).filtered(using: predicate)
                                      if(filteredArray.count == 0){
                                      let dicItem = ["title":"qa","icon":"s_qa","icon_active":"s_qa_active"]
                                      self.buttonNames.append(dicItem)
-                                     }*/
+                                     }
                                 }
                                 self.streamHeaderCVC.reloadData()
                                 
@@ -3872,7 +4061,6 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                                 self.streamVideoCode = streamObj["stream_video_code"] as? String ?? ""
                                 let streamVideoTitle = streamObj["stream_video_title"] as? String ?? ""
                                 //print("==streamVideoTitle:",streamVideoTitle)
-                                self.isChannelAvailable = true
                                 self.sendBirdChatConfig()
                                 self.streamVideoDesc = streamObj["stream_video_description"] as? String ?? ""
                                 // "currency_type" = USD;
@@ -4042,14 +4230,11 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                             if(self.streamPaymentMode == "free"){
                                 self.lblAmount.text = ""//Free
                             }
-                            if (self.age_limit <= user_age_limit || self.age_limit == 0){
                                 if (self.aryUserSubscriptionInfo.count == 0 && self.isVOD){
                                     //if user does not pay amount
                                     self.btnPayPerView.isHidden = false
                                     self.viewVOD.isHidden = false
-                                    self.isChannelAvailable = false
                                     self.viewActions?.isHidden = true
-                                    self.isShowChat = false
                                 }else{
                                     self.viewActions?.isHidden = false
                                     self.btnPayPerView.isHidden = true
@@ -4109,16 +4294,13 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                                         }
                                     }
                                 }
+                            if (self.age_limit <= user_age_limit || self.age_limit == 0){
                             }else{
                                 self.isAgeAllowed = false
-                                self.isShowChat = false
-                                
-                                self.isChannelAvailable = false
-                                self.btnPlayStream.isHidden = false;
+                                self.btnPlayStream.isHidden = true;
                                 self.btnPlayStream.isUserInteractionEnabled = false
-                                self.btnPlayStream.setImage(UIImage.init(named: "eye-cross"), for: .normal)
+                                //self.btnPlayStream.setImage(UIImage.init(named: "eye-cross"), for: .normal)
                                 self.lblStreamUnavailable.text = "This vidoe may be inappropriate for some users"
-                                
                             }
                             let charity_info = data?["charity_info"] != nil
                             if(charity_info){
@@ -4313,7 +4495,6 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
         NotificationCenter.default.addObserver(self, selector: #selector(applicationDidBecomeActive), name: UIApplication.didBecomeActiveNotification, object: nil)
         
         NotificationCenter.default.addObserver(self, selector: #selector(ScreenShareNotificationHandler(_:)), name: .didReceiveScreenShareData, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(Notification_Q_And_A_Reply_Handler(_:)), name: .Notification_Q_And_A_Reply, object: nil)
         
         
         if(UIDevice.current.userInterfaceIdiom == .phone){
@@ -4324,7 +4505,10 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
         
         
     }
-    
+    override func viewDidDisappear(_ animated: Bool) {
+        NotificationCenter.default.removeObserver(self, name:UIApplication.didBecomeActiveNotification , object: nil)
+        NotificationCenter.default.removeObserver(self)
+    }
     override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
         super.viewWillTransition(to: size, with: coordinator)
         AppDelegate.AppUtility.lockOrientation(.landscape, andRotateTo: .landscapeRight)
@@ -4476,15 +4660,15 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
             .responseJSON { response in
                 switch response.result {
                 case .success(let value):
-                    DispatchQueue.main.async {
-                        // print("metaLive Response:",value)
+                    DispatchQueue.main.async { [self] in
+                        print("metaLive Response:",value)
                         if let json = value as? [String: Any] {
                             if json["errorMessage"] != nil{
                                 // ALToastView.toast(in: self.view, withText:errorMsg as? String ?? "")
                                 //let error = "Unable to locate stream. Broadcast has probably not started for this stream: " + stream1
                                 // ALToastView.toast(in: self.view, withText: error)
                                 self.streamInfoUpdate(strValue: "not_available")
-                                
+
                             }else{
                                 let data = json["data"] as? [String:Any]
                                 let meta = data?["meta"] as? [String:Any]
@@ -4560,6 +4744,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                                             self.btnPlayStream.setImage(UIImage.init(named: "refresh"), for: .normal)
                                         }
                                     }
+                                    self.showHLSVideo()
                                     //self.viewOverlay?.isHidden = true// controls not working
                                 }
                             }
@@ -4689,13 +4874,18 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
         }
         
     }
+    @IBAction func hlsTapped(){
+        showHLSVideo()
+    }
     // MARK: Handler for Stream Events
     func onR5StreamStatus(_ stream: R5Stream!, withStatus statusCode: Int32, withMessage msg: String!) {
+        
         // MARK: Customising
         // print("stream:",stream)
         NSLog("Status: %s ", r5_string_for_status(statusCode))
         let s =  String(format: "Status: %s (%@)",  r5_string_for_status(statusCode), msg)
-        
+        NSLog("s:", s)
+
         //ALToastView.toast(in: self.view, withText:s)
         if (Int(statusCode) == Int(r5_status_disconnected.rawValue)) {
             //self.closeStream()
@@ -4707,6 +4897,8 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
             ////print("=======sufficient band Width")
         }else if ((Int(statusCode) == Int(r5_status_netstatus.rawValue) && msg == "NetStream.Play.InSufficientBW")) {
             ALToastView.toast(in: self.view, withText:"Poor internet connection")
+            showHLSVideo()
+            
         }else if (Int(statusCode) == Int(r5_status_audio_mute.rawValue))
         {
             ////print("=======r5_status_audio_mute")
@@ -4758,6 +4950,10 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
             ////print("=======r5_status_stop_streaming")
             ALToastView.toast(in: self.view, withText:"Stream Stopped")
         }
+        else if ((Int(statusCode) == Int(r5_status_connection_close.rawValue))) {
+            print("=======connection closed")
+            self.showHLSVideo()
+        }
         if(Int(statusCode) == Int(r5_status_connected.rawValue)){
             //showAlert(strMsg: "stream connected")
             /*if(isSharedScreen){
@@ -4766,7 +4962,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
             getGuestDetailInGraphql(.returnCacheDataAndFetch)//need to refresh stream
         }
     }
-    //MARK: - Live Stream Methods  end
+    //MARK: - Live Stream Methods end
     // MARK: Handler for getChannelSubscriptionPlans API
     func getChannelSubscriptionPlans(){
         let netAvailable = appDelegate.isConnectedToInternet()
@@ -4807,12 +5003,16 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                             if(arySubscriptions.count > 0){
                                 let predicate = NSPredicate(format:"title == %@", "subscribe")
                                 let filteredArray = (buttonNames as NSArray).filtered(using: predicate)
-                                if(filteredArray.count == 0){
-                                    let dicItem = ["title":"subscribe","icon":"s_subscribe","icon_active":"s_subscribe_active"]
-                                    self.buttonNames.append(dicItem)
-                                    self.streamHeaderCVC.reloadData()
-                                    
+                                //ofr guest subscription should be hidden, this should comment/remove after this release
+                                if(!appDelegate.isGuest){
+                                    if(filteredArray.count == 0){
+                                        let dicItem = ["title":"subscribe","icon":"s_subscribe","icon_active":"s_subscribe_active"]
+                                        self.buttonNames.append(dicItem)
+                                        self.streamHeaderCVC.reloadData()
+                                        
+                                    }
                                 }
+                               
                             }
                             self.tblSubscriptions.reloadData()
                         }else{
@@ -4845,6 +5045,8 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
             cell.btn.setImage(UIImage.init(named: icon), for: .normal)
             cell.btn.addTarget(self, action: #selector(headerBtnPressed(_:)), for: .touchUpInside)
             cell.btn.tag = 10 + (indexPath.row);
+            cell.lblBlink.tag = 100 + (indexPath.row)
+            cell.lblBlink.isHidden = true
             //cell.lblLine.tag = 10 + (indexPath.row);
             //cell.btn.setTitleColor(.white, for: .normal)
             return cell
@@ -4854,7 +5056,10 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
     func refreshHeaderBtns(){
         for (index,_) in buttonNames.enumerated() {
             let btnTag = 10 + index;
+            let blinkTag = 100 + index;
+
             let btn = self.streamHeaderCVC.viewWithTag(btnTag) as? UIButton
+            
             let selectedObj = buttonNames[index]
             let title =  selectedObj["title"] ?? ""
             switch title {
@@ -4884,8 +5089,11 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
         //print("headerBtnPressed:",sender.tag)
         //streamHeaderCVC.reloadData()
         refreshHeaderBtns()
+        isChatActive = false
+        isQ_And_A_Active = false
         if(sender.tag - 10 <= buttonNames.count){
             let selectedObj = buttonNames[sender.tag - 10]
+            let blinkTag = 100 + (sender.tag - 10)
             let title =  selectedObj["title"] ?? ""
             //print("title:",title)
             setBtnDefaultBG()
@@ -4926,6 +5134,9 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                 lblRightTitle.text = "Chat"
                 sender.setImage(UIImage.init(named: "s_chat_active"), for: .normal)
                 viewComments.isHidden = false
+                let lblBlink = self.streamHeaderCVC.viewWithTag(blinkTag) as? UILabel
+                lblBlink?.isHidden = true
+                isChatActive = true
             case "subscribe":
                 lblRightTitle.text = "Subscriptions"
                 sender.setImage(UIImage.init(named: "s_subscribe_active"), for: .normal)
@@ -4935,6 +5146,9 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                 sender.setImage(UIImage.init(named: "s_qa_active"), for: .normal)
                 view_Q_And_A.isHidden = false
                 loadPrevious_Q_And_A(initial: true)
+                let lblBlink = self.streamHeaderCVC.viewWithTag(blinkTag) as? UILabel
+                lblBlink?.isHidden = true
+                isQ_And_A_Active = true
             default:
                 print("default")
             }

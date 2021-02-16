@@ -41,6 +41,7 @@ class SubscribeTest: BaseTest {
         }
     }
     func metaLive(){
+        print("==metaLive")
         let netAvailable = appDelegate.isConnectedToInternet()
         if(!netAvailable){
             showAlert(strMsg: "Please check your internet connection!")
