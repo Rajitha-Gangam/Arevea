@@ -197,7 +197,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
         //bottom first object should show
         let infoLine = self.buttonCVC.viewWithTag(tag) as? UILabel
         let btnText = self.buttonCVC.viewWithTag(tag + 10) as? UIButton
-        let orange = UIColor(red: 95, green: 84, blue: 55);
+        let orange = UIColor(red: 241, green: 213, blue: 141);
         infoLine?.backgroundColor = orange;
         infoLine?.isHidden = false;
         btnText?.setTitleColor(orange, for: .normal)
@@ -277,7 +277,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
             let btnText = self.buttonCVC.viewWithTag(btnTag) as? UIButton
             if (name == title){
                 //print("btnTag:",btnTag)
-                let orange = UIColor(red: 95, green: 84, blue: 55);
+                let orange = UIColor(red: 241, green: 213, blue: 141);
                 lblLine?.backgroundColor = orange;
                 lblLine?.isHidden = false;
                 btnText?.setTitleColor(orange, for: .normal)
@@ -545,7 +545,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
             
             //if user subscribed
             if(subscription_status){
-                let orange = UIColor(red: 95, green: 84, blue: 55);
+                let orange = UIColor(red: 241, green: 213, blue: 141);
                 cell.viewContent.layer.borderColor = orange.cgColor
                 cell.viewContent.layer.borderWidth = 2.0
                 cell.btnCheck.isHidden = false

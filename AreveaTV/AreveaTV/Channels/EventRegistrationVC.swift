@@ -20,18 +20,20 @@ import Reachability
 import AWSAppSync
 import R5Streaming
 
-class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate{
+class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate,UICollectionViewDataSource,UICollectionViewDelegateFlowLayout,UITableViewDataSource,UITableViewDelegate{
     // MARK: - Variables Declaration
     
     @IBOutlet weak var viewBottom: UIView!
     @IBOutlet weak var lblTitle: UILabel!
     
-    @IBOutlet weak var txtProfile: UITextView!
     
     let appDelegate = UIApplication.shared.delegate as! AppDelegate
     @IBOutlet weak var btnGetTickets: UIButton!
     @IBOutlet weak var lblAmount: UILabel!
+    @IBOutlet weak var lblMonth: UILabel!
     @IBOutlet weak var lblDate: UILabel!
+    @IBOutlet weak var lblYear: UILabel!
+    
     @IBOutlet weak var lblTime: UILabel!
     @IBOutlet weak var imgWallet: UIImageView!
     
@@ -61,18 +63,20 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate{
     var backPressed = false
     
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
-    @IBOutlet weak var lblVideoDesc_info: UILabel!
-    @IBOutlet weak var lblVideoTitle_info: UILabel!
     @IBOutlet weak var txtVideoDesc_Info: UITextView!
-    @IBOutlet weak var imgPerformer: UIImageView!
+    @IBOutlet weak var txtVideoDesc_Overview: UITextView!
+    @IBOutlet weak var tblSchedule: UITableView!
+    @IBOutlet weak var tblSpeakers: UITableView!
+    @IBOutlet weak var tblSponsors: UITableView!
+    @IBOutlet weak var tblHost: UITableView!
+
     
     var age_limit = 0;
-    @IBOutlet weak var txtComment: UITextField!
-    @IBOutlet weak var txtEmoji: UITextField!
+   
     
     @IBOutlet weak var sendUserMessageButton: UIButton!
     @IBOutlet weak var inputMessageInnerContainerViewBottomMargin: NSLayoutConstraint!
-    @IBOutlet weak var liveStreamHeight: NSLayoutConstraint!
+    @IBOutlet weak var heightDesc: NSLayoutConstraint!
     
     var channelName = ""
     var paymentAmount = 0
@@ -91,7 +95,6 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate{
     var isUpcoming = false;
     var streamVideoDesc = ""
     
-    @IBOutlet weak var viewBtns: UIView?
     
     var resultData = [String:Any]()
     var amountWithCurrencyType = ""
@@ -119,12 +122,25 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate{
     var doubleDisplayCurrencies = [Double]()
     var currentDate = Date()
     var current_time = ""
+    @IBOutlet weak var buttonCVC: UICollectionView!
+    @IBOutlet weak var dateCVC: UICollectionView!
+
+    var aryTabs = ["OVERVIEW","SCHEDULE","SPEAKERS","HOST","SPONSORS"]
+    var aryDates = ["Fri, 22 Jan, 2021","Sat, 23 Jan, 2021","Sun, 24 Jan, 2021","Mon, 25 Jan, 2021"]
+
+    @IBOutlet weak var viewOverview: UIView!
+    @IBOutlet weak var viewSchedule: UIView!
+    @IBOutlet weak var viewSpeakers: UIView!
+    @IBOutlet weak var viewHost: UIView!
+    @IBOutlet weak var viewSponsors: UIView!
+
     // MARK: - View Life cycle
     override func viewDidLoad() {
         super.viewDidLoad()
         viewActivity.isHidden = true
-        btnSubscribe.layer.borderWidth = 2
-        btnSubscribe.layer.borderColor = UIColor.darkGray.cgColor
+        btnSubscribe.layer.borderWidth = 1
+        let yellow = UIColor(red: 241, green: 213, blue: 141);
+        btnSubscribe.layer.borderColor = yellow.cgColor
         lblTitle.text = strTitle
         
         if(UIDevice.current.userInterfaceIdiom == .pad){
@@ -132,18 +148,118 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate{
             viewTop.layoutIfNeeded()
         }
         /*if(appDelegate.isGuest){
-            btnSubscribe.isHidden = false
-            self.shareEventTop.constant = 65;
-            viewShareEvent.layoutIfNeeded()
-        }else{
-            btnSubscribe.isHidden = true
-        }*/
+         btnSubscribe.isHidden = false
+         self.shareEventTop.constant = 65;
+         viewShareEvent.layoutIfNeeded()
+         }else{
+         btnSubscribe.isHidden = true
+         }*/
         btnSubscribe.isHidden = true
         if(self.channel_name_subscription == ""){
             self.channel_name_subscription = " "
         }
         //for testing
         //appDelegate.isGuest = true
+        registerNibs();
+
+        
+    }
+    func registerNibs() {
+        let nib = UINib(nibName: "DateCVC", bundle: nil)
+        dateCVC?.register(nib, forCellWithReuseIdentifier:"DateCVC")
+        if(UIDevice.current.userInterfaceIdiom == .pad){
+            let nib = UINib(nibName: "ButtonsCVC-iPad", bundle: nil)
+            buttonCVC?.register(nib, forCellWithReuseIdentifier:"ButtonsCVC")
+        }else{
+            let nib = UINib(nibName: "ButtonsCVC", bundle: nil)
+            buttonCVC?.register(nib, forCellWithReuseIdentifier:"ButtonsCVC")
+        }
+        if let flowLayout = self.buttonCVC?.collectionViewLayout as? UICollectionViewFlowLayout {
+            flowLayout.estimatedItemSize = CGSize(width: 1, height: 1)
+        }
+        
+        tblSchedule.register(UINib(nibName: "ScheduleCell", bundle: nil), forCellReuseIdentifier: "ScheduleCell");
+        tblSpeakers.register(UINib(nibName: "SpeakersCell", bundle: nil), forCellReuseIdentifier: "SpeakersCell");
+        tblSponsors.register(UINib(nibName: "SponsorsCell", bundle: nil), forCellReuseIdentifier: "SponsorsCell");
+        tblHost.register(UINib(nibName: "SpeakersCell", bundle: nil), forCellReuseIdentifier: "SpeakersCell");
+
+
+    }
+    func hideViews(){
+        print("hideViews")
+        viewOverview.isHidden = true;
+        viewSpeakers.isHidden = true;
+        viewSchedule.isHidden = true;
+        viewHost.isHidden = true;
+        viewSponsors.isHidden = true;
+
+        
+        for (index,_) in aryTabs.enumerated() {
+            let lineTag = 10 + index;
+            let btnTag = 20 + index;
+            let lblLine = self.buttonCVC.viewWithTag(lineTag) as? UILabel
+            let btnText = self.buttonCVC.viewWithTag(btnTag) as? UIButton
+            lblLine?.isHidden = true;
+            btnText?.setTitleColor(.white, for: .normal)
+        }
+    }
+    @objc func btnPress(_ sender: UIButton) {
+        hideViews()
+        let title = sender.titleLabel?.text!
+        for (index,_) in aryTabs.enumerated() {
+            let name = aryTabs[index]
+            let lineTag = 10 + index;
+            let btnTag = 20 + index;
+            let lblLine = self.buttonCVC.viewWithTag(lineTag) as? UILabel
+            let btnText = self.buttonCVC.viewWithTag(btnTag) as? UIButton
+            if (name == title){
+                //print("btnTag:",btnTag)
+                let orange = UIColor(red: 241, green: 213, blue: 141);
+                lblLine?.backgroundColor = orange;
+                lblLine?.isHidden = false;
+                btnText?.setTitleColor(orange, for: .normal)
+            }else{
+                lblLine?.isHidden = true;
+                btnText?.setTitleColor(.white, for: .normal)
+            }
+        }
+        switch title?.lowercased() {
+         case "overview":
+         viewOverview.isHidden = false;
+         case "speakers":
+         viewSpeakers.isHidden = false;
+         case "schedule":
+         viewSchedule.isHidden = false;
+         tblSchedule.isHidden = true
+         dateCVC.reloadData()
+         case "host":
+         viewHost.isHidden = false;
+         case "sponsors":
+         viewSponsors.isHidden = false;
+         default:
+         break
+         }
+    }
+    @objc func btnDatePress(_ sender: UIButton) {
+        tblSchedule.isHidden = false
+        let tag = sender.tag
+        print("tag:",tag)
+        for (index,_) in aryDates.enumerated() {
+            let name = aryDates[index]
+            let btnTag = 20 + index;
+            let btnText = self.dateCVC.viewWithTag(btnTag) as? UIButton
+            if (tag == btnTag){
+                //print("btnTag:",btnTag)
+                let yellow = UIColor(red: 241, green: 213, blue: 141);
+                btnText?.backgroundColor = yellow
+                btnText?.setTitleColor(.black, for: .normal)
+            }else{
+                let gray = UIColor(red: 70, green: 69, blue: 92);
+                btnText?.backgroundColor = gray
+                btnText?.setTitleColor(.white, for: .normal)
+            }
+        }
+
     }
     func delayWithSeconds(_ seconds: Double, completion: @escaping () -> ()) {
         DispatchQueue.main.asyncAfter(deadline: .now() + seconds) {
@@ -186,6 +302,15 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate{
         }else{
             getSubscriptionStatus()
         }
+        
+        var tag = 10
+        let infoLine = self.buttonCVC.viewWithTag(tag) as? UILabel
+        let btnText = self.buttonCVC.viewWithTag(tag + 10) as? UIButton
+        let orange = UIColor(red: 241, green: 213, blue: 141);
+        infoLine?.backgroundColor = orange;
+        infoLine?.isHidden = false;
+        btnText?.setTitleColor(orange, for: .normal)
+        viewOverview.isHidden = false
     }
     override func viewDidDisappear(_ animated: Bool) {
         NotificationCenter.default.removeObserver(self, name:UIApplication.didBecomeActiveNotification , object: nil)
@@ -225,9 +350,17 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate{
     override var preferredStatusBarStyle: UIStatusBarStyle {
         return .lightContent // .default
     }
+    func heightForView(text:String, width:CGFloat) -> CGFloat{
+        let label:UILabel = UILabel(frame: CGRect(x: 0, y: 0, width: width, height: CGFloat.greatestFiniteMagnitude))
+        label.numberOfLines = 0
+        label.lineBreakMode = NSLineBreakMode.byWordWrapping
+        label.font = UIFont.systemFont(ofSize: 18.0)
+        label.text = text
+        label.sizeToFit()
+        return label.frame.height
+    }
     
-    
-    // MARK: Handler for getCategoryOrganisations API
+    // MARK: Handler for getEventBySlug API
     func getEventBySlug(){
         let netAvailable = appDelegate.isConnectedToInternet()
         if(!netAvailable){
@@ -358,7 +491,17 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate{
                                         let localStartDate = self.utcToLocalDate(dateStr:strPublishDate )
                                         print("localStartDate:",localStartDate)
                                         let timeFull = localStartTime + " - " + localEndTime
-                                        self.lblDate.text = localStartDate
+                                        
+                                        let aryLocalStartDate = localStartDate?.split{$0 == " "}.map(String.init)//Feb 25 2021
+                                        print("aryLocalStartDate:",aryLocalStartDate)
+                                        if(aryLocalStartDate?.count == 2){
+                                            self.lblMonth.text = aryLocalStartDate?[0]
+                                            self.lblDate.text = aryLocalStartDate?[1]
+                                            self.lblYear.text = aryLocalStartDate?[2]
+                                        }else{
+                                            //self.lblDate.text = localStartDate
+                                        }
+                                        
                                         self.lblTime.text = timeFull
                                     }
                                 }
@@ -721,18 +864,21 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate{
                                  self.txtProfile.text = performerName + "\n" + performer_bio*/
                                 let videoDesc = self.streamVideoDesc;
                                 print("videoDesc:",videoDesc)
-                                let creatorName = "Creator Name: " + performerName;
-                                var fullText = videoDesc  + "\n" + creatorName
-                                /*let attributes: [NSAttributedString.Key: Any] = [
-                                    .foregroundColor: UIColor.white,
-                                    .backgroundColor: UIColor.red,
-                                    .font: UIFont.boldSystemFont(ofSize: 36)
-                                ]*/
-                              
-                                fullText = fullText.trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
+                                //let creatorName = "Creator Name: " + performerName;
+                                //var fullText = videoDesc  + "\n" + creatorName
+                                
+                                let fullText = videoDesc
                                 //self.txtVideoDesc_Info.attributedText = fullText.htmlToAttributedString
-                                self.txtVideoDesc_Info.text = fullText.htmlToString
-
+                                let strDesc = fullText.htmlToString
+                                var height = self.heightForView(text: strDesc, width: 380)
+                                if(height > 50){
+                                    height = 50
+                                }
+                                self.heightDesc.constant = height
+                                self.txtVideoDesc_Info.layoutIfNeeded()
+                                
+                                self.txtVideoDesc_Info.text = strDesc
+                                self.txtVideoDesc_Overview.text = strDesc
                                 
                                 if (stream_info_key_exists == nil){
                                     //performer_profile_banner
@@ -842,7 +988,7 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate{
         
         if let date = dateFormatter.date(from: dateStr) {
             dateFormatter.timeZone = TimeZone.current
-            dateFormatter.dateFormat = "E, MMM dd yyyy"
+            dateFormatter.dateFormat = "MMM dd yyyy"
             
             return dateFormatter.string(from: date)
         }
@@ -1006,7 +1152,16 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate{
                                         let localEndTime = utcToLocal(dateStr: endTime) ?? ""
                                         
                                         let timeFull = localStartTime + " - " + localEndTime
-                                        self.lblDate.text = dateFull
+                                        let localStartDate = self.utcToLocalDate(dateStr:strPublishDate )
+                                        
+                                        let aryLocalStartDate = localStartDate?.split{$0 == " "}.map(String.init)//Feb 25 2021
+                                        if(aryLocalStartDate?.count == 2){
+                                            self.lblMonth.text = aryLocalStartDate?[0]
+                                            self.lblDate.text = aryLocalStartDate?[1]
+                                            self.lblYear.text = aryLocalStartDate?[2]
+                                        }else{
+                                            //self.lblDate.text = localStartDate
+                                        }
                                         self.lblTime.text = timeFull
                                     }
                                 }
@@ -1187,31 +1342,31 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate{
                             if(self.streamPaymentMode == "free"){
                                 self.lblAmount.text = "Free"//Free
                             }
-                                if (self.aryUserSubscriptionInfo.count == 0 && self.isVOD){
-                                    //if user does not pay amount
-                                    self.btnGetTickets.isHidden = false
-                                }else{
-                                    self.btnGetTickets.isHidden = true
-                                    self.lblAmount.isHidden = true
-                                    self.lblDate.isHidden = true
-                                    self.lblTime.isHidden = true
-                                    if (stream_info_key_exists != nil){
-                                        let streamObj = self.aryStreamInfo
+                            if (self.aryUserSubscriptionInfo.count == 0 && self.isVOD){
+                                //if user does not pay amount
+                                self.btnGetTickets.isHidden = false
+                            }else{
+                                self.btnGetTickets.isHidden = true
+                                self.lblAmount.isHidden = true
+                                self.lblDate.isHidden = true
+                                self.lblTime.isHidden = true
+                                if (stream_info_key_exists != nil){
+                                    let streamObj = self.aryStreamInfo
+                                    
+                                    self.btnGetTickets.isHidden = true;
+                                    self.isStream = false;
+                                    if (self.isVOD){
                                         
-                                        self.btnGetTickets.isHidden = true;
-                                        self.isStream = false;
-                                        if (self.isVOD){
-                                            
-                                        }else{
-                                            //audio
-                                        }
+                                    }else{
+                                        //audio
                                     }
                                 }
+                            }
                             if (self.age_limit <= user_age_limit || self.age_limit == 0){
                             } else{
                                 if(!self.appDelegate.isGuest && user_age_limit != 0){
-                                self.btnGetTickets.isHidden = true;
-                                self.lblStreamUnavailable.text = "this video may be inappropriate for some users"
+                                    self.btnGetTickets.isHidden = true;
+                                    self.lblStreamUnavailable.text = "this video may be inappropriate for some users"
                                 }
                             }
                             let performer_info = data?["performer_info"] != nil
@@ -1233,11 +1388,11 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate{
                                 
                                 let videoDesc = self.streamVideoDesc;
                                 let creatorName = "Creator Name: " + performerName;
-                                var fullText = videoDesc  + "\n" + creatorName
-                                                               fullText = fullText.trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
-                                                               self.txtVideoDesc_Info.text = fullText.htmlToString
-
-
+                                //var fullText = videoDesc  + "\n" + creatorName
+                                let fullText = videoDesc
+                                self.txtVideoDesc_Info.text = fullText
+                                self.txtVideoDesc_Overview.text = fullText
+                                
                                 if (stream_info_key_exists == nil){
                                     //performer_profile_banner
                                     let performer_profile_banner = self.dicPerformerInfo["performer_profile_banner"] as? String ?? ""
@@ -1396,7 +1551,15 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate{
                                         let localStartDate = utcToLocalDate(dateStr:strPublishDate )
                                         print("localStartDate:",localStartDate)
                                         let timeFull = localStartTime + " - " + localEndTime
-                                        self.lblDate.text = localStartDate
+                                        let aryLocalStartDate = localStartDate?.split{$0 == " "}.map(String.init)//Feb 25 2021
+                                        if(aryLocalStartDate?.count == 2){
+                                            self.lblMonth.text = aryLocalStartDate?[0]
+                                            self.lblDate.text = aryLocalStartDate?[1]
+                                            self.lblYear.text = aryLocalStartDate?[2]
+                                        }else{
+                                            //self.lblDate.text = localStartDate
+                                        }
+                                        
                                         self.lblTime.text = timeFull
                                     }
                                 }
@@ -1751,11 +1914,11 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate{
                                  self.txtProfile.text = performerName + "\n" + performer_bio*/
                                 let videoDesc = self.streamVideoDesc;
                                 let creatorName = "Creator Name: " + performerName;
-                                var fullText = videoDesc  + "\n" + creatorName
-                                                               fullText = fullText.trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
-                                                               self.txtVideoDesc_Info.text = fullText.htmlToString
-
-
+                                //var fullText = videoDesc  + "\n" + creatorName
+                                var fullText = videoDesc
+                                self.txtVideoDesc_Info.text = fullText
+                                self.txtVideoDesc_Overview.text = fullText
+                                
                                 //self.txtVideoDesc_Info.backgroundColor = UIColor.red
                                 
                                 if (stream_info_key_exists == nil){
@@ -1827,8 +1990,9 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate{
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated);
         //adding observer
+        hideViews()
         AppDelegate.AppUtility.lockOrientation(.portrait, andRotateTo: .portrait)
-        
+       
     }
     
     override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
@@ -1916,7 +2080,7 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate{
                 registerEvent()
             }else{
                 //print("paid")
-                    gotoTicketTypes()
+                gotoTicketTypes()
             }
         }
     }
@@ -2140,6 +2304,98 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate{
             }
         }
         return buffer
+    }
+    // MARK: - Collection View Data Source
+    
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        if(collectionView == buttonCVC){
+            return aryTabs.count
+        }else{
+            return aryDates.count
+        }
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        if(collectionView == buttonCVC){
+
+        if let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ButtonsCVC",for: indexPath) as? ButtonsCVC {
+            let name = aryTabs[indexPath.row]
+            cell.configureCell(name: name)
+            cell.btn.addTarget(self, action: #selector(btnPress(_:)), for: .touchUpInside)
+            cell.btn.tag = 20 + (indexPath.row);
+            cell.lblLine.tag = 10 + (indexPath.row);
+            cell.lblLine.isHidden = true
+            //cell.btn.setTitleColor(.white, for: .normal)
+            return cell
+        }
+        }else{
+            if let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "DateCVC",for: indexPath) as? DateCVC {
+                let name = aryDates[indexPath.row]
+                cell.configureCell(name: name)
+                cell.btnDate.addTarget(self, action: #selector(btnDatePress(_:)), for: .touchUpInside)
+                cell.btnDate.tag = 20 + (indexPath.row);
+                let gray = UIColor(red: 70, green: 69, blue: 92);
+                cell.btnDate.backgroundColor = gray
+                cell.btnDate.layer.borderColor = UIColor.white.cgColor
+                cell.btnDate.setTitleColor(.white, for: .normal)
+                return cell
+
+        }
+        }
+        return UICollectionViewCell()
+    
+    }
+    //MARK:Tableview Delegates and Datasource Methods
+    
+    func numberOfSections(in tableView: UITableView) ->  Int {
+        return 1
+    }
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        if(tableView == tblSchedule){
+        return 2
+        }else if(tableView == tblSpeakers){
+            return 2
+        }else if(tableView == tblSponsors){
+            return 1
+        }else if(tableView == tblHost){
+            return 1
+        }
+        return 0
+    }
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) ->  CGFloat {
+        if(tableView == tblSchedule){
+        return 150
+        }else if(tableView == tblSpeakers || tableView == tblHost){
+            return 150
+        }else if(tableView == tblSponsors){
+            return 500
+        }
+        return 44
+        
+    }
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        if(tableView == tblSchedule){
+        let cell = tableView.dequeueReusableCell(withIdentifier: "ScheduleCell") as! ScheduleCell
+            cell.imgUser.layer.borderColor = UIColor.white.cgColor
+            return cell
+        }else if(tableView == tblSpeakers || tableView == tblHost){
+            let cell = tableView.dequeueReusableCell(withIdentifier: "SpeakersCell") as! SpeakersCell
+            cell.backgroundColor = UIColor.clear
+            cell.imgUser.layer.borderColor = UIColor.white.cgColor
+            return cell
+        }else if(tableView == tblSponsors){
+            let cell = tableView.dequeueReusableCell(withIdentifier: "SponsorsCell") as! SponsorsCell
+            let data = ["one","two","three","one"]
+            cell.updateCellWith(row: data)
+
+            return cell
+        }else{
+            let cell: UITableViewCell = UITableViewCell()
+            return cell
+        }
+    }
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        
     }
     
     

@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="17156" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17125"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="SponsorsCVC" id="m5Q-o8-9gf" customClass="SponsorsCVC" customModule="AreveaTV" customModuleProvider="target">
+            <rect key="frame" x="0.0" y="0.0" width="200" height="50"/>
+            <autoresizingMask key="autoresizingMask"/>
+            <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center">
+                <rect key="frame" x="0.0" y="0.0" width="200" height="50"/>
+                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                <subviews>
+                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ZJs-rY-bmJ">
+                        <rect key="frame" x="0.0" y="0.0" width="200" height="50"/>
+                        <subviews>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="frD-5t-jMm">
+                                <rect key="frame" x="5" y="5" width="190" height="40"/>
+                                <subviews>
+                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="sp_ibm" translatesAutoresizingMaskIntoConstraints="NO" id="YVs-a9-Yc2">
+                                        <rect key="frame" x="0.0" y="0.0" width="190" height="40"/>
+                                    </imageView>
+                                </subviews>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <constraints>
+                                    <constraint firstAttribute="trailing" secondItem="YVs-a9-Yc2" secondAttribute="trailing" id="2y5-df-YBe"/>
+                                    <constraint firstItem="YVs-a9-Yc2" firstAttribute="leading" secondItem="frD-5t-jMm" secondAttribute="leading" id="76o-B3-vwg"/>
+                                    <constraint firstAttribute="bottom" secondItem="YVs-a9-Yc2" secondAttribute="bottom" id="gve-Fq-Cs5"/>
+                                    <constraint firstItem="YVs-a9-Yc2" firstAttribute="top" secondItem="frD-5t-jMm" secondAttribute="top" id="qbO-0w-5K8"/>
+                                </constraints>
+                                <userDefinedRuntimeAttributes>
+                                    <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
+                                        <integer key="value" value="10"/>
+                                    </userDefinedRuntimeAttribute>
+                                </userDefinedRuntimeAttributes>
+                            </view>
+                        </subviews>
+                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <constraints>
+                            <constraint firstAttribute="trailing" secondItem="frD-5t-jMm" secondAttribute="trailing" constant="5" id="BTn-7p-SV3"/>
+                            <constraint firstItem="frD-5t-jMm" firstAttribute="leading" secondItem="ZJs-rY-bmJ" secondAttribute="leading" constant="5" id="be7-Uw-Z1T"/>
+                            <constraint firstItem="frD-5t-jMm" firstAttribute="top" secondItem="ZJs-rY-bmJ" secondAttribute="top" constant="5" id="vjU-Ir-mBd"/>
+                            <constraint firstAttribute="bottom" secondItem="frD-5t-jMm" secondAttribute="bottom" constant="5" id="wni-wz-uga"/>
+                        </constraints>
+                    </view>
+                </subviews>
+            </view>
+            <viewLayoutGuide key="safeArea" id="9gW-5f-89P"/>
+            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+            <constraints>
+                <constraint firstAttribute="bottom" secondItem="ZJs-rY-bmJ" secondAttribute="bottom" id="ENK-OF-HgS"/>
+                <constraint firstAttribute="trailing" secondItem="ZJs-rY-bmJ" secondAttribute="trailing" id="OK8-vm-igA"/>
+                <constraint firstItem="ZJs-rY-bmJ" firstAttribute="top" secondItem="m5Q-o8-9gf" secondAttribute="top" id="hK8-Hw-bCG"/>
+                <constraint firstItem="ZJs-rY-bmJ" firstAttribute="leading" secondItem="m5Q-o8-9gf" secondAttribute="leading" id="lgR-Gj-y62"/>
+            </constraints>
+            <connections>
+                <outlet property="imgSponsor" destination="YVs-a9-Yc2" id="OWH-lE-HhT"/>
+            </connections>
+            <point key="canvasLocation" x="166.66666666666669" y="126.5625"/>
+        </collectionViewCell>
+    </objects>
+    <resources>
+        <image name="sp_ibm" width="200" height="87"/>
+    </resources>
+</document>

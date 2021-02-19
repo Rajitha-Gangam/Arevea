@@ -38,6 +38,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate , OpenChanannelChatDelegat
     var userCurrencySymbol = ""
     var urlCloudFront = "https://d3vv6h15bemsva.cloudfront.net/live/"
     var isGuest = false
+    var strSlug = ""
 
     // MARK: - Dev Environmet Variables Declaration
     /*var baseURL = "https://dev1-apis.arevea.com";
@@ -65,7 +66,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate , OpenChanannelChatDelegat
     //Dev Variables END
     
     // MARK: - QA Environmet Variables Declaration
-    /*var baseURL = "https://qa1-apis.arevea.com"
+    var baseURL = "https://qa1-apis.arevea.com"
     var websiteURL = "https://qa1.arevea.com"
     var sendBirdAppId = "7AF38850-F099-4C47-BD19-F7F84DAFECF8";
     var profileURL = "https://qa1.arevea.com/api/user/v1"
@@ -87,9 +88,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate , OpenChanannelChatDelegat
     var FCMBaseURL = "https://eku2g4rzxl.execute-api.us-west-2.amazonaws.com/dev"
     var socialLoginURL = "https://areveatv-sandbox.onelogin.com/access/initiate"
     //QA Variables END
-    */
+    
     // MARK: - Pre-prod Environmet Variables Declaration
-     var baseURL = "https://preprod-apis.arevea.tv"
+     /*var baseURL = "https://preprod-apis.arevea.tv"
      var websiteURL = "https://preprod.arevea.tv"
      var sendBirdAppId = "2115A8A2-36D7-4ABC-A8CE-758500A54DFD";
      var profileURL = "https://preprod.arevea.tv/api/user/v1"
@@ -110,9 +111,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate , OpenChanannelChatDelegat
      var ol_access_token = ""
      var FCMBaseURL = "https://preprod-apis.arevea.tv"
      var socialLoginURL = "https://areveatv-sandbox.onelogin.com/access/initiate"
-     var strSlug = ""
      
-    
+    */
     //Pre-prod Variables END
     
     // MARK: - prod Environmet Variables Declaration
