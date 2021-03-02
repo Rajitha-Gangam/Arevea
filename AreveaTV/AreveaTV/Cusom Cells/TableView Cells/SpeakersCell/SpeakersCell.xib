@@ -70,9 +70,9 @@
                                     <constraints>
                                         <constraint firstAttribute="height" constant="55" id="mhz-0k-vXg"/>
                                     </constraints>
-                                    <mutableString key="text">The first 40 years of Mike Arnold's career were spent as a professional and diligent architect. Thanks to what now seems like serendipitous timing, Arnold progressed through a successful career without ever having to become architecturally computer literate and rely on programmes to create building sketches and renderings. As such, his drawing skills were fine-tuned throughout his life, preparing him for his second career as a full-time artist - something he feels he began as a child, when he would spend every weekend studying art at The Philadelphia Museum of Art, in the city where he was born and raised.</mutableString>
+                                    <string key="text">The first 40 years of Mike Arnold's career were spent as a professional and diligent architect. Thanks to what now seems like serendipitous timing, Arnold progressed through a successful career without ever having to become architecturally computer literate and rely on programmes to create building sketches and renderings. As such, his drawing skills were fine-tuned throughout his life, preparing him for his second career as a full-time artist - something he feels he began as a child, when he would spend every weekend studying art at The Philadelphia Museum of Art, in the city where he was born and raised.</string>
                                     <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                    <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                    <fontDescription key="fontDescription" name="Poppins-Regular" family="Poppins" pointSize="17"/>
                                     <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
                                 </textView>
                             </subviews>

@@ -133,7 +133,11 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate,UICollecti
     @IBOutlet weak var viewSpeakers: UIView!
     @IBOutlet weak var viewHost: UIView!
     @IBOutlet weak var viewSponsors: UIView!
-
+    //for tabs highlight when we go respective pages, and after comes back to this page creating these variables.
+    
+    var isSpeaker = false
+    var isHost = false
+    
     // MARK: - View Life cycle
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -161,7 +165,6 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate,UICollecti
         //for testing
         //appDelegate.isGuest = true
         registerNibs();
-
         
     }
     func registerNibs() {
@@ -186,7 +189,7 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate,UICollecti
 
     }
     func hideViews(){
-        print("hideViews")
+        //print("hideViews")
         viewOverview.isHidden = true;
         viewSpeakers.isHidden = true;
         viewSchedule.isHidden = true;
@@ -205,6 +208,8 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate,UICollecti
     }
     @objc func btnPress(_ sender: UIButton) {
         hideViews()
+        isHost = false
+        isSpeaker = false
         let title = sender.titleLabel?.text!
         for (index,_) in aryTabs.enumerated() {
             let name = aryTabs[index]
@@ -212,8 +217,11 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate,UICollecti
             let btnTag = 20 + index;
             let lblLine = self.buttonCVC.viewWithTag(lineTag) as? UILabel
             let btnText = self.buttonCVC.viewWithTag(btnTag) as? UIButton
+//            print("title:",title)
+//            print("name:",name)
+
             if (name == title){
-                //print("btnTag:",btnTag)
+                print("equal btnTag:",btnTag)
                 let orange = UIColor(red: 241, green: 213, blue: 141);
                 lblLine?.backgroundColor = orange;
                 lblLine?.isHidden = false;
@@ -302,15 +310,22 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate,UICollecti
         }else{
             getSubscriptionStatus()
         }
-        
         var tag = 10
+        if(isHost){
+            tag = 13
+            viewHost.isHidden = false
+        }else if(isSpeaker){
+            tag = 12
+            viewSpeakers.isHidden = false
+        }else{
+            viewOverview.isHidden = false
+        }
         let infoLine = self.buttonCVC.viewWithTag(tag) as? UILabel
         let btnText = self.buttonCVC.viewWithTag(tag + 10) as? UIButton
         let orange = UIColor(red: 241, green: 213, blue: 141);
         infoLine?.backgroundColor = orange;
         infoLine?.isHidden = false;
         btnText?.setTitleColor(orange, for: .normal)
-        viewOverview.isHidden = false
     }
     override func viewDidDisappear(_ animated: Bool) {
         NotificationCenter.default.removeObserver(self, name:UIApplication.didBecomeActiveNotification , object: nil)
@@ -360,6 +375,7 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate,UICollecti
         return label.frame.height
     }
     
+
     // MARK: Handler for getEventBySlug API
     func getEventBySlug(){
         let netAvailable = appDelegate.isConnectedToInternet()
@@ -493,8 +509,9 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate,UICollecti
                                         let timeFull = localStartTime + " - " + localEndTime
                                         
                                         let aryLocalStartDate = localStartDate?.split{$0 == " "}.map(String.init)//Feb 25 2021
-                                        print("aryLocalStartDate:",aryLocalStartDate)
-                                        if(aryLocalStartDate?.count == 2){
+                                        
+
+                                        if(aryLocalStartDate?.count == 3){
                                             self.lblMonth.text = aryLocalStartDate?[0]
                                             self.lblDate.text = aryLocalStartDate?[1]
                                             self.lblYear.text = aryLocalStartDate?[2]
@@ -718,7 +735,8 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate,UICollecti
                                         let endDate = eventEndDates[eventEndDates.count-1]
                                         print("==>startDate:",startDate)
                                         print("==>today:",today)
-                                        
+                                        print("==>endDate:",endDate)
+
                                         //If start date is > today
                                         if(startDate > today)
                                         {
@@ -734,7 +752,7 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate,UICollecti
                                         //If today is > endDate
                                         else if(today > endDate)
                                         {
-                                            print("==saleCompleted")
+                                            print("==saleCompleted:")
                                             self.saleCompleted = true;
                                         }
                                     }
@@ -871,12 +889,20 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate,UICollecti
                                 //self.txtVideoDesc_Info.attributedText = fullText.htmlToAttributedString
                                 let strDesc = fullText.htmlToString
                                 var height = self.heightForView(text: strDesc, width: 380)
-                                if(height > 50){
-                                    height = 50
+                                if(height > 60){
+                                    height = 60
                                 }
                                 self.heightDesc.constant = height
                                 self.txtVideoDesc_Info.layoutIfNeeded()
-                                
+                                let desc = videoDesc.trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
+                                if(desc.count == 0 && self.aryTabs.count > 0){
+                                    let firstElement = self.aryTabs[0]
+                                    if(firstElement == "OVERVIEW"){
+                                        self.aryTabs.remove(at: 0)
+                                        self.buttonCVC.reloadData()
+                                        self.viewOverview.isHidden = true
+                                    }
+                                }
                                 self.txtVideoDesc_Info.text = strDesc
                                 self.txtVideoDesc_Overview.text = strDesc
                                 
@@ -1155,7 +1181,7 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate,UICollecti
                                         let localStartDate = self.utcToLocalDate(dateStr:strPublishDate )
                                         
                                         let aryLocalStartDate = localStartDate?.split{$0 == " "}.map(String.init)//Feb 25 2021
-                                        if(aryLocalStartDate?.count == 2){
+                                        if(aryLocalStartDate?.count == 3){
                                             self.lblMonth.text = aryLocalStartDate?[0]
                                             self.lblDate.text = aryLocalStartDate?[1]
                                             self.lblYear.text = aryLocalStartDate?[2]
@@ -1552,7 +1578,7 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate,UICollecti
                                         print("localStartDate:",localStartDate)
                                         let timeFull = localStartTime + " - " + localEndTime
                                         let aryLocalStartDate = localStartDate?.split{$0 == " "}.map(String.init)//Feb 25 2021
-                                        if(aryLocalStartDate?.count == 2){
+                                        if(aryLocalStartDate?.count == 3){
                                             self.lblMonth.text = aryLocalStartDate?[0]
                                             self.lblDate.text = aryLocalStartDate?[1]
                                             self.lblYear.text = aryLocalStartDate?[2]
@@ -2027,6 +2053,7 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate,UICollecti
         vc.number_of_creators = number_of_creators
         vc.strSlug = self.strSlug
         vc.aryStreamInfo = self.aryStreamInfo
+        vc.isUserSubscribe = isUserSubscribe
         if(self.lblAmount.text == "Free"){
             vc.stream_payment_mode = "Free"
         }
@@ -2376,6 +2403,7 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate,UICollecti
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         if(tableView == tblSchedule){
         let cell = tableView.dequeueReusableCell(withIdentifier: "ScheduleCell") as! ScheduleCell
+            cell.backgroundColor = UIColor.clear
             cell.imgUser.layer.borderColor = UIColor.white.cgColor
             return cell
         }else if(tableView == tblSpeakers || tableView == tblHost){
@@ -2395,10 +2423,20 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate,UICollecti
         }
     }
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        
+        tableView.deselectRow(at: indexPath, animated: true)
+        if(tableView == tblSpeakers || tableView == tblHost){
+            if(tableView == tblSpeakers){
+                isHost = false
+                isSpeaker = true
+            }else{
+                isHost = true
+                isSpeaker = false
+            }
+            let storyboard = UIStoryboard(name: "Main", bundle: nil);
+            let vc = storyboard.instantiateViewController(withIdentifier: "ArtistProfileVC") as! ArtistProfileVC
+            self.navigationController?.pushViewController(vc, animated: true)
+        }
     }
-    
-    
 }
 
 

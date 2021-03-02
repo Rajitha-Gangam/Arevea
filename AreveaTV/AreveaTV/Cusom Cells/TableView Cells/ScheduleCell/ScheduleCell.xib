@@ -28,7 +28,7 @@
                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Sgv-DX-Eyg">
                     <rect key="frame" x="0.0" y="0.0" width="375" height="150"/>
                     <subviews>
-                        <view contentMode="scaleToFill" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Grl-Wq-zEg">
+                        <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Grl-Wq-zEg">
                             <rect key="frame" x="0.0" y="0.0" width="375" height="160"/>
                             <subviews>
                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Smart Social Summit" textAlignment="justified" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="GKz-7O-AK5" userLabel="Nickname Label">
@@ -49,11 +49,11 @@
                                     <constraints>
                                         <constraint firstAttribute="height" constant="55" id="wsE-mZ-Q1H"/>
                                     </constraints>
-                                    <mutableString key="text">The SmartSocial Summit brings together visionaries in social media and marketing.
+                                    <string key="text">The SmartSocial Summit brings together visionaries in social media and marketing.
 
 What we like about it: First, who doesn’t love a good alliteration? Second, this event name includes a descriptive adjective (smart), the main event subject matter (social media), and the event type (summit) so prospects know exactly what they’ll be getting themselves into.
 
-Main takeaway: Adding a string of adjectives, event subject matters, and event types or descriptors all together is both a practical and creative way to come up with a unique event name.</mutableString>
+Main takeaway: Adding a string of adjectives, event subject matters, and event types or descriptors all together is both a practical and creative way to come up with a unique event name.</string>
                                     <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                     <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                     <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
@@ -72,14 +72,14 @@ Main takeaway: Adding a string of adjectives, event subject matters, and event t
                                     </variation>
                                 </label>
                                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="p3Y-YB-qP2">
-                                    <rect key="frame" x="110" y="100" width="150" height="44"/>
-                                    <color key="backgroundColor" red="0.27450980390000002" green="0.27058823529999998" blue="0.36078431370000003" alpha="1" colorSpace="calibratedRGB"/>
+                                    <rect key="frame" x="110" y="100" width="160" height="44"/>
+                                    <color key="backgroundColor" red="0.22745098039215686" green="0.22352941176470587" blue="0.32156862745098036" alpha="1" colorSpace="calibratedRGB"/>
                                     <constraints>
-                                        <constraint firstAttribute="width" constant="150" id="IPe-wl-JDl"/>
+                                        <constraint firstAttribute="width" constant="160" id="IPe-wl-JDl"/>
                                         <constraint firstAttribute="height" constant="44" id="sb3-hi-SpI"/>
                                     </constraints>
                                     <fontDescription key="fontDescription" name="Poppins-SemiBold" family="Poppins" pointSize="15"/>
-                                    <state key="normal" title="Button">
+                                    <state key="normal" title="      Mike Arnold">
                                         <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                     </state>
                                     <userDefinedRuntimeAttributes>
@@ -117,7 +117,7 @@ Main takeaway: Adding a string of adjectives, event subject matters, and event t
                                     <nil key="highlightedColor"/>
                                 </label>
                             </subviews>
-                            <color key="backgroundColor" red="0.13725490200000001" green="0.13725490200000001" blue="0.20000000000000001" alpha="1" colorSpace="calibratedRGB"/>
+                            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             <constraints>
                                 <constraint firstItem="p3Y-YB-qP2" firstAttribute="top" secondItem="8Et-JP-G1C" secondAttribute="bottom" constant="10" id="6fc-5t-81y"/>
                                 <constraint firstItem="GKz-7O-AK5" firstAttribute="top" secondItem="Grl-Wq-zEg" secondAttribute="top" constant="10" id="AHj-ub-b86"/>
@@ -132,7 +132,7 @@ Main takeaway: Adding a string of adjectives, event subject matters, and event t
                                 <constraint firstAttribute="trailing" secondItem="GKz-7O-AK5" secondAttribute="trailing" constant="10" id="c4b-RF-Qz7"/>
                                 <constraint firstItem="C6l-pS-Z3O" firstAttribute="centerY" secondItem="p3Y-YB-qP2" secondAttribute="centerY" id="fjc-5A-Dm4"/>
                                 <constraint firstItem="HQr-rr-F6Q" firstAttribute="leading" secondItem="Grl-Wq-zEg" secondAttribute="leading" constant="10" id="fkM-jU-8tm"/>
-                                <constraint firstAttribute="bottom" secondItem="Ht4-M0-hHf" secondAttribute="bottom" constant="1" id="uR8-22-cuk"/>
+                                <constraint firstAttribute="bottom" secondItem="Ht4-M0-hHf" secondAttribute="bottom" constant="11" id="uR8-22-cuk"/>
                                 <constraint firstItem="8Et-JP-G1C" firstAttribute="top" secondItem="GKz-7O-AK5" secondAttribute="bottom" id="uhg-e0-aWw"/>
                                 <constraint firstItem="HQr-rr-F6Q" firstAttribute="top" secondItem="Grl-Wq-zEg" secondAttribute="top" constant="10" id="vrI-Kk-H7f"/>
                             </constraints>
@@ -140,7 +140,7 @@ Main takeaway: Adding a string of adjectives, event subject matters, and event t
                     </subviews>
                     <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                     <constraints>
-                        <constraint firstAttribute="bottom" secondItem="Grl-Wq-zEg" secondAttribute="bottom" id="Jnc-bQ-j9I"/>
+                        <constraint firstAttribute="bottom" secondItem="Grl-Wq-zEg" secondAttribute="bottom" constant="-10" id="Jnc-bQ-j9I"/>
                         <constraint firstItem="Grl-Wq-zEg" firstAttribute="top" secondItem="Sgv-DX-Eyg" secondAttribute="top" id="RUZ-pZ-jYW"/>
                         <constraint firstAttribute="trailing" secondItem="Grl-Wq-zEg" secondAttribute="trailing" id="rYt-s5-xaK"/>
                         <constraint firstItem="Grl-Wq-zEg" firstAttribute="leading" secondItem="Sgv-DX-Eyg" secondAttribute="leading" id="uXB-g1-E7f"/>

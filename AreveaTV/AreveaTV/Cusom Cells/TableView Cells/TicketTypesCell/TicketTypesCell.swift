@@ -11,7 +11,12 @@ import UIKit
 class TicketTypesCell: UITableViewCell {
     @IBOutlet weak var lblTitle: UILabel!
     @IBOutlet weak var lblAmount: UILabel!
+    @IBOutlet weak var lblDate: UILabel!
+    @IBOutlet weak var lblSaleEnds: UILabel!
+    @IBOutlet weak var txtDesc: UITextView!
+
     @IBOutlet weak var imgCheck: UIImageView!
+    @IBOutlet weak var btnSelect: UIButton!
 
     override func awakeFromNib() {
         super.awakeFromNib()

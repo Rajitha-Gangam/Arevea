@@ -16,6 +16,7 @@
 		18122C9E252B0CCC00C28926 /* MultiStreamGuestsCVC.xib in Resources */ = {isa = PBXBuildFile; fileRef = 18122C9C252B0CCC00C28926 /* MultiStreamGuestsCVC.xib */; };
 		18122CA1252B0E0A00C28926 /* MultiStreamGuestsCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18122C9F252B0E0A00C28926 /* MultiStreamGuestsCell.swift */; };
 		18122CA2252B0E0A00C28926 /* MultiStreamGuestsCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 18122CA0252B0E0A00C28926 /* MultiStreamGuestsCell.xib */; };
+		1813E7FE25E38AC30090D3A5 /* ArtistProfileVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1813E7FD25E38AC30090D3A5 /* ArtistProfileVC.swift */; };
 		1822F8A324CF266E009E8E1A /* MyPurchasesVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1822F8A224CF266E009E8E1A /* MyPurchasesVC.swift */; };
 		1822F8A824D03364009E8E1A /* MyEventsCVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1822F8A624D03364009E8E1A /* MyEventsCVC.swift */; };
 		1822F8A924D03364009E8E1A /* MyEventsCVC.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1822F8A724D03364009E8E1A /* MyEventsCVC.xib */; };
@@ -181,6 +182,7 @@
 		18122C9C252B0CCC00C28926 /* MultiStreamGuestsCVC.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MultiStreamGuestsCVC.xib; sourceTree = "<group>"; };
 		18122C9F252B0E0A00C28926 /* MultiStreamGuestsCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultiStreamGuestsCell.swift; sourceTree = "<group>"; };
 		18122CA0252B0E0A00C28926 /* MultiStreamGuestsCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MultiStreamGuestsCell.xib; sourceTree = "<group>"; };
+		1813E7FD25E38AC30090D3A5 /* ArtistProfileVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArtistProfileVC.swift; sourceTree = "<group>"; };
 		1822F8A224CF266E009E8E1A /* MyPurchasesVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyPurchasesVC.swift; sourceTree = "<group>"; };
 		1822F8A624D03364009E8E1A /* MyEventsCVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyEventsCVC.swift; sourceTree = "<group>"; };
 		1822F8A724D03364009E8E1A /* MyEventsCVC.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MyEventsCVC.xib; sourceTree = "<group>"; };
@@ -719,6 +721,7 @@
 				18D480B02451A30E00640C1A /* ChannelsVC.swift */,
 				1810E6F524C84BCA003EAF91 /* StreamDetailVC.swift */,
 				18B1BEE825594AF6003E96FF /* EventRegistrationVC.swift */,
+				1813E7FD25E38AC30090D3A5 /* ArtistProfileVC.swift */,
 				189BC64025926A4900445423 /* TicketTypesVC.swift */,
 				188B0EA4248E8F7A0062EB1D /* VideoEditor.swift */,
 				1864AFCC2454A999004F3AED /* ChannelDetailVC.swift */,
@@ -1126,6 +1129,7 @@
 				18DAF977248FA98000A6693A /* CheckMarkCell.swift in Sources */,
 				18D480C62454552200640C1A /* ProfileVC.swift in Sources */,
 				189BC64125926A4900445423 /* TicketTypesVC.swift in Sources */,
+				1813E7FE25E38AC30090D3A5 /* ArtistProfileVC.swift in Sources */,
 				18B1BEE925594AF6003E96FF /* EventRegistrationVC.swift in Sources */,
 				189EBF322459CEE500C52B0E /* VideoCell.swift in Sources */,
 				182A5EF2245C59C700FF6147 /* SectionHeader.swift in Sources */,

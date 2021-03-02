@@ -33,15 +33,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate , OpenChanannelChatDelegat
     let deviceToken = ""
     var strFCMToken = ""
     var sharedScreenBy = ""
-    var getCurrencyURL = "https://api.ipgeolocation.io/ipgeo?apiKey=3af47278566b46e58bb63b70fb6df99d"
+    var ipGeoLocationURL = "https://api.ipgeolocation.io/ipgeo?apiKey=3af47278566b46e58bb63b70fb6df99d"
     var userCurrencyCode = ""
     var userCurrencySymbol = ""
+    var userTimezoneOffset = 0.0
     var urlCloudFront = "https://d3vv6h15bemsva.cloudfront.net/live/"
     var isGuest = false
     var strSlug = ""
 
     // MARK: - Dev Environmet Variables Declaration
-    /*var baseURL = "https://dev1-apis.arevea.com";
+    var baseURL = "https://dev1-apis.arevea.com";
      var websiteURL = "https://dev1.arevea.com"
      var sendBirdAppId = "AE94EB49-0A01-43BF-96B4-8297EBB47F12";
      var profileURL = "https://dev1.arevea.com/api/user/v1";
@@ -62,11 +63,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate , OpenChanannelChatDelegat
      var ol_access_token = ""
      var FCMBaseURL = "https://r5ibd3yzp7.execute-api.us-west-2.amazonaws.com/devel"
      var socialLoginURL = "https://areveatv-sandbox.onelogin.com/access/initiate"
-     */
+     
     //Dev Variables END
     
     // MARK: - QA Environmet Variables Declaration
-    var baseURL = "https://qa1-apis.arevea.com"
+   /* var baseURL = "https://qa1-apis.arevea.com"
     var websiteURL = "https://qa1.arevea.com"
     var sendBirdAppId = "7AF38850-F099-4C47-BD19-F7F84DAFECF8";
     var profileURL = "https://qa1.arevea.com/api/user/v1"
@@ -88,7 +89,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate , OpenChanannelChatDelegat
     var FCMBaseURL = "https://eku2g4rzxl.execute-api.us-west-2.amazonaws.com/dev"
     var socialLoginURL = "https://areveatv-sandbox.onelogin.com/access/initiate"
     //QA Variables END
-    
+    */
     // MARK: - Pre-prod Environmet Variables Declaration
      /*var baseURL = "https://preprod-apis.arevea.tv"
      var websiteURL = "https://preprod.arevea.tv"

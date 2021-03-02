@@ -118,7 +118,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
             locationManager.startUpdatingLocation()
         }
         
-        getCurrency()
+        ipGeoLocation()
         
         viewContacts.isHidden = true
         let yellow = UIColor(red: 241, green: 213, blue: 141);
@@ -126,19 +126,22 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
         btnSignUp.layer.borderColor = UIColor.white.cgColor
         
     }
-    func getCurrency(){
+    func ipGeoLocation(){
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        let url: String = appDelegate.getCurrencyURL
+        let url: String = appDelegate.ipGeoLocationURL
         
         AF.request(url, method: .get, encoding: JSONEncoding.default)
             .responseJSON { response in
                 switch response.result {
                 case .success(let value):
                     if let json = value as? [String: Any] {
-                        print("getCurrency JSON:",json)
+                       // print("ipGeoLocation JSON:",json)
                         let currency  = json["currency"] as? [String:Any] ?? [:];
+                        let time_zone  = json["time_zone"] as? [String:Any] ?? [:];
+
                         let currencyCode = currency["code"] as? String ?? ""//based on user lcoation, currency code will come, that we need to pass currencies json, and get symbol
-                        print("currencyCode:",currencyCode)
+                        let timeZoneOffset = time_zone["offset"] as? Double ?? 0.0
+                        appDelegate.userTimezoneOffset = timeZoneOffset
                         appDelegate.userCurrencyCode = currencyCode
                         if let path = Bundle.main.path(forResource: "currencies", ofType: "json") {
                             do {

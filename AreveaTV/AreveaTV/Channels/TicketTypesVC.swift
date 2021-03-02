@@ -10,14 +10,16 @@ import UIKit
 import Alamofire
 import SendBirdSDK
 
-class TicketTypesVC: UIViewController,UITableViewDataSource,UITableViewDelegate,OpenChanannelChatDelegate{
+class TicketTypesVC: UIViewController,UITableViewDataSource,UITableViewDelegate,OpenChanannelChatDelegate,UIPickerViewDelegate, UIPickerViewDataSource{
     // MARK: - Variables Declaration
+    @IBOutlet weak var lblTitle: UILabel!
+    @IBOutlet weak var pickerView: UIPickerView!
+    @IBOutlet weak var viewDropDown: UIView!
     
     @IBOutlet weak var tblTicketTypes: UITableView!
     var currency_type = ""
-    var indexSelectedTicketType = -1
     var strTicketType = ""
-    var rowHeight = 92
+    var rowHeight = 160
     var orgId = 0;
     var performerId = 0;
     var streamId = 0;
@@ -31,9 +33,14 @@ class TicketTypesVC: UIViewController,UITableViewDataSource,UITableViewDelegate,
     let appDelegate = UIApplication.shared.delegate as! AppDelegate
     var aryStreamInfo = [String: Any]()
     var tempAryDisplayCurrencies = [Any]()
+    var aryTicketsData = [Any]()
+    var pickerData =  ["0", "1"];
+    var selectedTicketData = [Any]()
     @IBOutlet weak var tblheight: NSLayoutConstraint!
     var aryStreamAmounts = [Any]()
     @IBOutlet weak var heightTopView: NSLayoutConstraint?
+    @IBOutlet weak var viewContentHeight: NSLayoutConstraint!
+
     @IBOutlet weak var viewTop: UIView!
     @IBOutlet weak var viewActivity: UIView!
     var aryUserSubscriptionInfo = [Any]()
@@ -43,6 +50,7 @@ class TicketTypesVC: UIViewController,UITableViewDataSource,UITableViewDelegate,
     var jsonCurrencyList = [String:Any]()
     @IBOutlet weak var btnCancel: UIButton!
     var number_of_creators = 1
+    var isUserSubscribe = true
     
     var aryCurrencyKeys = [String]()
     var aryCurrencyValues = [Any]()
@@ -58,21 +66,26 @@ class TicketTypesVC: UIViewController,UITableViewDataSource,UITableViewDelegate,
     @IBOutlet weak var viewPriceheight: NSLayoutConstraint!
     @IBOutlet weak var btnProceed: UIButton!
     @IBOutlet weak var btnRegister: UIButton!
-    
+    @IBOutlet weak var viewContent: UIView!
+    @IBOutlet weak var scrollView: UIScrollView!
+    @IBOutlet weak var scrollViewHeight: NSLayoutConstraint!
+
     var stream_payment_mode = ""
     // MARK: - View Life cycle
     var access_token = ""
     var strSlug = "";
-
+    var selectedTicketIndex = -1
+    var isSelectedTicket = false
+    var selectedTicketValue = "0"
     override func viewDidLoad() {
         super.viewDidLoad()
         txtFirstName.backgroundColor = .clear;
         txtLastName.backgroundColor = .clear;
         txtEmail.backgroundColor = .clear;
-        
+        lblTitle.text = "   " + strTitle
         // Do any additional setup after loading the view.
         tblTicketTypes.register(UINib(nibName: "TicketTypesCell", bundle: nil), forCellReuseIdentifier: "TicketTypesCell")
-        print("tt - aryStreamAmounts:",tempAryDisplayCurrencies)
+        // print("tt - aryStreamAmounts:",tempAryDisplayCurrencies)
         
         
         if let path = Bundle.main.path(forResource: "currencies", ofType: "json") {
@@ -99,10 +112,10 @@ class TicketTypesVC: UIViewController,UITableViewDataSource,UITableViewDelegate,
             //for guest
             if(appDelegate.isGuest){
                 viewGuest.isHidden = true
-                viewGuestheight.constant = 0
+                viewGuestheight.constant = 220
                 viewGuest.layoutIfNeeded()
                 viewPrice.isHidden = true
-                viewPriceheight.constant = 0
+                viewPriceheight.constant = 50
                 viewPrice.layoutIfNeeded()
             }
             //paid but not guest
@@ -117,8 +130,7 @@ class TicketTypesVC: UIViewController,UITableViewDataSource,UITableViewDelegate,
             
         }
         btnRegister.isHidden = true
-        
-
+        getTicketsByEventId()
     }
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(true);
@@ -129,6 +141,16 @@ class TicketTypesVC: UIViewController,UITableViewDataSource,UITableViewDelegate,
     override func viewDidDisappear(_ animated: Bool) {
         NotificationCenter.default.removeObserver(self, name:UIApplication.didBecomeActiveNotification , object: nil)
         NotificationCenter.default.removeObserver(self)
+    }
+    @IBAction func cancelTapped(_ sender: Any) {
+        viewDropDown.isHidden = true
+    }
+    @IBAction func doneTapped(_ sender: Any) {
+        viewDropDown.isHidden = true
+        if(isSelectedTicket){
+            selectedTicketData[selectedTicketIndex] = ["index":selectedTicketValue]
+            tblTicketTypes.reloadData()
+        }
     }
     @IBAction func back(_ sender: Any) {
         self.navigationController?.popViewController(animated: true)
@@ -149,9 +171,21 @@ class TicketTypesVC: UIViewController,UITableViewDataSource,UITableViewDelegate,
             showAlert(strMsg: "Please check your internet connection!")
             return
         }
+        var ticketSelected = false
+        for(j,_)in self.selectedTicketData.enumerated(){
+            var selectedObj = selectedTicketData[j] as? [String:Any] ?? [String:Any]()
+            var ticketValue = selectedObj["index"] as! String
+            if(ticketValue == "1")
+            {
+                ticketSelected = true
+                break
+            }
+
+        }
+        
         if(appDelegate.isGuest){
             if (stream_payment_mode != "Free"){
-                if(indexSelectedTicketType >= 0){
+                if(ticketSelected){
                     getUserByEmail()
                 }else{
                     showAlert(strMsg: "Please select Ticket Type")
@@ -160,7 +194,7 @@ class TicketTypesVC: UIViewController,UITableViewDataSource,UITableViewDelegate,
                 getUserByEmail()
             }
         }else{
-            if(indexSelectedTicketType >= 0){
+            if(ticketSelected){
                 proceedToPayment()
             }else{
                 showAlert(strMsg: "Please select Ticket Type")
@@ -202,11 +236,11 @@ class TicketTypesVC: UIViewController,UITableViewDataSource,UITableViewDelegate,
         if(appDelegate.isGuest){
             queryString = queryString + "&is_guest=1&" + "token=" + access_token
         }
-        print("queryString:",queryString)
+        // print("queryString:",queryString)
         
         let urlOpen = appDelegate.paymentRedirectionURL + "/" + "pay_per_view" + "?" + queryString
         guard let url = URL(string: urlOpen) else { return }
-        print("url to open:",url)
+        // print("url to open:",url)
         UIApplication.shared.open(url)
     }
     override var preferredStatusBarStyle: UIStatusBarStyle {
@@ -233,6 +267,49 @@ class TicketTypesVC: UIViewController,UITableViewDataSource,UITableViewDelegate,
         let emailPred = NSPredicate(format:"SELF MATCHES %@", emailRegEx)
         return emailPred.evaluate(with: txtEmail.text)
     }
+    // MARK: Handler for getEventBySlug API
+    func getTicketsByEventId(){
+        let netAvailable = appDelegate.isConnectedToInternet()
+        if(!netAvailable){
+            showAlert(strMsg: "Please check your internet connection!")
+            return
+        }
+        viewActivity.isHidden = false
+        
+        let url: String = "https://dev1-apis.arevea.com" +  "/getTicketsByEventId" + "/" + String(streamId) + "/" + String(appDelegate.userTimezoneOffset)
+        print("getTicketsByEventId url:",url)
+        
+        AF.request(url, method: .get, encoding: JSONEncoding.default)
+            .responseJSON { response in
+                self.viewActivity.isHidden = true
+                switch response.result {
+                case .success(let value):
+                    if let json = value as? [String: Any] {
+                        // print("getTicketsByEventId JSON:",json)
+                        if (json["statusCode"]as? String == "200"){
+                            self.aryTicketsData = json["Data"] as? [Any] ?? [Any]();
+                            self.selectedTicketData = []
+                            // print("==aryTicketsData:",self.aryTicketsData)
+                            for(j,_)in self.aryTicketsData.enumerated(){
+                                self.selectedTicketData.append(["index":"0"])
+                            }
+                            self.tblTicketTypes.reloadData()
+                        }else{
+                            let strError = json["message"] as? String
+                            //////print("strError1:",strError ?? "")
+                            self.showAlert(strMsg: strError ?? "")
+                        }
+                        
+                    }
+                    
+                case .failure(let error):
+                    let errorDesc = error.localizedDescription.replacingOccurrences(of: "URLSessionTask failed with error:", with: "")
+                    self.showAlert(strMsg: errorDesc)
+                    self.viewActivity.isHidden = true
+                    
+                }
+            }
+    }
     /*
      // MARK: - Navigation
      
@@ -242,52 +319,40 @@ class TicketTypesVC: UIViewController,UITableViewDataSource,UITableViewDelegate,
      // Pass the selected object to the new view controller.
      }
      */
+    func convertToArray(text: String) -> [Any]? {
+        if let data = text.data(using: .utf8) {
+            do {
+                return try JSONSerialization.jsonObject(with: data, options: []) as? [Any]
+            } catch {
+                //////print(error.localizedDescription)
+            }
+        }
+        return nil
+    }
+    @objc func ticketSelect(_ sender: UIButton) {
+        print("ticketSelect:",sender.tag)
+        viewDropDown.isHidden = false
+        selectedTicketIndex = sender.tag
+        isSelectedTicket = false
+        
+        
+        var selectedObj = selectedTicketData[selectedTicketIndex] as? [String:Any] ?? [String:Any]()
+        
+        var btnTitle = selectedObj["index"] as! String
+        print("btnTitle:",btnTitle)
+        if(btnTitle == "1"){
+            pickerView.selectRow(1, inComponent: 0, animated: true)
+        }else{
+            pickerView.selectRow(0, inComponent: 0, animated: true)
+        }
+        
+    }
     //MARK:Tableview Delegates and Datasource Methods
     
     func numberOfSections(in tableView: UITableView) ->  Int {
         return 1
     }
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        if(stream_payment_mode == "Free"){
-            tblheight.constant = 0
-            self.tblTicketTypes.layoutIfNeeded()
-            return 0
-        }else{
-            tblheight.constant = CGFloat(rowHeight * tempAryDisplayCurrencies.count)
-            self.tblTicketTypes.layoutIfNeeded()
-            return tempAryDisplayCurrencies.count
-        }
-    }
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) ->  CGFloat {
-        return CGFloat(rowHeight);
-    }
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "TicketTypesCell") as! TicketTypesCell
-        cell.backgroundColor = UIColor.clear
-        let element = self.tempAryDisplayCurrencies[indexPath.row] as? [String : Any] ?? [String:Any]()
-        let ticket_type_name = element["ticket_type_name"]as? String ?? ""
-        var strAmount = "0.0"
-        if (element["stream_payment_amount"] as? Double) != nil {
-            strAmount = String(element["stream_payment_amount"] as? Double ?? 0.00)
-        }else if (element["stream_payment_amount"] as? String) != nil {
-            strAmount = String(element["stream_payment_amount"] as? String ?? "0.00")
-        }
-        let double = (strAmount as NSString).doubleValue
-        let amountDisplay = String(format: "%.02f",double)
-        cell.lblTitle.text = ticket_type_name
-        cell.imgCheck.image = UIImage.init(named: "check")
-        if(indexSelectedTicketType == indexPath.row){
-            cell.imgCheck.image = UIImage.init(named: "checked")
-        }
-        let  amountWithCurrencyType = self.currencySymbol + amountDisplay
-        cell.lblAmount.text = amountWithCurrencyType
-        
-        return cell
-    }
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        //           let storyboard = UIStoryboard(name: "Main", bundle: nil);
-        //           let vc = storyboard.instantiateViewController(withIdentifier: "ChannelDetailVC") as! ChannelDetailVC
-        //           self.navigationController?.pushViewController(vc, animated: true)
         if(appDelegate.isGuest){
             viewGuest.isHidden = false
             viewGuestheight.constant = 220
@@ -300,29 +365,196 @@ class TicketTypesVC: UIViewController,UITableViewDataSource,UITableViewDelegate,
             viewPriceheight.constant = 50
             viewPrice.layoutIfNeeded()
         }
-        
-        tableView.deselectRow(at: indexPath, animated: true)
-        let element = self.tempAryDisplayCurrencies[indexPath.row] as? [String : Any] ?? [String:Any]()
-        print("element:",element)
-        let ticket_type_name = element["ticket_type_name"]as? String ?? ""
-        var strAmount = "0.0"
-        if (element["stream_payment_amount"] as? Double) != nil {
-            strAmount = String(element["stream_payment_amount"] as? Double ?? 0.00)
-        }else if (element["stream_payment_amount"] as? String) != nil {
-            strAmount = String(element["stream_payment_amount"] as? String ?? "0.00")
+//        viewContentHeight.constant = CGFloat((rowHeight * aryTicketsData.count) + 330)
+//        scrollViewHeight.constant = CGFloat((rowHeight * aryTicketsData.count) + 330)
+//
+//        viewContent.layoutIfNeeded()
+//        scrollView.layoutIfNeeded()
+        if(stream_payment_mode == "Free"){
+            tblheight.constant = 0
+            self.tblTicketTypes.layoutIfNeeded()
+            return 0
+        }else{
+            tblheight.constant = CGFloat(rowHeight * aryTicketsData.count)
+            self.tblTicketTypes.layoutIfNeeded()
+            return aryTicketsData.count
         }
-        let double = (strAmount as NSString).doubleValue
-        let amountDisplay = String(format: "%.02f",double)
-        let  amountWithCurrencyType = self.currencySymbol + amountDisplay
-        lblPrice.text = amountWithCurrencyType
+    }
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) ->  CGFloat {
+        return CGFloat(rowHeight);
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "TicketTypesCell") as! TicketTypesCell
+        cell.backgroundColor = UIColor.clear
+        let ticketInfo = self.aryTicketsData[indexPath.row] as? [String : Any] ?? [String:Any]()
+        let ticket_type_name = ticketInfo["title"]as? String ?? ""
+        cell.btnSelect.addTarget(self, action: #selector(ticketSelect(_:)), for: .touchUpInside)
+        cell.btnSelect.tag = indexPath.row
+        let selectedObj = selectedTicketData[indexPath.row] as? [String:Any] ?? [String:Any]()
+        print("selectedObj:",selectedObj)
+        var btnTitle = selectedObj["index"] as! String
+        btnTitle = "   " + btnTitle
+        cell.btnSelect.setTitle(btnTitle, for:.normal)
+        cell.lblTitle.text = ticket_type_name
+        cell.imgCheck.image = UIImage.init(named: "check")
+//        if(indexSelectedTicketType == indexPath.row){
+//            cell.imgCheck.image = UIImage.init(named: "checked")
+//        }
+        let start_date = ticketInfo["start_date"] as? String ?? "";
+        let end_date = ticketInfo["end_date"] as? String ?? "";
         
+        let formatter = DateFormatter()
+        formatter.timeZone = NSTimeZone(abbreviation: "UTC") as TimeZone?
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        
+        formatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
+        if let startDate = formatter.date(from: start_date){
+            // print("startDate:",startDate)
+            if let endDate = formatter.date(from: end_date){
+                formatter.dateFormat =  "dd MMM yyyy"
+                let strStartDate = formatter.string(from: startDate)
+                let strEndDate = formatter.string(from: endDate)
+                //  print("endDate:",endDate)
+                if (startDate == endDate){
+                    cell.lblDate.text = strStartDate
+                }else{
+                    cell.lblDate.text = strStartDate + " - " + strEndDate
+                }
+            }
+        }
+        cell.lblSaleEnds.text = ticketInfo["message"] as? String ?? ""
+        cell.txtDesc.text = ticketInfo["description"] as? String ?? ""
+        let stream_amounts = ticketInfo["amounts"] as? String ?? "";
+        // print("stream_amounts:",stream_amounts)
+        //print("isUserSubscribe:",isUserSubscribe)
+        if (stream_amounts != ""){
+            let aryAmounts = self.convertToArray(text: stream_amounts) ?? [Any]()
+            // print("==dicAmounts1:",aryAmounts)
+            var aryCurrencies = [String]()
+            
+            for(j,_)in aryAmounts.enumerated(){
+                let amountObject = aryAmounts[j] as? [String : Any] ?? [String:Any]()
+                if(isUserSubscribe && !appDelegate.isGuest){
+                    var strAmount = "0.00"
+                    
+                    if (amountObject["subscriber"] as? Double) != nil {
+                        
+                        strAmount = String(amountObject["subscriber"] as? Double ?? 0.00)
+                    }else if (amountObject["subscriber"] as? String) != nil {
+                        strAmount = String(amountObject["subscriber"] as? String ?? "0.00")
+                    }
+                    let doubleAmount = Double(strAmount)
+                    let amount = String(format: "%.02f", doubleAmount!)
+                    
+                    aryCurrencies.append(amount)
+                    // print("==amounts1:",amount)
+                }else{
+                    var strAmount = "0.00"
+                    if (amountObject["non_subscriber"] as? Double) != nil {
+                        strAmount = String(amountObject["non_subscriber"] as? Double ?? 0.00)
+                    }else if (amountObject["non_subscriber"] as? String) != nil {
+                        strAmount = String(amountObject["non_subscriber"] as? String ?? "0.00")
+                    }
+                    let doubleAmount = Double(strAmount)
+                    let amount = String(format: "%.02f", doubleAmount!)
+                    
+                    aryCurrencies.append(amount)
+                    // print("==amounts1:",amount)
+                }
+            }
+            var doubleDisplayCurrencies = [Double]()
+            doubleDisplayCurrencies = aryCurrencies.compactMap(Double.init)//["5.00","100.00"] to [5,1000]
+            doubleDisplayCurrencies.sort(by: <)//sort ascending
+            if(doubleDisplayCurrencies.count > 0){
+                let firstValue = String(format: "%.02f",doubleDisplayCurrencies[0])
+                let lastValue = String(format: "%.02f",doubleDisplayCurrencies[doubleDisplayCurrencies.count - 1]);
+                let amountDisplay = self.currencySymbol + firstValue + " - " + self.currencySymbol + lastValue;
+                // ////print("====amount in Dollars:",amountDisplay)
+                var amountWithCurrencyType = ""
+                if(firstValue == lastValue){
+                    amountWithCurrencyType = self.currencySymbol + firstValue
+                }else{
+                    amountWithCurrencyType = amountDisplay
+                }
+                cell.lblAmount.text = amountWithCurrencyType
+                
+            }
+        }
+        
+        return cell
+    }
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        //           let storyboard = UIStoryboard(name: "Main", bundle: nil);
+        //           let vc = storyboard.instantiateViewController(withIdentifier: "ChannelDetailVC") as! ChannelDetailVC
+        //           self.navigationController?.pushViewController(vc, animated: true)
+       
+        tableView.deselectRow(at: indexPath, animated: true)
+        let ticketInfo = self.aryTicketsData[indexPath.row] as? [String : Any] ?? [String:Any]()
+        let ticket_type_name = ticketInfo["title"]as? String ?? ""
+        
+        let stream_amounts = ticketInfo["amounts"] as? String ?? "";
+        // print("stream_amounts:",stream_amounts)
+        //print("isUserSubscribe:",isUserSubscribe)
+        if (stream_amounts != ""){
+            let aryAmounts = self.convertToArray(text: stream_amounts) ?? [Any]()
+            // print("==dicAmounts1:",aryAmounts)
+            var aryCurrencies = [String]()
+            
+            for(j,_)in aryAmounts.enumerated(){
+                let amountObject = aryAmounts[j] as? [String : Any] ?? [String:Any]()
+                if(isUserSubscribe && !appDelegate.isGuest){
+                    var strAmount = "0.00"
+                    
+                    if (amountObject["subscriber"] as? Double) != nil {
+                        
+                        strAmount = String(amountObject["subscriber"] as? Double ?? 0.00)
+                    }else if (amountObject["subscriber"] as? String) != nil {
+                        strAmount = String(amountObject["subscriber"] as? String ?? "0.00")
+                    }
+                    let doubleAmount = Double(strAmount)
+                    let amount = String(format: "%.02f", doubleAmount!)
+                    
+                    aryCurrencies.append(amount)
+                    // print("==amounts1:",amount)
+                }else{
+                    var strAmount = "0.00"
+                    if (amountObject["non_subscriber"] as? Double) != nil {
+                        strAmount = String(amountObject["non_subscriber"] as? Double ?? 0.00)
+                    }else if (amountObject["non_subscriber"] as? String) != nil {
+                        strAmount = String(amountObject["non_subscriber"] as? String ?? "0.00")
+                    }
+                    let doubleAmount = Double(strAmount)
+                    let amount = String(format: "%.02f", doubleAmount!)
+                    
+                    aryCurrencies.append(amount)
+                    // print("==amounts1:",amount)
+                }
+            }
+            var doubleDisplayCurrencies = [Double]()
+            doubleDisplayCurrencies = aryCurrencies.compactMap(Double.init)//["5.00","100.00"] to [5,1000]
+            doubleDisplayCurrencies.sort(by: <)//sort ascending
+            if(doubleDisplayCurrencies.count > 0){
+                let firstValue = String(format: "%.02f",doubleDisplayCurrencies[0])
+                let lastValue = String(format: "%.02f",doubleDisplayCurrencies[doubleDisplayCurrencies.count - 1]);
+                let amountDisplay = self.currencySymbol + firstValue + " - " + self.currencySymbol + lastValue;
+                // ////print("====amount in Dollars:",amountDisplay)
+                var amountWithCurrencyType = ""
+                if(firstValue == lastValue){
+                    amountWithCurrencyType = self.currencySymbol + firstValue
+                }else{
+                    amountWithCurrencyType = amountDisplay
+                }
+                lblPrice.text = amountWithCurrencyType
+                
+            }
+        }
         strTicketType = ticket_type_name
-        indexSelectedTicketType = indexPath.row
-        tblTicketTypes.reloadData()
+        //        indexSelectedTicketType = indexPath.row
+        //        tblTicketTypes.reloadData()
     }
     
     func gotoStreamDetails(){
-        print("gotoStreamDetails")
         let storyboard = UIStoryboard(name: "Main", bundle: nil);
         let streamInfo = self.aryStreamInfo
         
@@ -364,7 +596,7 @@ class TicketTypesVC: UIViewController,UITableViewDataSource,UITableViewDelegate,
         headers = [appDelegate.x_api_key: appDelegate.x_api_value]
         
         let params: [String: Any] = ["userid":user_id ?? "","performer_id":performerId,"stream_id": streamIdLocal]
-        print("liveEvents params:",params)
+        // print("liveEvents params:",params)
         // let params: [String: Any] = ["userid":user_id ?? "","performer_id":"101","stream_id": "0"]
         AF.request(url, method: .post,parameters: params, encoding: JSONEncoding.default,headers:headers)
             .responseJSON { [self] response in
@@ -411,8 +643,8 @@ class TicketTypesVC: UIViewController,UITableViewDataSource,UITableViewDelegate,
             // params["userid"] = user_id ?? ""
         }
         params["userid"] = user_id ?? ""
-
-        print("getEventBySlug params:",params)
+        
+        //print("getEventBySlug params:",params)
         let headers: HTTPHeaders
         headers = [appDelegate.x_api_key: appDelegate.x_api_value]
         AF.request(url, method: .post,parameters: params, encoding: JSONEncoding.default,headers:headers)
@@ -421,7 +653,7 @@ class TicketTypesVC: UIViewController,UITableViewDataSource,UITableViewDelegate,
                 switch response.result {
                 case .success(let value):
                     if let json = value as? [String: Any] {
-                        print("getEventBySlug JSON:",json)
+                        //print("getEventBySlug JSON:",json)
                         if (json["statusCode"]as? String == "200" ){
                             let data = json["Data"] as? [String:Any]
                             self.aryStreamInfo = data?["stream_info"] as? [String:Any] ?? [:]
@@ -470,7 +702,7 @@ class TicketTypesVC: UIViewController,UITableViewDataSource,UITableViewDelegate,
             //self.setUIsWhileConnecting()
             
             ConnectionManager.login(userId: userId ?? "1", nickname: nickname) { user, error in
-                print("logged in user info:",user)
+                //print("logged in user info:",user)
                 self.viewActivity.isHidden = true
                 guard error == nil else {
                     DispatchQueue.main.async {
@@ -487,7 +719,7 @@ class TicketTypesVC: UIViewController,UITableViewDataSource,UITableViewDelegate,
                     //for guets paid event
                     self.proceedToPayment()
                 }
-               
+                
             }
         }
     }
@@ -510,12 +742,12 @@ class TicketTypesVC: UIViewController,UITableViewDataSource,UITableViewDelegate,
         let alert = UIAlertController(title: "Alert", message: strMsg, preferredStyle: .alert)
         if(isNewAccount){
             alert.addAction(UIAlertAction(title: "Yes", style: .default, handler: { [self] action in
-                    //sendpwd need to call
-                    sendPassword()
+                //sendpwd need to call
+                sendPassword()
             }))
         }else{
             alert.addAction(UIAlertAction(title: "Ok", style: .default, handler: { [self] action in
-                    gotoLogin()
+                gotoLogin()
             }))
         }
         if(isNewAccount){
@@ -540,9 +772,9 @@ class TicketTypesVC: UIViewController,UITableViewDataSource,UITableViewDelegate,
         let headers: HTTPHeaders
         headers = [appDelegate.x_api_key: appDelegate.x_api_value]
         let user_id = UserDefaults.standard.string(forKey: "user_id");
-
+        
         let params: [String: Any] = ["user_id":user_id ?? ""]
-        print("sendPassword params:",params)
+        //print("sendPassword params:",params)
         // let params: [String: Any] = ["userid":user_id ?? "","performer_id":"101","stream_id": "0"]
         AF.request(url, method: .post,parameters: params, encoding: JSONEncoding.default,headers:headers)
             .responseJSON { [self] response in
@@ -550,7 +782,7 @@ class TicketTypesVC: UIViewController,UITableViewDataSource,UITableViewDelegate,
                 switch response.result {
                 case .success(let value):
                     if let json = value as? [String: Any] {
-                        print("sendPassword JSON:",json)
+                        //print("sendPassword JSON:",json)
                         if (json["status"]as? Int == 0 ){
                             let email = txtEmail.text!.lowercased().trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
                             let msg = "Password sent to " + email
@@ -569,7 +801,7 @@ class TicketTypesVC: UIViewController,UITableViewDataSource,UITableViewDelegate,
                     
                 }
             }
-
+        
     }
     
     func getUserByEmail() {
@@ -586,7 +818,7 @@ class TicketTypesVC: UIViewController,UITableViewDataSource,UITableViewDelegate,
         }else if (!isValidEmail()){
             showAlert(strMsg: "Please enter valid email");
         }else{
-            print("else")
+            //print("else")
             viewActivity.isHidden = false
             let netAvailable = appDelegate.isConnectedToInternet()
             if(!netAvailable){
@@ -599,7 +831,7 @@ class TicketTypesVC: UIViewController,UITableViewDataSource,UITableViewDelegate,
             headers = [appDelegate.x_api_key: appDelegate.x_api_value]
             
             let params: [String: Any] = ["firstname":firstName,"lastname":lastName,"email":email,"stream_id":streamId]
-            print("getUserByEmail params:",params)
+            // print("getUserByEmail params:",params)
             // let params: [String: Any] = ["userid":user_id ?? "","performer_id":"101","stream_id": "0"]
             AF.request(url, method: .post,parameters: params, encoding: JSONEncoding.default,headers:headers)
                 .responseJSON { [self] response in
@@ -607,13 +839,13 @@ class TicketTypesVC: UIViewController,UITableViewDataSource,UITableViewDelegate,
                     switch response.result {
                     case .success(let value):
                         if let json = value as? [String: Any] {
-                            print("getUserByEmail JSON:",json)
+                            //   print("getUserByEmail JSON:",json)
                             if (json["status"]as? Int == 0 ){
                                 let tickets = json["tickets"]as? Int ?? 0
                                 let user = json["user"] as? [String:Any] ?? [:]
                                 let is_guest = user["is_guest"]as? Bool ?? false
-//                                print("tkts:",tickets)
-//                                print("is_guest:",is_guest)
+                                //                                print("tkts:",tickets)
+                                //                                print("is_guest:",is_guest)
                                 access_token = user["access_token"] as? String ?? ""
                                 UserDefaults.standard.set(user["id"], forKey: "user_id")
                                 UserDefaults.standard.set(user["access_token"], forKey: "session_token")
@@ -628,8 +860,8 @@ class TicketTypesVC: UIViewController,UITableViewDataSource,UITableViewDelegate,
                                 UserDefaults.standard.set(self.appDelegate.USER_NAME, forKey: "USER_NAME")
                                 UserDefaults.standard.set(self.appDelegate.USER_NAME_FULL, forKey: "USER_NAME_FULL")
                                 UserDefaults.standard.set(displayName, forKey: "user_display_name")
-
-                                print("access_token:",access_token)
+                                
+                                // print("access_token:",access_token)
                                 if(tickets == 1){
                                     //email id already registered with event
                                     let emailAlert = email + " already registered for this stream"
@@ -737,6 +969,32 @@ class TicketTypesVC: UIViewController,UITableViewDataSource,UITableViewDelegate,
                     
                 }
             }
+    }
+    // MARK: Picker DataSource & Delegate Methods
+    
+    func numberOfComponents(in pickerView: UIPickerView) -> Int {
+        return 1
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
+        return pickerData.count
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
+        return pickerData[row]
+        
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
+        let selectedItem = pickerData[row]
+        isSelectedTicket = true
+        //selectedTicketIndex
+        if selectedItem.contains("0") {
+            selectedTicketValue = "0"
+        }else{
+            selectedTicketValue = "1"
+        }
+        
     }
 }
 

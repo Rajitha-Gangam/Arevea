@@ -716,13 +716,14 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
             isStreamStarted = true
             isStreamStartedAlias = true
             btnPlayStream.isHidden = true;
-            let htmlString = "<html>\n" + "<body style='margin:0;padding:0;background:transparent;'>\n" +
+            //overlay hidden
+           /* let htmlString = "<html>\n" + "<body style='margin:0;padding:0;background:transparent;'>\n" +
                 "<iframe width=\"100%\" height=\"100%\" src=\"https://app.singular.live/appinstances/" + self.app_id_for_adds + "/outputs/Output/onair\" frameborder=\"0\" allow=\"accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture\" allowfullscreen>\n" + "</iframe>\n" + "</body>\n" + "</html>";
             //print("htmlString:",htmlString)
             self.webView.loadHTMLString(htmlString, baseURL: nil)
             self.webView.isHidden = false
             self.viewOverlay?.isHidden = true// controls not working
-            self.viewLiveStream.bringSubviewToFront(self.webView)
+            self.viewLiveStream.bringSubviewToFront(self.webView)*/
             self.viewLiveStream.bringSubviewToFront(self.lblStreamUnavailable)
             
             if (self.timer != nil)
@@ -1477,7 +1478,6 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                 cell.lblAmount.text = amountWithCurrencyType
             }
             // print("tier_amount:",tier_amount)
-            
             
             //if user subscribed
             if(subscription_status){
@@ -2911,7 +2911,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
              self.addChild(r5ViewController!)*/
             if(stream_status == "progress"){
                 metaLive()
-                self.viewLiveStream.bringSubviewToFront(webView)
+                //self.viewLiveStream.bringSubviewToFront(webView)
                 self.viewLiveStream.bringSubviewToFront(self.viewOverlay!)
                 self.viewLiveStream.bringSubviewToFront(lblStreamUnavailable)
             }else{
@@ -4599,7 +4599,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
             r5ViewControllerScreenShare  = mClass.init()
             r5ViewControllerScreenShare?.view.frame = self.viewShareScreen.bounds
             self.viewShareScreen.addSubview(r5ViewControllerScreenShare!.view)
-            self.viewLiveStream.bringSubviewToFront(self.webView)
+            //self.viewLiveStream.bringSubviewToFront(self.webView)
             self.addChild(r5ViewControllerScreenShare!)
         }
     }
