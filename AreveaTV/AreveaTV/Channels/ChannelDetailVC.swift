@@ -36,8 +36,6 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
     var dicPerformerInfo = [String: Any]()
     var aryStreamInfo = [Any]()
     var aryUserSubscriptionInfo = [Any]()
-    var orgId = 0;
-    var performerId = 0;
     var aryVideos = [Any]();
     var aryAudios = [Any]();
     var aryUpcoming = [Any]();
@@ -47,13 +45,11 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
     var videoPlayer = AVPlayer()
     var streamVideoCode = ""
     var orgInfo = [String:Any]()
-    var streamId = 0;
     var buttonNames = ["EVENTS","INFO","VIDEOS","AUDIOS","SUBSCRIBE"]//"SUBSCRIBE"
     var playerItem:AVPlayerItem?
     var player:AVPlayer?
     var slider: UISlider?
     var isLoaded = 0;
-    var channel_name = ""
     var videoUrl = ""
     var backPressed = false
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
@@ -71,15 +67,11 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
     // MARK: - Live Chat Inputs
     @IBOutlet weak var liveStreamHeight: NSLayoutConstraint!
     
-    weak var delegate: OpenChanannelChatDelegate?
+    weak var chatDelegate: OpenChanannelChatDelegate?
     var paymentAmount = 0
     var streamPaymentMode = ""
-    var strTitle = ""
     @IBOutlet weak var viewActivity: UIView!
-    var isVOD = false;
     @IBOutlet weak var imgStreamThumbNail: UIImageView!
-    var isStream = true;
-    var isUpcoming = false;
     var isVideo = false;
     var isAudio = false;
     var fromSubscribed = false;
@@ -87,6 +79,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
     @IBOutlet weak var viewTop: UIView!
     var subscription_details = false
     var jsonCurrencyList = [String:Any]()
+    var isUpcoming = false
 
     // MARK: - View Life cycle
     override func viewDidLoad() {
@@ -99,7 +92,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
         lblNoDataUpcoming.text = "No events found"
         lblNoDataVideos.text = "No videos found"
         lblNoDataAudios.text = "No audios found"
-        lblTitle.text = strTitle
+        lblTitle.text = appDelegate.strTitle
         if(UIDevice.current.userInterfaceIdiom == .pad){
             heightTopView?.constant = 60;
             viewTop.layoutIfNeeded()
@@ -109,8 +102,8 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
         self.imgStreamThumbNail.contentMode = .scaleAspectFit
         self.txtProfile.text = ""
         self.lblNoDataSubscriptions.text = ""
-        if(self.channel_name == ""){
-                   self.channel_name = " "
+        if(appDelegate.channel_name_subscription == ""){
+            appDelegate.channel_name_subscription = " "
                }
 
         if let path = Bundle.main.path(forResource: "currencies", ofType: "json") {
@@ -197,7 +190,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
         //bottom first object should show
         let infoLine = self.buttonCVC.viewWithTag(tag) as? UILabel
         let btnText = self.buttonCVC.viewWithTag(tag + 10) as? UIButton
-        let orange = UIColor(red: 241, green: 213, blue: 141);
+        let orange = UIColor(red: 139, green: 230, blue: 213);
         infoLine?.backgroundColor = orange;
         infoLine?.isHidden = false;
         btnText?.setTitleColor(orange, for: .normal)
@@ -277,7 +270,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
             let btnText = self.buttonCVC.viewWithTag(btnTag) as? UIButton
             if (name == title){
                 //print("btnTag:",btnTag)
-                let orange = UIColor(red: 241, green: 213, blue: 141);
+                let orange = UIColor(red: 139, green: 230, blue: 213);
                 lblLine?.backgroundColor = orange;
                 lblLine?.isHidden = false;
                 btnText?.setTitleColor(orange, for: .normal)
@@ -545,7 +538,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
             
             //if user subscribed
             if(subscription_status){
-                let orange = UIColor(red: 241, green: 213, blue: 141);
+                let orange = UIColor(red: 139, green: 230, blue: 213);
                 cell.viewContent.layer.borderColor = orange.cgColor
                 cell.viewContent.layer.borderWidth = 2.0
                 cell.btnCheck.isHidden = false
@@ -729,17 +722,17 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
         videoUrl = url
         let storyboard = UIStoryboard(name: "Main", bundle: nil);
         let vc = storyboard.instantiateViewController(withIdentifier: "StreamDetailVC") as! StreamDetailVC
-        vc.streamId = streamId
-        vc.delegate = self
+        appDelegate.streamId = streamId
+        vc.chatDelegate = self
         appDelegate.isLiveLoad = "1"
-        vc.performerId = performerId;
-        vc.strTitle = streamInfo?["stream_video_title"] as? String ?? "Channel Details"
-        vc.isAudio = true;
-        vc.orgId = orgId
+        appDelegate.performerId = performerId;
+        appDelegate.strTitle = streamInfo?["stream_video_title"] as? String ?? "Channel Details"
+        appDelegate.isAudio = true;
+        appDelegate.orgId = orgId
         let  videoUrl = streamInfo?["video_url"] as? String ?? ""
         //print("videoUrl:",videoUrl)
         vc.strAudioSource = videoUrl
-        vc.channel_name_subscription = channelName
+        appDelegate.channel_name_subscription = channelName
         isUpcoming = false
         isVideo = false
         isAudio = true
@@ -766,7 +759,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
         let strUserId = user_id ?? "1"
         // https://dev1.arevea.com/subscribe-payment?channel_name=chirantan-patel&user_id=101097275&plan_id=1311
         let inputs = "&user_id=" + strUserId + "&plan_id=" + String(planId)
-        let urlOpen = appDelegate.websiteURL + "/subscribe-payment?channel_name=" + self.channel_name + inputs
+        let urlOpen = appDelegate.websiteURL + "/subscribe-payment?channel_name=" + appDelegate.channel_name_subscription + inputs
         guard let url = URL(string: urlOpen) else { return }
         print("url to open:",url)
         UIApplication.shared.open(url)
@@ -833,38 +826,23 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
                                 if (self.aryUserSubscriptionInfo.count == 0){
                                     let vc = storyboard!.instantiateViewController(withIdentifier: "EventRegistrationVC") as! EventRegistrationVC
                                     appDelegate.isLiveLoad = "1"
-                                    vc.orgId = orgId
-                                    vc.streamId = streamId
-                                    //vc.delegate = self
-                                    vc.performerId = performerId
                                     vc.strTitle = stream_video_title
-                                    vc.isVOD = isVOD
-                                    vc.isUpcoming = upcoming
-                                    vc.channel_name_subscription = channelName
                                     //for vod
                                     if(!isup){
                                         let url = streamInfo["video_url"] as? String ?? ""
                                         videoUrl = url
-                                        vc.isVOD = true;
+                                        appDelegate.isVOD = true;
                                     }
                                     // vc.channel_name_subscription = channelName
                                     self.navigationController?.pushViewController(vc, animated: true)
                                 }else{
                                     let vc = storyboard!.instantiateViewController(withIdentifier: "StreamDetailVC") as! StreamDetailVC
                                     appDelegate.isLiveLoad = "1"
-                                    vc.orgId = orgId
-                                    print("==streamId:",streamId)
-                                    vc.streamId = streamId
-                                    vc.delegate = self
-                                    vc.performerId = performerId
-                                    vc.strTitle = stream_video_title
-                                    vc.channel_name_subscription = channelName
-                                    vc.isVOD = isVOD
-                                    vc.isUpcoming = upcoming
+                                    vc.chatDelegate = self
                                     if(!isup){
                                         let url = streamInfo["video_url"] as? String ?? ""
                                         videoUrl = url
-                                        vc.isVOD = true;
+                                        appDelegate.isVOD = true;
                                     }
                                     self.navigationController?.pushViewController(vc, animated: true)
                                 }
@@ -917,7 +895,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
     func performerEvents(){
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         let url: String = appDelegate.baseURL +  "/performerEvents"
-        let inputData: [String: Any] = ["performerId": performerId,"orgId": orgId]
+        let inputData: [String: Any] = ["performerId": appDelegate.performerId,"orgId": appDelegate.orgId]
         let session_token = UserDefaults.standard.string(forKey: "session_token") ?? ""
         let headers : HTTPHeaders = [
             "Content-Type": "application/json",
@@ -955,7 +933,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         let url: String = appDelegate.baseURL +  "/performerVideos"
         
-        let inputData: [String: Any] = ["channel_name": self.channel_name,"orgId": orgId,"type": "video"]
+        let inputData: [String: Any] = ["channel_name": appDelegate.channel_name_subscription,"orgId": appDelegate.orgId,"type": "video"]
          print("performerVideos params:",inputData)
         let session_token = UserDefaults.standard.string(forKey: "session_token") ?? ""
         let headers : HTTPHeaders = [
@@ -993,7 +971,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
     func performerAudios(){
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         let url: String = appDelegate.baseURL +  "/performerVideos"
-        let inputData: [String: Any] = ["channel_name": self.channel_name,"orgId": orgId,"type": "audio"]
+        let inputData: [String: Any] = ["channel_name": appDelegate.channel_name_subscription,"orgId": appDelegate.orgId,"type": "audio"]
         let session_token = UserDefaults.standard.string(forKey: "session_token") ?? ""
         let headers : HTTPHeaders = [
             "Content-Type": "application/json",
@@ -1038,7 +1016,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
         }
         viewActivity.isHidden = false
         let url: String = appDelegate.baseURL +  "/getPerformerInfo"
-        let params: [String: Any] = ["performer_id": performerId]
+        let params: [String: Any] = ["performer_id": appDelegate.performerId]
         let headers: HTTPHeaders
         headers = [appDelegate.x_api_key: appDelegate.x_api_value]
         AF.request(url, method: .post,parameters: params, encoding: JSONEncoding.default,headers:headers)
@@ -1133,7 +1111,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
         let url: String = appDelegate.FCMBaseURL +  "/getChannelSubscriptionPlans"
         let user_id = UserDefaults.standard.string(forKey: "user_id");
         //below line need to update
-        let params: [String: Any] = ["user_id":user_id ?? "","channel_name":channel_name,"channel_url":channel_name]
+        let params: [String: Any] = ["user_id":user_id ?? "","channel_name":appDelegate.channel_name_subscription,"channel_url":appDelegate.channel_name_subscription]
         print("getChannelSubscriptionPlans params:",params)
         let headers: HTTPHeaders
         headers = [appDelegate.x_api_key: appDelegate.x_api_value]
@@ -1187,7 +1165,7 @@ class ChannelDetailVC: UIViewController,UICollectionViewDataSource,UITableViewDa
         viewActivity.isHidden = false
         let url: String = appDelegate.FCMBaseURL +  "/getSubscriptionStatus"
         let user_id = UserDefaults.standard.string(forKey: "user_id");
-        let params: [String: Any] = ["user_id":user_id ?? "","channel_url":self.channel_name]
+        let params: [String: Any] = ["user_id":user_id ?? "","channel_url":appDelegate.channel_name_subscription]
         print("getSubscriptionStatus params:",params)
         let headers: HTTPHeaders
         headers = [appDelegate.x_api_key: appDelegate.x_api_value]

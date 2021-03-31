@@ -10,6 +10,12 @@ import UIKit
 
 class ScheduleCell: UITableViewCell {
     @IBOutlet weak var imgUser: UIImageView!
+    @IBOutlet weak var lblStartTime: UILabel!
+    @IBOutlet weak var lblEndTime: UILabel!
+    @IBOutlet weak var lblTitle: UILabel!
+    @IBOutlet weak var txtDesc: UITextView!
+    @IBOutlet weak var btnUserName: UIButton!
+    @IBOutlet weak var btnUserNameShort: UIButton!
 
     override func awakeFromNib() {
         super.awakeFromNib()

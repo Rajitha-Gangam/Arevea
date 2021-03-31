@@ -81,7 +81,7 @@ class SubscribedChannelsVC: UIViewController ,UITableViewDataSource,UITableViewD
             let cell = tableView.dequeueReusableCell(withIdentifier: "SubscribedCell") as! SubscribedCell
             cell.viewContent.layer.borderColor = UIColor.white.cgColor
             cell.viewContent.layer.borderWidth = 1.0
-        cell.imgUser.layer.borderColor = UIColor.white.cgColor
+        cell.imgUser.layer.borderColor = UIColor.black.cgColor
         cell.imgUser.layer.borderWidth = 1.0
            // cell.btnSubscribe.addTarget(self, action: #selector(subscribeBtnPressed(_:)), for: .touchUpInside)
             let subscribeObj = self.arySubscriptions[indexPath.row] as? [String : Any] ?? [:];
@@ -134,16 +134,16 @@ class SubscribedChannelsVC: UIViewController ,UITableViewDataSource,UITableViewD
         let subObj = arySubscriptions[indexPath.row] as? [String: Any] ?? [:]
         let storyboard = UIStoryboard(name: "Main", bundle: nil);
         let vc = storyboard.instantiateViewController(withIdentifier: "ChannelDetailVC") as! ChannelDetailVC
-        vc.orgId = subObj["organization_id"] as? Int ?? 0
+        appDelegate.orgId = subObj["organization_id"] as? Int ?? 0
         let channelName = subObj["channel_name"] as? String ?? ""
-        vc.channel_name = channelName
+        appDelegate.channel_name_subscription = channelName
         if (subObj["performer_id"] as? Int) != nil {
-            vc.performerId = subObj["performer_id"] as! Int
+            appDelegate.performerId = subObj["performer_id"] as! Int
         }
         else {
-            vc.performerId = 1;
+            appDelegate.performerId = 1;
         }
-        vc.strTitle = subObj["performer_display_name"] as? String ?? "Channel Details"
+        appDelegate.strTitle = subObj["performer_display_name"] as? String ?? "Channel Details"
         vc.fromSubscribed = true
         self.navigationController?.pushViewController(vc, animated: true)
         

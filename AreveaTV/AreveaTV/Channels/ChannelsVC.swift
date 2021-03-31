@@ -349,14 +349,14 @@ class ChannelsVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Col
         
     }
     func collectionView(collectionviewcell: DBCollectionViewCell?, index: Int, title: String, didTappedInTableViewCell: DashBoardCell) {
-        viewActivity.isHidden = false
+        /*viewActivity.isHidden = false
         
         let orgsList = didTappedInTableViewCell.rowWithItems
         let selectedOrg = orgsList[index] as? [String: Any]
         ////print("selected channel:",selectedOrg)
         let storyboard = UIStoryboard(name: "Main", bundle: nil);
         let vc = storyboard.instantiateViewController(withIdentifier: "ChannelDetailVC") as! ChannelDetailVC
-        vc.delegate = self
+        vc.chatDelegate = self
         vc.orgId = orgId;
         appDelegate.isLiveLoad = "1"
         //        ////print("userId:",selectedOrg?["user_id"] as Any)
@@ -367,7 +367,7 @@ class ChannelsVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Col
             vc.performerId = 1;
         }
         vc.strTitle = selectedOrg?["performer_display_name"] as? String ?? "Channel Details"
-        self.navigationController?.pushViewController(vc, animated: true)
+        self.navigationController?.pushViewController(vc, animated: true)*/
     }
     override var preferredStatusBarStyle: UIStatusBarStyle {
         return .lightContent // .default

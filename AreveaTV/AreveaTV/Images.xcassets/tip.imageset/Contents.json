@@ -1,17 +1,17 @@
 {
   "images" : [
     {
-      "filename" : "tip.png",
+      "filename" : "tip-green.png",
       "idiom" : "universal",
       "scale" : "1x"
     },
     {
-      "filename" : "tip@2x.png",
+      "filename" : "tip-green@2x.png",
       "idiom" : "universal",
       "scale" : "2x"
     },
     {
-      "filename" : "tip@3x.png",
+      "filename" : "tip-green@3x.png",
       "idiom" : "universal",
       "scale" : "3x"
     }

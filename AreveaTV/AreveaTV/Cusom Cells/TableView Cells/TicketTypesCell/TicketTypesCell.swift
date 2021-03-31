@@ -17,6 +17,7 @@ class TicketTypesCell: UITableViewCell {
 
     @IBOutlet weak var imgCheck: UIImageView!
     @IBOutlet weak var btnSelect: UIButton!
+    @IBOutlet weak var btnSelect1: UIButton!
 
     override func awakeFromNib() {
         super.awakeFromNib()

@@ -73,7 +73,7 @@
                                             <constraint firstAttribute="height" constant="25" id="TRu-A7-emV"/>
                                             <constraint firstAttribute="width" constant="25" id="jFU-C9-bSy"/>
                                         </constraints>
-                                        <state key="normal" image="back-icon"/>
+                                        <state key="normal" image="back-icon-white"/>
                                     </button>
                                     <button opaque="NO" alpha="0.60000002384185791" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="00C-eL-8hd">
                                         <rect key="frame" x="190" y="97.5" width="25" height="25"/>
@@ -81,7 +81,7 @@
                                             <constraint firstAttribute="width" constant="25" id="4be-kO-HVk"/>
                                             <constraint firstAttribute="height" constant="25" id="UKz-Im-jNo"/>
                                         </constraints>
-                                        <state key="normal" image="right-arrow"/>
+                                        <state key="normal" image="right-arrow-white"/>
                                     </button>
                                 </subviews>
                                 <color key="backgroundColor" red="0.18823529411764706" green="0.18823529411764706" blue="0.27843137254901962" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
@@ -141,8 +141,8 @@
         </collectionViewCell>
     </objects>
     <resources>
-        <image name="back-icon" width="44" height="44"/>
-        <image name="right-arrow" width="44" height="44"/>
+        <image name="back-icon-white" width="44" height="44"/>
+        <image name="right-arrow-white" width="44" height="44"/>
         <image name="sample-details" width="414" height="360"/>
     </resources>
 </document>

@@ -63,13 +63,9 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
     var aryCharityInfo = [Any]()
     var aryStreamInfo = [String: Any]()
     var aryUserSubscriptionInfo = [Any]()
-    var orgId = 0;
-    var performerId = 0;
     
     var streamVideoCode = ""
     var number_of_creators = 1
-    var streamId = 0;
-    var strSlug = "";
     var aryStreamAmounts = [Any]()
     var detailItem = [String:Any]();
     var isLoaded = 0;
@@ -112,7 +108,6 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
     var messages_q_and_a_answers1: [SBDBaseMessage] = []
     
     var emojis: [SBDBaseMessage] = []
-    var channel_name_subscription = ""
     var initialLoading: Bool = true
     var initialLoading_q_and_a: Bool = true
     
@@ -132,14 +127,13 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
     @IBOutlet weak var inputMessageInnerContainerViewBottomMargin: NSLayoutConstraint!
     @IBOutlet weak var liveStreamHeight: NSLayoutConstraint!
     
-    weak var delegate: OpenChanannelChatDelegate?
+    weak var chatDelegate: OpenChanannelChatDelegate?
     var channelName = ""
     var channelName_Emoji = ""
     var channelName_Q_And_A = ""
     
     var paymentAmount = 0
     var streamPaymentMode = ""
-    var strTitle = ""
     @IBOutlet weak var viewActivity: UIView!
     @IBOutlet weak var imgStreamThumbNail: UIImageView!
     @IBOutlet weak var btnPlayStream: UIButton!
@@ -167,17 +161,13 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
     var strCountry = "India"//United States
     var strRegionCode = "blr1"//sfo1
     var isIpadLandScape = false
-    
-    var isVOD = false;
-    var isAudio = false;
+    var tempStreamStatus = ""
     var strAudioSource = ""
     @IBOutlet weak var VODHeight: NSLayoutConstraint!
     @IBOutlet weak var lblVODUnavailable: UILabel!
     @IBOutlet weak var viewVOD: UIView!
     var videoPlayer = AVPlayer()
     
-    var isStream = true;
-    var isUpcoming = false;
     var toolTipPreferences = EasyTipView.Preferences()
     var streamVideoDesc = ""
     var startSessionResponse =  [String:Any]()
@@ -289,9 +279,9 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
         viewLiveStream.isHidden = true;
         lblNoDataComments.text = ""
         lblNoDataDonations.text = "No donations found"
-        lblTitle.text = strTitle
+        lblTitle.text = appDelegate.strTitle
         if(appDelegate.isGuest){
-            //sendBirdConnect()
+            sendBirdConnect()
         }
         // txtComment.textInputMode?.primaryLanguage = "emoji"
         //imgEmoji.isHidden = true
@@ -334,7 +324,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
         // toolTipPreferences.animating.dismissDuration = 1.5
         toolTipPreferences.animating.dismissOnTap = true
         EasyTipView.globalPreferences = toolTipPreferences
-        toolTipView = EasyTipView(text: self.strTitle, preferences: toolTipPreferences)
+        toolTipView = EasyTipView(text: appDelegate.strTitle, preferences: toolTipPreferences)
         
         // later on you can dismiss it
         //tipView.dismiss()
@@ -370,8 +360,8 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
         
         self.viewStream?.isHidden = false
         sliderVolume.value = 100;
-        if(self.channel_name_subscription == ""){
-            self.channel_name_subscription = " "
+        if(appDelegate.channel_name_subscription == ""){
+            appDelegate.channel_name_subscription = " "
         }
         viewRight.isHidden = true
         if let path = Bundle.main.path(forResource: "currencies", ofType: "json") {
@@ -621,7 +611,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
     }
     func sendBird_Q_And_A_Config(){
         //isChannelAvailable_q_and_a = true
-        channelName_Q_And_A = String(self.streamId) + "_qa"
+        channelName_Q_And_A = String(appDelegate.streamId) + "_qa"
         print("channelName in sendBird_Q_And_A_Config:",channelName_Q_And_A)
         SBDOpenChannel.getWithUrl(channelName_Q_And_A, completionHandler: { (openChannel, error) in
             guard error == nil else {   // Error.
@@ -802,7 +792,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
         //if user comes from payment redirection, need to refresh stream/vod
         
         if(isPaymentNavigation){
-            if(isVOD || isAudio){
+            if(appDelegate.isVOD || appDelegate.isAudio){
                 //getVodById()
             }else{
                 //LiveEventById();
@@ -855,7 +845,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
             
             isLoaded = 1;
             appDelegate.isLiveLoad = "0";
-            if(isVOD || isAudio){
+            if(appDelegate.isVOD || appDelegate.isAudio){
                 getVodById()
             }else{
                 LiveEventById();
@@ -1036,12 +1026,13 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
         }
     }
     func goBack(){
-        if(isCameFromGetTickets){
+        /*if(isCameFromGetTickets){
             popToDashBoard()
         }else{
             AppDelegate.AppUtility.lockOrientation(.portrait)
             self.navigationController?.popViewController(animated: true)
-        }
+        }*/
+        popToDashBoard()
     }
     func showConfirmation(strMsg: String){
         let alert = UIAlertController(title: "Alert", message: strMsg, preferredStyle: .alert)
@@ -1173,7 +1164,6 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
             return messages_q_and_a.count
         }else{
             return 1
-            
         }
     }
     
@@ -1408,6 +1398,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
             return cell
         }else if (tableView == tblSubscriptions){
             let cell = tableView.dequeueReusableCell(withIdentifier: "SubscriptionCell") as! SubscriptionCell
+            
             cell.viewContent.layer.borderColor = UIColor.gray.cgColor
             cell.viewContent.layer.borderWidth = 1.0
             cell.btnUnSubscribe.layer.borderColor = UIColor.gray.cgColor
@@ -1481,7 +1472,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
             
             //if user subscribed
             if(subscription_status){
-                let orange = UIColor(red: 95, green: 84, blue: 55);
+                let orange = UIColor(red: 139, green: 230, blue: 213);
                 cell.viewContent.layer.borderColor = orange.cgColor
                 cell.viewContent.layer.borderWidth = 2.0
                 cell.btnCheck.isHidden = false
@@ -1619,7 +1610,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
         let strUserId = user_id ?? "1"
         // https://dev1.arevea.com/subscribe-payment?channel_name=chirantan-patel&user_id=101097275&plan_id=1311
         
-        let urlOpen = appDelegate.websiteURL + "/subscribe-payment?channel_name=" + self.channel_name_subscription + "&user_id=" + strUserId + "&plan_id=" + String(planId)
+        let urlOpen = appDelegate.websiteURL + "/subscribe-payment?channel_name=" + appDelegate.channel_name_subscription + "&user_id=" + strUserId + "&plan_id=" + String(planId)
         guard let url = URL(string: urlOpen) else { return }
         print("url to open:",url)
         isSubscriptionNavigation = true
@@ -1720,7 +1711,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
         viewActivity.isHidden = false
         let url: String = appDelegate.FCMBaseURL +  "/getSubscriptionStatus"
         let user_id = UserDefaults.standard.string(forKey: "user_id");
-        let params: [String: Any] = ["user_id":user_id ?? "","channel_url":self.channel_name_subscription]
+        let params: [String: Any] = ["user_id":user_id ?? "","channel_url":appDelegate.channel_name_subscription]
         //print("getSubscriptionStatus params:",params)
         let headers: HTTPHeaders
         headers = [appDelegate.x_api_key: appDelegate.x_api_value]
@@ -1948,11 +1939,11 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
         //let url: String = appDelegate.baseURL +  "/proceedToPayment"
         let user_id = UserDefaults.standard.string(forKey: "user_id");
         let strUserId = user_id ?? "1"
-        var queryString = "stream_id=" + String(streamId) + "&user_id=" + strUserId//ppv
+        var queryString = "stream_id=" + String(appDelegate.streamId) + "&user_id=" + strUserId//ppv
         let session_token = UserDefaults.standard.string(forKey: "session_token") ?? ""
 
         if(type == "performer_tip"){
-            queryString =  queryString + "&performer_id=" + String(self.performerId)
+            queryString =  queryString + "&performer_id=" + String(appDelegate.performerId)
         }else if(type == "charity_donation"){
             queryString = queryString + "&charity_id=" + String(charityId)
         }
@@ -2015,7 +2006,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
         viewActivity.isHidden = false
         let url: String = appDelegate.baseURL +  "/getEventBySlug"
         let user_id = UserDefaults.standard.string(forKey: "user_id");
-        let params: [String: Any] = ["userid":user_id ?? "","slug":strSlug]
+        let params: [String: Any] = ["userid":user_id ?? "","slug":appDelegate.strSlug]
         
         let headers: HTTPHeaders
         headers = [appDelegate.x_api_key: appDelegate.x_api_value]
@@ -2077,7 +2068,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
         let stream_status = streamObj["stream_status"] as? String ?? "";
         let expected_end_date_time = streamObj["expected_end_date_time"] as? String ?? "";
         
-        let params: [String: Any] = ["paymentInfo": ["paymentType": "pay_per_view","payment_type": "pay_per_view","organization_id": orgId,"currency": currency_type,"amount": 0,"stream_id": streamId,"streamInfo": ["id": streamId,"stream_video_title": stream_video_title,"organization_id": orgId,"amount":amount,"currency": currency_type,"stream_amounts":stream_amounts,"publish_date_time": publish_date_time,"video_thumbnail_image": video_thumbnail_image,"performer_id": performerId,"user_first_name": user_first_name,"user_last_name": user_last_name,"user_display_name": user_display_name,"channel_name": channel_name,"number_of_creators": self.number_of_creators,"stream_status": stream_status,"currency_type": currency_type,"expected_end_date_time": expected_end_date_time]]]
+        let params: [String: Any] = ["paymentInfo": ["paymentType": "pay_per_view","payment_type": "pay_per_view","organization_id": appDelegate.orgId,"currency": currency_type,"amount": 0,"stream_id": appDelegate.streamId,"streamInfo": ["id": appDelegate.streamId,"stream_video_title": stream_video_title,"organization_id": appDelegate.orgId,"amount":amount,"currency": currency_type,"stream_amounts":stream_amounts,"publish_date_time": publish_date_time,"video_thumbnail_image": video_thumbnail_image,"performer_id": appDelegate.performerId,"user_first_name": user_first_name,"user_last_name": user_last_name,"user_display_name": user_display_name,"channel_name": channel_name,"number_of_creators": self.number_of_creators,"stream_status": stream_status,"currency_type": currency_type,"expected_end_date_time": expected_end_date_time]]]
         //print("params:",params)
         
         let session_token = UserDefaults.standard.string(forKey: "session_token") ?? ""
@@ -2119,13 +2110,13 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
         let url: String = appDelegate.baseURL +  "/getTicketDetails"
         let user_id = UserDefaults.standard.string(forKey: "user_id");
         var streamIdLocal = "0"
-        if (streamId != 0){
-            streamIdLocal = String(streamId)
+        if (appDelegate.streamId != 0){
+            streamIdLocal = String(appDelegate.streamId)
         }
         let headers: HTTPHeaders
         headers = [appDelegate.x_api_key: appDelegate.x_api_value]
         
-        let params: [String: Any] = ["ticket_key": "1863-101059776-26pLyiTtnY2N"]
+        let params: [String: Any] = ["ticket_key": appDelegate.strSlug]
          print("getTicketDetails params:",params)
         
         AF.request(url, method: .post,parameters: params, encoding: JSONEncoding.default,headers:headers)
@@ -2156,13 +2147,13 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
         let url: String = appDelegate.baseURL +  "/LiveEventById"
         let user_id = UserDefaults.standard.string(forKey: "user_id");
         var streamIdLocal = "0"
-        if (streamId != 0){
-            streamIdLocal = String(streamId)
+        if (appDelegate.streamId != 0){
+            streamIdLocal = String(appDelegate.streamId)
         }
         let headers: HTTPHeaders
         headers = [appDelegate.x_api_key: appDelegate.x_api_value]
         
-        let params: [String: Any] = ["userid":user_id ?? "","performer_id":performerId,"stream_id": streamIdLocal]
+        let params: [String: Any] = ["userid":user_id ?? "","performer_id":appDelegate.performerId,"stream_id": streamIdLocal]
         // print("liveEvents params:",params)
         
         AF.request(url, method: .post,parameters: params, encoding: JSONEncoding.default,headers:headers)
@@ -2224,13 +2215,13 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
         let url: String = appDelegate.baseURL +  "/LiveEventById"
         let user_id = UserDefaults.standard.string(forKey: "user_id");
         var streamIdLocal = "0"
-        if (streamId != 0){
-            streamIdLocal = String(streamId)
+        if (appDelegate.streamId != 0){
+            streamIdLocal = String(appDelegate.streamId)
         }
         let headers: HTTPHeaders
         headers = [appDelegate.x_api_key: appDelegate.x_api_value]
         
-        let params: [String: Any] = ["userid":user_id ?? "","performer_id":performerId,"stream_id": streamIdLocal]
+        let params: [String: Any] = ["userid":user_id ?? "","performer_id":appDelegate.performerId,"stream_id": streamIdLocal]
         // print("liveEvents params:",params)
         
         AF.request(url, method: .post,parameters: params, encoding: JSONEncoding.default,headers:headers)
@@ -2245,7 +2236,11 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                             let stream_info_key_exists = aryStreamInfo["id"]
                             if (stream_info_key_exists != nil){
                                 let streamObj = aryStreamInfo
-                                stream_status = streamObj["stream_status"] as? String ?? ""
+                                if(tempStreamStatus == ""){
+                                    stream_status = streamObj["stream_status"] as? String ?? ""
+                                }else{
+                                    stream_status = tempStreamStatus
+                                }
                                 print("stream_status--:",stream_status)
                                 if(stream_status == "completed"){
                                     self.lblStreamUnavailable.text = "The stream has ended."
@@ -2304,13 +2299,13 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
         let url: String = appDelegate.baseURL +  "/LiveEventById"
         let user_id = UserDefaults.standard.string(forKey: "user_id");
         var streamIdLocal = "0"
-        if (streamId != 0){
-            streamIdLocal = String(streamId)
+        if (appDelegate.streamId != 0){
+            streamIdLocal = String(appDelegate.streamId)
         }
         let headers: HTTPHeaders
         headers = [appDelegate.x_api_key: appDelegate.x_api_value]
         
-        let params: [String: Any] = ["userid":user_id ?? "","performer_id":performerId,"stream_id": streamIdLocal]
+        let params: [String: Any] = ["userid":user_id ?? "","performer_id":appDelegate.performerId,"stream_id": streamIdLocal]
         print("liveEvents params:",params)
         // let params: [String: Any] = ["userid":user_id ?? "","performer_id":"101","stream_id": "0"]
         AF.request(url, method: .post,parameters: params, encoding: JSONEncoding.default,headers:headers)
@@ -2336,8 +2331,11 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                             if (stream_info_key_exists != nil){
                                 let streamObj = self.aryStreamInfo
                                 let settings_json = streamObj["settings_json"] as? String ?? ""
-                                stream_status = streamObj["stream_status"] as? String ?? ""
-
+                                if(tempStreamStatus == ""){
+                                    stream_status = streamObj["stream_status"] as? String ?? ""
+                                }else{
+                                    stream_status = tempStreamStatus
+                                }
                                 let dicSettingsJson = self.convertToDictionary(text: settings_json)
                                 print("dicSettingsJson:",dicSettingsJson)
                                 self.settings_q_and_a = dicSettingsJson?["q_and_a"] as? Int ?? 0
@@ -2397,7 +2395,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                                 self.viewLiveStream.isHidden = false;
                                 self.btnPlayStream.setImage(UIImage.init(named: "video-play"), for: .normal)
                                 self.btnPlayStream.isHidden = true;
-                                self.streamId = streamObj["id"] as? Int ?? 0
+                                appDelegate.streamId = streamObj["id"] as? Int ?? 0
                                 self.age_limit = streamObj["age_limit"] as? Int ?? 0
                                 // print("self.age_limit:",self.age_limit)
                                 self.streamVideoCode = streamObj["stream_video_code"] as? String ?? ""
@@ -2436,7 +2434,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                                 self.paymentAmount = streamObj["stream_payment_amount"]as? Int ?? 0
                                 // self.lblVideoTitle_info.text = streamVideoTitle
                                 self.streamPaymentMode = streamObj["stream_payment_mode"] as? String ?? ""
-                                self.strSlug = streamObj["slug"] as? String ?? "";
+                                appDelegate.strSlug = streamObj["slug"] as? String ?? "";
                                 
                                 let publish_date_time = streamObj["publish_date_time"] as? String ?? "";
                                 let expected_end_date_time = streamObj["expected_end_date_time"] as? String ?? "";
@@ -2609,7 +2607,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                                 self.viewVOD.isHidden = true;
                                 self.viewLiveStream.isHidden = false;
                                 //self.lblVODUnavailable.text = "Stream Info not found"
-                                if (!self.isVOD){
+                                if (!appDelegate.isVOD){
                                     self.lblStreamUnavailable.text = "Please wait for the host to start the live stream"
                                     self.btnPlayStream.isHidden = false
                                     self.btnPlayStream.setImage(UIImage.init(named: "refresh"), for: .normal)
@@ -2670,16 +2668,13 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                                     
                                     if (stream_info_key_exists != nil){
                                         let streamObj = self.aryStreamInfo
-                                        if (streamObj["stream_vod"]as? String == "stream" && self.isVOD == false && self.isAudio == false){
+                                        if (streamObj["stream_vod"]as? String == "stream" && appDelegate.isVOD == false && appDelegate.isAudio == false){
                                             
                                             self.viewVOD.isHidden = true
                                             self.viewLiveStream.isHidden = false;
-                                            self.isStream = true;
+                                            appDelegate.isStream = true;
                                             self.btnPlayStream.isHidden = true;
-                                            //self.lblStreamUnavailable.text = "";
-                                            //print("==checkSale:",self.checkSale)
-                                            //print("==saleStarts:",self.saleStarts)
-                                            //print("==saleCompleted:",self.saleCompleted)
+                                           
                                             
                                             self.setLiveStreamConfig()
                                         }else{
@@ -2687,8 +2682,8 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                                             self.viewVOD.isHidden = false
                                             self.viewLiveStream.isHidden = true;
                                             self.btnPlayStream.isHidden = true;
-                                            self.isStream = false;
-                                            if (self.isVOD || streamObj["stream_vod"]as? String == "vod"){
+                                            appDelegate.isStream = false;
+                                            if (appDelegate.isVOD || streamObj["stream_vod"]as? String == "vod"){
                                                 let vod_urls = streamObj["vod_urls"] as? String ?? ""
                                                 var strURL = "";
                                                 if (vod_urls != ""){
@@ -2722,7 +2717,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                                                 //print("strURL:",strURL)
                                                 self.showVideo(strURL: strURL);
                                             }else{
-                                                if(self.isAudio){
+                                                if(appDelegate.isAudio){
                                                     //audio
                                                     //print("strAudioSource:",self.strAudioSource)
                                                     self.showVideo(strURL: self.strAudioSource)
@@ -3972,7 +3967,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
         // print("--self.streamId:",self.streamId)
         // print("--self.streamId1:",String(self.streamId))
         
-        let params: [String: Any] = ["userid":user_id ?? "","stream_id": String(self.streamId)]
+        let params: [String: Any] = ["userid":user_id ?? "","stream_id": String(appDelegate.streamId)]
         print("getVodById params:",params)
         
         let headers: HTTPHeaders = [appDelegate.x_api_key: appDelegate.x_api_value]
@@ -4056,7 +4051,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                                 self.btnPlayStream.setImage(UIImage.init(named: "video-play"), for: .normal)
                                 self.btnPlayStream.isHidden = true;
                                 
-                                self.streamId = streamObj["id"] as? Int ?? 0
+                                appDelegate.streamId = streamObj["id"] as? Int ?? 0
                                 self.age_limit = streamObj["age_limit"] as? Int ?? 0
                                 self.streamVideoCode = streamObj["stream_video_code"] as? String ?? ""
                                 let streamVideoTitle = streamObj["stream_video_title"] as? String ?? ""
@@ -4097,7 +4092,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                                 self.paymentAmount = streamObj["stream_payment_amount"]as? Int ?? 0
                                 //self.lblVideoTitle_info.text = streamVideoTitle
                                 self.streamPaymentMode = streamObj["stream_payment_mode"] as? String ?? ""
-                                self.strSlug = streamObj["slug"] as? String ?? "";
+                                appDelegate.strSlug = streamObj["slug"] as? String ?? "";
                                 
                                 let publish_date_time = streamObj["publish_date_time"] as? String ?? "";
                                 let expected_end_date_time = streamObj["expected_end_date_time"] as? String ?? "";
@@ -4230,7 +4225,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                             if(self.streamPaymentMode == "free"){
                                 self.lblAmount.text = ""//Free
                             }
-                                if (self.aryUserSubscriptionInfo.count == 0 && self.isVOD){
+                                if (self.aryUserSubscriptionInfo.count == 0 && appDelegate.isVOD){
                                     //if user does not pay amount
                                     self.btnPayPerView.isHidden = false
                                     self.viewVOD.isHidden = false
@@ -4247,8 +4242,8 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                                         self.viewVOD.isHidden = false
                                         self.viewLiveStream.isHidden = true;
                                         self.btnPlayStream.isHidden = true;
-                                        self.isStream = false;
-                                        if (self.isVOD){
+                                        appDelegate.isStream = false;
+                                        if (appDelegate.isVOD){
                                             let vod_urls = streamObj["vod_urls"] as? String ?? ""
                                             var strURL = "";
                                             if (vod_urls != ""){
@@ -4391,15 +4386,15 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
         let url: String = appDelegate.baseURL +  "/startSession"
         let user_id = UserDefaults.standard.string(forKey: "user_id");
         var streamIdLocal = "0"
-        if (streamId != 0){
-            streamIdLocal = String(streamId)
+        if (appDelegate.streamId != 0){
+            streamIdLocal = String(appDelegate.streamId)
         }
         let arn = UserDefaults.standard.string(forKey: "arn");
         
         let inputData: [String: Any] = [ "user_id": user_id ?? "0",
                                          "event_id": streamIdLocal,
-                                         "organization_id" : orgId,
-                                         "performer_id" : performerId,
+                                         "organization_id" : appDelegate.orgId,
+                                         "performer_id" : appDelegate.performerId,
                                          "stream_code":streamVideoCode,
                                          "is_mobile":true,
                                          "EndpointArn":arn ?? "",
@@ -4442,7 +4437,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         let url: String = appDelegate.baseURL +  "/endSession"
         let user_id = UserDefaults.standard.string(forKey: "user_id");
-        let streamInfo = "stream_metrics/" + self.streamVideoCode + "/" + String(self.streamId)
+        let streamInfo = "stream_metrics/" + self.streamVideoCode + "/" + String(appDelegate.streamId)
         // print("self.startSessionResponse:",self.startSessionResponse)
         var session_start_time = self.startSessionResponse["session_start_time"] as? String ?? ""
         if (session_start_time == ""){
@@ -4454,7 +4449,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
             //if startSessionResponse subscription_arn empty
             arn = UserDefaults.standard.string(forKey: "arn") ?? "";
         }
-        let params: [String: Any] = ["id":idData,"image_for": streamInfo,"session_start_time":session_start_time,"is_final":"true","event_id": String(self.streamId),"is_mobile":true,"subscription_arn":arn]
+        let params: [String: Any] = ["id":idData,"image_for": streamInfo,"session_start_time":session_start_time,"is_final":"true","event_id": String(appDelegate.streamId),"is_mobile":true,"subscription_arn":arn]
         // print("endSession multi params:",params)
         
         let session_token = UserDefaults.standard.string(forKey: "session_token") ?? ""
@@ -4654,7 +4649,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
         let accessToken = appDelegate.red5_acc_token
         // https:// livestream.arevea.com/streammanager/api/4.0/admin/event/meta/live/<stream_video_code>/?accessToken=YEOkGmERp08V
         let url = "https://" + host  + "/streammanager/api/" + version + "/admin/event/meta/live/" + stream1 + "?accessToken=" + accessToken
-        //print("metaLive url:",url)
+        print("metaLive url:",url)
         //let stream = "1588832196500_taylorswiftevent"
         AF.request(url,method: .get, encoding: JSONEncoding.default)
             .responseJSON { response in
@@ -4714,7 +4709,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
         
         print("stream url:",url)
         //let url = "https:// livestream.arevea.com/streammanager/api/4.0/event/live/1588788669277_somethingnew?action=subscribe"
-        ////print("findStream url:",url)
+        print("findStream url:",url)
         //let stream = "1588832196500_taylorswiftevent"
         
         AF.request(url,method: .get, encoding: JSONEncoding.default)
@@ -4733,7 +4728,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                                         self.lblStreamUnavailable.text = "We are working on the issue. We will be back shortly."
                                         self.btnPlayStream.isHidden = true;
                                     }else{
-                                        if(self.isUpcoming){
+                                        if(self.appDelegate.isUpcoming){
                                             //var localTimeZoneAbbreviation: String { return TimeZone.current.abbreviation() ?? "" }
                                         self.lblStreamUnavailable.text = "Please wait. The Stream will begin on \n" + self.strUpcomingDate
                                                 self.btnPlayStream.setImage(UIImage.init(named: "refresh"), for: .normal)
@@ -4974,7 +4969,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
         let url: String = appDelegate.FCMBaseURL +  "/getChannelSubscriptionPlans"
         let user_id = UserDefaults.standard.string(forKey: "user_id");
         //below line need to update
-        let params: [String: Any] = ["user_id":user_id ?? "","channel_name":self.channel_name_subscription,"channel_url":self.channel_name_subscription]
+        let params: [String: Any] = ["user_id":user_id ?? "","channel_name":appDelegate.channel_name_subscription,"channel_url":appDelegate.channel_name_subscription]
         print("getChannelSubscriptionPlans params:",params)
         let headers: HTTPHeaders
         headers = [appDelegate.x_api_key: appDelegate.x_api_value]
@@ -5009,10 +5004,8 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                                         let dicItem = ["title":"subscribe","icon":"s_subscribe","icon_active":"s_subscribe_active"]
                                         self.buttonNames.append(dicItem)
                                         self.streamHeaderCVC.reloadData()
-                                        
                                     }
                                 }
-                               
                             }
                             self.tblSubscriptions.reloadData()
                         }else{
@@ -5020,14 +5013,11 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                             ////print("strError1:",strError ?? "")
                             self.showAlert(strMsg: strError ?? "")
                         }
-                        
                     }
-                    
                 case .failure(let error):
                     let errorDesc = error.localizedDescription.replacingOccurrences(of: "URLSessionTask failed with error:", with: "")
                     self.showAlert(strMsg: errorDesc)
                     self.viewActivity.isHidden = true
-                    
                 }
             }
     }
@@ -5107,7 +5097,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                 //print("share")
                 viewRightTitle.isHidden = true
                 sender.setImage(UIImage.init(named: "s_share_active"), for: .normal)
-                let url = appDelegate.websiteURL + "/event/" + self.strSlug
+                let url = appDelegate.websiteURL + "/event/" + appDelegate.strSlug
                 //print(url)
                 let textToShare = [url]
                 // set up activity view controller

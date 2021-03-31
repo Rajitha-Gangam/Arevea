@@ -35,7 +35,7 @@ class SBOpenChatVC: UIViewController,UITableViewDelegate,UITableViewDataSource,O
     @IBOutlet weak var messageTableView: UITableView!
     @IBOutlet weak var loadingIndicatorView: UIActivityIndicatorView!
     let coverImageData: Data? = nil
-    weak var delegate: OpenChanannelChatDelegate?
+        weak var chatDelegate: OpenChanannelChatDelegate?
     var channelName = ""
     override func viewDidLoad() {
         super.viewDidLoad()

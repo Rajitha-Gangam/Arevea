@@ -25,7 +25,7 @@
                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Wzu-3W-SWS">
                             <rect key="frame" x="10" y="10" width="355" height="130"/>
                             <subviews>
-                                <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="user-white" translatesAutoresizingMaskIntoConstraints="NO" id="fme-nc-Loj">
+                                <imageView hidden="YES" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="user-white" translatesAutoresizingMaskIntoConstraints="NO" id="fme-nc-Loj">
                                     <rect key="frame" x="10" y="10" width="50" height="50"/>
                                     <constraints>
                                         <constraint firstAttribute="width" constant="50" id="Dsw-r3-hWZ"/>
@@ -40,7 +40,25 @@
                                         </userDefinedRuntimeAttribute>
                                     </userDefinedRuntimeAttributes>
                                 </imageView>
-                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Mike Arnold" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="GjH-AH-CJV" userLabel="Nickname Label">
+                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="iYH-bv-PeG">
+                                    <rect key="frame" x="10" y="10" width="50" height="50"/>
+                                    <color key="backgroundColor" red="0.3294117647" green="0.72941176470000002" blue="0.8862745098" alpha="1" colorSpace="calibratedRGB"/>
+                                    <constraints>
+                                        <constraint firstAttribute="width" constant="50" id="NYA-6C-NdN"/>
+                                        <constraint firstAttribute="height" constant="50" id="Vqs-Hl-Sgm"/>
+                                    </constraints>
+                                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                    <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                    <userDefinedRuntimeAttributes>
+                                        <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
+                                            <integer key="value" value="25"/>
+                                        </userDefinedRuntimeAttribute>
+                                    </userDefinedRuntimeAttributes>
+                                    <variation key="heightClass=regular-widthClass=regular">
+                                        <fontDescription key="fontDescription" type="system" pointSize="20"/>
+                                    </variation>
+                                </button>
+                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="GjH-AH-CJV" userLabel="Nickname Label">
                                     <rect key="frame" x="80" y="15" width="275" height="24"/>
                                     <constraints>
                                         <constraint firstAttribute="height" constant="24" id="PUn-d4-2yr"/>
@@ -52,7 +70,7 @@
                                         <fontDescription key="fontDescription" name="Poppins-Regular" family="Poppins" pointSize="25"/>
                                     </variation>
                                 </label>
-                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Senior community manager" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ASe-HB-lNj" userLabel="Nickname Label">
+                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ASe-HB-lNj" userLabel="Nickname Label">
                                     <rect key="frame" x="80" y="40" width="275" height="24"/>
                                     <constraints>
                                         <constraint firstAttribute="height" constant="24" id="K0z-Yt-HJc"/>
@@ -70,20 +88,21 @@
                                     <constraints>
                                         <constraint firstAttribute="height" constant="55" id="mhz-0k-vXg"/>
                                     </constraints>
-                                    <string key="text">The first 40 years of Mike Arnold's career were spent as a professional and diligent architect. Thanks to what now seems like serendipitous timing, Arnold progressed through a successful career without ever having to become architecturally computer literate and rely on programmes to create building sketches and renderings. As such, his drawing skills were fine-tuned throughout his life, preparing him for his second career as a full-time artist - something he feels he began as a child, when he would spend every weekend studying art at The Philadelphia Museum of Art, in the city where he was born and raised.</string>
                                     <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                     <fontDescription key="fontDescription" name="Poppins-Regular" family="Poppins" pointSize="17"/>
                                     <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
                                 </textView>
                             </subviews>
-                            <color key="backgroundColor" red="0.13725490200000001" green="0.13725490200000001" blue="0.20000000000000001" alpha="1" colorSpace="calibratedRGB"/>
+                            <color key="backgroundColor" red="0.1333333333" green="0.17254901959999999" blue="0.21176470589999999" alpha="1" colorSpace="calibratedRGB"/>
                             <constraints>
                                 <constraint firstItem="ZP4-So-tll" firstAttribute="top" secondItem="ASe-HB-lNj" secondAttribute="bottom" constant="6" id="0dF-dL-OaL"/>
                                 <constraint firstItem="ASe-HB-lNj" firstAttribute="top" secondItem="GjH-AH-CJV" secondAttribute="bottom" constant="1" id="0pO-Im-Lwe"/>
                                 <constraint firstItem="fme-nc-Loj" firstAttribute="leading" secondItem="Wzu-3W-SWS" secondAttribute="leading" constant="10" id="19s-Mo-l68"/>
                                 <constraint firstAttribute="bottom" secondItem="ZP4-So-tll" secondAttribute="bottom" constant="5" id="47j-T1-QYS"/>
                                 <constraint firstItem="GjH-AH-CJV" firstAttribute="top" secondItem="Wzu-3W-SWS" secondAttribute="top" constant="15" id="CyP-3H-3R2"/>
+                                <constraint firstItem="iYH-bv-PeG" firstAttribute="top" secondItem="Wzu-3W-SWS" secondAttribute="top" constant="10" id="FhC-4V-wPO"/>
                                 <constraint firstItem="ASe-HB-lNj" firstAttribute="trailing" secondItem="GjH-AH-CJV" secondAttribute="trailing" id="Xc9-6N-Ast"/>
+                                <constraint firstItem="iYH-bv-PeG" firstAttribute="leading" secondItem="Wzu-3W-SWS" secondAttribute="leading" constant="10" id="dPg-j8-zDu"/>
                                 <constraint firstItem="ASe-HB-lNj" firstAttribute="leading" secondItem="GjH-AH-CJV" secondAttribute="leading" id="dTr-rn-ZRT"/>
                                 <constraint firstItem="GjH-AH-CJV" firstAttribute="top" secondItem="Wzu-3W-SWS" secondAttribute="top" constant="15" id="heb-qa-ZI2"/>
                                 <constraint firstAttribute="trailing" secondItem="ZP4-So-tll" secondAttribute="trailing" constant="10" id="mJg-ei-9E3"/>
@@ -95,6 +114,9 @@
                             <userDefinedRuntimeAttributes>
                                 <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
                                     <integer key="value" value="10"/>
+                                </userDefinedRuntimeAttribute>
+                                <userDefinedRuntimeAttribute type="number" keyPath="layer.borderWidth">
+                                    <integer key="value" value="1"/>
                                 </userDefinedRuntimeAttribute>
                             </userDefinedRuntimeAttributes>
                         </view>
@@ -118,7 +140,12 @@
             </constraints>
             <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
             <connections>
+                <outlet property="btnUser" destination="iYH-bv-PeG" id="NZc-A2-p1m"/>
                 <outlet property="imgUser" destination="fme-nc-Loj" id="OR5-ug-3Xf"/>
+                <outlet property="lblDesc" destination="ASe-HB-lNj" id="7o5-tg-px3"/>
+                <outlet property="lblName" destination="GjH-AH-CJV" id="KGm-bw-Jcq"/>
+                <outlet property="txtDesc" destination="ZP4-So-tll" id="aK3-it-uma"/>
+                <outlet property="viewContent" destination="Wzu-3W-SWS" id="lCM-xG-v2y"/>
             </connections>
             <point key="canvasLocation" x="12" y="-73.763118440779621"/>
         </view>

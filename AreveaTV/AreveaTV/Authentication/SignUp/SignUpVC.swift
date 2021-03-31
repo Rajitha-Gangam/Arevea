@@ -150,7 +150,7 @@ class SignUpVC: UIViewController ,UITextFieldDelegate,UIPickerViewDelegate, UIPi
             isTermsChecked = false
         }
         else{
-            btnCheckTermsAndCond?.setImage(UIImage.init(named: "checked"), for: .normal);
+            btnCheckTermsAndCond?.setImage(UIImage.init(named: "checked-green"), for: .normal);
             isTermsChecked = true
         }
     }

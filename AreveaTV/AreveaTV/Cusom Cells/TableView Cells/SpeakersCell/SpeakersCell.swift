@@ -10,7 +10,15 @@ import UIKit
 
 class SpeakersCell: UITableViewCell {
     @IBOutlet weak var imgUser: UIImageView!
+    @IBOutlet weak var btnUser: UIButton!
 
+    @IBOutlet weak var lblName: UILabel!
+    @IBOutlet weak var lblDesc: UILabel!
+    @IBOutlet weak var txtDesc: UITextView!
+
+    @IBOutlet weak var viewContent: UIView!
+
+    
     override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code

@@ -40,9 +40,11 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     
     @IBOutlet var imgProfilePic: UIImageView!
-    
-    var arySideMenu : [[String: String]] = [["name":"Home","icon":"home"],["name":"My Profile","icon":"user-white"],["name":"My Events","icon":"event"],["name":"My Payments","icon":"donation"],["name":"My Purchases","icon":"purchase"],["name":"Subscribed Channels","icon":"video-sub"],["name":"Help","icon":"help"],["name":"Logout","icon":"logout"]];
-    var arySideMenuGuest : [[String: String]] = [["name":"Home","icon":"home"],["name":"Help","icon":"help"]];
+    var aryStreamInfo = [String: Any]()
+
+    var arySideMenu : [[String: String]] = [["name":"Home","icon":"home-white"],["name":"My Profile","icon":"user-white"],["name":"My Events","icon":"event-white"],["name":"My Payments","icon":"donation"],["name":"My Purchases","icon":"purchase-white"],["name":"Subscribed Channels","icon":"video-sub-white"],["name":"Help","icon":"help-white"],["name":"Logout","icon":"logout"]];
+
+    var arySideMenuGuest : [[String: String]] = [["name":"Home","icon":"home-white"],["name":"Help","icon":"help-white"]];
     
     var sectionTitles = ["Live Events","Upcoming Events","My List","Trending Channels"]
     var locationManager:CLLocationManager!
@@ -68,7 +70,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
     var strSlug = ""
     @IBOutlet weak var btnSignIn: UIButton!
     @IBOutlet weak var btnSignUp: UIButton!
-    
+    var parent_streams_id = 0
     // MARK: - View Life cycle
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -101,7 +103,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
         UIDevice.current.setValue(self.preferredInterfaceOrientationForPresentation.rawValue, forKey: "orientation")
         lblVersion.text = "v" + getAppversion()
         lblVersion.text = "v" + "2.1.2"
-
+        
         self.imgProfilePic.layer.borderColor = UIColor.gray.cgColor
         self.imgProfilePic.layer.borderWidth = 2.0
         
@@ -121,7 +123,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
         ipGeoLocation()
         
         viewContacts.isHidden = true
-        let yellow = UIColor(red: 241, green: 213, blue: 141);
+        let yellow = UIColor(red: 139, green: 230, blue: 213);
         btnSignIn.layer.borderColor = yellow.cgColor
         btnSignUp.layer.borderColor = UIColor.white.cgColor
         
@@ -135,10 +137,10 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
                 switch response.result {
                 case .success(let value):
                     if let json = value as? [String: Any] {
-                       // print("ipGeoLocation JSON:",json)
+                        // print("ipGeoLocation JSON:",json)
                         let currency  = json["currency"] as? [String:Any] ?? [:];
                         let time_zone  = json["time_zone"] as? [String:Any] ?? [:];
-
+                        
                         let currencyCode = currency["code"] as? String ?? ""//based on user lcoation, currency code will come, that we need to pass currencies json, and get symbol
                         let timeZoneOffset = time_zone["offset"] as? Double ?? 0.0
                         appDelegate.userTimezoneOffset = timeZoneOffset
@@ -242,7 +244,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
         tblSide.selectRow(at: indexPath, animated: true, scrollPosition: .bottom)
         //tblSide.delegate?.tableView!(myTableView, didSelectRowAt: indexPath)
         NotificationCenter.default.addObserver(self, selector: #selector(applicationDidBecomeActive), name: UIApplication.didBecomeActiveNotification, object: nil)
-
+        
         if(appDelegate.isGuest){
             self.lblUserName.text = "Guest"
             // UserDefaults.standard.set("0", forKey: "user_id")
@@ -515,7 +517,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
             }else{
                 self.lblUserName.text = self.appDelegate.USER_DISPLAY_NAME
             }
-                self.imgProfilePic.image = UIImage.init(named: "user")
+            self.imgProfilePic.image = UIImage.init(named: "user")
         }
         else{
             let user_id = UserDefaults.standard.string(forKey: "user_id");
@@ -734,6 +736,26 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
             self.present(alert, animated: true)
         }
     }
+    func gotoStreamDetails(myList: Bool){
+        let storyboard = UIStoryboard(name: "Main", bundle: nil);
+        let streamObj = self.aryStreamInfo
+        let stream_status = streamObj["stream_status"] as? String ?? ""
+
+        appDelegate.isLiveLoad = "1"
+        let vc = storyboard.instantiateViewController(withIdentifier: "StreamDetailVC") as! StreamDetailVC
+        vc.chatDelegate = self
+        appDelegate.isUpcoming = isUpcoming
+        vc.chatDelegate = self
+        if(myList){
+            vc.mylist = true
+        }
+        if(stream_status == "completed" && myList){
+            appDelegate.isVOD = true
+        }else{
+            appDelegate.isVOD = false
+        }
+        self.navigationController?.pushViewController(vc, animated: true)
+    }
     /*
      // MARK: - Navigation
      
@@ -836,7 +858,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
             cell.backgroundColor = .clear
             
             let bgColorView = UIView()
-            bgColorView.backgroundColor = UIColor.init(red: 35, green: 35, blue: 51)
+            bgColorView.backgroundColor = UIColor.init(red: 34, green: 44, blue: 54)
             cell.selectedBackgroundView = bgColorView
             
             return cell;
@@ -948,6 +970,8 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
             let orgId = streamInfo["organization_id"] as? Int ?? 0
             let performer_id = streamInfo["performer_id"] as? Int ?? 0
             var streamId = streamInfo["stream_video_id"] as? Int ?? 0
+            parent_streams_id = streamInfo["parent_streams_id"] as? Int ?? 0
+            print("parent_streams_id:",parent_streams_id)
             self.strSlug = streamInfo["slug"] as? String ?? ""
             print("===strSlug:",strSlug)
             if(title != "dashboard_my_list"){
@@ -965,17 +989,17 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
         }else if(title == "dashboard_trending_channels"){
             let performerDetails = selectedOrg["performer_details"] as? [String: Any] ?? [:]
             let storyboard = UIStoryboard(name: "Main", bundle: nil);
-            let vc = storyboard.instantiateViewController(withIdentifier: "ChannelDetailVC") as! ChannelDetailVC
-            vc.orgId = performerDetails["id"] as? Int ?? 0
+            appDelegate.orgId = performerDetails["id"] as? Int ?? 0
             let channelName = performerDetails["channel_name"] as? String ?? ""
-            vc.channel_name = channelName
+            appDelegate.channel_name_subscription = channelName
+            appDelegate.strTitle = performerDetails["performer_display_name"] as? String ?? "Channel Details"
             if (performerDetails["user_id"] as? Int) != nil {
-                vc.performerId = performerDetails["user_id"] as! Int
+                appDelegate.performerId = performerDetails["user_id"] as! Int
             }
             else {
-                vc.performerId = 1;
+                appDelegate.performerId = 1;
             }
-            vc.strTitle = performerDetails["performer_display_name"] as? String ?? "Channel Details"
+            let vc = storyboard.instantiateViewController(withIdentifier: "ChannelDetailVC") as! ChannelDetailVC
             self.navigationController?.pushViewController(vc, animated: true)
         }
     }
@@ -984,6 +1008,9 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
         var streamId = streamInfo["stream_video_id"] as? Int ?? 0
         if(!myList){
             streamId = streamInfo["id"] as? Int ?? 0
+        }
+        if (parent_streams_id != 0){
+            streamId = parent_streams_id
         }
         // print("streamId:",streamId)
         
@@ -1018,11 +1045,11 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
                 switch response.result {
                 case .success(let value):
                     if let json = value as? [String: Any] {
-                        print("LiveEventById JSON1:",json)
+                        //print("LiveEventById JSON1:",json)
                         if (json["statusCode"]as? String == "200"){
                             let data = json["Data"] as? [String:Any]
                             let resultData = data ?? [:]
-                            let aryStreamInfo = data?["stream_info"] as? [String:Any] ?? [:]
+                            self.aryStreamInfo = data?["stream_info"] as? [String:Any] ?? [:]
                             let stream_info_key_exists = aryStreamInfo["id"]
                             if (stream_info_key_exists != nil){
                                 let streamObj = aryStreamInfo
@@ -1042,47 +1069,29 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
                                 }
                                 let user_age_limit = UserDefaults.standard.integer(forKey:"user_age_limit");
                                 self.age_limit = streamObj["age_limit"] as? Int ?? 0
+                                appDelegate.isLiveLoad = "1"
+                                appDelegate.orgId = orgId
+                                appDelegate.streamId = streamId
+                                appDelegate.performerId = performer_id
+                                appDelegate.strTitle = stream_video_title
+                                appDelegate.isVOD = isVOD
+                                appDelegate.isUpcoming = isUpcoming
+                                appDelegate.strSlug = strSlug
+                                appDelegate.channel_name_subscription = channelName
+                                print("==appDelegate.channel_name_subscription:",appDelegate.channel_name_subscription)
                                 if (self.aryUserSubscriptionInfo.count == 0 || appDelegate.isGuest){
                                     let vc = storyboard!.instantiateViewController(withIdentifier: "EventRegistrationVC") as! EventRegistrationVC
-                                    appDelegate.isLiveLoad = "1"
-                                    vc.orgId = orgId
-                                    //print("==streamId:",streamId)
-                                    vc.streamId = streamId
-                                    //vc.delegate = self
-                                    vc.performerId = performer_id
-                                    vc.strTitle = stream_video_title
-                                    vc.isVOD = isVOD
-                                    vc.isUpcoming = isUpcoming
-                                    print("====strSlug:",strSlug)
-                                    vc.strSlug = strSlug
-                                    vc.channel_name_subscription = channelName
                                     self.navigationController?.pushViewController(vc, animated: true)
                                 }else{
-                                    
-                                        let vc = storyboard!.instantiateViewController(withIdentifier: "StreamDetailVC") as! StreamDetailVC
-                                        appDelegate.isLiveLoad = "1"
-                                        vc.orgId = orgId
-                                        //print("==streamId:",streamId)
-                                        vc.streamId = streamId
-                                        vc.delegate = self
-                                        vc.performerId = performer_id
-                                        vc.strTitle = stream_video_title
-                                        vc.isUpcoming = isUpcoming
-                                        vc.channel_name_subscription = channelName
-                                        vc.strSlug = strSlug
-                                        print("====strSlug:",strSlug)
-                                        if(myList){
-                                            vc.mylist = true
-                                        }
-                                        if(stream_status == "completed" && myList){
-                                            vc.isVOD = true
-                                        }else{
-                                            vc.isVOD = isVOD
-                                        }
+                                    if(myList){
+                                        gotoStreamDetails(myList: true)
+                                    }else{
+                                        let vc = storyboard!.instantiateViewController(withIdentifier: "ScheduleVC") as! ScheduleVC
                                         self.navigationController?.pushViewController(vc, animated: true)
+                                    }
                                 }
-                               
-                        }
+                                
+                            }
                         }else{
                             let strError = json["message"] as? String
                             ////print("strError1:",strError ?? "")
@@ -1103,7 +1112,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
             self.aryMyListData  = [Any]();
             self.tblMain.reloadSections([2], with: .none)
         }
-
+        
     }
     //MARK: UISearchbar delegate
     @IBAction func searchTapped(_ sender: UIButton){

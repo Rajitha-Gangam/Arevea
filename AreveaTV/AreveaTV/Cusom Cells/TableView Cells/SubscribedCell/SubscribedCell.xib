@@ -28,7 +28,7 @@
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="5b5-pf-HAh">
                                 <rect key="frame" x="0.0" y="0.0" width="355" height="44"/>
                                 <subviews>
-                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="user-white" translatesAutoresizingMaskIntoConstraints="NO" id="koF-Gh-bqL">
+                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="user-bl" translatesAutoresizingMaskIntoConstraints="NO" id="koF-Gh-bqL">
                                         <rect key="frame" x="7" y="7" width="30" height="30"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="30" id="AZR-td-Z8t"/>
@@ -47,7 +47,7 @@
                                             <constraint firstAttribute="height" constant="21" id="98U-0x-6Na"/>
                                         </constraints>
                                         <fontDescription key="fontDescription" name="Poppins-SemiBold" family="Poppins" pointSize="17"/>
-                                        <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <color key="textColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <nil key="highlightedColor"/>
                                         <variation key="heightClass=regular-widthClass=regular">
                                             <fontDescription key="fontDescription" name="Poppins-Regular" family="Poppins" pointSize="23"/>
@@ -66,7 +66,7 @@
                                         </userDefinedRuntimeAttributes>
                                     </imageView>
                                 </subviews>
-                                <color key="backgroundColor" red="0.44313725490196076" green="0.42745098039215684" blue="0.4823529411764706" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <color key="backgroundColor" red="0.5450980392" green="0.90196078430000004" blue="0.83529411760000005" alpha="1" colorSpace="calibratedRGB"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="44" id="6kp-bK-CU9"/>
                                     <constraint firstItem="htu-NS-SWu" firstAttribute="leading" secondItem="koF-Gh-bqL" secondAttribute="trailing" constant="10" id="M07-Vo-Svc"/>
@@ -195,7 +195,7 @@
                                     <constraint firstAttribute="height" constant="21" id="L6z-4C-gza"/>
                                 </constraints>
                                 <fontDescription key="fontDescription" name="Poppins-SemiBold" family="Poppins" pointSize="23"/>
-                                <color key="textColor" red="0.94509803920000002" green="0.83529411760000005" blue="0.55294117649999996" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <color key="textColor" red="0.5450980392" green="0.90196078430000004" blue="0.83529411760000005" alpha="1" colorSpace="calibratedRGB"/>
                                 <nil key="highlightedColor"/>
                                 <variation key="heightClass=regular-widthClass=regular">
                                     <fontDescription key="fontDescription" name="Poppins-Regular" family="Poppins" pointSize="23"/>
@@ -216,7 +216,7 @@
                                 </variation>
                             </label>
                         </subviews>
-                        <color key="backgroundColor" red="0.22352941176470587" green="0.22352941176470587" blue="0.32549019607843138" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <color key="backgroundColor" red="0.1333333333" green="0.17254901959999999" blue="0.21176470589999999" alpha="1" colorSpace="calibratedRGB"/>
                         <constraints>
                             <constraint firstItem="BfA-MF-XTX" firstAttribute="top" secondItem="8sW-Xu-WLw" secondAttribute="bottom" constant="1" id="4hV-yh-1Ea"/>
                             <constraint firstItem="RUF-gb-NOa" firstAttribute="top" secondItem="f21-k2-KCp" secondAttribute="top" constant="50" id="CPH-CQ-lWs"/>
@@ -294,6 +294,6 @@
     <resources>
         <image name="checkmark" catalog="system" width="128" height="114"/>
         <image name="right-arrow" width="44" height="44"/>
-        <image name="user-white" width="44" height="44"/>
+        <image name="user-bl" width="80" height="96"/>
     </resources>
 </document>

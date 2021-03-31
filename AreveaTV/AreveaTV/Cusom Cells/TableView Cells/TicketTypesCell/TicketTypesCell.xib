@@ -62,13 +62,13 @@
                                         <fontDescription key="fontDescription" name="Poppins-Regular" family="Poppins" pointSize="25"/>
                                     </variation>
                                 </label>
-                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="$200.00" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="YtL-PP-6IE" userLabel="Price">
+                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="YtL-PP-6IE" userLabel="Price">
                                     <rect key="frame" x="10" y="60" width="300" height="21"/>
                                     <constraints>
                                         <constraint firstAttribute="height" constant="21" id="qpP-5v-6k9"/>
                                     </constraints>
                                     <fontDescription key="fontDescription" name="Poppins-SemiBold" family="Poppins" pointSize="17"/>
-                                    <color key="textColor" red="0.94509803920000002" green="0.83529411760000005" blue="0.55294117649999996" alpha="1" colorSpace="calibratedRGB"/>
+                                    <color key="textColor" red="0.5450980392" green="0.90196078430000004" blue="0.83529411760000005" alpha="1" colorSpace="calibratedRGB"/>
                                     <nil key="highlightedColor"/>
                                     <variation key="heightClass=regular-widthClass=regular">
                                         <fontDescription key="fontDescription" name="Poppins-Regular" family="Poppins" pointSize="25"/>
@@ -120,7 +120,7 @@ Main takeaway: Adding a string of adjectives, event subject matters, and event t
                                     </constraints>
                                     <fontDescription key="fontDescription" name="Poppins-Bold" family="Poppins" pointSize="17"/>
                                     <state key="normal" title="   0">
-                                        <color key="titleColor" red="0.94509803920000002" green="0.83529411760000005" blue="0.55294117649999996" alpha="1" colorSpace="calibratedRGB"/>
+                                        <color key="titleColor" red="0.5450980392" green="0.90196078430000004" blue="0.83529411760000005" alpha="1" colorSpace="calibratedRGB"/>
                                     </state>
                                     <userDefinedRuntimeAttributes>
                                         <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
@@ -187,6 +187,7 @@ Main takeaway: Adding a string of adjectives, event subject matters, and event t
             <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
             <connections>
                 <outlet property="btnSelect" destination="jdq-lR-APV" id="hNZ-At-UR9"/>
+                <outlet property="btnSelect1" destination="qga-YO-4dI" id="Dwq-GU-Uph"/>
                 <outlet property="imgCheck" destination="Be1-6D-s7A" id="GcL-Nh-Uty"/>
                 <outlet property="lblAmount" destination="YtL-PP-6IE" id="L9a-ss-q6W"/>
                 <outlet property="lblDate" destination="lRC-yM-UC5" id="HrC-A4-wxO"/>

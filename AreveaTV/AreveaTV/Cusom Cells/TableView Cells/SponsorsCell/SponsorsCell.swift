@@ -63,15 +63,13 @@ class SponsorsCell: UITableViewCell , UICollectionViewDataSource, UICollectionVi
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "SponsorsCVC", for: indexPath) as? SponsorsCVC {
             cell.backgroundColor = UIColor.clear
-            if(indexPath.row == 0){
-                cell.imgSponsor.image = UIImage.init(named: "sp_adp")
-            }else if(indexPath.row == 1){
-                cell.imgSponsor.image = UIImage.init(named: "sp_wipro")
-            }else if(indexPath.row == 2){
-                cell.imgSponsor.image = UIImage.init(named: "sp_ibm")
-            }else if(indexPath.row == 3){
-                cell.imgSponsor.image = UIImage.init(named: "sp_ms")
+            let charity = self.rowWithItems[indexPath.row] as? [String : Any];
+            
+            let strURL = charity?["advertiser_logo"]as? String ?? ""
+            if let urlCharity = URL(string: strURL){
+                cell.imgSponsor.sd_setImage(with: urlCharity, placeholderImage: UIImage(named: "charity-img.png"))
             }
+            
             return cell
         }
         return UICollectionViewCell()

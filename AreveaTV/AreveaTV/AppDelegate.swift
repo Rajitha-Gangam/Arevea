@@ -39,10 +39,22 @@ class AppDelegate: UIResponder, UIApplicationDelegate , OpenChanannelChatDelegat
     var userTimezoneOffset = 0.0
     var urlCloudFront = "https://d3vv6h15bemsva.cloudfront.net/live/"
     var isGuest = false
+
+    var orgId = 0
+    var streamId = 0
+    var performerId = 0
+    var strTitle = ""
+    var channel_name_subscription = ""
+    var isVOD = false
+    var isUpcoming = false
+    var isAudio = false
+    var isStream = false
     var strSlug = ""
+    var streamPaymentMode = ""
+    var paramsForFreeRegistration = [String : Any]()
 
     // MARK: - Dev Environmet Variables Declaration
-    var baseURL = "https://dev1-apis.arevea.com";
+    /*var baseURL = "https://dev1-apis.arevea.com";
      var websiteURL = "https://dev1.arevea.com"
      var sendBirdAppId = "AE94EB49-0A01-43BF-96B4-8297EBB47F12";
      var profileURL = "https://dev1.arevea.com/api/user/v1";
@@ -63,11 +75,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate , OpenChanannelChatDelegat
      var ol_access_token = ""
      var FCMBaseURL = "https://r5ibd3yzp7.execute-api.us-west-2.amazonaws.com/devel"
      var socialLoginURL = "https://areveatv-sandbox.onelogin.com/access/initiate"
-     
+     */
     //Dev Variables END
     
     // MARK: - QA Environmet Variables Declaration
-   /* var baseURL = "https://qa1-apis.arevea.com"
+    /*var baseURL = "https://qa1-apis.arevea.com"
     var websiteURL = "https://qa1.arevea.com"
     var sendBirdAppId = "7AF38850-F099-4C47-BD19-F7F84DAFECF8";
     var profileURL = "https://qa1.arevea.com/api/user/v1"
@@ -91,7 +103,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate , OpenChanannelChatDelegat
     //QA Variables END
     */
     // MARK: - Pre-prod Environmet Variables Declaration
-     /*var baseURL = "https://preprod-apis.arevea.tv"
+     var baseURL = "https://preprod-apis.arevea.tv"
      var websiteURL = "https://preprod.arevea.tv"
      var sendBirdAppId = "2115A8A2-36D7-4ABC-A8CE-758500A54DFD";
      var profileURL = "https://preprod.arevea.tv/api/user/v1"
@@ -113,7 +125,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate , OpenChanannelChatDelegat
      var FCMBaseURL = "https://preprod-apis.arevea.tv"
      var socialLoginURL = "https://areveatv-sandbox.onelogin.com/access/initiate"
      
-    */
+    
     //Pre-prod Variables END
     
     // MARK: - prod Environmet Variables Declaration
@@ -154,7 +166,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate , OpenChanannelChatDelegat
         case pad   // iPad style UI (also includes macOS Catalyst)
     }
     var appSyncClient: AWSAppSyncClient?
-    var isVOD = false
     var orientationLock = UIInterfaceOrientationMask.all
     
     func application(_ application: UIApplication, supportedInterfaceOrientationsFor window: UIWindow?) -> UIInterfaceOrientationMask {
@@ -230,7 +241,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate , OpenChanannelChatDelegat
             
             // Enable or disable features based on the authorization.
         }
-        
+       
         return true
     }
     
@@ -441,19 +452,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate , OpenChanannelChatDelegat
        let performerId = streamInfo["performer_id"] as? Int ?? 0
        let channelName = streamInfo["channel_name"] as? String ?? ""
 
-        vc.orgId = orgId
-        vc.streamId = streamId
-        vc.delegate = self
-        vc.performerId = performerId
-        vc.strTitle = stream_video_title
+        self.orgId = orgId
+        self.streamId = streamId
+        vc.chatDelegate = self
+        self.performerId = performerId
+        self.strTitle = stream_video_title
         //vc.isCameFromGetTickets = true
-        vc.channel_name_subscription = channelName
+        self.channel_name_subscription = channelName
        self.isGuest = true
-        vc.isVOD = isVOD
         if(!isVOD){
-            vc.isUpcoming = true
+            self.isUpcoming = true
         }
-       vc.strSlug = strSlug
        let rootViewController = self.window!.rootViewController as! UINavigationController
        print("Nav from mail")
        rootViewController.pushViewController(vc, animated: true)
@@ -880,6 +889,29 @@ extension String {
     }
     var htmlToString: String {
         return htmlToAttributedString?.string ?? ""
+    }
+    var length: Int {
+        return count
+    }
+
+    subscript (i: Int) -> String {
+        return self[i ..< i + 1]
+    }
+
+    func substring(fromIndex: Int) -> String {
+        return self[min(fromIndex, length) ..< length]
+    }
+
+    func substring(toIndex: Int) -> String {
+        return self[0 ..< max(0, toIndex)]
+    }
+
+    subscript (r: Range<Int>) -> String {
+        let range = Range(uncheckedBounds: (lower: max(0, min(length, r.lowerBound)),
+                                            upper: min(length, max(0, r.upperBound))))
+        let start = index(startIndex, offsetBy: range.lowerBound)
+        let end = index(start, offsetBy: range.upperBound - range.lowerBound)
+        return String(self[start ..< end])
     }
     
 }
