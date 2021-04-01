@@ -86,8 +86,13 @@ class QuestionsVC: UIViewController,OpenChanannelChatDelegate,UITableViewDataSou
         let label = UILabel()
         let questionInfo = aryQuestions[section] as? [String:Any] ?? [:]
         let question = questionInfo["question"] as? String ?? ""
+        let is_mandatory = questionInfo["is_mandatory"] as? Bool ?? false
+
         let title =  "Q" + String(section + 1) + ": " + question
         label.text = title
+        if(is_mandatory){
+            label.text = title + "  *"
+        }
         label.textColor = .white
         // button.addTarget(self, action: Selector("visibleRow:"), forControlEvents:.TouchUpInside)
         
@@ -273,26 +278,47 @@ class QuestionsVC: UIViewController,OpenChanannelChatDelegate,UITableViewDataSou
         
         var inc = 0
         for(index,element)in aryAnswers.enumerated(){
+            let questionInfo = aryQuestions[index] as? [String : Any] ?? [String:Any]()
+            let is_mandatory = questionInfo["is_mandatory"] as? Bool ?? false
             if((element as? String) != nil){
                 let obj = element as? String ?? ""
-                if(obj != ""){
+                if(is_mandatory){
+                    if(obj != ""){
+                        inc = inc + 1
+                    }
+                }else{
                     inc = inc + 1
                 }
             }else if((element as? [Any]) != nil){
                 let obj = element as? [Any] ?? [Any]()
+                if(is_mandatory){
                 if(obj.count != 0){
+                    inc = inc + 1
+                }
+                }else{
                     inc = inc + 1
                 }
             }
         }
         if(aryAnswers.count != inc){
-            showAlert(strMsg: "Please answer all questions")
+            showAlert(strMsg: "Please answer all mandatory questions")
             return
         }
         questionsObj = [Int:Any]()
         for(index,element)in aryAnswers.enumerated(){
-            let id = aryAnswersIds[index] as? Int ?? 0
-            questionsObj[id] = aryAnswers[index]
+            if((element as? String) != nil){
+                let obj = element as? String ?? ""
+                if(obj != ""){
+                    let id = aryAnswersIds[index] as? Int ?? 0
+                    questionsObj[id] = aryAnswers[index]
+                }
+            }else if((element as? [Any]) != nil){
+                let obj = element as? [Any] ?? [Any]()
+                if(obj.count != 0){
+                    let id = aryAnswersIds[index] as? Int ?? 0
+                    questionsObj[id] = aryAnswers[index]
+                }
+            }
         }
         print("questionsObj:",questionsObj)
         if(appDelegate.streamPaymentMode.lowercased() == "free"){

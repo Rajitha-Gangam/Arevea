@@ -1045,7 +1045,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
                 switch response.result {
                 case .success(let value):
                     if let json = value as? [String: Any] {
-                        //print("LiveEventById JSON1:",json)
+                        print("LiveEventById JSON1:",json)
                         if (json["statusCode"]as? String == "200"){
                             let data = json["Data"] as? [String:Any]
                             let resultData = data ?? [:]
@@ -1084,7 +1084,9 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
                                     self.navigationController?.pushViewController(vc, animated: true)
                                 }else{
                                     if(myList){
-                                        gotoStreamDetails(myList: true)
+                                        //gotoStreamDetails(myList: true)
+                                        let vc = storyboard!.instantiateViewController(withIdentifier: "ScheduleVC") as! ScheduleVC
+                                        self.navigationController?.pushViewController(vc, animated: true)
                                     }else{
                                         let vc = storyboard!.instantiateViewController(withIdentifier: "ScheduleVC") as! ScheduleVC
                                         self.navigationController?.pushViewController(vc, animated: true)

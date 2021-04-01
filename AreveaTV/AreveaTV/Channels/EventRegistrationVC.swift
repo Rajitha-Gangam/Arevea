@@ -294,8 +294,8 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate,UICollecti
                 //var expected_end_date_time = streamInfo["expected_end_date_time"]as? String ?? ""
             }
         }
+        //tblSchedule.reloadSections([index], with: .automatic)
         tblSchedule.reloadData()
-
     }
     @objc func btnDatePress(_ sender: UIButton) {
         tblSchedule.isHidden = false
@@ -460,7 +460,7 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate,UICollecti
                 switch response.result {
                 case .success(let value):
                     if let json = value as? [String: Any] {
-                        print("getEventBySlug JSON:",json)
+                       print("getEventBySlug JSON:",json)
                         if (json["statusCode"]as? String == "200"){
                             var strPriceList = [String]()
                             var eventStartDates = [Date]()
@@ -535,8 +535,23 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate,UICollecti
                             self.appDelegate.streamPaymentMode = self.streamPaymentMode
 
                             self.isUserSubscribe = self.priceDetails["subscription_status"] as?Bool ?? false
-                            let min = self.priceDetails["min"] as? Int ?? 0
-                            let max = self.priceDetails["max"] as? Int ?? 0
+                            var strMinPrice = "0.00"
+                            var strMaxPrice = "0.00"
+                                if (self.priceDetails["min"] as? Int) != nil {
+                                    strMinPrice = String(self.priceDetails["min"] as? Int ?? 0)
+                                }else if (self.priceDetails["min"] as? String) != nil {
+                                    strMinPrice = String(self.priceDetails["min"] as? String ?? "0.00")
+                                }else if (self.priceDetails["min"] as? Double) != nil {
+                                    strMinPrice = String(self.priceDetails["min"] as? Double ?? 0.00)
+                                }
+                            if (self.priceDetails["max"] as? Int) != nil {
+                                strMaxPrice = String(self.priceDetails["max"] as? Int ?? 0)
+                            }else if (self.priceDetails["max"] as? String) != nil {
+                                strMaxPrice = String(self.priceDetails["max"] as? String ?? "0.00")
+                            }else if (self.priceDetails["max"] as? Double) != nil {
+                                strMaxPrice = String(self.priceDetails["max"] as? Double ?? 0.00)
+                            }
+                            
                             var amountDispaly = ""
                             let currencyTypePrice = self.priceDetails["currency"] as? String ?? ""
                             var currencySymbolPrice = ""
@@ -557,15 +572,13 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate,UICollecti
                             }
                             let msg = self.priceDetails["message"] as? String ?? ""
                             print("self.stream_payment_mode==>",self.streamPaymentMode)
-                            print("min:==>",min)
-                            print("maX:==>",max)
-                            if(self.streamPaymentMode == "paid" && (min  > 0  || max > 0)){
-                                let doubleMinAmount = Double(min)
-                                let minAmount = String(format: "%.02f", doubleMinAmount)
+                            if(self.streamPaymentMode == "paid" && (strMinPrice != "0.00"  || strMinPrice != "0.00")){
+                                let doubleMinAmount = Double(strMinPrice)
+                                let minAmount = String(format: "%.02f", doubleMinAmount!)
                                 
-                                if(min != max){
-                                    let doubleMaxAmount = Double(max)
-                                    let maxAmount = String(format: "%.02f", doubleMaxAmount)
+                                if(strMinPrice != strMaxPrice){
+                                    let doubleMaxAmount = Double(strMaxPrice)
+                                    let maxAmount = String(format: "%.02f", doubleMaxAmount!)
                                     
                                     amountDispaly = currencySymbolPrice + minAmount + " - " + currencySymbolPrice + maxAmount
                                 }else{

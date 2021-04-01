@@ -124,7 +124,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate , OpenChanannelChatDelegat
      var ol_access_token = ""
      var FCMBaseURL = "https://preprod-apis.arevea.tv"
      var socialLoginURL = "https://areveatv-sandbox.onelogin.com/access/initiate"
-     
+     var strTicketKey = ""
     
     //Pre-prod Variables END
     
@@ -354,18 +354,18 @@ class AppDelegate: UIResponder, UIApplicationDelegate , OpenChanannelChatDelegat
                 }
                 
                 DispatchQueue.main.async {
-                    self.gotoStreamDetails(streamInfo: streamInfo)
+                    self.gotoSchedule(streamInfo: streamInfo)
                 }
             }
         }
     }
-    func getTicketDetails(ticketkey:String){
+    func getTicketDetails(){
         print("==getTicketDetails")
         // let params: [String: Any] = ["userid":user_id ?? "","performer_id":"101","stream_id": "0"]
         let url: String = self.baseURL +  "/getTicketDetails"
         let headers: HTTPHeaders
         headers = [self.x_api_key: self.x_api_value]
-        let params: [String: Any] = ["ticket_key": ticketkey]
+        let params: [String: Any] = ["ticket_key": strTicketKey]
          print("getTicketDetails params:",params)
         
         AF.request(url, method: .post,parameters: params, encoding: JSONEncoding.default,headers:headers)
@@ -415,16 +415,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate , OpenChanannelChatDelegat
             let url = userActivity.webpageURL!
             print(url.absoluteString)
             // alternative: not case sensitive
-            //https://qa1.arevea.com/stream/1898-101059776-d85HRNgYlGhi
+            //https://qa1.arevea.com/schedule/1898-101059776-d85HRNgYlGhi
             let url1 = url.absoluteString
             //handle url and open whatever page you want to open.
-            if url1.range(of:"/stream/") != nil {
-                let link = url1.components(separatedBy: "/stream/")
+            if url1.range(of:"/schedule/") != nil {
+                let link = url1.components(separatedBy: "/schedule/")
                 if(link.count > 1){
                     let ticketKey: String = link[1]
                     print("ticketKey:",ticketKey)
                     isVOD = false
-                    getTicketDetails(ticketkey: ticketKey)
+                    self.strTicketKey = ticketKey
+                    getTicketDetails()
                 }
             }else if url1.range(of:"/watch/") != nil {
                 let link = url1.components(separatedBy: "/watch/")
@@ -432,7 +433,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate , OpenChanannelChatDelegat
                     let ticketKey: String = link[1]
                     print("ticketKey:",ticketKey)
                     isVOD = true
-                    getTicketDetails(ticketkey: ticketKey)
+                    self.strTicketKey = ticketKey
+                    getTicketDetails()
                 }
             }else{
                 print("url to open:",url)
@@ -441,16 +443,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate , OpenChanannelChatDelegat
         }
         return true
     }
-    func gotoStreamDetails(streamInfo:[String:Any]){
-        print("gotoStreamDetails")
+    func gotoSchedule(streamInfo:[String:Any]){
+        print("gotoSchedule")
         let storyboard = UIStoryboard(name: "Main", bundle: nil);
          let stream_video_title = streamInfo["stream_video_title"] as? String ?? "Channel Details"
 
-        let vc = storyboard.instantiateViewController(withIdentifier: "StreamDetailVC") as! StreamDetailVC
+        let vc = storyboard.instantiateViewController(withIdentifier: "ScheduleVC") as! ScheduleVC
        let orgId = streamInfo["organization_id"] as? Int ?? 0
        let streamId = streamInfo["id"] as? Int ?? 0
        let performerId = streamInfo["performer_id"] as? Int ?? 0
        let channelName = streamInfo["channel_name"] as? String ?? ""
+       self.strSlug = streamInfo["slug"] as? String ?? "";
 
         self.orgId = orgId
         self.streamId = streamId

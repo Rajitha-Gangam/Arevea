@@ -69,8 +69,9 @@ class ScheduleVC: UIViewController,OpenChanannelChatDelegate,UITableViewDataSour
     @IBOutlet weak var txtVideoDesc_Info: UITextView!
     var aryUserSubscriptionInfo = [Any]()
      var tempStreamStatus = ""
-
+    var ticketKey = ""
     //for tabs highlight when we go respective pages, and after comes back to this page creating these variables.
+    weak var chatDelegate: OpenChanannelChatDelegate?
 
     
     // MARK: - View Life cycle
@@ -182,7 +183,7 @@ class ScheduleVC: UIViewController,OpenChanannelChatDelegate,UITableViewDataSour
             let btnTag = 20 + index;
             let btnText = self.dateCVC.viewWithTag(btnTag) as? UIButton
             if (tag == btnTag){
-                //print("btnTag:",btnTag)
+                print("btnTag:",btnTag)
                 let yellow = UIColor(red: 139, green: 230, blue: 213);
                 btnText?.backgroundColor = yellow
                 btnText?.setTitleColor(.black, for: .normal)
@@ -224,7 +225,7 @@ class ScheduleVC: UIViewController,OpenChanannelChatDelegate,UITableViewDataSour
             //self.imgStreamThumbNail.image = UIImage.init(named: "sample_vod_square")
         }
         getEventBySlug()
-       
+
     }
     override func viewDidDisappear(_ animated: Bool) {
         NotificationCenter.default.removeObserver(self, name:UIApplication.didBecomeActiveNotification , object: nil)
@@ -297,7 +298,7 @@ class ScheduleVC: UIViewController,OpenChanannelChatDelegate,UITableViewDataSour
                 switch response.result {
                 case .success(let value):
                     if let json = value as? [String: Any] {
-                        print("getEventBySlug JSON:",json)
+                      print("getEventBySlug JSON:",json)
                         if (json["statusCode"]as? String == "200"){
                             let data = json["Data"] as? [String:Any]
                             self.aryStreamInfo = data?["stream_info"] as? [String:Any] ?? [:]
@@ -306,6 +307,17 @@ class ScheduleVC: UIViewController,OpenChanannelChatDelegate,UITableViewDataSour
                             print("==>self.aryStreamInfo:",self.aryStreamInfo)
                             let stream_info_key_exists = self.aryStreamInfo["id"]
                             self.arysubEvents = data?["subEvents"]as? [Any] ?? [Any]()
+                            self.aryUserSubscriptionInfo = data?["user_subscription_info"] as? [Any] ?? [Any]()
+                            print("aryUserSubscriptionInfo:",aryUserSubscriptionInfo)
+                            if(self.aryUserSubscriptionInfo.count > 0){
+                                let userSubscription = self.aryUserSubscriptionInfo[0] as? [String : Any] ?? [:];
+                                self.aryTicketIds = userSubscription["ticket_ids"] as? [Any] ?? [Any]()
+                                appDelegate.strTicketKey = userSubscription["ticket_key"] as? String ?? "";
+                               // print("appDelegate.strTicketKey:",appDelegate.strTicketKey)
+                            
+                            }else{
+                                self.aryTicketIds = []
+                            }
                             if(arysubEvents.count > 1)
                             {
                                 
@@ -313,14 +325,7 @@ class ScheduleVC: UIViewController,OpenChanannelChatDelegate,UITableViewDataSour
                                 gotoStreamDetails()
                                 return
                             }
-                            self.aryUserSubscriptionInfo = data?["user_subscription_info"] as? [Any] ?? [Any]()
-                            if(self.aryUserSubscriptionInfo.count > 0){
-                                let userSubscription = self.aryUserSubscriptionInfo[0] as? [String : Any] ?? [:];
-                                self.aryTicketIds = userSubscription["ticket_ids"] as? [Any] ?? [Any]()
-                            }else{
-                                self.aryTicketIds = []
-                            }
-                            print("==>aryTicketIds:",self.aryTicketIds)
+                           
 
                             let event_dates_json = streamObj["event_dates_json"] as? String ?? "";
                             
@@ -331,8 +336,6 @@ class ScheduleVC: UIViewController,OpenChanannelChatDelegate,UITableViewDataSour
                                 reloadTbl(index: 0)
                             }
                             self.streamPaymentMode = streamObj["stream_payment_mode"] as? String ?? ""
-                            
-                            
                                 self.streamVideoCode = streamObj["stream_video_code"] as? String ?? ""
                                 _ = streamObj["stream_video_title"] as? String ?? ""
                                 self.streamVideoDesc = streamObj["stream_video_description"] as? String ?? ""
@@ -429,7 +432,7 @@ class ScheduleVC: UIViewController,OpenChanannelChatDelegate,UITableViewDataSour
         vc.chatDelegate = self
         vc.isCameFromGetTickets = true
         vc.tempStreamStatus = tempStreamStatus
-        //appDelegate.strSlug =
+        
         self.navigationController?.pushViewController(vc, animated: true)
         
     }
@@ -506,9 +509,14 @@ class ScheduleVC: UIViewController,OpenChanannelChatDelegate,UITableViewDataSour
     
     @objc func watchNow(_ sender: UIButton) {
         let subEvent = arySelectedSubEvents[sender.tag] as? [String:Any] ?? [:]
-        print("subEvent:",subEvent)
+        //print("subEvent:",subEvent)
         let streamInfo = subEvent["stream_info"] as? [String : Any] ?? [String:Any]()
-        
+        appDelegate.streamId = subEvent["streamid"] as? Int ?? 0
+        print("==>appDelegate.streamId:",appDelegate.streamId)
+        let strVideoCode = streamInfo["stream_video_code"] as? String ?? ""
+       // appDelegate.strea = streamInfo["streamid"] as? Int ?? 0
+        print("==>appDelegate.strVideoCode:",strVideoCode)
+
         let stage = streamInfo["stage"] as? String ?? ""
         let stream_status = streamInfo["stream_status"] as? String ?? "";
         tempStreamStatus = stream_status
@@ -530,7 +538,8 @@ class ScheduleVC: UIViewController,OpenChanannelChatDelegate,UITableViewDataSour
 
             let subEvent = arySelectedSubEvents[section] as? [String:Any] ?? [:]
             let streamInfo = subEvent["stream_info"] as? [String : Any] ?? [String:Any]()
-            
+            //print("==>subEvent:",subEvent)
+
             let stage = streamInfo["stage"] as? String ?? ""
             
             let start_time = streamInfo["publish_date_time"]as? String ?? ""

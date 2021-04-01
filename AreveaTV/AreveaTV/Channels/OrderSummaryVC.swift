@@ -76,6 +76,7 @@ class OrderSummaryVC: UIViewController , OpenChanannelChatDelegate, UITextFieldD
         self.lblTotal.isHidden = true
         self.lblTotalTitle.isHidden = true
         self.discountApplied = false
+        self.txtPromoCode.isEnabled = true
         heightOrderView.constant = 150
         viewOrder.layoutIfNeeded()
     }
@@ -181,16 +182,25 @@ class OrderSummaryVC: UIViewController , OpenChanannelChatDelegate, UITextFieldD
                             if (data.count == 0){
                                 self.showAlert(strMsg: strMsg)
                             }else{
-                                self.btnApply.isHidden = true
-                                self.btnClear.isHidden = false
-                                self.lblDiscount.isHidden = false
-                                self.lblDiscountTitle.isHidden = false
-                                self.lblTotal.isHidden = false
-                                self.lblTotalTitle.isHidden = false
+                                
                                 var discountPer = "0.00"
                                 
                                 if(data.count > 0){
                                     let object = data[0] as? [String:Any] ?? [:]
+                                    //for referral code it should not work, so handling like this
+                                    let referrer = object["referrer"] as? String ?? ""
+                                    if(referrer != ""){
+                                        self.showAlert(strMsg: "Invalid code")
+                                        return
+                                    }
+                                    self.txtPromoCode.isEnabled = false
+                                    self.btnApply.isHidden = true
+                                    self.btnClear.isHidden = false
+                                    self.lblDiscount.isHidden = false
+                                    self.lblDiscountTitle.isHidden = false
+                                    self.lblTotal.isHidden = false
+                                    self.lblTotalTitle.isHidden = false
+                                    
                                     if (object["discount"] as? Int) != nil {
                                         discountPer = String(object["discount"] as? Int ?? 0)
                                     }else if (object["discount"] as? String) != nil {
