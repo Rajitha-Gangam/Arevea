@@ -52,7 +52,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate , OpenChanannelChatDelegat
     var strSlug = ""
     var streamPaymentMode = ""
     var paramsForFreeRegistration = [String : Any]()
-
+    var strTicketKey = ""
+    var isPvtChatFromLeftMenu = false
     // MARK: - Dev Environmet Variables Declaration
     /*var baseURL = "https://dev1-apis.arevea.com";
      var websiteURL = "https://dev1.arevea.com"
@@ -75,11 +76,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate , OpenChanannelChatDelegat
      var ol_access_token = ""
      var FCMBaseURL = "https://r5ibd3yzp7.execute-api.us-west-2.amazonaws.com/devel"
      var socialLoginURL = "https://areveatv-sandbox.onelogin.com/access/initiate"
-     */
-    //Dev Variables END
     
+    //Dev Variables END
+    */
     // MARK: - QA Environmet Variables Declaration
-    /*var baseURL = "https://qa1-apis.arevea.com"
+   /* var baseURL = "https://qa1-apis.arevea.com"
     var websiteURL = "https://qa1.arevea.com"
     var sendBirdAppId = "7AF38850-F099-4C47-BD19-F7F84DAFECF8";
     var profileURL = "https://qa1.arevea.com/api/user/v1"
@@ -124,7 +125,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate , OpenChanannelChatDelegat
      var ol_access_token = ""
      var FCMBaseURL = "https://preprod-apis.arevea.tv"
      var socialLoginURL = "https://areveatv-sandbox.onelogin.com/access/initiate"
-     var strTicketKey = ""
     
     //Pre-prod Variables END
     
@@ -413,7 +413,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate , OpenChanannelChatDelegat
         print("Continue User Activity called: ")
         if userActivity.activityType == NSUserActivityTypeBrowsingWeb {
             let url = userActivity.webpageURL!
-            print(url.absoluteString)
+            print("open url in app del:",url.absoluteString)
             // alternative: not case sensitive
             //https://qa1.arevea.com/schedule/1898-101059776-d85HRNgYlGhi
             let url1 = url.absoluteString
@@ -436,6 +436,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate , OpenChanannelChatDelegat
                     self.strTicketKey = ticketKey
                     getTicketDetails()
                 }
+            }else if(url1.range(of:"/payment/") != nil || url1.range(of:"/place-order") != nil){
+                //to resolve below issue
+               // In ios application>>After payment completed when we click on open button near Arevea App in header again redirecting to payment page.
             }else{
                 print("url to open:",url)
                 UIApplication.shared.open(url)

@@ -22,6 +22,8 @@
 		1822F8A324CF266E009E8E1A /* MyPurchasesVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1822F8A224CF266E009E8E1A /* MyPurchasesVC.swift */; };
 		1822F8A824D03364009E8E1A /* MyEventsCVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1822F8A624D03364009E8E1A /* MyEventsCVC.swift */; };
 		1822F8A924D03364009E8E1A /* MyEventsCVC.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1822F8A724D03364009E8E1A /* MyEventsCVC.xib */; };
+		1822FD16261C3FF3000EBD57 /* ScheduleUserCVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1822FD14261C3FF3000EBD57 /* ScheduleUserCVC.swift */; };
+		1822FD17261C3FF3000EBD57 /* ScheduleUserCVC.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1822FD15261C3FF3000EBD57 /* ScheduleUserCVC.xib */; };
 		1822FED524F961B400AE57EA /* ACFloatingTextfield.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1822FED424F961B400AE57EA /* ACFloatingTextfield.swift */; };
 		1826035A24D2A7CC00248E8B /* Poppins-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1826035524D2A7C600248E8B /* Poppins-Light.ttf */; };
 		1826035B24D2A7CC00248E8B /* Poppins-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1826035624D2A7C800248E8B /* Poppins-Regular.ttf */; };
@@ -94,6 +96,8 @@
 		189BC6372591F0FE00445423 /* TicketTypesCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 189BC6352591F0FD00445423 /* TicketTypesCell.xib */; };
 		189BC63E259261F600445423 /* currencies.json in Resources */ = {isa = PBXBuildFile; fileRef = 189BC63D259261F600445423 /* currencies.json */; };
 		189BC64125926A4900445423 /* TicketTypesVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 189BC64025926A4900445423 /* TicketTypesVC.swift */; };
+		189DAC4626289CBB000D599F /* PvtChatCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 189DAC4426289CBB000D599F /* PvtChatCell.swift */; };
+		189DAC4726289CBB000D599F /* PvtChatCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 189DAC4526289CBB000D599F /* PvtChatCell.xib */; };
 		189EBED6245752B800C52B0E /* AudioCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 189EBED4245752B800C52B0E /* AudioCell.swift */; };
 		189EBED7245752B800C52B0E /* AudioCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 189EBED5245752B800C52B0E /* AudioCell.xib */; };
 		189EBF322459CEE500C52B0E /* VideoCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 189EBF302459CEE500C52B0E /* VideoCell.swift */; };
@@ -201,6 +205,8 @@
 		1822F8A224CF266E009E8E1A /* MyPurchasesVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyPurchasesVC.swift; sourceTree = "<group>"; };
 		1822F8A624D03364009E8E1A /* MyEventsCVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyEventsCVC.swift; sourceTree = "<group>"; };
 		1822F8A724D03364009E8E1A /* MyEventsCVC.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MyEventsCVC.xib; sourceTree = "<group>"; };
+		1822FD14261C3FF3000EBD57 /* ScheduleUserCVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScheduleUserCVC.swift; sourceTree = "<group>"; };
+		1822FD15261C3FF3000EBD57 /* ScheduleUserCVC.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ScheduleUserCVC.xib; sourceTree = "<group>"; };
 		1822FED424F961B400AE57EA /* ACFloatingTextfield.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ACFloatingTextfield.swift; sourceTree = "<group>"; };
 		1826035524D2A7C600248E8B /* Poppins-Light.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Poppins-Light.ttf"; sourceTree = "<group>"; };
 		1826035624D2A7C800248E8B /* Poppins-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Poppins-Regular.ttf"; sourceTree = "<group>"; };
@@ -276,6 +282,8 @@
 		189BC6352591F0FD00445423 /* TicketTypesCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = TicketTypesCell.xib; sourceTree = "<group>"; };
 		189BC63D259261F600445423 /* currencies.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = currencies.json; sourceTree = "<group>"; };
 		189BC64025926A4900445423 /* TicketTypesVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TicketTypesVC.swift; sourceTree = "<group>"; };
+		189DAC4426289CBB000D599F /* PvtChatCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PvtChatCell.swift; sourceTree = "<group>"; };
+		189DAC4526289CBB000D599F /* PvtChatCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = PvtChatCell.xib; sourceTree = "<group>"; };
 		189EBED4245752B800C52B0E /* AudioCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioCell.swift; sourceTree = "<group>"; };
 		189EBED5245752B800C52B0E /* AudioCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = AudioCell.xib; sourceTree = "<group>"; };
 		189EBF302459CEE500C52B0E /* VideoCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoCell.swift; sourceTree = "<group>"; };
@@ -468,6 +476,8 @@
 				184B86CF24D302C8003F4D3D /* OpenChanannelChatDelegate.swift */,
 				184B86D024D302C8003F4D3D /* OpenChannelUserMessageTableViewCell.swift */,
 				184B86D124D302C8003F4D3D /* OpenChannelUserMessageTableViewCell.xib */,
+				189DAC4426289CBB000D599F /* PvtChatCell.swift */,
+				189DAC4526289CBB000D599F /* PvtChatCell.xib */,
 				184B86D224D302C8003F4D3D /* OpenChannelTableViewCell.swift */,
 				18BAF3122588B9B300FBB9F3 /* Q_And_A_AnswerCell.swift */,
 				18BAF31B2588C1C300FBB9F3 /* Q_And_A_Cell.swift */,
@@ -640,6 +650,8 @@
 				18122C9C252B0CCC00C28926 /* MultiStreamGuestsCVC.xib */,
 				18DF22DA25E01307004D6E44 /* SponsorsCVC.swift */,
 				18DF22DB25E01307004D6E44 /* SponsorsCVC.xib */,
+				1822FD14261C3FF3000EBD57 /* ScheduleUserCVC.swift */,
+				1822FD15261C3FF3000EBD57 /* ScheduleUserCVC.xib */,
 			);
 			path = "Collection View Cells";
 			sourceTree = "<group>";
@@ -1082,6 +1094,7 @@
 				18B1BEF4255955C6003E96FF /* SubscriptionCell.xib in Resources */,
 				18122C9E252B0CCC00C28926 /* MultiStreamGuestsCVC.xib in Resources */,
 				18DAF98E248FBA1D00A6693A /* sr_entertainment.png in Resources */,
+				1822FD17261C3FF3000EBD57 /* ScheduleUserCVC.xib in Resources */,
 				1894626B2613591A00B0A5D4 /* Default-Portrait-750h@2x.png in Resources */,
 				180A8BDD24AF92340022FFE4 /* Images.xcassets in Resources */,
 				182A5EF8245F057800FF6147 /* FilterCVCell.xib in Resources */,
@@ -1089,6 +1102,7 @@
 				180BE7C12609F87E00EB5A6D /* ScheduleHeaderViewCell.xib in Resources */,
 				182A5F06246166D700FF6147 /* CharityCell.xib in Resources */,
 				18D7EA4925CB07A600E87DD0 /* Q_And_A_Section.xib in Resources */,
+				189DAC4726289CBB000D599F /* PvtChatCell.xib in Resources */,
 				188826E625961CF0005BCBAD /* StreamHeaderCVC.xib in Resources */,
 				18408E8325892A5A000F0F30 /* Q_And_A_Footer.xib in Resources */,
 				180E003B253F404B00DDFD2D /* payload.apns in Resources */,
@@ -1197,6 +1211,7 @@
 				18D480B12451A30E00640C1A /* ChannelsVC.swift in Sources */,
 				18D480AA24519D1100640C1A /* SubscribeTest.swift in Sources */,
 				18DF22DC25E01307004D6E44 /* SponsorsCVC.swift in Sources */,
+				1822FD16261C3FF3000EBD57 /* ScheduleUserCVC.swift in Sources */,
 				18EB81C7244ACC4F008EB09A /* SignUpVC.swift in Sources */,
 				18EB81C8244ACC4F008EB09A /* ConfirmSignUpVC.swift in Sources */,
 				18E77E1E24C6E541003BBC39 /* MyEventsVC.swift in Sources */,
@@ -1232,6 +1247,7 @@
 				18EC36CD25ADDAF100D70F29 /* ContactsVC.swift in Sources */,
 				18E394C026020144003DC413 /* QuestionsVC.swift in Sources */,
 				184A0B532472CC20006EDDA3 /* PaymentHistoryCell.swift in Sources */,
+				189DAC4626289CBB000D599F /* PvtChatCell.swift in Sources */,
 				18DF22D525E00565004D6E44 /* SponsorsCell.swift in Sources */,
 				188484252603BE5D00CE8BCE /* TextFieldCell.swift in Sources */,
 				189EBF44245ACD3400C52B0E /* FilterCell.swift in Sources */,
@@ -1418,7 +1434,7 @@
 				CODE_SIGN_ENTITLEMENTS = AreveaTV/AreveaTV.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 3.5;
+				CURRENT_PROJECT_VERSION = 4.0;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = J7XKYVP7J4;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -1449,7 +1465,7 @@
 				CODE_SIGN_ENTITLEMENTS = AreveaTV/AreveaTV.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 3.5;
+				CURRENT_PROJECT_VERSION = 4.0;
 				DEVELOPMENT_TEAM = J7XKYVP7J4;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",

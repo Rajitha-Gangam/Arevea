@@ -12,6 +12,7 @@ protocol RefreshContactsProtocol {
 }
 class AddContactVC: UIViewController, UITableViewDelegate, UITableViewDataSource,UISearchBarDelegate {
     var delegate:RefreshContactsProtocol?
+    let appDelegate = UIApplication.shared.delegate as! AppDelegate
 
     @IBOutlet weak var viewActivity: UIView!
     @IBOutlet weak var heightTopView: NSLayoutConstraint?
@@ -61,23 +62,33 @@ class AddContactVC: UIViewController, UITableViewDelegate, UITableViewDataSource
         // This view controller itself will provide the delegate methods and row data for the table view.
         self.searchBar.delegate = self
         searchBar.placeholder = "Search with any keyword"
-        let darkGray = UIColor(red: 113, green: 109, blue: 123);
+        let green = UIColor(red: 34, green: 44, blue: 54);
+        let darkGreen = UIColor(red: 13, green: 17, blue: 21);
 
         searchBar.set(textColor: .white)
-        searchBar.setTextField(color: darkGray)
-        searchBar.setPlaceholder(textColor: darkGray)
+        searchBar.setTextField(color:green )
+        searchBar.setPlaceholder(textColor: .gray)
         searchBar.setSearchImage(color: .white)
         searchBar.setClearButton(color: .black)
+        searchBar.barTintColor = darkGreen
+
         if(UIDevice.current.userInterfaceIdiom == .pad){
-            let attributes = [NSAttributedString.Key.font: UIFont.systemFont(ofSize: 25.0), NSAttributedString.Key.foregroundColor: darkGray]
+            let attributes = [NSAttributedString.Key.font: UIFont.systemFont(ofSize: 25.0), NSAttributedString.Key.foregroundColor: darkGreen]
             UITextField.appearance(whenContainedInInstancesOf: [UISearchBar.self]).defaultTextAttributes = attributes
             
         }
         tblAllContacts.register(UINib(nibName: "ContactsCell", bundle: nil), forCellReuseIdentifier: "ContactsCell")
     }
     @IBAction func back(_ sender: Any) {
-        delegate?.refreshAddedContacts()
-        self.dismiss(animated: true, completion: nil)
+        if(appDelegate.isPvtChatFromLeftMenu){
+            self.navigationController?.popViewController(animated: true);
+
+        }else{
+            delegate?.refreshAddedContacts()
+            self.dismiss(animated: true, completion: nil)
+        }
+       
+
     }
     
     // number of rows in table view

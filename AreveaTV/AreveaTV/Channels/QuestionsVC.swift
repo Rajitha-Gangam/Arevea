@@ -20,6 +20,7 @@ class QuestionsVC: UIViewController,OpenChanannelChatDelegate,UITableViewDataSou
     weak var chatDelegate: OpenChanannelChatDelegate?
     var strTicketName = ""
     var aryQuestions = [Any]()
+    var aryStageQuestions = [Any]()
     var aryAnswers = [Any]()
     var radioControllerChoice : SSRadioButtonsController = SSRadioButtonsController()
     var radioControllerDip : SSRadioButtonsController = SSRadioButtonsController()
@@ -38,6 +39,7 @@ class QuestionsVC: UIViewController,OpenChanannelChatDelegate,UITableViewDataSou
         // Do any additional setup after loading the view.
         print("aryQuestions:",aryQuestions)
         for(j,_)in self.aryQuestions.enumerated(){
+            //aryStageQuestions
             self.aryAnswers.insert("", at: j)
             self.aryAnswersIds.insert(0, at: j)
         }

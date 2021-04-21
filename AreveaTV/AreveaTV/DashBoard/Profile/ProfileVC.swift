@@ -878,7 +878,7 @@ extension ProfileVC: FPNTextFieldDelegate {
     
     func fpnDidValidatePhoneNumber(textField: FPNTextField, isValid: Bool) {
         textField.rightViewMode = .always
-        textField.rightView = UIImageView(image: isValid ? #imageLiteral(resourceName: "success") : #imageLiteral(resourceName: "error"))
+        textField.rightView = UIImageView(image: isValid ? UIImage.init(named: "success_bl") : #imageLiteral(resourceName: "error"))
         
         print(
             isValid,

@@ -45,65 +45,29 @@
                                             </userDefinedRuntimeAttribute>
                                         </userDefinedRuntimeAttributes>
                                     </view>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Live Events" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="SVa-HK-6M2">
-                                        <rect key="frame" x="0.0" y="5" width="220" height="30"/>
-                                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                        <constraints>
-                                            <constraint firstAttribute="height" constant="30" id="u4Z-Vv-WVR"/>
-                                        </constraints>
-                                        <fontDescription key="fontDescription" name="Poppins-Regular" family="Poppins" pointSize="17"/>
-                                        <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                        <nil key="highlightedColor"/>
-                                        <variation key="heightClass=regular-widthClass=regular">
-                                            <fontDescription key="fontDescription" name="Poppins-Regular" family="Poppins" pointSize="25"/>
-                                        </variation>
-                                    </label>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="zkC-1y-pGc">
                                         <rect key="frame" x="15" y="185" width="200" height="24"/>
                                         <fontDescription key="fontDescription" name="Poppins-Regular" family="Poppins" pointSize="17"/>
-                                        <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <color key="textColor" red="0.5450980392" green="0.90196078430000004" blue="0.83529411760000005" alpha="1" colorSpace="calibratedRGB"/>
                                         <nil key="highlightedColor"/>
                                         <variation key="heightClass=regular-widthClass=regular">
                                             <fontDescription key="fontDescription" name="Poppins-Regular" family="Poppins" pointSize="25"/>
                                         </variation>
                                     </label>
-                                    <button opaque="NO" alpha="0.60000002384185791" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="lLN-jn-L88">
-                                        <rect key="frame" x="5" y="97.5" width="25" height="25"/>
-                                        <constraints>
-                                            <constraint firstAttribute="height" constant="25" id="TRu-A7-emV"/>
-                                            <constraint firstAttribute="width" constant="25" id="jFU-C9-bSy"/>
-                                        </constraints>
-                                        <state key="normal" image="back-icon-white"/>
-                                    </button>
-                                    <button opaque="NO" alpha="0.60000002384185791" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="00C-eL-8hd">
-                                        <rect key="frame" x="190" y="97.5" width="25" height="25"/>
-                                        <constraints>
-                                            <constraint firstAttribute="width" constant="25" id="4be-kO-HVk"/>
-                                            <constraint firstAttribute="height" constant="25" id="UKz-Im-jNo"/>
-                                        </constraints>
-                                        <state key="normal" image="right-arrow-white"/>
-                                    </button>
                                 </subviews>
                                 <color key="backgroundColor" red="0.18823529411764706" green="0.18823529411764706" blue="0.27843137254901962" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <constraints>
                                     <constraint firstItem="8MA-f7-94k" firstAttribute="leading" secondItem="1AI-wc-d7V" secondAttribute="leading" id="4at-Cf-bAh"/>
                                     <constraint firstAttribute="trailing" secondItem="zkC-1y-pGc" secondAttribute="trailing" constant="5" id="7cV-qs-DRk"/>
-                                    <constraint firstAttribute="trailing" secondItem="SVa-HK-6M2" secondAttribute="trailing" id="Bio-fS-n24"/>
                                     <constraint firstAttribute="trailing" secondItem="8MA-f7-94k" secondAttribute="trailing" id="QMH-Wj-ok0"/>
                                     <constraint firstItem="zkC-1y-pGc" firstAttribute="leading" secondItem="1AI-wc-d7V" secondAttribute="leading" constant="15" id="Vsf-NQ-qgH"/>
                                     <constraint firstItem="8MA-f7-94k" firstAttribute="top" secondItem="1AI-wc-d7V" secondAttribute="top" id="Zi3-I9-oec"/>
-                                    <constraint firstItem="00C-eL-8hd" firstAttribute="centerY" secondItem="1AI-wc-d7V" secondAttribute="centerY" id="bC7-Py-iEa"/>
-                                    <constraint firstItem="lLN-jn-L88" firstAttribute="centerY" secondItem="1AI-wc-d7V" secondAttribute="centerY" id="ceX-QM-CUK"/>
-                                    <constraint firstItem="SVa-HK-6M2" firstAttribute="leading" secondItem="1AI-wc-d7V" secondAttribute="leading" id="dHk-z3-tBr"/>
                                     <constraint firstAttribute="bottom" secondItem="zkC-1y-pGc" secondAttribute="bottom" constant="11" id="dNJ-gD-WBd"/>
-                                    <constraint firstItem="lLN-jn-L88" firstAttribute="leading" secondItem="1AI-wc-d7V" secondAttribute="leading" constant="5" id="fhn-un-9ld"/>
                                     <constraint firstAttribute="bottom" secondItem="7TY-7Y-c1k" secondAttribute="bottom" id="ivb-fM-qQg"/>
                                     <constraint firstAttribute="trailing" secondItem="7TY-7Y-c1k" secondAttribute="trailing" id="kpg-A2-5vv"/>
                                     <constraint firstAttribute="bottom" secondItem="8MA-f7-94k" secondAttribute="bottom" id="lbm-qr-F2a"/>
                                     <constraint firstItem="7TY-7Y-c1k" firstAttribute="leading" secondItem="1AI-wc-d7V" secondAttribute="leading" id="p92-ap-toB"/>
                                     <constraint firstItem="7TY-7Y-c1k" firstAttribute="top" secondItem="1AI-wc-d7V" secondAttribute="top" id="qZx-u2-aCb"/>
-                                    <constraint firstAttribute="trailing" secondItem="00C-eL-8hd" secondAttribute="trailing" constant="5" id="rFU-aO-psB"/>
-                                    <constraint firstItem="SVa-HK-6M2" firstAttribute="top" secondItem="1AI-wc-d7V" secondAttribute="top" constant="5" id="yR5-x0-OhJ"/>
                                 </constraints>
                                 <userDefinedRuntimeAttributes>
                                     <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
@@ -131,18 +95,13 @@
                 <constraint firstItem="XHg-cM-9ul" firstAttribute="centerX" secondItem="LiX-DF-0lC" secondAttribute="centerX" id="zY6-8r-VEQ"/>
             </constraints>
             <connections>
-                <outlet property="btnLeft" destination="lLN-jn-L88" id="Qk2-Qc-A3W"/>
-                <outlet property="btnRight" destination="00C-eL-8hd" id="grv-wF-l3W"/>
                 <outlet property="imgCategory" destination="8MA-f7-94k" id="i28-Cj-NDZ"/>
-                <outlet property="lblHeader" destination="SVa-HK-6M2" id="DHQ-jp-Bfu"/>
                 <outlet property="nameLabel" destination="zkC-1y-pGc" id="W5s-lW-D8N"/>
             </connections>
             <point key="canvasLocation" x="137.68115942028987" y="120.53571428571428"/>
         </collectionViewCell>
     </objects>
     <resources>
-        <image name="back-icon-white" width="44" height="44"/>
-        <image name="right-arrow-white" width="44" height="44"/>
         <image name="sample-details" width="414" height="360"/>
     </resources>
 </document>

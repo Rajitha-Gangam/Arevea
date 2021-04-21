@@ -373,14 +373,12 @@ extension SignUpVC: FPNTextFieldDelegate {
         
         listController.navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .stop, target: self, action: #selector(dismissCountries))
         listController.title = "Countries"
-
         self.present(navigationViewController, animated: true, completion: nil)
     }
     
     func fpnDidValidatePhoneNumber(textField: FPNTextField, isValid: Bool) {
         textField.rightViewMode = .always
-        textField.rightView = UIImageView(image: isValid ? #imageLiteral(resourceName: "success") : #imageLiteral(resourceName: "error"))
-        
+        textField.rightView = UIImageView(image: isValid ? UIImage.init(named: "success_bl") : #imageLiteral(resourceName: "error"))
         print(
             isValid,
             textField.getFormattedPhoneNumber(format: .E164) ?? "E164: nil",

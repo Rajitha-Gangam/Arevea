@@ -41,10 +41,6 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
     @IBOutlet weak var lblRightTitle: UILabel!
     
     let appDelegate = UIApplication.shared.delegate as! AppDelegate
-    @IBOutlet weak var btnPayPerView: UIButton!
-    @IBOutlet weak var lblAmount: UILabel!
-    @IBOutlet weak var lblDate: UILabel!
-    @IBOutlet weak var lblTime: UILabel!
     @IBOutlet weak var lblLive: UILabel!
     @IBOutlet weak var lblLiveLeft: NSLayoutConstraint!
     var mylist = false
@@ -200,10 +196,10 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
     var stream_status = ""
     var graphQLStartupCall = 0;
     var isCurrentPinScreen = "";
-    @IBOutlet weak var viewShareScreen: UIView!
     @IBOutlet weak var viewStreamWidth: NSLayoutConstraint!
     @IBOutlet weak var viewControlsLeft: NSLayoutConstraint!
-    
+    var parent_streams_id = 0
+
     var serverAddress = ""
     @IBOutlet weak var btnAudio: UIButton!
     @IBOutlet weak var btnVideo: UIButton!
@@ -331,8 +327,6 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
         // later on you can dismiss it
         //tipView.dismiss()
         
-        viewShareScreen.layer.borderColor = UIColor.lightGray.cgColor
-        viewShareScreen.layer.borderWidth = 1.0
         
         if(UIDevice.current.userInterfaceIdiom == .pad){
             heightTopView?.constant = 60;
@@ -355,7 +349,6 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
         
         NotificationCenter.default.addObserver(self, selector: #selector(self.ReceivedPN(notification:)),
                                                name: Notification.Name("PushNotification"), object: nil)
-        viewShareScreen.isHidden = true
         
         self.viewControls?.isHidden = true
         self.lblLive.isHidden = true
@@ -848,7 +841,8 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
             isLoaded = 1;
             appDelegate.isLiveLoad = "0";
             if(appDelegate.isVOD || appDelegate.isAudio){
-                getVodById()
+                getTicketDetails()
+
             }else{
                 //LiveEventById();
                 getTicketDetails()
@@ -1269,8 +1263,6 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
             let userMessage = self.messages_q_and_a[section] as! SBDUserMessage
             let text = "Q. " + userMessage.message
             let height = heightForView(text: text, width: 380)
-            print("height:",height)
-            print("section:",section)
             
             return (height*3)
         }
@@ -1280,6 +1272,12 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
     func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
         if(tableView == tbl_Q_And_A){
             if(index_selected_q_qnd_a == section){
+                let userMessage = self.messages_q_and_a[section] as! SBDUserMessage
+                let user_id = UserDefaults.standard.string(forKey: "user_id");
+                let senderId = userMessage.sender?.userId
+                if(senderId == user_id){
+                    return 0
+                }
                 return 74
             }else{
                 return 0
@@ -1336,7 +1334,13 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                  footerView.txtMsg.tag = 100 + section
                  //addDoneButton_Q_And_A_Answer(footerView.txtMsg)
                  footerView.updateCellWith(index: section)*/
-                
+                let userMessage = self.messages_q_and_a[section] as! SBDUserMessage
+                let user_id = UserDefaults.standard.string(forKey: "user_id");
+                let senderId = userMessage.sender?.userId
+                if(senderId == user_id){
+                    let footerView1 = UIView(frame: CGRect(x: 0, y: 0, width: 0, height: 0))
+                    return footerView1
+                }
                 return footerView
             }else{
                 let footerView = UIView(frame: CGRect(x: 0, y: 0, width: 0, height: 0))
@@ -1944,6 +1948,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
         viewBGTap()
         txtEmoji.resignFirstResponder()
         let charity = self.aryCharityInfo[sender.tag] as? [String:Any]
+        print("charity:",charity)
         let charityId = charity?["id"] as? Int ?? 0
         proceedToPayment(type: "charity_donation",charityId:charityId )
     }
@@ -1964,7 +1969,17 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
         //let url: String = appDelegate.baseURL +  "/proceedToPayment"
         let user_id = UserDefaults.standard.string(forKey: "user_id");
         let strUserId = user_id ?? "1"
-        var queryString = "stream_id=" + String(appDelegate.streamId) + "&user_id=" + strUserId//ppv
+        var streamId = appDelegate.streamId
+        if (parent_streams_id != 0){
+            streamId = parent_streams_id//for doantion
+        }
+        var queryString = ""
+        if(type == "performer_tip"){
+            queryString = "stream_id=" + String(appDelegate.streamId) + "&user_id=" + strUserId
+        }else if(type == "charity_donation"){
+            queryString = "stream_id=" + String(streamId) + "&user_id=" + strUserId
+
+        }
         let session_token = UserDefaults.standard.string(forKey: "session_token") ?? ""
         
         if(type == "performer_tip"){
@@ -2094,6 +2109,56 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                         if (json["statusCode"]as? String == "200" ){
                             let data = json["Data"] as? [String:Any]
                             self.aryStreamInfo = data?["stream_info"] as? [String:Any] ?? [:]
+
+                            let charity_info = aryStreamInfo["charity_info"] != nil
+                            if(charity_info){
+                                self.aryCharityInfo = aryStreamInfo["charity_info"] as? [Any] ?? [Any]()
+                                self .tblDonations.reloadData()
+                            }
+                            let performer_info = aryStreamInfo["performer_info"] != nil
+                            if(performer_info){
+                                self.dicPerformerInfo = aryStreamInfo["performer_info"] as? [String : Any] ?? [String:Any]()
+                                let performerName = self.dicPerformerInfo["performer_display_name"] as? String ?? ""
+                                var firstChar = ""
+                                
+                                let fullNameArr = performerName.components(separatedBy: " ")
+                                let firstName: String = fullNameArr[0]
+                                var lastName = ""
+                                if (fullNameArr.count > 1){
+                                    lastName = fullNameArr[1]
+                                }
+                                if (lastName == ""){
+                                    firstChar = String(firstName.first!)
+                                }else{
+                                    firstChar = String(firstName.first!) + String(lastName.first!)
+                                }
+                                // self.lblPerformerName.text = firstChar
+                                /* var performer_bio = self.dicPerformerInfo["performer_bio"] as? String ?? ""
+                                 performer_bio = performer_bio.htmlToString
+                                 
+                                 self.txtProfile.text = performerName + "\n" + performer_bio*/
+                                let videoDesc = self.streamVideoDesc;
+                                let creatorName = "Creator Name: " + performerName;
+                                
+                                var fullText = videoDesc  + "\n" + creatorName
+                                fullText = fullText.trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
+                                self.txtVideoDesc_Info.text = fullText.htmlToString
+                                
+                                
+                                self.app_id_for_adds = self.dicPerformerInfo["app_id"] as? String ?? "0"
+                                    //performer_profile_banner
+                                    let performer_profile_banner = self.dicPerformerInfo["performer_profile_banner"] as? String ?? ""
+                                    if let urlBanner = URL(string: performer_profile_banner){
+                                        self.imgStreamThumbNail.sd_setImage(with: urlBanner, placeholderImage: UIImage(named: "sample_vod_square"))
+                                    }
+                                
+                                let performer_profile_banner1 = self.dicPerformerInfo["performer_profile_pic"] as? String ?? ""
+                                if let urlBanner = URL(string: performer_profile_banner1){
+                                    
+                                }else{
+                                   
+                                }
+                            }
                             
                             self.arysubEvents = self.aryStreamInfo["subEvents"]as? [Any] ?? [Any]()
                             if(arysubEvents.count == 1){
@@ -2119,7 +2184,8 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                                 let streamObj = self.aryStreamInfo
                                 let settings_json = streamObj["settings_json"] as? String ?? ""
                                 stream_status = streamObj["stream_status"] as? String ?? ""
-
+                                parent_streams_id = streamObj["parent_streams_id"] as? Int ?? 0
+                                print("<--parent_streams_id:",parent_streams_id)
                                 print("==>stream_status:",stream_status)
                                 let dicSettingsJson = self.convertToDictionary(text: settings_json)
                                 print("dicSettingsJson:",dicSettingsJson)
@@ -2169,6 +2235,8 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                                     //uncomment after this release
                                     let predicate = NSPredicate(format:"title == %@", "qa")
                                     let filteredArray = (buttonNames as NSArray).filtered(using: predicate)
+                                    //uncomment
+                                    //here need to update stream_status == "progress"
                                     if(filteredArray.count == 0 && stream_status == "progress"){
                                         let dicItem = ["title":"qa","icon":"s_qa","icon_active":"s_qa_active"]
                                         self.buttonNames.append(dicItem)
@@ -2240,7 +2308,6 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                                 //uncomment below line
                                 //self.setLiveStreamConfig()
                                 self.viewLiveStream.isHidden = false;
-                                self.btnPayPerView.isHidden = true
                                 //self.lblStreamUnavailable.text = "Sale is completed!"
                                 self.viewActions?.isHidden = true
                                 self.lblLive.isHidden = true
@@ -2248,10 +2315,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                                 appDelegate.isVOD = true
                             }
                             
-                            self.btnPayPerView.isHidden = true
-                            self.lblAmount.isHidden = true
-                            self.lblDate.isHidden = true
-                            self.lblTime.isHidden = true
+                           
                             
                                 if (streamObj["stream_vod"]as? String == "stream" && appDelegate.isVOD == false && appDelegate.isAudio == false){
                                     
@@ -2321,55 +2385,8 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                                  self.isAgeAllowed = false
                                 }
                             }
-                            let charity_info = data?["charity_info"] != nil
-                            if(charity_info){
-                                self.aryCharityInfo = data?["charity_info"] as? [Any] ?? [Any]()
-                                self.tblDonations.reloadData()
-                            }
-                            let performer_info = data?["performer_info"] != nil
-                            if(performer_info){
-                                self.dicPerformerInfo = data?["performer_info"] as? [String : Any] ?? [String:Any]()
-                                let performerName = self.dicPerformerInfo["performer_display_name"] as? String ?? ""
-                                var firstChar = ""
-                                
-                                let fullNameArr = performerName.components(separatedBy: " ")
-                                let firstName: String = fullNameArr[0]
-                                var lastName = ""
-                                if (fullNameArr.count > 1){
-                                    lastName = fullNameArr[1]
-                                }
-                                if (lastName == ""){
-                                    firstChar = String(firstName.first!)
-                                }else{
-                                    firstChar = String(firstName.first!) + String(lastName.first!)
-                                }
-                                // self.lblPerformerName.text = firstChar
-                                /* var performer_bio = self.dicPerformerInfo["performer_bio"] as? String ?? ""
-                                 performer_bio = performer_bio.htmlToString
-                                 
-                                 self.txtProfile.text = performerName + "\n" + performer_bio*/
-                                let videoDesc = self.streamVideoDesc;
-                                let creatorName = "Creator Name: " + performerName;
-                                
-                                var fullText = videoDesc  + "\n" + creatorName
-                                fullText = fullText.trimmingCharacters(in: NSCharacterSet.whitespacesAndNewlines)
-                                self.txtVideoDesc_Info.text = fullText.htmlToString
-                                
-                                
-                                self.app_id_for_adds = self.dicPerformerInfo["app_id"] as? String ?? "0"
-                                    //performer_profile_banner
-                                    let performer_profile_banner = self.dicPerformerInfo["performer_profile_banner"] as? String ?? ""
-                                    if let urlBanner = URL(string: performer_profile_banner){
-                                        self.imgStreamThumbNail.sd_setImage(with: urlBanner, placeholderImage: UIImage(named: "sample_vod_square"))
-                                    }
-                                
-                                let performer_profile_banner1 = self.dicPerformerInfo["performer_profile_pic"] as? String ?? ""
-                                if let urlBanner = URL(string: performer_profile_banner1){
-                                    
-                                }else{
-                                   
-                                }
-                            }
+                            
+                            
                         }
                         else{
                             let strError = json["message"] as? String
@@ -3776,7 +3793,6 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                                         let timeFull = startTime + "-" + endTime
                                         //print("timeFull:",timeFull)
                                         //print("dateFull:",dateFull)
-                                        self.lblDate.text = dateFull
                                         //self.lblTime.text = timeFull
                                     }
                                 }
@@ -3856,7 +3872,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                                         let lastValue = USDPrice[USDPrice.count - 1];
                                         let amountDisplay = "$" + firstValue + " - " + "$" + lastValue;
                                         // //print("====amount in Dollars:",amountDisplay)
-                                        self.lblAmount.text = amountDisplay
+                                       // self.lblAmount.text = amountDisplay
                                         if(firstValue == lastValue){
                                             self.amountWithCurrencyType = "$" + firstValue
                                         }else{
@@ -3867,7 +3883,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                                         let lastValue = GBPPrice[GBPPrice.count - 1];
                                         let amountDisplay = "£" + firstValue + " - " + "£" + lastValue;
                                         // //print("====amount in Euros:",amountDisplay)
-                                        self.lblAmount.text = amountDisplay
+                                        //self.lblAmount.text = amountDisplay
                                         if(firstValue == lastValue){
                                             self.amountWithCurrencyType = "£" + firstValue
                                         }else{
@@ -3886,19 +3902,16 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                             // //print("---user_age_limit:",user_age_limit)
                             //   //print("---age_limit:",self.age_limit)
                             if(self.streamPaymentMode == "free"){
-                                self.lblAmount.text = ""//Free
+                                //self.lblAmount.text = ""//Free
                             }
                             if (self.aryUserSubscriptionInfo.count == 0 && appDelegate.isVOD){
                                 //if user does not pay amount
-                                self.btnPayPerView.isHidden = false
+                                //self.btnPayPerView.isHidden = false
                                 self.viewVOD.isHidden = false
                                 self.viewActions?.isHidden = true
                             }else{
                                 self.viewActions?.isHidden = false
-                                self.btnPayPerView.isHidden = true
-                                self.lblAmount.isHidden = true
-                                self.lblDate.isHidden = true
-                                self.lblTime.isHidden = true
+                                
                                 if (stream_info_key_exists != nil){
                                     let streamObj = self.aryStreamInfo
                                     self.lblVODUnavailable.text = ""
@@ -4242,61 +4255,9 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
          }*/
     }
     
-    func SS_startup() {
-        // print("==SS_startup")
-        //screenshare
-        //viewActivity.isHidden = false
-        _ = Testbed.sharedInstance
-        self.detailStreamItem = Testbed.testAtIndex(index: 0)
-        if(self.detailStreamItem != nil){
-            ////print("props:",self.detailStreamItem!["LocalProperties"] as? NSMutableDictionary)
-            Testbed.setLocalOverrides(params: self.detailStreamItem!["LocalProperties"] as? NSMutableDictionary)
-            let className = "ScreenShareVC"
-            let mClass = NSClassFromString(className) as! BaseTest.Type;
-            appDelegate.sharedScreenBy = streamVideoCode
-            r5ViewControllerScreenShare  = mClass.init()
-            r5ViewControllerScreenShare?.view.frame = self.viewShareScreen.bounds
-            self.viewShareScreen.addSubview(r5ViewControllerScreenShare!.view)
-            //self.viewLiveStream.bringSubviewToFront(self.webView)
-            self.addChild(r5ViewControllerScreenShare!)
-        }
-    }
-    func SS_shutdown(){
-        r5ViewControllerScreenShare?.closeTest()
-    }
     
-    func adjustScreenShare() {
-        isShareScreenConfigured = true
-        // print("self1.isSharedScreen",self.isSharedScreen)
-        // print("self1.isStreamStartedAlias",self.isStreamStartedAlias)
-        //if (self.isSharedScreen && isStreamConfigured)
-        if (self.isSharedScreen && isStreamStartedAlias)
-        {
-            //after stream connected we are calling screen share to avaoid blank screen issue
-            SS_startup()
-            //show screen share view
-            NSLayoutConstraint.setMultiplier(0.45, of: &(viewStreamWidth)!)
-            viewShareScreen.isHidden = false
-            self.viewStream.layoutIfNeeded()
-            viewControlsLeft.constant = (self.view.frame.size.width * 0.55)
-            viewControls?.layoutIfNeeded()
-            lblLiveLeft.constant = self.viewLiveStream.frame.size.width - 90 //live btn width 80
-            lblLive?.layoutIfNeeded()
-            
-        }else{
-            SS_shutdown()
-            //hide screen share view
-            NSLayoutConstraint.setMultiplier(1.0, of: &(viewStreamWidth)!)
-            viewShareScreen.isHidden = true
-            self.viewStream.layoutIfNeeded()
-            viewControlsLeft.constant = 0
-            viewControls?.layoutIfNeeded()
-            lblLiveLeft.constant = 10
-            lblLive?.layoutIfNeeded()
-            
-        }
-        
-    }
+    
+   
     //MARK: - Screen Share End
     
     //MARK: - Live Stream Methods  Start

@@ -81,10 +81,10 @@ class OpenChannelMessageTableViewCell: UITableViewCell {
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
 
         let longClickProfileGesture = UILongPressGestureRecognizer(target: self, action: #selector(self.longClickProfile(_:)))
-        self.profileContainerView.addGestureRecognizer(longClickProfileGesture)
+        //self.profileContainerView.addGestureRecognizer(longClickProfileGesture)
         
         let clickProfileGesture = UITapGestureRecognizer(target: self, action: #selector(self.clickProfile(_:)))
-        self.profileContainerView.addGestureRecognizer(clickProfileGesture)
+       // self.profileContainerView.addGestureRecognizer(clickProfileGesture)
         
         //profileImageWidth
         if(UIDevice.current.userInterfaceIdiom == .pad){

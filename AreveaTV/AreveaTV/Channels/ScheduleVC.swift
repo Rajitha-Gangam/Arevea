@@ -70,8 +70,13 @@ class ScheduleVC: UIViewController,OpenChanannelChatDelegate,UITableViewDataSour
     var aryUserSubscriptionInfo = [Any]()
      var tempStreamStatus = ""
     var ticketKey = ""
+    var priceDetails = [String:Any]()
+    var currencySymbol = ""
+    var isUserSubscribe = false
+
     //for tabs highlight when we go respective pages, and after comes back to this page creating these variables.
     weak var chatDelegate: OpenChanannelChatDelegate?
+    var aryTickets = [Any]();
 
     
     // MARK: - View Life cycle
@@ -127,7 +132,7 @@ class ScheduleVC: UIViewController,OpenChanannelChatDelegate,UITableViewDataSour
                     cell.btnDate.setTitleColor(.black, for: .normal)
                     
                 }else{
-                    let gray = UIColor(red: 70, green: 69, blue: 92);
+                    let gray = UIColor(red: 34, green: 44, blue: 54);
                     cell.btnDate.backgroundColor = gray
                     cell.btnDate.layer.borderColor = UIColor.white.cgColor
                     cell.btnDate.setTitleColor(.white, for: .normal)
@@ -188,7 +193,7 @@ class ScheduleVC: UIViewController,OpenChanannelChatDelegate,UITableViewDataSour
                 btnText?.backgroundColor = yellow
                 btnText?.setTitleColor(.black, for: .normal)
             }else{
-                let gray = UIColor(red: 70, green: 69, blue: 92);
+                let gray = UIColor(red: 34, green: 44, blue: 54);
                 btnText?.backgroundColor = gray
                 btnText?.setTitleColor(.white, for: .normal)
             }
@@ -212,6 +217,7 @@ class ScheduleVC: UIViewController,OpenChanannelChatDelegate,UITableViewDataSour
         // Application is back in the foreground
         print("====applicationDidBecomeActive ER")
         //if user comes from payment redirection, need to refresh stream/vod
+        getEventBySlug()
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -239,9 +245,18 @@ class ScheduleVC: UIViewController,OpenChanannelChatDelegate,UITableViewDataSour
     
     @IBAction func back(_ sender: Any) {
         
-        self.navigationController?.popViewController(animated: true)
+        //self.navigationController?.popViewController(animated: true)
+        popToDashBoard()
+        
     }
-    
+    func popToDashBoard(){
+        for controller in self.navigationController!.viewControllers as Array {
+            if controller.isKind(of: DashBoardVC.self) {
+                self.navigationController!.popToViewController(controller, animated: true)
+                break
+            }
+        }
+    }
     
     func convertToDictionary(text: String) -> [String: Any]? {
         if let data = text.data(using: .utf8) {
@@ -303,9 +318,32 @@ class ScheduleVC: UIViewController,OpenChanannelChatDelegate,UITableViewDataSour
                             let data = json["Data"] as? [String:Any]
                             self.aryStreamInfo = data?["stream_info"] as? [String:Any] ?? [:]
                             let streamObj = self.aryStreamInfo
-                            
+                            self.aryTickets = data?["tickets"] as? [Any] ?? [Any]()
+
                             print("==>self.aryStreamInfo:",self.aryStreamInfo)
                             let stream_info_key_exists = self.aryStreamInfo["id"]
+                            self.priceDetails = data?["price_details"]as? [String:Any] ?? [:]
+                            self.isUserSubscribe = self.priceDetails["subscription_status"] as?Bool ?? false
+
+                            let currencyTypePrice = self.priceDetails["currency"] as? String ?? ""
+                            var currencySymbolPrice = ""
+                            //based on currency type, get currency symbol
+                            if let path = Bundle.main.path(forResource: "currencies", ofType: "json") {
+                                do {
+                                    let data = try Data(contentsOf: URL(fileURLWithPath: path), options: .mappedIfSafe)
+                                    let jsonResult = try JSONSerialization.jsonObject(with: data, options: .mutableLeaves)
+                                    if let jsonResult = jsonResult as? Dictionary<String, AnyObject>,
+                                       let currencySymbol = jsonResult[currencyTypePrice] as? String {
+                                        // do stuff
+                                        currencySymbolPrice = currencySymbol
+                                        self.currencySymbol = currencySymbol
+                                    }
+                                } catch {
+                                    // handle error
+                                }
+                            }
+
+                            
                             self.arysubEvents = data?["subEvents"]as? [Any] ?? [Any]()
                             self.aryUserSubscriptionInfo = data?["user_subscription_info"] as? [Any] ?? [Any]()
                             print("aryUserSubscriptionInfo:",aryUserSubscriptionInfo)
@@ -336,6 +374,8 @@ class ScheduleVC: UIViewController,OpenChanannelChatDelegate,UITableViewDataSour
                                 reloadTbl(index: 0)
                             }
                             self.streamPaymentMode = streamObj["stream_payment_mode"] as? String ?? ""
+                            self.appDelegate.streamPaymentMode = self.streamPaymentMode
+
                                 self.streamVideoCode = streamObj["stream_video_code"] as? String ?? ""
                                 _ = streamObj["stream_video_title"] as? String ?? ""
                                 self.streamVideoDesc = streamObj["stream_video_description"] as? String ?? ""
@@ -506,7 +546,29 @@ class ScheduleVC: UIViewController,OpenChanannelChatDelegate,UITableViewDataSour
         }
         return 1
     }
-    
+    func gotoTicketTypes(){
+        let user_id = UserDefaults.standard.string(forKey: "user_id") ?? "";
+        let urlOpen = appDelegate.websiteURL + "/event/" + appDelegate.strSlug + "/place-order?user_id=" + user_id
+        
+        guard let url = URL(string: urlOpen) else { return }
+        print("url to open:",url)
+        UIApplication.shared.open(url)
+        return
+        let storyboard = UIStoryboard(name: "Main", bundle: nil);
+        let streamInfo = self.aryStreamInfo
+        let stream_video_title = streamInfo["stream_video_title"] as? String ?? "Channel Details"
+        appDelegate.isLiveLoad = "1"
+        let vc = storyboard.instantiateViewController(withIdentifier: "TicketTypesVC") as! TicketTypesVC
+        vc.chatDelegate = self
+        appDelegate.strTitle = stream_video_title
+        vc.isCameFromGetTickets = true
+        vc.currencySymbol = currencySymbol
+        vc.aryStreamInfo = self.aryStreamInfo
+        vc.isUserSubscribe = isUserSubscribe
+        vc.aryTicketsData = aryTickets
+        vc.aryUserSubscriptionInfo = aryUserSubscriptionInfo
+        self.navigationController?.pushViewController(vc, animated: true)
+    }
     @objc func watchNow(_ sender: UIButton) {
         let subEvent = arySelectedSubEvents[sender.tag] as? [String:Any] ?? [:]
         //print("subEvent:",subEvent)
@@ -521,7 +583,10 @@ class ScheduleVC: UIViewController,OpenChanannelChatDelegate,UITableViewDataSour
         let stream_status = streamInfo["stream_status"] as? String ?? "";
         tempStreamStatus = stream_status
         let titleBtn = sender.titleLabel?.text
-        if(titleBtn == "Watch"){
+        if(titleBtn == "Get Tickets"){
+            gotoTicketTypes()
+        }
+        else if(titleBtn == "Watch"){
             appDelegate.isVOD = true
             gotoStreamDetails()
         }else {
@@ -570,24 +635,27 @@ class ScheduleVC: UIViewController,OpenChanannelChatDelegate,UITableViewDataSour
             let ticketIdExists = aryTicketIds.filter { $0 as! Int == stream_id }.count > 0
             let ticketParentIdExists = aryTicketIds.filter { $0 as! Int == parent_streams_id }.count > 0
             let stream_status = streamInfo["stream_status"] as? String ?? "";
-            if(stream_status == "completed"){
+            /*if(stream_status == "completed"){
                 headerView.BtnJoin.setTitle("Watch", for: .normal)
             }else if(stream_status == "progress"){
                 headerView.BtnJoin.setTitle("Live", for: .normal)
             }else if(stream_status == "pending"){
                 headerView.BtnJoin.setTitle("Join Now", for: .normal)
-            }
-            /*if(self.streamPaymentMode == "paid" || ticketIdExists ||  ticketParentIdExists)
+            }*/
+            
+            if(self.streamPaymentMode != "paid" || ticketIdExists ||  ticketParentIdExists)
             {
                 if(stream_status == "completed"){
                     //show status completed
                     headerView.BtnJoin.setTitle("Watch", for: .normal)
-                }else{
+                }else if(stream_status == "progress"){
+                    headerView.BtnJoin.setTitle("Live", for: .normal)
+                }else {
                     headerView.BtnJoin.setTitle("Join Now", for: .normal)
                 }
             }else{
-                headerView.BtnJoin.setTitle("Get Ticket", for: .normal)
-            }*/
+                headerView.BtnJoin.setTitle("Get Tickets", for: .normal)
+            }
             
             return headerView
         }else{
@@ -608,7 +676,7 @@ class ScheduleVC: UIViewController,OpenChanannelChatDelegate,UITableViewDataSour
     }
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) ->  CGFloat {
         if(tableView == tblSchedule){
-            return 180
+            return 190
         }
         return 44
         
@@ -622,25 +690,14 @@ class ScheduleVC: UIViewController,OpenChanannelChatDelegate,UITableViewDataSour
             print("agenda count",aryAgenda1.count)
             let agendaObj = aryAgenda1[indexPath.row] as? [String : Any] ?? [:];
             let aryAgendaGuestList1 =  subEvent["guestList"] as? [Any] ?? [Any]()
+            print("aryAgendaGuestList1:",aryAgendaGuestList1)
+            print("aryAgendaGuestList1 co:",aryAgendaGuestList1.count)
+            print("indexPath.row:",indexPath.row)
 
             let title = agendaObj["title"]as? String ?? ""
             let desc = agendaObj["description"]as? String ?? ""
-            if(aryAgendaGuestList1.count > 0){
-                let guestObj = aryAgendaGuestList1[0] as? [String : Any] ?? [:];
-                let fn = guestObj["first_name"] as? String ?? ""
-                let ln = guestObj["last_name"]as? String ?? ""
-                
-                let userName = "      " + fn + " " + ln
-                cell.btnUserName.setTitle(userName, for: .normal)
-                cell.btnUserName.sizeToFit()
-                var firstChar = ""
-                if (ln == ""){
-                    firstChar = String(fn.first ?? "A")
-                }else{
-                    firstChar = String(fn.first ?? "A") + String(ln.first ?? " ")
-                }
-                cell.btnUserNameShort.setTitle(firstChar, for: .normal)
-            }
+            cell.updateCellWith(row: aryAgendaGuestList1)
+           
             cell.lblTitle.text = title
             cell.txtDesc.text = desc
             let start_time = agendaObj["start_time"]as? String ?? ""
@@ -672,7 +729,7 @@ class ScheduleVC: UIViewController,OpenChanannelChatDelegate,UITableViewDataSour
             }
             
             cell.backgroundColor = UIColor.clear
-            cell.imgUser.layer.borderColor = UIColor.white.cgColor
+            //cell.imgUser.layer.borderColor = UIColor.white.cgColor
             return cell
         }else{
             let cell: UITableViewCell = UITableViewCell()

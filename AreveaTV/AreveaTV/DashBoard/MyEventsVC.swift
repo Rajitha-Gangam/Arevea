@@ -113,7 +113,7 @@ class MyEventsVC: UIViewController,OpenChanannelChatDelegate,UITableViewDelegate
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tblMain.dequeueReusableCell(withIdentifier: "MyEventsCell", for: indexPath) as! MyEventsCell
-        cell.updateCellWith(row: aryMyListData,controller: "my_events")
+        cell.updateCellWith(row: aryMyListData)
         cell.cellDelegate = self
         return cell
         

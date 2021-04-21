@@ -26,12 +26,11 @@ class TicketTypesVC: UIViewController,UITableViewDataSource,UITableViewDelegate,
 
     let appDelegate = UIApplication.shared.delegate as! AppDelegate
     var aryStreamInfo = [String: Any]()
-    var tempAryDisplayCurrencies = [Any]()
     var aryTicketsData = [Any]()
+    
     var pickerData =  ["0", "1"];
     var selectedTicketData = [Any]()
     @IBOutlet weak var tblheight: NSLayoutConstraint!
-    var aryStreamAmounts = [Any]()
     @IBOutlet weak var heightTopView: NSLayoutConstraint?
     @IBOutlet weak var viewContentHeight: NSLayoutConstraint!
 
@@ -39,12 +38,11 @@ class TicketTypesVC: UIViewController,UITableViewDataSource,UITableViewDelegate,
     @IBOutlet weak var viewActivity: UIView!
     var aryUserSubscriptionInfo = [Any]()
     weak var chatDelegate: OpenChanannelChatDelegate?
-    var currencyType = ""
     var currencySymbol = ""
     var jsonCurrencyList = [String:Any]()
     @IBOutlet weak var btnCancel: UIButton!
     var number_of_creators = 1
-    var isUserSubscribe = true
+    var isUserSubscribe = false
     
     var aryCurrencyKeys = [String]()
     var aryCurrencyValues = [Any]()
@@ -61,7 +59,6 @@ class TicketTypesVC: UIViewController,UITableViewDataSource,UITableViewDelegate,
     @IBOutlet weak var scrollView: UIScrollView!
     @IBOutlet weak var scrollViewHeight: NSLayoutConstraint!
     var event_id = 0
-    // MARK: - View Life cycle
     var access_token = ""
     var strSlug = "";
     var selectedTicketIndex = -1
@@ -69,6 +66,8 @@ class TicketTypesVC: UIViewController,UITableViewDataSource,UITableViewDelegate,
     var selectedTicketValue = "0"
     var aryQuestions = [Any]()
     var dicSold = [String:Any]()
+    
+    // MARK: - View Life cycle
     override func viewDidLoad() {
         super.viewDidLoad()
         txtFirstName.backgroundColor = .clear;
@@ -77,10 +76,45 @@ class TicketTypesVC: UIViewController,UITableViewDataSource,UITableViewDelegate,
         lblTitle.text = "   " + appDelegate.strTitle
         // Do any additional setup after loading the view.
         tblTicketTypes.register(UINib(nibName: "TicketTypesCell", bundle: nil), forCellReuseIdentifier: "TicketTypesCell")
-        // print("tt - aryStreamAmounts:",tempAryDisplayCurrencies)
         
         print("aryTicketsData:",aryTicketsData)
-
+        for(index,_)in self.aryTicketsData.enumerated(){
+            var ticketInfo = self.aryTicketsData[index] as? [String : Any] ?? [String:Any]()
+            let event_id1 = ticketInfo["event_id"]as? Int ?? 0
+            let sessions = ticketInfo["sessions"] as? [Any] ?? [Any]()
+            
+            if(sessions.count > 0){
+            for(jIndex,_)in sessions.enumerated(){
+                let sessionId = sessions[jIndex] as? Int ?? 0
+                if(event_id1 == sessionId){
+                    ticketInfo["allSessions"] = true
+                }
+                if (self.aryUserSubscriptionInfo.count > 0){
+                    let userSubscription = self.aryUserSubscriptionInfo[0] as? [String : Any] ?? [:];
+                    let aryTicketIds = userSubscription["ticket_ids"] as? [Any] ?? [Any]()
+                    for(kIndex,_)in aryTicketIds.enumerated(){
+                        let ticketId = aryTicketIds[kIndex] as? Int ?? 0
+                        if(sessionId == ticketId){
+                            ticketInfo["disableTickets"] = true
+                        }
+                    }
+                }
+                self.aryTicketsData[index] = ticketInfo
+            }
+            }else{
+                ticketInfo["allSessions"] = true
+                if (self.aryUserSubscriptionInfo.count > 0){
+                    let userSubscription = self.aryUserSubscriptionInfo[0] as? [String : Any] ?? [:];
+                    let aryTicketIds = userSubscription["ticket_ids"] as? [Any] ?? [Any]()
+                    for(kIndex,_)in aryTicketIds.enumerated(){
+                        let ticketId = aryTicketIds[kIndex] as? Int ?? 0
+                        if(event_id1 == ticketId){
+                            ticketInfo["disableTicket"] = true
+                        }
+                    }
+                }
+            }
+        }
         if let path = Bundle.main.path(forResource: "currencies", ofType: "json") {
             do {
                 let data = try Data(contentsOf: URL(fileURLWithPath: path), options: .mappedIfSafe)
@@ -123,6 +157,7 @@ class TicketTypesVC: UIViewController,UITableViewDataSource,UITableViewDelegate,
         for(j,_)in self.aryTicketsData.enumerated(){
             self.selectedTicketData.append(["index":"0"])
         }
+        
     }
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(true);
@@ -235,9 +270,7 @@ class TicketTypesVC: UIViewController,UITableViewDataSource,UITableViewDelegate,
                 ticketSelected = true
                 break
             }
-
         }
-        
         if(appDelegate.isGuest){
             if (appDelegate.streamPaymentMode.lowercased() != "free"){
                 if(ticketSelected){
@@ -454,20 +487,25 @@ class TicketTypesVC: UIViewController,UITableViewDataSource,UITableViewDelegate,
             }else{
             print("enable")
             }*/
-            
+        let ticketInfo = aryTicketsData[sender.tag] as? [String:Any] ?? [String:Any]()
+
+        let allSessions = ticketInfo["allSessions"] as? Bool ?? false
+        let disableTickets = ticketInfo["disableTickets"] as? Bool ?? false
+
        let stringSold = dicSold[String(sender.tag)]
-        
-        if(stringSold as? String ?? "" == "sold"){
+        let sold = stringSold as? String ?? ""
+        if((disableTickets && !allSessions) || sold == "sold"){
             return
         }
-        for(index,_)in self.selectedTicketData.enumerated(){
+        
+        /*for(index,_)in self.selectedTicketData.enumerated(){
             let selectedObj = selectedTicketData[index] as? [String:Any] ?? [String:Any]()
             let value = selectedObj["index"] as! String
             if(value == "1"){
                 return
             }
             
-        }
+        }*/
         print("ticketSelect:",sender.tag)
         viewDropDown.isHidden = false
         selectedTicketIndex = sender.tag
@@ -533,7 +571,13 @@ class TicketTypesVC: UIViewController,UITableViewDataSource,UITableViewDelegate,
         var btnTitle = selectedObj["index"] as! String
         btnTitle = "   " + btnTitle
         cell.btnSelect.setTitle(btnTitle, for:.normal)
+        
         cell.lblTitle.text = ticket_type_name
+        let allSessions = ticketInfo["allSessions"] as? Bool ?? false
+
+        if(allSessions){
+            cell.lblTitle.text = ticket_type_name + "  (all days)"
+        }
         cell.imgCheck.image = UIImage.init(named: "check")
 //        if(indexSelectedTicketType == indexPath.row){
 //            cell.imgCheck.image = UIImage.init(named: "checked-green")

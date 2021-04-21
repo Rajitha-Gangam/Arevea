@@ -79,9 +79,8 @@ class SubscribedChannelsVC: UIViewController ,UITableViewDataSource,UITableViewD
     }
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
             let cell = tableView.dequeueReusableCell(withIdentifier: "SubscribedCell") as! SubscribedCell
-            cell.viewContent.layer.borderColor = UIColor.white.cgColor
-            cell.viewContent.layer.borderWidth = 1.0
-        cell.imgUser.layer.borderColor = UIColor.black.cgColor
+           
+        cell.imgUser.layer.borderColor = UIColor.white.cgColor
         cell.imgUser.layer.borderWidth = 1.0
            // cell.btnSubscribe.addTarget(self, action: #selector(subscribeBtnPressed(_:)), for: .touchUpInside)
             let subscribeObj = self.arySubscriptions[indexPath.row] as? [String : Any] ?? [:];

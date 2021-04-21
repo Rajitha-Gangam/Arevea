@@ -11,6 +11,7 @@ import SendBirdSDK
 
 class ContactChatVC: UIViewController , UITextFieldDelegate,UITableViewDataSource,UITableViewDelegate,OpenChanannelChatDelegate,OpenChannelMessageTableViewCellDelegate{
     // MARK: - variables declaration
+    let appDelegate = UIApplication.shared.delegate as! AppDelegate
 
     @IBOutlet weak var viewActivity: UIView!
     @IBOutlet weak var heightTopView: NSLayoutConstraint?
@@ -22,7 +23,7 @@ class ContactChatVC: UIViewController , UITextFieldDelegate,UITableViewDataSourc
     var sendBirdErrorCode = 0;
     @IBOutlet weak var lblNoDataComments: UILabel!
     var messages: [SBDBaseMessage] = []
-    var channel: SBDOpenChannel?
+    var channel: SBDGroupChannel?
     var isChannelAvailable = false;
     @IBOutlet weak var txtComment: UITextField!
     @IBOutlet weak var sendUserMessageButton: UIButton!
@@ -34,6 +35,12 @@ class ContactChatVC: UIViewController , UITextFieldDelegate,UITableViewDataSourc
     var txtTopOfToolBarChat : UITextField!
     var resendableMessages: [String:SBDBaseMessage] = [:]
     var preSendMessages: [String:SBDBaseMessage] = [:]
+    var contactId = ""
+    var contactName = ""
+    var contactObj = [String:Any]()
+    @IBOutlet weak var lblTitle: UILabel!
+    @IBOutlet weak var userName: UIButton!
+
     // MARK: - View Life cycle
 
     override func viewDidLoad() {
@@ -42,14 +49,39 @@ class ContactChatVC: UIViewController , UITextFieldDelegate,UITableViewDataSourc
         // Do any additional setup after loading the view.
         lblNoDataComments.text = ""
         addDoneButton()
-        tblComments.register(UINib(nibName: "OpenChannelUserMessageTableViewCell", bundle: nil), forCellReuseIdentifier: "OpenChannelUserMessageTableViewCell")
+        tblComments.register(UINib(nibName: "PvtChatCell", bundle: nil), forCellReuseIdentifier: "PvtChatCell")
 
         tblComments.rowHeight = 40
         tblComments.estimatedRowHeight = UITableView.automaticDimension
         self.isChannelAvailable = true
-        sendBirdChatConfig()
+        print("==contactObj:",contactObj)
+        let fullName = contactObj["name"] as? String ?? ""
+        contactId = contactObj["contactid"] as? String ?? ""
+        lblTitle.text = fullName
 
-
+        var firstChar = ""
+        if fullName.count == 0 {
+            lblTitle.text = "Anonymous"
+            firstChar = "A"
+        }
+        else {
+            let fullNameArr = fullName.components(separatedBy: " ")
+            let firstName: String = fullNameArr[0]
+            var lastName = ""
+            if (fullNameArr.count > 1){
+                lastName = fullNameArr[1]
+            }
+            if (lastName == ""){
+                firstChar = String(firstName.first!)
+            }else{
+                firstChar = String(firstName.first!) + String(lastName.first!)
+            }
+        }
+        userName.setTitle(firstChar, for: .normal)
+        
+        print("===2contactId:",contactId)
+        
+        createChannel()
     }
     func addDoneButton() {
         let toolbar =  UIToolbar(frame: CGRect(x: 0, y: 0, width: view.frame.size.width, height: 35))
@@ -99,7 +131,12 @@ class ContactChatVC: UIViewController , UITextFieldDelegate,UITableViewDataSourc
         }
     }
     @IBAction func back(_ sender: Any) {
-        self.navigationController?.popViewController(animated: true)
+        if(appDelegate.isPvtChatFromLeftMenu){
+            self.navigationController?.popViewController(animated: true);
+
+        }else{
+            self.dismiss(animated: true, completion: nil)
+        }
     }
     // MARK: Text Field Delegate Methods
     
@@ -126,6 +163,37 @@ class ContactChatVC: UIViewController , UITextFieldDelegate,UITableViewDataSourc
         let txtAfterUpdate = textFieldText.replacingCharacters(in: range, with: string)
         txtTopOfToolBarChat.text = txtAfterUpdate
         return true
+    }
+    func createChannel(){
+        let USER_IDS = [contactId]
+        SBDGroupChannel.createChannel(withUserIds: USER_IDS, isDistinct: true, completionHandler: { (groupChannel, error) in
+            guard error == nil else {
+                // Handle error.
+                let errorDesc = "Create Channel Error:" + error!.localizedDescription
+                print(errorDesc)
+                return
+            }
+
+            // A group channel of the specified users is successfully created.
+            // Through the "groupChannel" parameter of the callback method,
+            // you can get the group channel's data from the result object that Sendbird server has passed to the callback method.
+            let channelUrl = groupChannel?.channelUrl
+            print("channelUrl:",channelUrl)
+            self.channelName = channelUrl ?? ""
+
+           self.sendBirdChatConfig()
+            /*SBDGroupChannel.getWithUrl((self.channelName), completionHandler: { (groupChannel, error) in
+                guard error == nil else {
+                    // Handle error.
+                    return
+                }
+
+                // Through the "groupChannel" parameter of the callback method,
+                // the group channel object identified with the CHANNEL_URL is returned by Sendbird server,
+                // and you can get the group channel's data from the result object.
+                let channelName = groupChannel?.name
+            })*/
+        })
     }
     //MARK:Tableview Delegates and Datasource Methods
     
@@ -160,7 +228,7 @@ class ContactChatVC: UIViewController , UITextFieldDelegate,UITableViewDataSourc
             
             if self.messages[indexPath.row] is SBDAdminMessage {
                 if let adminMessage = self.messages[indexPath.row] as? SBDAdminMessage,
-                   let adminMessageCell = tableView.dequeueReusableCell(withIdentifier: "OpenChannelUserMessageTableViewCell") as? OpenChannelUserMessageTableViewCell {
+                   let adminMessageCell = tableView.dequeueReusableCell(withIdentifier: "PvtChatCell") as? PvtChatCell {
                     adminMessageCell.setMessage(adminMessage)
                     adminMessageCell.delegate = self
                     //adminMessageCell.profileImageView
@@ -172,7 +240,7 @@ class ContactChatVC: UIViewController , UITextFieldDelegate,UITableViewDataSourc
             }
             else if self.messages[indexPath.row] is SBDUserMessage {
                 let userMessage = self.messages[indexPath.row] as! SBDUserMessage
-                if let userMessageCell = tableView.dequeueReusableCell(withIdentifier: "OpenChannelUserMessageTableViewCell") as? OpenChannelUserMessageTableViewCell,
+                if let userMessageCell = tableView.dequeueReusableCell(withIdentifier: "PvtChatCell") as? PvtChatCell,
                    let sender = userMessage.sender {
                     userMessageCell.setMessage(userMessage)
                     userMessageCell.delegate = self
@@ -194,7 +262,7 @@ class ContactChatVC: UIViewController , UITextFieldDelegate,UITableViewDataSourc
                     //userMessageCell.profileImageView
                     DispatchQueue.main.async {
                         guard let updateCell = tableView.cellForRow(at: indexPath) else { return }
-                        guard updateCell is OpenChannelUserMessageTableViewCell else { return }
+                        guard updateCell is PvtChatCell else { return }
                         
                         // updateUserMessageCell.profileImageView.setProfileImageView(for: sender)
                     }
@@ -335,12 +403,11 @@ class ContactChatVC: UIViewController , UITextFieldDelegate,UITableViewDataSourc
     // MARK: - Send Bird methods
 
     func sendBirdChatConfig(){
-        channelName = "1988_1611671788686_qa_reply"
         ////print("channelName in sendBirdChatConfig:",channelName)
-        SBDOpenChannel.getWithUrl(channelName, completionHandler: { (openChannel, error) in
+        SBDGroupChannel.getWithUrl((self.channelName), completionHandler: { (groupChannel, error) in
             guard error == nil else {   // Error.
                 let errorDesc = "Chat Error:" + error!.localizedDescription
-                ////print("Send Bird Error:\(String(describing: error))")
+                print("Send Bird Error:\(String(describing: error))")
                 //print(errorDesc)
                 //self.sbdError = error ?? error?.localizedDescription as! SBDError
                 self.sendBirdErrorCode = error?.code ?? 0
@@ -374,14 +441,15 @@ class ContactChatVC: UIViewController , UITextFieldDelegate,UITableViewDataSourc
                 self.tblComments.reloadData()
                 return
             }
-            self.channel = openChannel
+            print("no error")
+            self.channel = groupChannel
             self.title = self.channel?.name
             self.loadPreviousMessages(initial: true)
-            openChannel?.enter(completionHandler: { (error) in
-                guard error == nil else {   // Error.
-                    return
-                }
-            })
+//            openChannel?.enter(completionHandler: { (error) in
+//                guard error == nil else {   // Error.
+//                    return
+//                }
+//            })
             
         })
         channel?.getMyMutedInfo(completionHandler: { (isMuted, description, startAt, endAt, duration, error) in

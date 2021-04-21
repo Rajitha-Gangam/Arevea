@@ -42,13 +42,14 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
     @IBOutlet var imgProfilePic: UIImageView!
     var aryStreamInfo = [String: Any]()
 
-    var arySideMenu : [[String: String]] = [["name":"Home","icon":"home-white"],["name":"My Profile","icon":"user-white"],["name":"My Events","icon":"event-white"],["name":"My Payments","icon":"donation"],["name":"My Purchases","icon":"purchase-white"],["name":"Subscribed Channels","icon":"video-sub-white"],["name":"Help","icon":"help-white"],["name":"Logout","icon":"logout"]];
-
-    var arySideMenuGuest : [[String: String]] = [["name":"Home","icon":"home-white"],["name":"Help","icon":"help-white"]];
-    
+    var arySideMenu : [[String: String]] = [["name":"Home","icon":"home-white","icon_sel":"home_bl"],["name":"My Profile","icon":"user-white","icon_sel":"user_bl"],["name":"My Events","icon":"event-white","icon_sel":"event_bl"],["name":"My Payments","icon":"donation","icon_sel":"donation_bl"],["name":"My Purchases","icon":"purchase-white","icon_sel":"purchase_bl"],["name":"Subscribed Channels","icon":"video-sub-white","icon_sel":"video-sub_bl"],["name":"Logout","icon":"logout","icon_sel":"logout_bl"]];
+//["name":"Help","icon":"help-white","icon_sel":"help_bl"]
+    //["name":"Private Chat","icon":"chat-white","icon_sel":"chat"]
+    var arySideMenuGuest : [[String: String]] = [["name":"Home","icon":"home-white","icon_sel":"home_bl"]];
+    //["name":"Help","icon":"help-white","icon_sel":"help_bl"]
     var sectionTitles = ["Live Events","Upcoming Events","My List","Trending Channels"]
     var locationManager:CLLocationManager!
-    
+    var selectedLeftMenuIndex = 0
     //MARK:View Life Cycle Methods
     
     @IBOutlet weak var viewActivity: UIView!
@@ -224,6 +225,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
         appDelegate.strCategory = "";
         appDelegate.genreId = 0;
         AppDelegate.AppUtility.lockOrientation(.all)
+
         
     }
     override func viewDidAppear(_ animated: Bool) {
@@ -310,8 +312,8 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
             }
         })
         
-        
-        
+        selectedLeftMenuIndex = 0
+        tblSide.reloadData()
         //test()
     }
     override func viewDidDisappear(_ animated: Bool) {
@@ -686,6 +688,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
                             showAlert(strMsg: "You've successfully logged out")
                             UserDefaults.standard.set("0", forKey: "user_id")
                             appDelegate.isGuest = true
+                            selectedLeftMenuIndex = 0
                             if(appDelegate.isGuest){
                                 self.lblUserName.text = "Guest"
                                 btnSignIn.isHidden = false
@@ -857,10 +860,21 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
             cell.imgItem.image = UIImage(named:imageNamed!)
             cell.backgroundColor = .clear
             
-            let bgColorView = UIView()
-            bgColorView.backgroundColor = UIColor.init(red: 34, green: 44, blue: 54)
-            cell.selectedBackgroundView = bgColorView
             
+//            let bgColorView = UIView()
+//            bgColorView.backgroundColor = UIColor.init(red: 34, green: 44, blue: 54)
+//            cell.selectedBackgroundView = bgColorView
+            if(selectedLeftMenuIndex == indexPath.row){
+                cell.lblName.textColor = UIColor.init(red: 141, green: 230, blue: 214)
+                let imageNamed = selectedItem["icon_sel"];
+                cell.imgItem.image = UIImage(named:imageNamed!)
+                cell.backgroundColor = UIColor.init(red: 34, green: 44, blue: 54)
+
+            }else{
+                cell.lblName.textColor = UIColor.white
+                cell.backgroundColor = UIColor.clear
+
+            }
             return cell;
         }
         
@@ -870,6 +884,10 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
             tableView.deselectRow(at: indexPath, animated: true)
         }
         else{
+            tableView.deselectRow(at: indexPath, animated: true)
+            selectedLeftMenuIndex = indexPath.row
+            tblSide.reloadData()
+            //return
             var selectedItem = [String:String]()
             if(appDelegate.isGuest){
                 selectedItem = arySideMenuGuest[indexPath.row];
@@ -900,6 +918,12 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
                 hideSideMenu()
                 let storyboard = UIStoryboard(name: "Main", bundle: nil);
                 let vc = storyboard.instantiateViewController(withIdentifier: "MyPurchasesVC") as! MyPurchasesVC
+                self.navigationController?.pushViewController(vc, animated: true)
+            case "private chat":
+                hideSideMenu()
+                appDelegate.isPvtChatFromLeftMenu = true
+                let storyboard = UIStoryboard(name: "Main", bundle: nil);
+                let vc = storyboard.instantiateViewController(withIdentifier: "ContactsVC") as! ContactsVC
                 self.navigationController?.pushViewController(vc, animated: true)
             case "help":
                 hideSideMenu()
@@ -1137,7 +1161,8 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
         print("screenRect:",screenRect)
         let screenHeight = screenRect.size.height/2
         let screenWidth = screenRect.size.width - 100
-        
+        appDelegate.isPvtChatFromLeftMenu = false
+
         let popupVC = PopupViewController(contentController: contactsVC!, position:.bottomRight(CGPoint(x: 0, y: 30)), popupWidth: screenWidth, popupHeight: screenHeight)
         popupVC.backgroundAlpha = 0.3
         popupVC.backgroundColor = .black

@@ -10,6 +10,8 @@ import UIKit
 
 class SubscribedCell: UITableViewCell {
     @IBOutlet weak var viewContent:UIView!
+    @IBOutlet weak var viewHeader:UIView!
+
     @IBOutlet weak var lbl1:UILabel!
     @IBOutlet weak var lbl2:UILabel!
     @IBOutlet weak var lbl3:UILabel!

@@ -19,6 +19,7 @@ class ContactsVC: UIViewController, UITableViewDelegate, UITableViewDataSource,U
     var searchActive : Bool = false
     @IBOutlet weak var searchBar: UISearchBar!
     var framePopup : CGRect!
+    let appDelegate = UIApplication.shared.delegate as! AppDelegate
     var COLORLIST = [
         "#44d7b6",
         "#FF8935",
@@ -57,24 +58,28 @@ class ContactsVC: UIViewController, UITableViewDelegate, UITableViewDataSource,U
         // This view controller itself will provide the delegate methods and row data for the table view.
         self.searchBar.delegate = self
         searchBar.placeholder = "Search with any keyword"
-        let darkGray = UIColor(red: 113, green: 109, blue: 123);
+        let green = UIColor(red: 34, green: 44, blue: 54);
+        let darkGreen = UIColor(red: 13, green: 17, blue: 21);
 
         searchBar.set(textColor: .white)
-        searchBar.setTextField(color: darkGray)
-        searchBar.setPlaceholder(textColor: darkGray)
+        searchBar.setTextField(color:green )
+        searchBar.setPlaceholder(textColor: .gray)
         searchBar.setSearchImage(color: .white)
         searchBar.setClearButton(color: .black)
+        searchBar.barTintColor = darkGreen
+
         if(UIDevice.current.userInterfaceIdiom == .pad){
-            let attributes = [NSAttributedString.Key.font: UIFont.systemFont(ofSize: 25.0), NSAttributedString.Key.foregroundColor: darkGray]
+            let attributes = [NSAttributedString.Key.font: UIFont.systemFont(ofSize: 25.0), NSAttributedString.Key.foregroundColor: darkGreen]
             UITextField.appearance(whenContainedInInstancesOf: [UISearchBar.self]).defaultTextAttributes = attributes
             
         }
         tblAllContacts.register(UINib(nibName: "ContactsCell", bundle: nil), forCellReuseIdentifier: "ContactsCell")
         btnAddContact.isHidden = true
-        listContacts()
+        //listContacts()
     }
     override func viewWillAppear(_ animated: Bool) {
         print("viewWillAppear")
+        listContacts()
     }
     override func viewDidAppear(_ animated: Bool) {
         print("viewDidAppear")
@@ -87,7 +92,11 @@ class ContactsVC: UIViewController, UITableViewDelegate, UITableViewDataSource,U
     }
     
     @IBAction func back(_ sender: Any) {
-        self.dismiss(animated: true, completion: nil)
+        if(appDelegate.isPvtChatFromLeftMenu){
+            self.navigationController?.popViewController(animated: true);
+        }else{
+            self.dismiss(animated: true, completion: nil)
+        }
     }
    
     // number of rows in table view
@@ -143,19 +152,35 @@ class ContactsVC: UIViewController, UITableViewDelegate, UITableViewDataSource,U
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         print("You tapped cell number \(indexPath.row).")
         btnAddContact.isHidden = true
-        let contactsVC = self.storyboard?.instantiateViewController(withIdentifier: "ContactChatVC") as? ContactChatVC
-        let screenRect = UIScreen.main.bounds
-        print("screenRect:",screenRect)
-        let screenHeight = screenRect.size.height/2
-        let screenWidth = screenRect.size.width - 100
-        let popupVC = PopupViewController(contentController: contactsVC!, position:.bottomRight(CGPoint(x: 0, y: 30)), popupWidth: screenWidth, popupHeight: screenHeight)
-        popupVC.backgroundAlpha = 0.3
-        popupVC.backgroundColor = .black
-        popupVC.canTapOutsideToDismiss = true
-        popupVC.cornerRadius = 10
-        popupVC.shadowEnabled = true
-        //popupVC.delegate = self
-        present(popupVC, animated: true, completion: nil)
+        var contact = [String:Any]()
+        if(searchActive){
+            contact = aryListOfSearchContacts[indexPath.row] as? [String : Any] ?? [String:Any]()
+        }else{
+            contact = aryListOfContacts[indexPath.row] as? [String : Any] ?? [String:Any]()
+        }
+        if(appDelegate.isPvtChatFromLeftMenu){
+            let storyboard = UIStoryboard(name: "Main", bundle: nil);
+            let vc = storyboard.instantiateViewController(withIdentifier: "ContactChatVC") as! ContactChatVC
+            vc.contactObj = contact
+            self.navigationController?.pushViewController(vc, animated: true)
+        }else{
+            let storyboard = UIStoryboard(name: "Main", bundle: nil);
+            let vc = storyboard.instantiateViewController(withIdentifier: "ContactChatVC") as! ContactChatVC
+            vc.contactObj = contact
+
+            let screenRect = UIScreen.main.bounds
+            print("screenRect:",screenRect)
+            let screenHeight = screenRect.size.height/2
+            let screenWidth = screenRect.size.width - 100
+            let popupVC = PopupViewController(contentController: vc, position:.bottomRight(CGPoint(x: 0, y: 30)), popupWidth: screenWidth, popupHeight: screenHeight)
+            popupVC.backgroundAlpha = 0.3
+            popupVC.backgroundColor = .black
+            popupVC.canTapOutsideToDismiss = true
+            popupVC.cornerRadius = 10
+            popupVC.shadowEnabled = true
+            //popupVC.delegate = self
+            present(popupVC, animated: true, completion: nil)
+        }
         
 
     }
@@ -167,20 +192,27 @@ class ContactsVC: UIViewController, UITableViewDelegate, UITableViewDataSource,U
     @IBAction func AddContact(_ sender: Any) {
         print("add clicked")
         btnAddContact.isHidden = true
-        let contactsVC = self.storyboard?.instantiateViewController(withIdentifier: "AddContactVC") as? AddContactVC
-        let screenRect = UIScreen.main.bounds
-        print("screenRect:",screenRect)
-        let screenHeight = screenRect.size.height/2
-        let screenWidth = screenRect.size.width - 100
-        contactsVC?.delegate = self
-        let popupVC = PopupViewController(contentController: contactsVC!, position:.bottomRight(CGPoint(x: 0, y: 30)), popupWidth: screenWidth, popupHeight: screenHeight)
-        popupVC.backgroundAlpha = 0.3
-        popupVC.backgroundColor = .black
-        popupVC.canTapOutsideToDismiss = true
-        popupVC.cornerRadius = 10
-        popupVC.shadowEnabled = true
-        //popupVC.delegate = self
-        present(popupVC, animated: true, completion: nil)
+        if(appDelegate.isPvtChatFromLeftMenu){
+            let storyboard = UIStoryboard(name: "Main", bundle: nil);
+            let vc = storyboard.instantiateViewController(withIdentifier: "AddContactVC") as! AddContactVC
+            self.navigationController?.pushViewController(vc, animated: true)
+           
+        }else{
+            let contactsVC = self.storyboard?.instantiateViewController(withIdentifier: "AddContactVC") as? AddContactVC
+            let screenRect = UIScreen.main.bounds
+            print("screenRect:",screenRect)
+            let screenHeight = screenRect.size.height/2
+            let screenWidth = screenRect.size.width - 100
+            contactsVC?.delegate = self
+            let popupVC = PopupViewController(contentController: contactsVC!, position:.bottomRight(CGPoint(x: 0, y: 30)), popupWidth: screenWidth, popupHeight: screenHeight)
+            popupVC.backgroundAlpha = 0.3
+            popupVC.backgroundColor = .black
+            popupVC.canTapOutsideToDismiss = true
+            popupVC.cornerRadius = 10
+            popupVC.shadowEnabled = true
+            //popupVC.delegate = self
+            present(popupVC, animated: true, completion: nil)
+        }
         
     }
     
@@ -218,9 +250,12 @@ class ContactsVC: UIViewController, UITableViewDelegate, UITableViewDataSource,U
                                 print("contacts count:",self.aryListOfContacts.count)
                                 for(j,_)in aryContacts.enumerated(){
                                     let contact = aryContacts[j] as? [String : Any] ?? [String:Any]()
+                                    print("contact:",contact)
                                     let contact_details = contact["contact_details"] as? [String : Any] ?? [String:Any]()
                                     let fullName = contact_details["name"] as? String ?? ""
-                                    let nameDic = ["name":fullName]
+                                    let contactId = contact["contactid"] as? String ?? ""
+
+                                    let nameDic = ["name":fullName,"contactid":contactId]
                                     self.aryListOfContacts.append(nameDic)
                                 }
                            self.tblAllContacts.reloadData()

@@ -105,6 +105,8 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate,UICollecti
     var saleCompleted = false
     var stream_status = ""
     @IBOutlet weak var btnSubscribe: UIButton!
+    @IBOutlet weak var btnShare: UIButton!
+
     @IBOutlet weak var ageDesc: UILabel!
     @IBOutlet weak var shareEventTop: NSLayoutConstraint!
     @IBOutlet weak var tblheight: NSLayoutConstraint!
@@ -112,7 +114,7 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate,UICollecti
     var arySubscriptionDetails = [Any]();
     var arySubscriptions = [Any]();
     var subscription_details = false
-    var isUserSubscribe = true
+    var isUserSubscribe = false
     var currencyType = ""
     var currencySymbol = ""
     
@@ -153,7 +155,9 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate,UICollecti
         let yellow = UIColor(red: 139, green: 230, blue: 213);
         btnSubscribe.layer.borderColor = yellow.cgColor
         lblTitle.text = appDelegate.strTitle
-        
+        btnShare.layer.borderWidth = 1
+        btnShare.layer.borderColor = UIColor.white.cgColor
+
         if(UIDevice.current.userInterfaceIdiom == .pad){
             heightTopView?.constant = 60;
             viewTop.layoutIfNeeded()
@@ -1644,6 +1648,16 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate,UICollecti
         
     }
     func gotoTicketTypes(){
+        if(self.lblAmount.text != "Free"){
+        let user_id = UserDefaults.standard.string(forKey: "user_id") ?? "";
+        let urlOpen = appDelegate.websiteURL + "/event/" + appDelegate.strSlug + "/place-order?user_id=" + user_id
+        guard let url = URL(string: urlOpen) else { return }
+        print("url to open:",url)
+        UIApplication.shared.open(url)
+            return
+        }
+        
+        
         let storyboard = UIStoryboard(name: "Main", bundle: nil);
         let streamInfo = self.aryStreamInfo
         let stream_video_title = streamInfo["stream_video_title"] as? String ?? "Channel Details"
@@ -1652,11 +1666,7 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate,UICollecti
         vc.chatDelegate = self
         appDelegate.strTitle = stream_video_title
         vc.isCameFromGetTickets = true
-        vc.aryStreamAmounts = aryStreamAmounts
-        vc.currencyType = currencyType
         vc.currencySymbol = currencySymbol
-        vc.tempAryDisplayCurrencies = tempAryDisplayCurrencies
-        vc.number_of_creators = number_of_creators
         vc.aryStreamInfo = self.aryStreamInfo
         vc.isUserSubscribe = isUserSubscribe
         vc.aryTicketsData = aryTickets
@@ -2075,7 +2085,7 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate,UICollecti
     }
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) ->  CGFloat {
         if(tableView == tblSchedule){
-            return 180
+            return 190
         }else if(tableView == tblSpeakers || tableView == tblHost){
             return 150
         }else if(tableView == tblSponsors){
@@ -2099,22 +2109,8 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate,UICollecti
 
             let title = agendaObj["title"]as? String ?? ""
             let desc = agendaObj["description"]as? String ?? ""
-            if(aryAgendaGuestList1.count > indexPath.row){
-                let guestObj = aryAgendaGuestList1[indexPath.row] as? [String : Any] ?? [:];
-                let fn = guestObj["first_name"] as? String ?? ""
-                let ln = guestObj["last_name"]as? String ?? ""
-                let userName =  fn + " " + ln
-                cell.btnUserName.setTitle(userName, for: .normal)
-                cell.btnUserName.sizeToFit()
-
-                var firstChar = ""
-                if (ln == ""){
-                    firstChar = String(fn.first ?? "A")
-                }else{
-                    firstChar = String(fn.first ?? "A") + String(ln.first ?? " ")
-                }
-                cell.btnUserNameShort.setTitle(firstChar, for: .normal)
-            }
+            cell.updateCellWith(row: aryAgendaGuestList1)
+           
             cell.lblTitle.text = title
             cell.txtDesc.text = desc
             let start_time = agendaObj["start_time"]as? String ?? ""
@@ -2146,7 +2142,7 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate,UICollecti
             }
             
             cell.backgroundColor = UIColor.clear
-            cell.imgUser.layer.borderColor = UIColor.white.cgColor
+            //cell.imgUser.layer.borderColor = UIColor.white.cgColor
             return cell
         }else if(tableView == tblSpeakers || tableView == tblHost){
             let cell = tableView.dequeueReusableCell(withIdentifier: "SpeakersCell") as! SpeakersCell
