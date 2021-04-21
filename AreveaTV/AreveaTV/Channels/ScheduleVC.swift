@@ -313,7 +313,7 @@ class ScheduleVC: UIViewController,OpenChanannelChatDelegate,UITableViewDataSour
                 switch response.result {
                 case .success(let value):
                     if let json = value as? [String: Any] {
-                      print("getEventBySlug JSON:",json)
+                      //print("getEventBySlug JSON:",json)
                         if (json["statusCode"]as? String == "200"){
                             let data = json["Data"] as? [String:Any]
                             self.aryStreamInfo = data?["stream_info"] as? [String:Any] ?? [:]

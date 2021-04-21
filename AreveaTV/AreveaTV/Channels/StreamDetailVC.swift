@@ -19,8 +19,9 @@ import WebKit
 import Reachability
 import AWSAppSync
 import R5Streaming
+import PhenixSdk
 
-class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate,UITextFieldDelegate,OpenChanannelChatDelegate,OpenChannelMessageTableViewCellDelegate,AGEmojiKeyboardViewDelegate,SBDChannelDelegate, AGEmojiKeyboardViewDataSource,CLLocationManagerDelegate,R5StreamDelegate,UICollectionViewDataSource,UICollectionViewDelegateFlowLayout{
+class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate,UITextFieldDelegate,OpenChanannelChatDelegate,OpenChannelMessageTableViewCellDelegate,AGEmojiKeyboardViewDelegate,SBDChannelDelegate, AGEmojiKeyboardViewDataSource,CLLocationManagerDelegate,R5StreamDelegate,UICollectionViewDataSource,UICollectionViewDelegateFlowLayout, OnSubscribeCallback{
     // MARK: - Variables Declaration
     
     @IBOutlet weak var viewBottom: UIView!
@@ -2105,7 +2106,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                 switch response.result {
                 case .success(let value):
                     if let json = value as? [String: Any] {
-                        print("getTicketDetails JSON:",json)
+                      //  print("getTicketDetails JSON:",json)
                         if (json["statusCode"]as? String == "200" ){
                             let data = json["Data"] as? [String:Any]
                             self.aryStreamInfo = data?["stream_info"] as? [String:Any] ?? [:]
@@ -2113,7 +2114,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                             let charity_info = aryStreamInfo["charity_info"] != nil
                             if(charity_info){
                                 self.aryCharityInfo = aryStreamInfo["charity_info"] as? [Any] ?? [Any]()
-                                self .tblDonations.reloadData()
+                                self.tblDonations.reloadData()
                             }
                             let performer_info = aryStreamInfo["performer_info"] != nil
                             if(performer_info){
@@ -2182,6 +2183,10 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                                 }
                             }
                                 let streamObj = self.aryStreamInfo
+                            let streamObj1 = self.aryStreamInfo["stream_info"]as? [String : Any] ?? [String:Any]()
+
+                            print("<--streamObj:",streamObj)
+
                                 let settings_json = streamObj["settings_json"] as? String ?? ""
                                 stream_status = streamObj["stream_status"] as? String ?? ""
                                 parent_streams_id = streamObj["parent_streams_id"] as? Int ?? 0
@@ -2251,8 +2256,9 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                                 //appDelegate.streamId = streamObj["id"] as? Int ?? 0
                                 self.age_limit = streamObj["age_limit"] as? Int ?? 0
                                 // print("self.age_limit:",self.age_limit)
-                                self.streamVideoCode = streamObj["stream_video_code"] as? String ?? ""
-                                let streamVideoTitle = streamObj["stream_video_title"] as? String ?? ""
+                                self.streamVideoCode = streamObj1["stream_video_code"] as? String ?? ""
+
+                            let streamVideoTitle = streamObj["stream_video_title"] as? String ?? ""
                                 self.number_of_creators = streamObj["number_of_creators"] as? Int ?? 1
                                 
                                 //print("==streamVideoTitle:",streamVideoTitle)
@@ -2553,7 +2559,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
         Testbed.setRecordAppend(on: true)
         // Testbed.parameters = Testbed.dictionary!.value(forKey: "GlobalProperties") as? NSMutableDictionary
         isStreamConfigured = true
-        getGuestDetailInGraphql(.returnCacheDataAndFetch)//need to refresh stream
+        getPhenixInformation(.returnCacheDataAndFetch)//need to refresh stream
         self.configureStreamView()
     }
     func configureStreamView() {
@@ -4204,7 +4210,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
         // print("==ReceivedPN userInfo:",userInfo)
         let gcm = userInfo["GCM"] as? [String:Any] ?? [:]
         if(gcm["data"] != nil){
-            getGuestDetailInGraphql(.returnCacheDataAndFetch)//need to refresh stream
+            //getPhenixInformation(.returnCacheDataAndFetch)//need to refresh stream
         }
         /*let gcm = userInfo["GCM"] as? [String:Any] ?? [:]
          let data = gcm["data"]as? [String:Any] ?? [:]
@@ -4215,44 +4221,41 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
          // print("skey:",skey)
          if(skey != ""){
          //streamVideoCode = skey //stream video key and skey both are same
-         getGuestDetailInGraphql(.returnCacheDataAndFetch,showLoader: false)//need to refresh stream
+         getPhenixInformation(.returnCacheDataAndFetch,showLoader: false)//need to refresh stream
          }*/
         
     }
-    func getGuestDetailInGraphql(_ cachePolicy: CachePolicy) {
-        // print("====streamVideoCode1:",streamVideoCode)
+    func getPhenixInformation(_ cachePolicy: CachePolicy) {
+         print("====getPhenixInformation streamVideoCode1:",streamVideoCode)
         //viewActivity.isHidden = false
-        /* let listQuery = GetMulticreatorshareddataQuery(id:streamVideoCode)
+         let listQuery = GetMulticreatorshareddataQuery(id:streamVideoCode)
          //1872_1595845007395_mc2
          //58_1594894849561_multi_creator_test_event
          appSyncClient?.fetch(query: listQuery, cachePolicy: cachePolicy) { [self] result, error in
          self.viewActivity.isHidden = true
          if let error = error {
-         // print("Error fetching data: \(error)")
+          print("Error fetching data: \(error)")
          return
          }
-         // print("--result:",result)
+          print("--result:",result)
          if((result != nil)  && (result?.data != nil)){
          //// print("--data:",result?.data)
          let data = result?.data
          let multiData = data?.getMulticreatorshareddata
          if(multiData != nil){
          let multiDataJSON = self.convertToDictionary(text: multiData?.data ?? "")
-         // print("multiDataJSON:",multiDataJSON)
+         print("multiDataJSON:",multiDataJSON)
          let liveStatus = multiDataJSON?["liveStatus"] as? Bool ?? false;
          self.isSharedScreen = (multiDataJSON?["isSharedScreen"]as? Bool ?? false) ? true : false;
          let isLive = (multiDataJSON?["isLive"]as? Bool ?? false) ? true : false;
-         // print("self.isSharedScreen:",self.isSharedScreen)
-         // print("self.isStreamStartedAlias:",self.isStreamStartedAlias)
-         // print("isLive:",isLive)
-         self.adjustScreenShare();
          
          }else{
-         // print("GetMulticreatorshareddataQuery nil:")
+         print("GetMulticreatorshareddataQuery nil:")
          }
+            subscribePhenix()
          }
          // Remove existing records if we're either loading from cache, or loading fresh (e.g., from a refresh)
-         }*/
+         }
     }
     
     
@@ -4578,7 +4581,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
             /*if(isSharedScreen){
              SS_startup()
              }*/
-            getGuestDetailInGraphql(.returnCacheDataAndFetch)//need to refresh stream
+           // getPhenixInformation(.returnCacheDataAndFetch)//need to refresh stream
         }
     }
     //MARK: - Live Stream Methods end
@@ -4766,6 +4769,55 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
             default:
                 print("default")
             }
+        }
+    }
+    // MARK: - Phenix Methods
+    private lazy var phenixSubscribeComponent = {
+        PhenixSubscribeComponent(channelExpress: AppDelegate.channelExpress)
+    }()
+    // Keep strong reference to room service to ensure we remain joined
+    private var currentRoomService: PhenixRoomService?
+    private var currentSubscriber: PhenixExpressSubscriber?
+    private var currentRenderer: PhenixRenderer?
+    private let TAG = String(describing: StreamDetailVC.self)
+
+     func subscribePhenix() {
+        print("subscribePhenix called")
+        // stop subscription, while we have access to current service, subscriber and renderer
+        unsubscribePhenix()
+
+        phenixSubscribeComponent.subscribe(configuration: PhenixSubscribeComponent.Configuration(channelAlias: AppDelegate.channelAlias, capability: nil),
+                                           playerView: self.view, subscribeCallback: self)
+    }
+
+     func unsubscribePhenix(){
+        print("INFO", "unsubscribing...")
+        currentRenderer?.stop()
+        currentSubscriber?.stop()
+        currentRoomService = nil
+    }
+    func onJoinChannelSuccess(roomService: PhenixRoomService) {
+        print("INFO", "Channel joined")
+        self.currentRoomService = roomService
+    }
+
+    func onSubscribeSuccess(subscriber: PhenixExpressSubscriber, renderer: PhenixRenderer) {
+        self.currentSubscriber = subscriber
+        self.currentRenderer = renderer
+
+        print("INFO", "Channel subscribed")
+    }
+
+    func onNoActiveStream() {
+        print("INFO", "No stream playing")
+    }
+
+    func onError(error: SubscribeError) {
+        switch (error) {
+        case .joinChannel(let status):
+            print("WARNING", TAG, "Join channel error: \(status.getLocalisedStatusMessage()). Error #\(status.rawValue)")
+        case .subscribeChannel(let status):
+            print("WARNING", TAG, "Cannot subscribe, with message \(status.getLocalisedStatusMessage()) (Error #\(status.rawValue))")
         }
     }
 }

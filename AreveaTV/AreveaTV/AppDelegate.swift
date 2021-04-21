@@ -17,6 +17,8 @@ import Alamofire
 import FirebaseMessaging
 import UserNotifications
 import Firebase
+import PhenixSdk
+
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate , OpenChanannelChatDelegate{
     // MARK: - Variables Declaration
@@ -54,6 +56,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate , OpenChanannelChatDelegat
     var paramsForFreeRegistration = [String : Any]()
     var strTicketKey = ""
     var isPvtChatFromLeftMenu = false
+    
+    
     // MARK: - Dev Environmet Variables Declaration
     /*var baseURL = "https://dev1-apis.arevea.com";
      var websiteURL = "https://dev1.arevea.com"
@@ -167,6 +171,32 @@ class AppDelegate: UIResponder, UIApplicationDelegate , OpenChanannelChatDelegat
     }
     var appSyncClient: AWSAppSyncClient?
     var orientationLock = UIInterfaceOrientationMask.all
+    
+    /*Phenix Variables Start*/
+    public static let channelExpress: PhenixChannelExpress = { createChannelExpress() }()
+
+    public static let channelAlias = "92_1618483619183_channel_5"
+    private static let backendEndpoint = "https://pcast.phenixrts.com/pcast"
+    private static let accessToken = "DIGEST:eyJhcHBsaWNhdGlvbklkIjoiYXJldmVhLmNvbSIsImRpZ2VzdCI6Inpua3RHUU5vU1RpaTFXWUdCUFVzK2JEazV2Uk1ONUxNVlJRYkRIdFFja1UyTHE2Tm1xei9HQXdRS1dFUkR4clkrRHl3NkRTY0tzWU5KL1V2bEtrWEp3PT0iLCJ0b2tlbiI6IntcImV4cGlyZXNcIjoxNjE4ODE5OTUwMDg1LFwicmVxdWlyZWRUYWdcIjpcImNoYW5uZWxJZDp1cy13ZXN0I2FyZXZlYS5jb20jOTIxNjE4ODA5NDQ1MzUxQ2hlY2tJc3N1ZXMucnlaRXV0NmkyQWhsXCJ9In0"
+    private static func createChannelExpress() -> PhenixChannelExpress {
+        let pcastExpressOptions = PhenixPCastExpressFactory.createPCastExpressOptionsBuilder()
+            .withBackendUri(backendEndpoint)?.withAuthenticationToken(accessToken)
+            .buildPCastExpressOptions()
+
+        let pCastExpress = PhenixPCastExpressFactory.createPCastExpress(pcastExpressOptions);
+
+        let roomExpressOptions = PhenixRoomExpressFactory.createRoomExpressOptionsBuilder()
+            .withPCastExpressOptions(pcastExpressOptions)
+            .buildRoomExpressOptions()
+
+        let channelExpressOptions = PhenixChannelExpressFactory.createChannelExpressOptionsBuilder()
+            .withRoomExpressOptions(roomExpressOptions)
+            .buildChannelExpressOptions()
+
+        return PhenixChannelExpressFactory.createChannelExpress(channelExpressOptions)
+    }
+    /*Phenix Variables End*/
+
     
     func application(_ application: UIApplication, supportedInterfaceOrientationsFor window: UIWindow?) -> UIInterfaceOrientationMask {
         return self.orientationLock

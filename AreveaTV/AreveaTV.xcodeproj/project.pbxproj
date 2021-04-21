@@ -113,6 +113,9 @@
 		18BAF3142588B9B300FBB9F3 /* Q_And_A_AnswerCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18BAF3122588B9B300FBB9F3 /* Q_And_A_AnswerCell.swift */; };
 		18BAF3152588B9B300FBB9F3 /* Q_And_A_AnswerCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 18BAF3132588B9B300FBB9F3 /* Q_And_A_AnswerCell.xib */; };
 		18BAF31C2588C1C300FBB9F3 /* Q_And_A_Cell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18BAF31B2588C1C300FBB9F3 /* Q_And_A_Cell.swift */; };
+		18BB99E126307CBC00BFFBC8 /* SubscribeCapability.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18BB99DE26307CBC00BFFBC8 /* SubscribeCapability.swift */; };
+		18BB99E226307CBC00BFFBC8 /* PhenixSubscribeComponent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18BB99DF26307CBC00BFFBC8 /* PhenixSubscribeComponent.swift */; };
+		18BB99E326307CBC00BFFBC8 /* OnSubscribeCallback.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18BB99E026307CBC00BFFBC8 /* OnSubscribeCallback.swift */; };
 		18C6141F2608BF7F004EFD6E /* ScheduleVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18C6141E2608BF7E004EFD6E /* ScheduleVC.swift */; };
 		18D2717D24A382A400F958BC /* search.png in Resources */ = {isa = PBXBuildFile; fileRef = 18D2717C24A382A300F958BC /* search.png */; };
 		18D48042244E8F2B00640C1A /* libc++.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 18D48041244E8F2B00640C1A /* libc++.tbd */; };
@@ -299,6 +302,9 @@
 		18BAF3122588B9B300FBB9F3 /* Q_And_A_AnswerCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Q_And_A_AnswerCell.swift; sourceTree = "<group>"; };
 		18BAF3132588B9B300FBB9F3 /* Q_And_A_AnswerCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = Q_And_A_AnswerCell.xib; sourceTree = "<group>"; };
 		18BAF31B2588C1C300FBB9F3 /* Q_And_A_Cell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Q_And_A_Cell.swift; sourceTree = "<group>"; };
+		18BB99DE26307CBC00BFFBC8 /* SubscribeCapability.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubscribeCapability.swift; sourceTree = "<group>"; };
+		18BB99DF26307CBC00BFFBC8 /* PhenixSubscribeComponent.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PhenixSubscribeComponent.swift; sourceTree = "<group>"; };
+		18BB99E026307CBC00BFFBC8 /* OnSubscribeCallback.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OnSubscribeCallback.swift; sourceTree = "<group>"; };
 		18C6141E2608BF7E004EFD6E /* ScheduleVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScheduleVC.swift; sourceTree = "<group>"; };
 		18D2717C24A382A300F958BC /* search.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = search.png; sourceTree = "<group>"; };
 		18D48041244E8F2B00640C1A /* libc++.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libc++.tbd"; path = "usr/lib/libc++.tbd"; sourceTree = SDKROOT; };
@@ -556,6 +562,7 @@
 		1891CA61244AC82B00EE1E45 /* AreveaTV */ = {
 			isa = PBXGroup;
 			children = (
+				18BB99DC26307CA600BFFBC8 /* Phenix */,
 				18D53FE7253D87C30099CA40 /* AreveaTV.entitlements */,
 				180E003A253F404A00DDFD2D /* payload.apns */,
 				18E394C826022380003DC413 /* SSRadioButtonController */,
@@ -712,6 +719,24 @@
 				18B1BEF2255955C6003E96FF /* SubscriptionCell.xib */,
 			);
 			path = SubscriptionCell;
+			sourceTree = "<group>";
+		};
+		18BB99DC26307CA600BFFBC8 /* Phenix */ = {
+			isa = PBXGroup;
+			children = (
+				18BB99DD26307CBC00BFFBC8 /* Subscriber */,
+			);
+			path = Phenix;
+			sourceTree = "<group>";
+		};
+		18BB99DD26307CBC00BFFBC8 /* Subscriber */ = {
+			isa = PBXGroup;
+			children = (
+				18BB99DE26307CBC00BFFBC8 /* SubscribeCapability.swift */,
+				18BB99DF26307CBC00BFFBC8 /* PhenixSubscribeComponent.swift */,
+				18BB99E026307CBC00BFFBC8 /* OnSubscribeCallback.swift */,
+			);
+			path = Subscriber;
 			sourceTree = "<group>";
 		};
 		18D48059244EA5A600640C1A /* DashBoardCell */ = {
@@ -1203,6 +1228,7 @@
 				18DAF977248FA98000A6693A /* CheckMarkCell.swift in Sources */,
 				18D480C62454552200640C1A /* ProfileVC.swift in Sources */,
 				189BC64125926A4900445423 /* TicketTypesVC.swift in Sources */,
+				18BB99E126307CBC00BFFBC8 /* SubscribeCapability.swift in Sources */,
 				1813E7FE25E38AC30090D3A5 /* ArtistProfileVC.swift in Sources */,
 				18B1BEE925594AF6003E96FF /* EventRegistrationVC.swift in Sources */,
 				189EBF322459CEE500C52B0E /* VideoCell.swift in Sources */,
@@ -1242,6 +1268,7 @@
 				188B0EA5248E8F7A0062EB1D /* VideoEditor.swift in Sources */,
 				18D48060244EDDA300640C1A /* BaseTest.swift in Sources */,
 				18D4AA2324F56D5C005B0FD4 /* TestVC.swift in Sources */,
+				18BB99E326307CBC00BFFBC8 /* OnSubscribeCallback.swift in Sources */,
 				185064F925C06807009099E0 /* ContactChatVC.swift in Sources */,
 				1864AFCD2454A999004F3AED /* ChannelDetailVC.swift in Sources */,
 				18EC36CD25ADDAF100D70F29 /* ContactsVC.swift in Sources */,
@@ -1276,6 +1303,7 @@
 				18D48069244EDF9800640C1A /* Testbed.swift in Sources */,
 				18122CA1252B0E0A00C28926 /* MultiStreamGuestsCell.swift in Sources */,
 				180BE7C02609F87E00EB5A6D /* ScheduleHeaderViewCell.swift in Sources */,
+				18BB99E226307CBC00BFFBC8 /* PhenixSubscribeComponent.swift in Sources */,
 				184A0B4F2472CA9E006EDDA3 /* PaymentHistoryVC.swift in Sources */,
 				182A5EF3245C59C700FF6147 /* StickyHeadersCollectionViewFlowLayout.swift in Sources */,
 				180A78C82464243A0013AB0B /* ConnectionManager.swift in Sources */,

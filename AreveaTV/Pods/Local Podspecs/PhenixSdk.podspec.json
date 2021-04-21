@@ -1,0 +1,24 @@
+{
+  "name": "PhenixSdk",
+  "version": "2020.0.0",
+  "homepage": "https://phenixrts.com/",
+  "summary": "Video Real Time Solutions",
+  "license": {
+    "type": "Proprietary",
+    "text": "                          Copyright 2019 Phenix Real Time Solutions, Inc.\n                          Confidential and Proprietary. All rights reserved.\n\n                          By using this code you agree to the Phenix Terms of Service found online here:\n                          http://phenixrts.com/terms-of-service.html\n"
+  },
+  "authors": "Phenix Real Time Solutions, Inc.",
+  "source": {
+    "git": "git@github.com:PhenixRTS/iOSSDK.git",
+    "tag": "v2020.0.0"
+  },
+  "ios": {
+    "vendored_frameworks": "lib/Universal/PhenixSdk.framework"
+  },
+  "platforms": {
+    "ios": "9.0"
+  },
+  "xcconfig": {
+    "ENABLE_BITCODE": "NO"
+  }
+}

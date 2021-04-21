@@ -354,54 +354,61 @@
 			<key>orderHint</key>
 			<integer>49</integer>
 		</dict>
-		<key>Pods-AreveaTV.xcscheme</key>
+		<key>PhenixSdk.xcscheme</key>
 		<dict>
 			<key>isShown</key>
 			<false/>
 			<key>orderHint</key>
 			<integer>51</integer>
 		</dict>
-		<key>PromisesObjC.xcscheme</key>
+		<key>Pods-AreveaTV.xcscheme</key>
 		<dict>
 			<key>isShown</key>
 			<false/>
 			<key>orderHint</key>
 			<integer>52</integer>
 		</dict>
-		<key>ReachabilitySwift.xcscheme</key>
+		<key>PromisesObjC.xcscheme</key>
 		<dict>
 			<key>isShown</key>
 			<false/>
 			<key>orderHint</key>
 			<integer>53</integer>
 		</dict>
-		<key>SDWebImage.xcscheme</key>
+		<key>ReachabilitySwift.xcscheme</key>
 		<dict>
 			<key>isShown</key>
 			<false/>
 			<key>orderHint</key>
 			<integer>54</integer>
 		</dict>
-		<key>SQLite.swift.xcscheme</key>
-		<dict>
-			<key>isShown</key>
-			<false/>
-			<key>orderHint</key>
-			<integer>56</integer>
-		</dict>
-		<key>SendBirdSDK.xcscheme</key>
+		<key>SDWebImage.xcscheme</key>
 		<dict>
 			<key>isShown</key>
 			<false/>
 			<key>orderHint</key>
 			<integer>55</integer>
 		</dict>
-		<key>Starscream.xcscheme</key>
+		<key>SQLite.swift.xcscheme</key>
 		<dict>
 			<key>isShown</key>
 			<false/>
 			<key>orderHint</key>
 			<integer>57</integer>
+		</dict>
+		<key>SendBirdSDK.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+			<key>orderHint</key>
+			<integer>56</integer>
+		</dict>
+		<key>Starscream.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+			<key>orderHint</key>
+			<integer>58</integer>
 		</dict>
 		<key>nanopb.xcscheme</key>
 		<dict>
