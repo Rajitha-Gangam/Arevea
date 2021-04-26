@@ -1,6 +1,7 @@
 PODS:
   - AGEmojiKeyboard (0.2.1)
   - Alamofire (5.4.0)
+  - AMPopTip (4.5.3)
   - AppSyncRealTimeClient (1.4.2):
     - Starscream (~> 3.1.0)
   - AWSAPIGateway (2.18.1):
@@ -790,6 +791,7 @@ PODS:
 DEPENDENCIES:
   - AGEmojiKeyboard
   - Alamofire
+  - AMPopTip
   - AWSAPIGateway
   - AWSAppSync
   - AWSAuthUI
@@ -814,6 +816,7 @@ SPEC REPOS:
   trunk:
     - AGEmojiKeyboard
     - Alamofire
+    - AMPopTip
     - AppSyncRealTimeClient
     - AWSAPIGateway
     - AWSAppSync
@@ -862,6 +865,7 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   AGEmojiKeyboard: d5a01a4b0de30e1f1c2a121503ac36a79c7217ab
   Alamofire: 3b6a534a3df22db367e4dedeeca73d1ddfcf0e2f
+  AMPopTip: 77eef4793d50709bef83825b72da4f501263b91d
   AppSyncRealTimeClient: 7fb160294d067b6c0c4b3c4ab91e953fd4cfba30
   AWSAPIGateway: d31e524941f1206a06255e9a8c6ca9d5bada58fe
   AWSAppSync: f30a853dab2af85e148ea0cb06e8486bffa6757d
@@ -904,6 +908,6 @@ SPEC CHECKSUMS:
   SQLite.swift: d2b4642190917051ce6bd1d49aab565fe794eea3
   Starscream: 4bb2f9942274833f7b4d296a55504dcfc7edb7b0
 
-PODFILE CHECKSUM: b2d47557676433c6bb614c6ceaedbc1501d48f9f
+PODFILE CHECKSUM: c75f37a15c7758b555107b82969f8e2d3019f1ef
 
 COCOAPODS: 1.9.3

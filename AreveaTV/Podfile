@@ -26,4 +26,5 @@ pod 'Firebase/Messaging'
 pod 'ReachabilitySwift'
 pod 'FlagPhoneNumber'
 pod 'PhenixSdk', :path => './iOSSDK/'
+pod 'AMPopTip'
 end

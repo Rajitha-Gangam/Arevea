@@ -1039,8 +1039,13 @@ class TicketTypesVC: UIViewController,UITableViewDataSource,UITableViewDelegate,
         
     }
     func gotoSchedule(){
-        let vc = storyboard!.instantiateViewController(withIdentifier: "ScheduleVC") as! ScheduleVC
-        self.navigationController?.pushViewController(vc, animated: true)
+        if(appDelegate.selected_type == "single_session_event"){
+            let vc = storyboard!.instantiateViewController(withIdentifier: "ScheduleVC") as! ScheduleVC
+            self.navigationController?.pushViewController(vc, animated: true)
+        }else{
+            let vc = storyboard!.instantiateViewController(withIdentifier: "ScheduleVC") as! ScheduleVC
+            self.navigationController?.pushViewController(vc, animated: true)
+        }
     }
 }
 

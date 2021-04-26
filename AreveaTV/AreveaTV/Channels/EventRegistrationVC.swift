@@ -19,6 +19,7 @@ import WebKit
 import Reachability
 import AWSAppSync
 import R5Streaming
+import AMPopTip
 
 class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate,UICollectionViewDataSource,UICollectionViewDelegateFlowLayout,UITableViewDataSource,UITableViewDelegate{
     // MARK: - Variables Declaration
@@ -146,7 +147,6 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate,UICollecti
     var isHost = false
     var priceDetails = [String:Any]()
     var aryQuestions = [Any]()
-    
     // MARK: - View Life cycle
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -478,6 +478,7 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate,UICollecti
                             self.currentDate = dfSales.date(from: self.current_time) ?? Date()
                             
                             self.aryStreamInfo = data?["stream_info"] as? [String:Any] ?? [:]
+                            
                             let streamObj = self.aryStreamInfo
                             self.aryTickets = data?["tickets"] as? [Any] ?? [Any]()
                             print("==>aryTickets:",self.aryTickets)
@@ -536,6 +537,8 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate,UICollecti
                              
                              }*/
                             self.streamPaymentMode = streamObj["stream_payment_mode"] as? String ?? ""
+                            self.appDelegate.selected_type = streamObj["selected_type"] as? String ?? ""
+
                             self.appDelegate.streamPaymentMode = self.streamPaymentMode
 
                             self.isUserSubscribe = self.priceDetails["subscription_status"] as?Bool ?? false
@@ -703,7 +706,7 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate,UICollecti
                                 let event_dates_json = streamObj["event_dates_json"] as? String ?? "";
                                 
                                 self.aryEventdatesJson = self.convertToArray(text:event_dates_json ) ?? [Any]()
-                                if(self.aryEventdatesJson.count == 0){
+                                if(self.aryEventdatesJson.count == 0 ||      self.appDelegate.selected_type == "single_session_event"){
                                     for (index,element) in self.aryTabs.enumerated(){
                                         if(element.lowercased() == "schedule")
                                         {
@@ -1191,8 +1194,14 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate,UICollecti
         return nil
     }
     func gotoSchedule(){
-        let vc = storyboard!.instantiateViewController(withIdentifier: "ScheduleVC") as! ScheduleVC
-        self.navigationController?.pushViewController(vc, animated: true)
+        if(appDelegate.selected_type == "single_session_event"){
+            let vc = storyboard!.instantiateViewController(withIdentifier: "ScheduleVC") as! ScheduleVC
+            self.navigationController?.pushViewController(vc, animated: true)
+        }else{
+            let vc = storyboard!.instantiateViewController(withIdentifier: "ScheduleVC") as! ScheduleVC
+            self.navigationController?.pushViewController(vc, animated: true)
+        }
+        
     }
     
     func gotoStreamDetails(){
@@ -1650,14 +1659,12 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate,UICollecti
     func gotoTicketTypes(){
         if(self.lblAmount.text != "Free"){
         let user_id = UserDefaults.standard.string(forKey: "user_id") ?? "";
-        let urlOpen = appDelegate.websiteURL + "/event/" + appDelegate.strSlug + "/place-order?user_id=" + user_id
+        let urlOpen = appDelegate.websiteURL + "/event/" + appDelegate.strSlug + "/place-order?user_id=" + user_id + "&platform=mobile"
         guard let url = URL(string: urlOpen) else { return }
         print("url to open:",url)
         UIApplication.shared.open(url)
             return
         }
-        
-        
         let storyboard = UIStoryboard(name: "Main", bundle: nil);
         let streamInfo = self.aryStreamInfo
         let stream_video_title = streamInfo["stream_video_title"] as? String ?? "Channel Details"
@@ -2022,11 +2029,25 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate,UICollecti
         }
         return 1
     }
-    
+    @objc func sectionHeaderTapped(recognizer: UITapGestureRecognizer) {
+        print("Tapping working1")
+        print(recognizer.view?.tag)
+        let frame = recognizer.view?.frame ?? CGRect(x: 10, y: 10, width: 320, height: 50)
+        let popTip = PopTip()
+        let gray = UIColor(red: 34, green: 44, blue: 54);
+
+                    popTip.bubbleColor = gray
+                    popTip.textColor = UIColor.systemPink
+        popTip.show(text: "Hey! Listen!", direction: .autoVertical, maxWidth: 200, in: recognizer.view!, from: frame , duration: 2)
+    }
+
     
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         if(tableView == tblSchedule){
             let headerView = tableView.dequeueReusableHeaderFooterView(withIdentifier: "ScheduleHeaderViewCell") as! ScheduleHeaderViewCell
+            headerView.tag = section
+            let headerTapped = UITapGestureRecognizer (target: self, action:#selector(sectionHeaderTapped(recognizer:)))
+            headerView.addGestureRecognizer(headerTapped)
             
             let subEvent = arySelectedSubEvents[section] as? [String:Any] ?? [:]
             let streamInfo = subEvent["stream_info"] as? [String : Any] ?? [String:Any]()

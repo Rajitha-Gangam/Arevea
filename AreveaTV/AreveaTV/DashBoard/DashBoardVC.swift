@@ -978,7 +978,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
         let orgsList = didTappedInTableViewCell.rowWithItems
         let selectedOrg = orgsList[index] as? [String: Any] ?? [:]
         print("item:\(String(describing: selectedOrg))")
-        
+    
         //        //print("title:",title)
         if (title == "dashboard" || title == "dashboard_my_list" || title == "dashboard_up"){
             var streamInfo = selectedOrg["stream_info"] as? [String: Any] ?? [:]

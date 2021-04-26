@@ -548,13 +548,13 @@ class ScheduleVC: UIViewController,OpenChanannelChatDelegate,UITableViewDataSour
     }
     func gotoTicketTypes(){
         let user_id = UserDefaults.standard.string(forKey: "user_id") ?? "";
-        let urlOpen = appDelegate.websiteURL + "/event/" + appDelegate.strSlug + "/place-order?user_id=" + user_id
+        let urlOpen = appDelegate.websiteURL + "/event/" + appDelegate.strSlug + "/place-order?user_id=" + user_id + "&platform=mobile"
         
         guard let url = URL(string: urlOpen) else { return }
         print("url to open:",url)
         UIApplication.shared.open(url)
         return
-        let storyboard = UIStoryboard(name: "Main", bundle: nil);
+       /* let storyboard = UIStoryboard(name: "Main", bundle: nil);
         let streamInfo = self.aryStreamInfo
         let stream_video_title = streamInfo["stream_video_title"] as? String ?? "Channel Details"
         appDelegate.isLiveLoad = "1"
@@ -567,7 +567,7 @@ class ScheduleVC: UIViewController,OpenChanannelChatDelegate,UITableViewDataSour
         vc.isUserSubscribe = isUserSubscribe
         vc.aryTicketsData = aryTickets
         vc.aryUserSubscriptionInfo = aryUserSubscriptionInfo
-        self.navigationController?.pushViewController(vc, animated: true)
+        self.navigationController?.pushViewController(vc, animated: true)*/
     }
     @objc func watchNow(_ sender: UIButton) {
         let subEvent = arySelectedSubEvents[sender.tag] as? [String:Any] ?? [:]

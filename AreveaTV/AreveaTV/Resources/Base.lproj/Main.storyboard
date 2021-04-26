@@ -4573,7 +4573,7 @@
                                             <action selector="back:" destination="6dO-ux-6cR" eventType="touchUpInside" id="V7s-MU-PKi"/>
                                         </connections>
                                     </button>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Single Creator Event Name" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Ru6-9P-DVh">
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Ru6-9P-DVh">
                                         <rect key="frame" x="45.000000000000014" y="0.0" width="208.33333333333337" height="44"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="44" id="rxN-Cq-gxu"/>

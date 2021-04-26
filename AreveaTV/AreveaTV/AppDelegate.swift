@@ -171,16 +171,20 @@ class AppDelegate: UIResponder, UIApplicationDelegate , OpenChanannelChatDelegat
     }
     var appSyncClient: AWSAppSyncClient?
     var orientationLock = UIInterfaceOrientationMask.all
-    
+    var selected_type = ""
     /*Phenix Variables Start*/
     public static let channelExpress: PhenixChannelExpress = { createChannelExpress() }()
 
-    public static let channelAlias = "92_1618483619183_channel_5"
-    private static let backendEndpoint = "https://pcast.phenixrts.com/pcast"
-    private static let accessToken = "DIGEST:eyJhcHBsaWNhdGlvbklkIjoiYXJldmVhLmNvbSIsImRpZ2VzdCI6Inpua3RHUU5vU1RpaTFXWUdCUFVzK2JEazV2Uk1ONUxNVlJRYkRIdFFja1UyTHE2Tm1xei9HQXdRS1dFUkR4clkrRHl3NkRTY0tzWU5KL1V2bEtrWEp3PT0iLCJ0b2tlbiI6IntcImV4cGlyZXNcIjoxNjE4ODE5OTUwMDg1LFwicmVxdWlyZWRUYWdcIjpcImNoYW5uZWxJZDp1cy13ZXN0I2FyZXZlYS5jb20jOTIxNjE4ODA5NDQ1MzUxQ2hlY2tJc3N1ZXMucnlaRXV0NmkyQWhsXCJ9In0"
+    var phenixChannelAlias = "352_1619179577237_single_day_event_with_multistages"
+    private static let phenixBackendEndpoint = "https://pcast.phenixrts.com/pcast"
+    
+    public static var phenixAccessToken = "DIGEST:eyJhcHBsaWNhdGlvbklkIjoiYXJldmVhLmNvbSIsImRpZ2VzdCI6IldsT2FlQkgwalh6YjhCUDlLU1ZUWnRYZE5YQkVRWlJqUjNIRzA2UVZaNTZIdkV4Tm5FZWxadUtnTEtHb2pFK0FQOW92OFh1aXdxMWc3bWJIUEdNd21BPT0iLCJ0b2tlbiI6IntcImV4cGlyZXNcIjoxNjE5MTg2NzMyMjQzLFwicmVxdWlyZWRUYWdcIjpcImNoYW5uZWxJZDp1cy13ZXN0I2FyZXZlYS5jb20jMzUyMTYxOTE3OTU3NzIzN1NpbmdsZURheUV2ZW50V2l0aE11bHRpc3RhZ2VzLmVnTUxiV0QzQlFERFwifSJ9"
+    var phenixAccessToken1 = "DIGEST:eyJhcHBsaWNhdGlvbklkIjoiYXJldmVhLmNvbSIsImRpZ2VzdCI6IldsT2FlQkgwalh6YjhCUDlLU1ZUWnRYZE5YQkVRWlJqUjNIRzA2UVZaNTZIdkV4Tm5FZWxadUtnTEtHb2pFK0FQOW92OFh1aXdxMWc3bWJIUEdNd21BPT0iLCJ0b2tlbiI6IntcImV4cGlyZXNcIjoxNjE5MTg2NzMyMjQzLFwicmVxdWlyZWRUYWdcIjpcImNoYW5uZWxJZDp1cy13ZXN0I2FyZXZlYS5jb20jMzUyMTYxOTE3OTU3NzIzN1NpbmdsZURheUV2ZW50V2l0aE11bHRpc3RhZ2VzLmVnTUxiV0QzQlFERFwifSJ9"
+    var phenixChannelId = "us-west#arevea.com#3521619179577237SingleDayEventWithMultistages.egMLbWD3BQDD"
+    
     private static func createChannelExpress() -> PhenixChannelExpress {
         let pcastExpressOptions = PhenixPCastExpressFactory.createPCastExpressOptionsBuilder()
-            .withBackendUri(backendEndpoint)?.withAuthenticationToken(accessToken)
+            .withBackendUri(phenixBackendEndpoint)?.withAuthenticationToken(phenixAccessToken)
             .buildPCastExpressOptions()
 
         let pCastExpress = PhenixPCastExpressFactory.createPCastExpress(pcastExpressOptions);
@@ -448,7 +452,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate , OpenChanannelChatDelegat
             //https://qa1.arevea.com/schedule/1898-101059776-d85HRNgYlGhi
             let url1 = url.absoluteString
             //handle url and open whatever page you want to open.
-            if url1.range(of:"/schedule/") != nil {
+            if(url1 == self.websiteURL){
+                gotoDB()
+            }
+            else if url1.range(of:"/schedule/") != nil {
                 let link = url1.components(separatedBy: "/schedule/")
                 if(link.count > 1){
                     let ticketKey: String = link[1]
@@ -475,6 +482,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate , OpenChanannelChatDelegat
             }
         }
         return true
+    }
+    func gotoDB(){
+        let storyboard = UIStoryboard(name: "Main", bundle: nil);
+        let vc = storyboard.instantiateViewController(withIdentifier: "DashBoardVC") as! DashBoardVC
+        let rootViewController = self.window!.rootViewController as! UINavigationController
+        print("Nav from mail")
+        rootViewController.pushViewController(vc, animated: true)
     }
     func gotoSchedule(streamInfo:[String:Any]){
         print("gotoSchedule")

@@ -25,8 +25,8 @@
                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="HcS-9g-9NB">
                     <rect key="frame" x="0.0" y="0.0" width="375" height="44"/>
                     <subviews>
-                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" lineBreakMode="wordWrap" numberOfLines="0" baselineAdjustment="alignBaselines" minimumFontSize="12" translatesAutoresizingMaskIntoConstraints="NO" id="4BU-JF-V2g" userLabel="Nickname Label">
-                            <rect key="frame" x="5" y="10" width="350" height="24"/>
+                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" minimumFontSize="12" translatesAutoresizingMaskIntoConstraints="NO" id="4BU-JF-V2g" userLabel="Nickname Label">
+                            <rect key="frame" x="5" y="10" width="270" height="24"/>
                             <constraints>
                                 <constraint firstAttribute="height" constant="24" id="aex-Y5-jT4"/>
                             </constraints>
@@ -59,7 +59,7 @@
                     <constraints>
                         <constraint firstItem="4BU-JF-V2g" firstAttribute="leading" secondItem="HcS-9g-9NB" secondAttribute="leading" constant="5" id="5iz-O5-ylV"/>
                         <constraint firstItem="r6W-5L-sG9" firstAttribute="centerY" secondItem="HcS-9g-9NB" secondAttribute="centerY" id="77f-Ei-0Fr"/>
-                        <constraint firstAttribute="trailing" secondItem="4BU-JF-V2g" secondAttribute="trailing" constant="20" id="L1C-IS-fLc"/>
+                        <constraint firstItem="r6W-5L-sG9" firstAttribute="leading" secondItem="4BU-JF-V2g" secondAttribute="trailing" constant="10" id="8x2-iU-UI9"/>
                         <constraint firstItem="4BU-JF-V2g" firstAttribute="centerY" secondItem="HcS-9g-9NB" secondAttribute="centerY" id="UVM-zB-5vD"/>
                         <constraint firstAttribute="trailing" secondItem="r6W-5L-sG9" secondAttribute="trailing" constant="5" id="kbB-I0-ge3"/>
                     </constraints>

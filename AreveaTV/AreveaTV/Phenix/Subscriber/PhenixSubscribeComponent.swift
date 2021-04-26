@@ -21,8 +21,9 @@ public class PhenixSubscribeComponent {
     }
     
     private let channelExpress: PhenixChannelExpress
-    private let channelId = "us-west#arevea.com#921618809445351CheckIssues.ryZEut6i2Ahl"
-    
+   // private let channelId = "us-west#arevea.com#3631619168007739MultiCreatorEventFinalVerification.464kK0AQ4ehy"
+    let appDelegate = UIApplication.shared.delegate as! AppDelegate
+
     init(channelExpress: PhenixChannelExpress) {
         self.channelExpress = channelExpress
     }
@@ -36,7 +37,7 @@ public class PhenixSubscribeComponent {
         let joinRoomOptions = PhenixRoomExpressFactory.createJoinRoomOptionsBuilder()
             .withRoomAlias(configuration.channelAlias)
             .withRole(PhenixMemberRole.audience)
-            .withRoomId(channelId)
+            .withRoomId(appDelegate.phenixChannelId)
             .withCapabilities(subscribeCapability)
             .buildJoinRoomOptions()
         
@@ -49,9 +50,9 @@ public class PhenixSubscribeComponent {
         let joinChannelOptions = PhenixChannelExpressFactory.createJoinChannelOptionsBuilder()
             .withJoinRoomOptions(joinRoomOptions)
             // Select the most recent stream. Viewing stream changes any time a new stream starts in the room.
-            .withStreamSelectionStrategy(.mostRecent)
+            //.withStreamSelectionStrategy(.mostRecent)
             // Alternatively you can use high availability if you are using multiple simultaneous publishers.
-            // .withStreamSelectionStrategy(.highAvailability)
+            .withStreamSelectionStrategy(.highAvailability)
             .withRendererOptions(rendererOptions)
             .withRenderer(renderLayer)
             .buildJoinChannelOptions()
@@ -64,16 +65,37 @@ public class PhenixSubscribeComponent {
         assert(Thread.current.isMainThread, "Needs to be called from main thread")
         
         let options = prepareNativeConfiguration(configuration: configuration, playerView: playerView)
-        
+        let pcastExpress : PhenixPCastExpress = AppDelegate.channelExpress.pcastExpress as! PhenixPCastExpress
+        let renderLayer = playerView.layer
+
         channelExpress.joinChannel(options, { (joinStatus, roomService) in // first of all, we should connect channel
             // Callbacks will be returned from worker thread.
             // For UI operations better to wrap it in mainthread
             DispatchQueue.main.async {
                 switch(joinStatus) {
                 case .ok: // we joined channel
-                    //AppDelegate.channelExpress.pcastExpress.pcast.subscribe("token",SubscribeCallback)
-                    subscribeCallback.onJoinChannelSuccess(roomService: roomService!)
+                    //AppDelegate.channelExpress.pcastExpress.pcast.subscribe("token",SubscribeCallback(
+                    let subscribeOptions = PhenixPCastExpressFactory.createSubscribeOptionsBuilder()
+                        .withStreamId(self.appDelegate.phenixChannelId)
+                        .withStreamToken(self.appDelegate.phenixAccessToken1)
+                        .withCapabilities(["real-time"])
+                        .withRenderer(renderLayer)
+                        .buildSubscribeOptions()
+                    pcastExpress.subscribe(subscribeOptions)
+                    {
+                        (status: PhenixRequestStatus, subscriber: PhenixExpressSubscriber?, renderer: PhenixRenderer?) in
+                        if status == .ok {
+                            // Do something with subscriber
+                            subscribeCallback.onJoinChannelSuccess(roomService: roomService!)
 
+                            if let renderer = renderer {
+                              // Returned if `withRenderer...` option was enabled - Do something with renderer
+                            }
+                          } else {
+                            // Handle error
+                          }
+                        subscribeCallback.onJoinChannelSuccess(roomService: roomService!)
+                    }
                 /*  MyApplication.pCastExpress.getPCast().subscribe(token, new PCast.SubscribeCallback() {
                  @Override
                  public void onEvent(PCast pCast, RequestStatus requestStatus, MediaStream mediaStream) {
