@@ -13,6 +13,7 @@ import SendBirdSDK
 import SDWebImage
 import Reachability
 import AWSAppSync
+import EasyTipView
 
 class ScheduleVC: UIViewController,OpenChanannelChatDelegate,UITableViewDataSource,UITableViewDelegate,UICollectionViewDataSource,UICollectionViewDelegateFlowLayout{
     // MARK: - Variables Declaration
@@ -77,6 +78,7 @@ class ScheduleVC: UIViewController,OpenChanannelChatDelegate,UITableViewDataSour
     //for tabs highlight when we go respective pages, and after comes back to this page creating these variables.
     weak var chatDelegate: OpenChanannelChatDelegate?
     var aryTickets = [Any]();
+    var toolTipPreferences = EasyTipView.Preferences()
 
     
     // MARK: - View Life cycle
@@ -93,6 +95,22 @@ class ScheduleVC: UIViewController,OpenChanannelChatDelegate,UITableViewDataSour
         if(self.channel_name_subscription == ""){
             self.channel_name_subscription = " "
         }
+        toolTipPreferences.drawing.font = UIFont(name: "Poppins-Regular", size: 13)!
+        toolTipPreferences.drawing.foregroundColor = UIColor.white
+        toolTipPreferences.drawing.backgroundColor = UIColor.init(red: 255, green: 127, blue: 80)
+        toolTipPreferences.drawing.arrowPosition = EasyTipView.ArrowPosition.top
+        //toolTipPreferences.animating.showDuration = 1.5
+        // toolTipPreferences.animating.dismissDuration = 1.5
+        toolTipPreferences.animating.dismissOnTap = true
+        toolTipPreferences.drawing.arrowWidth = 2
+        toolTipPreferences.drawing.arrowHeight = 2
+        toolTipPreferences.drawing.arrowPosition = .bottom
+        toolTipPreferences.animating.dismissTransform = CGAffineTransform(translationX: 0, y: -15)
+        toolTipPreferences.animating.showInitialTransform = CGAffineTransform(translationX: 0, y: -15)
+        toolTipPreferences.animating.showInitialAlpha = 0
+        toolTipPreferences.animating.showDuration = 1.5
+        toolTipPreferences.animating.dismissDuration = 1.5
+        EasyTipView.globalPreferences = toolTipPreferences
         registerNibs();
         
     }
@@ -598,6 +616,9 @@ class ScheduleVC: UIViewController,OpenChanannelChatDelegate,UITableViewDataSour
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         if(tableView == tblSchedule){
             let headerView = tableView.dequeueReusableHeaderFooterView(withIdentifier: "ScheduleHeaderViewCell") as! ScheduleHeaderViewCell
+            headerView.btnTitle.addTarget(self, action: #selector(scheduleHeaderTapped(_:)), for: .touchUpInside)
+            headerView.btnTitle.tag = section
+
             headerView.BtnJoin.tag = section
             headerView.BtnJoin.addTarget(self, action: #selector(watchNow(_:)), for: .touchUpInside)
 
@@ -622,13 +643,18 @@ class ScheduleVC: UIViewController,OpenChanannelChatDelegate,UITableViewDataSour
                     let localEndTime = UTCToLocalTime(dateStr: strEndTime)
                     
                     print("strEndTime:",strEndTime)
-                    headerView.lblTitle.text = stage + " - " + localStartTime! + " - " + localEndTime!
+                    let btnTitle = stage + " - " + localStartTime! + " - " + localEndTime!
+                    headerView.btnTitle.setTitle(btnTitle, for: .normal)
                 }else{
-                    headerView.lblTitle.text = stage + " - " + localStartTime!
+                    let btnTitle = stage + " - " + localStartTime!
+                    headerView.btnTitle.setTitle(btnTitle, for: .normal)
                 }
             }else{
-                headerView.lblTitle.text = stage
+                headerView.btnTitle.setTitle(stage, for: .normal)
             }
+            headerView.btnTitle.sizeToFit()
+
+            
             let stream_id = streamInfo["id"] as? Int ?? 0
             
             let parent_streams_id = streamInfo["parent_streams_id"] as? Int ?? 0
@@ -664,7 +690,46 @@ class ScheduleVC: UIViewController,OpenChanannelChatDelegate,UITableViewDataSour
         }
        
     }
-    
+    @objc func scheduleHeaderTapped(_ sender: UIButton) {
+        print("Tapping working1")
+        var tootlTipText = ""
+        let subEvent = arySelectedSubEvents[sender.tag] as? [String:Any] ?? [:]
+        let streamInfo = subEvent["stream_info"] as? [String : Any] ?? [String:Any]()
+        
+        let stage = streamInfo["stage"] as? String ?? ""
+        
+        let start_time = streamInfo["publish_date_time"]as? String ?? ""
+        let end_time = streamInfo["expected_end_date_time"]as? String ?? ""
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
+        let formatter2 = DateFormatter()
+        formatter2.dateFormat = "hh:mm a"
+        
+        if let startTime = formatter.date(from: start_time){
+            let strStartTime = formatter2.string(from: startTime)
+            let localStartTime = UTCToLocalTime(dateStr: strStartTime)
+            if let endTime = formatter.date(from: end_time){
+                let strEndTime = formatter2.string(from: endTime)
+                let localEndTime = UTCToLocalTime(dateStr: strEndTime)
+                
+                print("localStartTime:",localStartTime)
+                print("localEndTime:",localEndTime)
+                tootlTipText = stage + " - " + localStartTime! + " - " + localEndTime!
+                
+            }else{
+                tootlTipText = stage + " - " + localStartTime!
+            }
+        }else{
+            tootlTipText = stage
+        }
+
+        let toolTipView = EasyTipView(text: tootlTipText, preferences: toolTipPreferences)
+        
+        toolTipView.show(forView: sender, withinSuperview: tblSchedule)
+        self.delay(2.0){
+            toolTipView.dismiss()
+        }
+    }
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if(tableView == tblSchedule){
             let subEvent = self.arySelectedSubEvents[section]as? [String : Any] ?? [String:Any]()

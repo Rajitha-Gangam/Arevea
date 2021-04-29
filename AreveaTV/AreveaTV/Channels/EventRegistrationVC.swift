@@ -21,7 +21,11 @@ import AWSAppSync
 import R5Streaming
 import AMPopTip
 
-class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate,UICollectionViewDataSource,UICollectionViewDelegateFlowLayout,UITableViewDataSource,UITableViewDelegate{
+class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate,UICollectionViewDataSource,SponsorsCVCDelegate,UICollectionViewDelegateFlowLayout,UITableViewDataSource,UITableViewDelegate{
+    
+    
+    
+    
     // MARK: - Variables Declaration
     
     @IBOutlet weak var viewBottom: UIView!
@@ -147,6 +151,7 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate,UICollecti
     var isHost = false
     var priceDetails = [String:Any]()
     var aryQuestions = [Any]()
+    var toolTipPreferences = EasyTipView.Preferences()
     // MARK: - View Life cycle
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -177,7 +182,23 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate,UICollecti
         //appDelegate.isGuest = true
         registerNibs();
         txtTerms.text = strTerms.htmlToString
-        
+        toolTipPreferences.drawing.font = UIFont(name: "Poppins-Regular", size: 13)!
+        toolTipPreferences.drawing.foregroundColor = UIColor.white
+        toolTipPreferences.drawing.backgroundColor = UIColor.init(red: 255, green: 127, blue: 80)
+        toolTipPreferences.drawing.arrowPosition = EasyTipView.ArrowPosition.top
+        //toolTipPreferences.animating.showDuration = 1.5
+        // toolTipPreferences.animating.dismissDuration = 1.5
+        toolTipPreferences.animating.dismissOnTap = true
+        toolTipPreferences.drawing.arrowWidth = 2
+        toolTipPreferences.drawing.arrowHeight = 2
+        toolTipPreferences.drawing.arrowPosition = .bottom
+        toolTipPreferences.animating.dismissTransform = CGAffineTransform(translationX: 0, y: -15)
+        toolTipPreferences.animating.showInitialTransform = CGAffineTransform(translationX: 0, y: -15)
+        toolTipPreferences.animating.showInitialAlpha = 0
+        toolTipPreferences.animating.showDuration = 1.5
+        toolTipPreferences.animating.dismissDuration = 1.5
+        EasyTipView.globalPreferences = toolTipPreferences
+
     }
     func registerNibs() {
         let nib = UINib(nibName: "DateCVC", bundle: nil)
@@ -297,6 +318,7 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate,UICollecti
                 }
                 //var expected_end_date_time = streamInfo["expected_end_date_time"]as? String ?? ""
             }
+            
         }
         //tblSchedule.reloadSections([index], with: .automatic)
         tblSchedule.reloadData()
@@ -2029,26 +2051,53 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate,UICollecti
         }
         return 1
     }
-    @objc func sectionHeaderTapped(recognizer: UITapGestureRecognizer) {
+    @objc func scheduleHeaderTapped(_ sender: UIButton) {
         print("Tapping working1")
-        print(recognizer.view?.tag)
-        let frame = recognizer.view?.frame ?? CGRect(x: 10, y: 10, width: 320, height: 50)
-        let popTip = PopTip()
-        let gray = UIColor(red: 34, green: 44, blue: 54);
+        var tootlTipText = ""
+        let subEvent = arySelectedSubEvents[sender.tag] as? [String:Any] ?? [:]
+        let streamInfo = subEvent["stream_info"] as? [String : Any] ?? [String:Any]()
+        
+        let stage = streamInfo["stage"] as? String ?? ""
+        
+        let start_time = streamInfo["publish_date_time"]as? String ?? ""
+        let end_time = streamInfo["expected_end_date_time"]as? String ?? ""
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
+        let formatter2 = DateFormatter()
+        formatter2.dateFormat = "hh:mm a"
+        
+        if let startTime = formatter.date(from: start_time){
+            let strStartTime = formatter2.string(from: startTime)
+            let localStartTime = UTCToLocalTime(dateStr: strStartTime)
+            if let endTime = formatter.date(from: end_time){
+                let strEndTime = formatter2.string(from: endTime)
+                let localEndTime = UTCToLocalTime(dateStr: strEndTime)
+                
+                print("localStartTime:",localStartTime)
+                print("localEndTime:",localEndTime)
+                tootlTipText = stage + " - " + localStartTime! + " - " + localEndTime!
+                
+            }else{
+                tootlTipText = stage + " - " + localStartTime!
+            }
+        }else{
+            tootlTipText = stage
+        }
 
-                    popTip.bubbleColor = gray
-                    popTip.textColor = UIColor.systemPink
-        popTip.show(text: "Hey! Listen!", direction: .autoVertical, maxWidth: 200, in: recognizer.view!, from: frame , duration: 2)
+        let toolTipView = EasyTipView(text: tootlTipText, preferences: toolTipPreferences)
+        
+        toolTipView.show(forView: sender, withinSuperview: tblSchedule)
+        self.delay(2.0){
+            toolTipView.dismiss()
+        }
     }
 
-    
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         if(tableView == tblSchedule){
             let headerView = tableView.dequeueReusableHeaderFooterView(withIdentifier: "ScheduleHeaderViewCell") as! ScheduleHeaderViewCell
             headerView.tag = section
-            let headerTapped = UITapGestureRecognizer (target: self, action:#selector(sectionHeaderTapped(recognizer:)))
-            headerView.addGestureRecognizer(headerTapped)
-            
+            headerView.btnTitle.addTarget(self, action: #selector(scheduleHeaderTapped(_:)), for: .touchUpInside)
+            headerView.btnTitle.tag = section
             let subEvent = arySelectedSubEvents[section] as? [String:Any] ?? [:]
             let streamInfo = subEvent["stream_info"] as? [String : Any] ?? [String:Any]()
             
@@ -2070,15 +2119,16 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate,UICollecti
                     
                     print("localStartTime:",localStartTime)
                     print("localEndTime:",localEndTime)
-
-                    headerView.lblTitle.text = stage + " - " + localStartTime! + " - " + localEndTime!
+                    let btnTitle = stage + " - " + localStartTime! + " - " + localEndTime!
+                    headerView.btnTitle.setTitle(btnTitle, for: .normal)
                 }else{
-                    headerView.lblTitle.text = stage + " - " + localStartTime!
+                    let btnTitle = stage + " - " + localStartTime!
+                    headerView.btnTitle.setTitle(btnTitle, for: .normal)
                 }
             }else{
-                headerView.lblTitle.text = stage
+                headerView.btnTitle.setTitle(stage, for: .normal)
             }
-            headerView.lblTitle.sizeToFit()
+            headerView.btnTitle.sizeToFit()
             headerView.BtnJoin.isHidden = true
             
             return headerView
@@ -2234,7 +2284,7 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate,UICollecti
         }else if(tableView == tblSponsors){
             let cell = tableView.dequeueReusableCell(withIdentifier: "SponsorsCell") as! SponsorsCell
             cell.updateCellWith(row: self.arySponsors)
-            
+            cell.cellDelegate = self
             return cell
         }else{
             let cell: UITableViewCell = UITableViewCell()
@@ -2264,7 +2314,14 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate,UICollecti
             }
             self.navigationController?.pushViewController(vc, animated: true)
         }
+        else if(tableView == tblSponsors){
+            showAlert(strMsg: "tapped")
+        }
     }
+    func collectionView(collectionviewcell: SponsorsCVC?, index: Int, didTappedInTableViewCell: SponsorsCell) {
+        
+    }
+   
     func getQuestionsByEventId(){
         let netAvailable = appDelegate.isConnectedToInternet()
         if(!netAvailable){

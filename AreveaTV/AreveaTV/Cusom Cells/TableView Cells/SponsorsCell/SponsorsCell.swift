@@ -7,12 +7,15 @@
 //
 
 import UIKit
+import EasyTipView
+
 protocol SponsorsCVCDelegate: class {
     func collectionView(collectionviewcell: SponsorsCVC?, index: Int, didTappedInTableViewCell: SponsorsCell)
     // other delegate methods that you can define to perform action in viewcontroller
 }
 class SponsorsCell: UITableViewCell , UICollectionViewDataSource, UICollectionViewDelegateFlowLayout{
-   
+    var toolTipPreferences = EasyTipView.Preferences()
+
     var rowWithItems = [Any]()
     @IBOutlet var collectionView: UICollectionView!
     weak var cellDelegate: SponsorsCVCDelegate?
@@ -31,6 +34,22 @@ class SponsorsCell: UITableViewCell , UICollectionViewDataSource, UICollectionVi
         // Register the xib for collection view cell
         let cellNib = UINib(nibName: "SponsorsCVC", bundle: nil)
         self.collectionView.register(cellNib, forCellWithReuseIdentifier: "SponsorsCVC")
+        toolTipPreferences.drawing.font = UIFont(name: "Poppins-Regular", size: 13)!
+        toolTipPreferences.drawing.foregroundColor = UIColor.white
+        toolTipPreferences.drawing.backgroundColor = UIColor.init(red: 255, green: 127, blue: 80)
+        toolTipPreferences.drawing.arrowPosition = EasyTipView.ArrowPosition.top
+        //toolTipPreferences.animating.showDuration = 1.5
+        // toolTipPreferences.animating.dismissDuration = 1.5
+        toolTipPreferences.animating.dismissOnTap = true
+        toolTipPreferences.drawing.arrowWidth = 2
+        toolTipPreferences.drawing.arrowHeight = 2
+        toolTipPreferences.drawing.arrowPosition = .bottom
+        toolTipPreferences.animating.dismissTransform = CGAffineTransform(translationX: 0, y: -15)
+        toolTipPreferences.animating.showInitialTransform = CGAffineTransform(translationX: 0, y: -15)
+        toolTipPreferences.animating.showInitialAlpha = 0
+        toolTipPreferences.animating.showDuration = 1.5
+        toolTipPreferences.animating.dismissDuration = 1.5
+        EasyTipView.globalPreferences = toolTipPreferences
     }
 
     override func setSelected(_ selected: Bool, animated: Bool) {
@@ -43,11 +62,24 @@ class SponsorsCell: UITableViewCell , UICollectionViewDataSource, UICollectionVi
         self.rowWithItems = row
         self.collectionView.reloadData()
     }
-    
+    func delay(_ delay:Double, closure:@escaping ()->()) {
+        DispatchQueue.main.asyncAfter(
+            deadline: DispatchTime.now() + Double(Int64(delay * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC), execute: closure)
+    }
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let cell = collectionView.cellForItem(at: indexPath) as? SponsorsCVC
-        ////print("I'm tapping the \(indexPath.item)")
-        self.cellDelegate?.collectionView(collectionviewcell: cell, index: indexPath.item, didTappedInTableViewCell: self)
+            
+            let sponsorsObj = self.rowWithItems[indexPath.row] as? [String : Any] ?? [:];
+            let name = sponsorsObj["advertiser_name"] as? String ?? ""
+            let toolTipView = EasyTipView(text: name, preferences: toolTipPreferences)
+            
+        toolTipView.show(forView: cell!.imgSponsor, withinSuperview: cell?.contentView)
+            
+            self.delay(2.0){
+                toolTipView.dismiss()
+            }
+            
+        //self.cellDelegate?.collectionView(collectionviewcell: cell, index: indexPath.item, didTappedInTableViewCell: self)
         
     }
     

@@ -2116,7 +2116,8 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                         if (json["statusCode"]as? String == "200" ){
                             let data = json["Data"] as? [String:Any]
                             self.aryStreamInfo = data?["stream_info"] as? [String:Any] ?? [:]
-
+                            
+                            
                             let charity_info = aryStreamInfo["charity_info"] != nil
                             if(charity_info){
                                 self.aryCharityInfo = aryStreamInfo["charity_info"] as? [Any] ?? [Any]()
@@ -2191,15 +2192,28 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                             let streamObj = self.aryStreamInfo
                             //print("<--streamObj:",streamObj)
                             let streamObj1 = streamObj["stream_info"] as? [String : Any] ?? [String:Any]()
-                            if(arysubEvents.count > 1){
-                                self.streamVideoCode = streamObj["stream_video_code"] as? String ?? ""
+                           // print("<--self.appDelegate.selected_type:",self.appDelegate.selected_type)
+                            
+                            if(arysubEvents.count > 0){
+                                if(arysubEvents.count == 1){
+                                    self.streamVideoCode = streamObj["stream_video_code"] as? String ?? ""
+                                    print(" one stage")
+                                }else{
+                                    self.streamVideoCode = streamObj["stream_video_code"] as? String ?? ""
+                                    print(" more than one stage")
+
+                                }
                             }else{
-                                self.streamVideoCode = streamObj1["stream_video_code"] as? String ?? ""
+                                print("single session")
+                                    self.streamVideoCode = streamObj1["stream_video_code"] as? String ?? ""
                             }
                             print("<--streamVideoCode:",streamVideoCode)
                             let stage = streamObj["stage"] as? String ?? ""
                             if(stage != ""){
-                                lblTitle.text = stage
+                                lblTitle.text = stage 
+                                //let stream_video_title = streamInfo["stream_video_title"] as? String ?? ""
+
+                               // lblTitle.text = stage + "  |  " + stream_video_title
                             }else{
                                 lblTitle.text = appDelegate.strTitle
                             }
@@ -2635,17 +2649,17 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
             unsubscribePhenix()
         }
         /*if( self.subscribeStream1 != nil ){
-            //NSLog("==subscribeStream1 != nil")
-            self.subscribeStream1!.stop()
-            self.subscribeStream1!.client = nil
-            self.subscribeStream1?.delegate = nil
-            self.subscribeStream1 = nil
-            
-        }
-        if( self.r5ViewControllerScreenShare != nil ){
-            //NSLog("==subscribeStream1 != nil")
-            self.r5ViewControllerScreenShare?.closeTest()
-        }*/
+         //NSLog("==subscribeStream1 != nil")
+         self.subscribeStream1!.stop()
+         self.subscribeStream1!.client = nil
+         self.subscribeStream1?.delegate = nil
+         self.subscribeStream1 = nil
+         
+         }
+         if( self.r5ViewControllerScreenShare != nil ){
+         //NSLog("==subscribeStream1 != nil")
+         self.r5ViewControllerScreenShare?.closeTest()
+         }*/
     }
     var shouldClose:Bool{
         get{
@@ -4461,6 +4475,14 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
         
     }
     @IBAction func pauseVideo() {
+        var play = false
+        let imgAudioBtn = btnAudio.image(for: .normal)
+        if ((imgAudioBtn?.isEqual(UIImage.init(named: "unmute-white")))!)
+        {
+            play = true
+        }else{
+            play = false
+        }
         
         let imgBtn = btnVideo?.image(for: .normal)
         if ((imgBtn?.isEqual(UIImage.init(named: "pause-white")))!)
@@ -4468,6 +4490,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
             btnVideo?.setImage(UIImage.init(named: "play-white"), for: .normal);
             if(self.currentSubscriber != nil){
                 ALToastView.toast(in: self.view, withText:"Pausing Video")
+                self.currentSubscriber?.disableAudio()
                 self.currentSubscriber?.disableVideo()
             }
             /*if(self.subscribeStream1 != nil && self.subscribeStream1?.audioController != nil) {
@@ -4483,6 +4506,9 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
             if(self.currentSubscriber != nil){
                 ALToastView.toast(in: self.view, withText:"Playing Video")
                 self.currentSubscriber?.enableVideo()
+                if(play){
+                    self.currentSubscriber?.enableAudio()
+                }
             }
             
             /*if(self.subscribeStream1 != nil && self.subscribeStream1?.audioController != nil) {
@@ -4496,9 +4522,10 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
     }
     
     @IBAction func sliderValueDidChange() {
-        if(self.subscribeStream1 != nil && self.subscribeStream1?.audioController != nil){
+        /*if(self.subscribeStream1 != nil && self.subscribeStream1?.audioController != nil){
             self.subscribeStream1?.audioController.volume = sliderVolume.value / 100
-        }
+        }*/
+        //self.currentSubscriber?
         
     }
     @IBAction func hlsTapped(){
@@ -4798,7 +4825,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                 print("Error fetching data: \(error)")
                 return
             }
-            print("--result:",result)
+            //print("--result:",result)
             if((result != nil)  && (result?.data != nil)){
                 //// print("--data:",result?.data)
                 let data = result?.data
@@ -4806,16 +4833,15 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                 if(multiData != nil){
                     let multiDataJSON = self.convertToDictionary(text: multiData?.data ?? "")
                     phenix_info = multiDataJSON ?? [:]
-                    print("multiDataJSON:",multiDataJSON)
-                    self.isSharedScreen = (multiDataJSON?["isSharedScreen"]as? Bool ?? false) ? true : false;
+                    // print("multiDataJSON:",multiDataJSON)
                     subscribePhenix()
                 }else{
                     print("GetMulticreatorshareddataQuery nil:")
                     lblStreamUnavailable.text = "We are working on the issue. We will be back shortly."
                     btnPlayStream.isHidden = false;
                     self.btnPlayStream.setImage(UIImage.init(named: "refresh-white"), for: .normal)
-
-
+                    
+                    
                 }
             }
             // Remove existing records if we're either loading from cache, or loading fresh (e.g., from a refresh)
@@ -4831,15 +4857,17 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
         print("==>channelId:",channelId)
         print("==>alias:",alias)
         if(phenixStreamToken != "" && channelId != "" && alias != ""){
-        appDelegate.phenixChannelId = channelId
-        AppDelegate.phenixAccessToken = phenixStreamToken
-        appDelegate.phenixChannelAlias = alias
-        //print("subscribePhenix called:",phenix_info)
-        // stop subscription, while we have access to current service, subscriber and renderer
-        unsubscribePhenix()
-        
-        phenixSubscribeComponent.subscribe(configuration: PhenixSubscribeComponent.Configuration(channelAlias: appDelegate.phenixChannelAlias, capability: nil),
-                                           playerView: self.viewLiveStream, subscribeCallback: self)
+            appDelegate.phenixChannelId = channelId
+            AppDelegate.phenixAccessToken = phenixStreamToken
+            appDelegate.phenixChannelAlias = alias
+            //print("subscribePhenix called:",phenix_info)
+            // stop subscription, while we have access to current service, subscriber and renderer
+            unsubscribePhenix()
+            
+            phenixSubscribeComponent.subscribe(configuration: PhenixSubscribeComponent.Configuration(channelAlias: appDelegate.phenixChannelAlias, capability: nil),
+                                               playerView: self.viewLiveStream, subscribeCallback: self)
+        }else if(phenixStreamToken == "" && channelId != "" && alias != ""){
+            getPhenixInformation(.returnCacheDataAndFetch)//need to refresh stream
         }else{
             lblStreamUnavailable.text = "We are working on the issue. We will be back shortly."
             btnPlayStream.isHidden = false;
@@ -4855,7 +4883,11 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
     }
     func onJoinChannelSuccess(roomService: PhenixRoomService) {
         print("INFO", "Channel joined")
+        isStreamStarted = true
         self.currentRoomService = roomService
+        DispatchQueue.main.async {
+            self.btnPlayStream.isHidden = true;
+        }
     }
     
     func onSubscribeSuccess(subscriber: PhenixExpressSubscriber, renderer: PhenixRenderer) {
@@ -4864,15 +4896,34 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
         self.currentRenderer = renderer
         
         print("INFO", "Channel subscribed")
+        DispatchQueue.main.async {
         self.viewControls?.isHidden = false
         self.imgStreamThumbNail.isHidden = true
         self.lblLive.isHidden = false
+        }
         
     }
     
     func onNoActiveStream() {
-        
         print("INFO", "No stream playing")
+        isStreamStarted = false
+        DispatchQueue.main.async {
+        self.lblStreamUnavailable.text = "The stream has ended."
+        ALToastView.toast(in: self.view, withText:"The stream has ended")
+            self.delayWithSeconds(5.0){
+            self.viewControls?.isHidden = true
+            self.lblLive.isHidden = true
+            if (self.timer != nil)
+            {
+                self.timer!.invalidate()
+                self.timer = nil
+            }
+            self.closeStream()
+            self.endSession()
+            self.goBack()
+            return
+        }
+        }
     }
     
     func onError(error: SubscribeError) {
@@ -4882,6 +4933,12 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
         case .subscribeChannel(let status):
             print("WARNING", TAG, "Cannot subscribe, with message \(status.getLocalisedStatusMessage()) (Error #\(status.rawValue))")
         }
+        DispatchQueue.main.async {
+            self.lblStreamUnavailable.text = "We are working on the issue. We will be back shortly."
+            self.btnPlayStream.isHidden = false;
+        self.btnPlayStream.setImage(UIImage.init(named: "refresh-white"), for: .normal)
+        }
+        
     }
 }
 

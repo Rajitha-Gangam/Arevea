@@ -25,18 +25,13 @@
                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="HcS-9g-9NB">
                     <rect key="frame" x="0.0" y="0.0" width="375" height="44"/>
                     <subviews>
-                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" minimumFontSize="12" translatesAutoresizingMaskIntoConstraints="NO" id="4BU-JF-V2g" userLabel="Nickname Label">
-                            <rect key="frame" x="5" y="10" width="270" height="24"/>
-                            <constraints>
-                                <constraint firstAttribute="height" constant="24" id="aex-Y5-jT4"/>
-                            </constraints>
-                            <fontDescription key="fontDescription" name="Poppins-Regular" family="Poppins" pointSize="14"/>
-                            <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                            <nil key="highlightedColor"/>
-                            <variation key="heightClass=regular-widthClass=regular">
-                                <fontDescription key="fontDescription" name="Poppins-Regular" family="Poppins" pointSize="25"/>
-                            </variation>
-                        </label>
+                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="OAS-WZ-47r">
+                            <rect key="frame" x="5" y="5.5" width="270" height="33"/>
+                            <fontDescription key="fontDescription" name="Poppins-Regular" family="Poppins" pointSize="15"/>
+                            <state key="normal">
+                                <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            </state>
+                        </button>
                         <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="r6W-5L-sG9">
                             <rect key="frame" x="285" y="7" width="85" height="30"/>
                             <color key="backgroundColor" red="0.5450980392" green="0.90196078430000004" blue="0.83529411760000005" alpha="1" colorSpace="calibratedRGB"/>
@@ -57,10 +52,10 @@
                     </subviews>
                     <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                     <constraints>
-                        <constraint firstItem="4BU-JF-V2g" firstAttribute="leading" secondItem="HcS-9g-9NB" secondAttribute="leading" constant="5" id="5iz-O5-ylV"/>
                         <constraint firstItem="r6W-5L-sG9" firstAttribute="centerY" secondItem="HcS-9g-9NB" secondAttribute="centerY" id="77f-Ei-0Fr"/>
-                        <constraint firstItem="r6W-5L-sG9" firstAttribute="leading" secondItem="4BU-JF-V2g" secondAttribute="trailing" constant="10" id="8x2-iU-UI9"/>
-                        <constraint firstItem="4BU-JF-V2g" firstAttribute="centerY" secondItem="HcS-9g-9NB" secondAttribute="centerY" id="UVM-zB-5vD"/>
+                        <constraint firstItem="r6W-5L-sG9" firstAttribute="leading" secondItem="OAS-WZ-47r" secondAttribute="trailing" constant="10" id="Ns7-3k-RV3"/>
+                        <constraint firstItem="OAS-WZ-47r" firstAttribute="leading" secondItem="HcS-9g-9NB" secondAttribute="leading" constant="5" id="j3C-6l-8uv"/>
+                        <constraint firstItem="OAS-WZ-47r" firstAttribute="centerY" secondItem="HcS-9g-9NB" secondAttribute="centerY" id="jeV-Im-vHH"/>
                         <constraint firstAttribute="trailing" secondItem="r6W-5L-sG9" secondAttribute="trailing" constant="5" id="kbB-I0-ge3"/>
                     </constraints>
                 </view>
@@ -76,7 +71,7 @@
             <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
             <connections>
                 <outlet property="BtnJoin" destination="r6W-5L-sG9" id="VWn-q5-kcX"/>
-                <outlet property="lblTitle" destination="4BU-JF-V2g" id="zhb-G3-eu7"/>
+                <outlet property="btnTitle" destination="OAS-WZ-47r" id="0fn-lR-0jP"/>
             </connections>
             <point key="canvasLocation" x="12" y="-73.763118440779621"/>
         </view>

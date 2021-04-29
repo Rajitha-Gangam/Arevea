@@ -456,12 +456,24 @@ class AppDelegate: UIResponder, UIApplicationDelegate , OpenChanannelChatDelegat
                 gotoDB()
             }
             else if url1.range(of:"/schedule/") != nil {
-                let link = url1.components(separatedBy: "/schedule/")
+                let link = url1.components(separatedBy: "/schedule/")//https://preprod.arevea.tv/schedule/1844-120076432-aw0T2PqSZg3C
                 if(link.count > 1){
                     let ticketKey: String = link[1]
                     print("ticketKey:",ticketKey)
                     isVOD = false
                     self.strTicketKey = ticketKey
+                    getTicketDetails()
+                }
+            }else if url1.range(of:"/stream/") != nil {
+                let link = url1.components(separatedBy: "/stream/")//https://preprod.arevea.tv/stream/7246-101059655-4JADmNVFYiBb/stage=7247
+                if(link.count > 1){
+                    let ticketKey: String = link[1]//
+                    let ticketKey1 = ticketKey.components(separatedBy: "/")//7246-101059655-4JADmNVFYiBb/stage=7247
+                    print("ticketKey:",ticketKey)
+                    print("ticketKey1:",ticketKey1)
+                    print("ticketKey2:",ticketKey1[0])
+                    isVOD = false
+                    self.strTicketKey = ticketKey1[0]
                     getTicketDetails()
                 }
             }else if url1.range(of:"/watch/") != nil {

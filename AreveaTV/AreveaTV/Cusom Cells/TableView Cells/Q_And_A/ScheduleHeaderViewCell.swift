@@ -12,6 +12,7 @@ class ScheduleHeaderViewCell: UITableViewHeaderFooterView {
     @IBOutlet weak var lblTitle: UILabel!
     @IBOutlet weak var lblTime: UILabel!
     @IBOutlet weak var BtnJoin: UIButton!
+    @IBOutlet weak var btnTitle: UIButton!
 
     override func awakeFromNib() {
         super.awakeFromNib()
