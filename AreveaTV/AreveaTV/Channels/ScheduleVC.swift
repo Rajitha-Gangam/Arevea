@@ -565,27 +565,16 @@ class ScheduleVC: UIViewController,OpenChanannelChatDelegate,UITableViewDataSour
         return 1
     }
     func gotoTicketTypes(){
-        let user_id = UserDefaults.standard.string(forKey: "user_id") ?? "";
-        let urlOpen = appDelegate.websiteURL + "/event/" + appDelegate.strSlug + "/place-order?user_id=" + user_id + "&platform=mobile"
         
-        guard let url = URL(string: urlOpen) else { return }
-        print("url to open:",url)
-        UIApplication.shared.open(url)
-        return
-       /* let storyboard = UIStoryboard(name: "Main", bundle: nil);
-        let streamInfo = self.aryStreamInfo
-        let stream_video_title = streamInfo["stream_video_title"] as? String ?? "Channel Details"
-        appDelegate.isLiveLoad = "1"
-        let vc = storyboard.instantiateViewController(withIdentifier: "TicketTypesVC") as! TicketTypesVC
-        vc.chatDelegate = self
-        appDelegate.strTitle = stream_video_title
-        vc.isCameFromGetTickets = true
-        vc.currencySymbol = currencySymbol
-        vc.aryStreamInfo = self.aryStreamInfo
-        vc.isUserSubscribe = isUserSubscribe
-        vc.aryTicketsData = aryTickets
-        vc.aryUserSubscriptionInfo = aryUserSubscriptionInfo
-        self.navigationController?.pushViewController(vc, animated: true)*/
+        let storyboard = UIStoryboard(name: "Main", bundle: nil);
+            let user_id = UserDefaults.standard.string(forKey: "user_id") ?? ""
+            let urlOpen = appDelegate.websiteURL + "/event/" + appDelegate.strSlug + "/place-order?user_id=" + user_id
+            print("urlOpen1:",urlOpen)
+            let vc = storyboard.instantiateViewController(withIdentifier: "PaymentWebVC") as! PaymentWebVC
+            vc.strURL = urlOpen
+            vc.isCameFrom = "schedule"
+            self.navigationController?.pushViewController(vc, animated: true)
+        
     }
     @objc func watchNow(_ sender: UIButton) {
         let subEvent = arySelectedSubEvents[sender.tag] as? [String:Any] ?? [:]

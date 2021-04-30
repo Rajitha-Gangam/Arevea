@@ -79,6 +79,7 @@
 		188826E525961CF0005BCBAD /* StreamHeaderCVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 188826E325961CF0005BCBAD /* StreamHeaderCVC.swift */; };
 		188826E625961CF0005BCBAD /* StreamHeaderCVC.xib in Resources */ = {isa = PBXBuildFile; fileRef = 188826E425961CF0005BCBAD /* StreamHeaderCVC.xib */; };
 		188B0EA5248E8F7A0062EB1D /* VideoEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 188B0EA4248E8F7A0062EB1D /* VideoEditor.swift */; };
+		188B62E8263B048300466557 /* PaymentWebVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 188B62E7263B048300466557 /* PaymentWebVC.swift */; };
 		188E41A1259C9F5500DEBC8D /* GradientView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 188E41A0259C9F5500DEBC8D /* GradientView.swift */; };
 		1891CA63244AC82B00EE1E45 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1891CA62244AC82B00EE1E45 /* AppDelegate.swift */; };
 		1891CA6A244AC82B00EE1E45 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1891CA68244AC82B00EE1E45 /* Main.storyboard */; };
@@ -267,6 +268,7 @@
 		188826E325961CF0005BCBAD /* StreamHeaderCVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreamHeaderCVC.swift; sourceTree = "<group>"; };
 		188826E425961CF0005BCBAD /* StreamHeaderCVC.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = StreamHeaderCVC.xib; sourceTree = "<group>"; };
 		188B0EA4248E8F7A0062EB1D /* VideoEditor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VideoEditor.swift; sourceTree = "<group>"; };
+		188B62E7263B048300466557 /* PaymentWebVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaymentWebVC.swift; sourceTree = "<group>"; };
 		188E41A0259C9F5500DEBC8D /* GradientView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GradientView.swift; sourceTree = "<group>"; };
 		1891CA5F244AC82B00EE1E45 /* AreveaTV.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AreveaTV.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1891CA62244AC82B00EE1E45 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -788,6 +790,7 @@
 				18D480B02451A30E00640C1A /* ChannelsVC.swift */,
 				1810E6F524C84BCA003EAF91 /* StreamDetailVC.swift */,
 				18B1BEE825594AF6003E96FF /* EventRegistrationVC.swift */,
+				188B62E7263B048300466557 /* PaymentWebVC.swift */,
 				18C6141E2608BF7E004EFD6E /* ScheduleVC.swift */,
 				1813E7FD25E38AC30090D3A5 /* ArtistProfileVC.swift */,
 				18265BC125F1153B00094B02 /* OrderSummaryVC.swift */,
@@ -1284,6 +1287,7 @@
 				18408E8425892A5A000F0F30 /* Q_And_A_Footer.swift in Sources */,
 				1884842B2603BE7000CE8BCE /* TextAreaCell.swift in Sources */,
 				18EB81C4244ACC40008EB09A /* LoginVC.swift in Sources */,
+				188B62E8263B048300466557 /* PaymentWebVC.swift in Sources */,
 				18EB81BD244ACAB9008EB09A /* SplashVC.swift in Sources */,
 				18E394CC26022380003DC413 /* SSRadioButton.swift in Sources */,
 				188E41A1259C9F5500DEBC8D /* GradientView.swift in Sources */,
@@ -1462,7 +1466,7 @@
 				CODE_SIGN_ENTITLEMENTS = AreveaTV/AreveaTV.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 4.3;
+				CURRENT_PROJECT_VERSION = 4.4;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = J7XKYVP7J4;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -1493,7 +1497,7 @@
 				CODE_SIGN_ENTITLEMENTS = AreveaTV/AreveaTV.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 4.3;
+				CURRENT_PROJECT_VERSION = 4.4;
 				DEVELOPMENT_TEAM = J7XKYVP7J4;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",

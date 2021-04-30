@@ -2112,7 +2112,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                 switch response.result {
                 case .success(let value):
                     if let json = value as? [String: Any] {
-                        //print("getTicketDetails JSON:",json)
+                        print("getTicketDetails JSON:",json)
                         if (json["statusCode"]as? String == "200" ){
                             let data = json["Data"] as? [String:Any]
                             self.aryStreamInfo = data?["stream_info"] as? [String:Any] ?? [:]
@@ -4490,8 +4490,10 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
             btnVideo?.setImage(UIImage.init(named: "play-white"), for: .normal);
             if(self.currentSubscriber != nil){
                 ALToastView.toast(in: self.view, withText:"Pausing Video")
-                self.currentSubscriber?.disableAudio()
-                self.currentSubscriber?.disableVideo()
+                //self.currentSubscriber?.disableAudio()
+                //self.currentSubscriber?.disableVideo()
+                self.currentSubscriber?.stop()
+
             }
             /*if(self.subscribeStream1 != nil && self.subscribeStream1?.audioController != nil) {
              self.subscribeStream1?.pauseAudio = true
@@ -4506,6 +4508,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
             if(self.currentSubscriber != nil){
                 ALToastView.toast(in: self.view, withText:"Playing Video")
                 self.currentSubscriber?.enableVideo()
+                
                 if(play){
                     self.currentSubscriber?.enableAudio()
                 }

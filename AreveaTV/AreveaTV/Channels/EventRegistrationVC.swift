@@ -20,8 +20,9 @@ import Reachability
 import AWSAppSync
 import R5Streaming
 import AMPopTip
+import SafariServices
 
-class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate,UICollectionViewDataSource,SponsorsCVCDelegate,UICollectionViewDelegateFlowLayout,UITableViewDataSource,UITableViewDelegate{
+class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate,UICollectionViewDataSource,SponsorsCVCDelegate,UICollectionViewDelegateFlowLayout,UITableViewDataSource,UITableViewDelegate,SFSafariViewControllerDelegate{
     
     
     
@@ -56,7 +57,9 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate,UICollecti
     var isLoaded = 0;
     var arysubEvents = [Any]();
     var aryTicketIds = [Any]();
-    var arySelectedSubEvents = [Any]();
+    var arySelectedSubEvents = [[String:Any]]();
+    var tempArySelectedSubEvents = [Any]();
+    
     var aryAgenda = [Any]();
     
     var aryTickets = [Any]();
@@ -111,7 +114,7 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate,UICollecti
     var stream_status = ""
     @IBOutlet weak var btnSubscribe: UIButton!
     @IBOutlet weak var btnShare: UIButton!
-
+    
     @IBOutlet weak var ageDesc: UILabel!
     @IBOutlet weak var shareEventTop: NSLayoutConstraint!
     @IBOutlet weak var tblheight: NSLayoutConstraint!
@@ -134,7 +137,8 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate,UICollecti
     @IBOutlet weak var dateCVC: UICollectionView!
     
     var aryTabs = ["OVERVIEW","SCHEDULE","SPEAKERS","HOST","SPONSORS","T & C"]
-    var aryEventdatesJson = [Any]()
+    var aryEventdatesJson =  [Dictionary<String, String>]()
+    
     @IBOutlet weak var viewOverview: UIView!
     @IBOutlet weak var viewSchedule: UIView!
     @IBOutlet weak var viewSpeakers: UIView!
@@ -162,7 +166,7 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate,UICollecti
         lblTitle.text = appDelegate.strTitle
         btnShare.layer.borderWidth = 1
         btnShare.layer.borderColor = UIColor.white.cgColor
-
+        
         if(UIDevice.current.userInterfaceIdiom == .pad){
             heightTopView?.constant = 60;
             viewTop.layoutIfNeeded()
@@ -198,7 +202,7 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate,UICollecti
         toolTipPreferences.animating.showDuration = 1.5
         toolTipPreferences.animating.dismissDuration = 1.5
         EasyTipView.globalPreferences = toolTipPreferences
-
+        
     }
     func registerNibs() {
         let nib = UINib(nibName: "DateCVC", bundle: nil)
@@ -220,7 +224,7 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate,UICollecti
         tblHost.register(UINib(nibName: "SpeakersCell", bundle: nil), forCellReuseIdentifier: "SpeakersCell");
         
         tblSchedule.register(UINib(nibName: "ScheduleHeaderViewCell", bundle: nil), forHeaderFooterViewReuseIdentifier: "ScheduleHeaderViewCell")
-
+        
     }
     func hideViews(){
         //print("hideViews")
@@ -287,41 +291,64 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate,UICollecti
             break
         }
     }
+    func sortArrayDictDescending(dict: [Dictionary<String, String>], dateFormat: String) -> [Dictionary<String, String>] {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = dateFormat
+        return dict.sorted{[dateFormatter] one, two in
+            return dateFormatter.date(from: one["publish_date_time"] ?? "") ?? Date() > dateFormatter.date(from: two["publish_date_time"] ?? ""  ) ?? Date () }
+    }
+    
+    //use:
+    
     func reloadTbl(index:Int){
-        let dateObj = aryEventdatesJson[index] as?[String : Any] ?? [:];
-        let startDate = dateObj["start"] as? String ?? ""
-        let formatter = DateFormatter()
-        formatter.timeZone = NSTimeZone(abbreviation: "UTC") as TimeZone?
-        formatter.locale = Locale(identifier: "en_US_POSIX")
-        arySelectedSubEvents = []
-        formatter.dateFormat = "yyyy-MM-dd HH:mm"
-        if let eventStartDate = formatter.date(from: startDate){
-            formatter.dateFormat = "yyyy-MM-dd"
-            let strStartDate = formatter.string(from: eventStartDate)
+        print("ary count:",aryEventdatesJson.count)
+        print("ary:",aryEventdatesJson)
+        
+        if(aryEventdatesJson.count > 0){
             
-            for(index,_)in self.arysubEvents.enumerated(){
-                var subEvent = self.arysubEvents[index]as? [String : Any] ?? [String:Any]()
-                var streamInfo = subEvent["stream_info"] as? [String : Any] ?? [String:Any]()
-                var publish_date_time = streamInfo["publish_date_time"]as? String ?? ""
-                let formatter = DateFormatter()
-                formatter.timeZone = NSTimeZone(abbreviation: "UTC") as TimeZone?
-                formatter.locale = Locale(identifier: "en_US_POSIX")
-                formatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
-                if let publishDate = formatter.date(from: publish_date_time){
-                    formatter.dateFormat = "yyyy-MM-dd"
-                    let strPublishDate = formatter.string(from: publishDate)
-                    if(strStartDate == strPublishDate){
-                        arySelectedSubEvents.append(subEvent)
-                    }else{
-                        print("date not matched")
+            let dateObj = aryEventdatesJson[index] as?[String : Any] ?? [:];
+            let startDate = dateObj["start"] as? String ?? ""
+            let formatter = DateFormatter()
+            formatter.timeZone = NSTimeZone(abbreviation: "UTC") as TimeZone?
+            formatter.locale = Locale(identifier: "en_US_POSIX")
+            arySelectedSubEvents = []
+            formatter.dateFormat = "yyyy-MM-dd HH:mm"
+            if let eventStartDate = formatter.date(from: startDate){
+                formatter.dateFormat = "yyyy-MM-dd"
+                let strStartDate = formatter.string(from: eventStartDate)
+                
+                for(index,_)in self.arysubEvents.enumerated(){
+                    var subEvent = self.arysubEvents[index]as? [String : Any] ?? [String:Any]()
+                    var streamInfo = subEvent["stream_info"] as? [String : Any] ?? [String:Any]()
+                    var publish_date_time = streamInfo["publish_date_time"]as? String ?? ""
+                    print("::publish_date_time:",publish_date_time)
+                    let formatter = DateFormatter()
+                    formatter.timeZone = NSTimeZone(abbreviation: "UTC") as TimeZone?
+                    formatter.locale = Locale(identifier: "en_US_POSIX")
+                    formatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
+                    if let publishDate = formatter.date(from: publish_date_time){
+                        formatter.dateFormat = "yyyy-MM-dd"
+                        let strPublishDate = formatter.string(from: publishDate)
+                        if(strStartDate == strPublishDate){
+                            arySelectedSubEvents.append(subEvent)
+                        }else{
+                            print("date not matched")
+                        }
                     }
+                    //var expected_end_date_time = streamInfo["expected_end_date_time"]as? String ?? ""
                 }
-                //var expected_end_date_time = streamInfo["expected_end_date_time"]as? String ?? ""
+                let dateFormatter = DateFormatter()
+                dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
+                self.arySelectedSubEvents = self.arySelectedSubEvents.sorted{[dateFormatter] one, two in
+                    return dateFormatter.date(from:one["publish_date_time"] as! String )! < dateFormatter.date(from: two["publish_date_time"] as! String )! }
+                
+                
+                let sortedArray1 = sortArrayDictDescending(dict: aryEventdatesJson, dateFormat: "yyyy-MM-dd HH:mm")
+                print("sortedArray count:",sortedArray1.count)
             }
-            
+            //tblSchedule.reloadSections([index], with: .automatic)
+            tblSchedule.reloadData()
         }
-        //tblSchedule.reloadSections([index], with: .automatic)
-        tblSchedule.reloadData()
     }
     @objc func btnDatePress(_ sender: UIButton) {
         tblSchedule.isHidden = false
@@ -439,10 +466,10 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate,UICollecti
         }
         return nil
     }
-    func convertToArray(text: String) -> [Any]? {
+    func convertToArray(text: String) -> [Dictionary<String, String>]? {
         if let data = text.data(using: .utf8) {
             do {
-                return try JSONSerialization.jsonObject(with: data, options: []) as? [Any]
+                return try JSONSerialization.jsonObject(with: data, options: []) as? [Dictionary<String, String>]
             } catch {
                 //////print(error.localizedDescription)
             }
@@ -486,7 +513,7 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate,UICollecti
                 switch response.result {
                 case .success(let value):
                     if let json = value as? [String: Any] {
-                       print("getEventBySlug JSON:",json)
+                        print("getEventBySlug JSON:",json)
                         if (json["statusCode"]as? String == "200"){
                             var strPriceList = [String]()
                             var eventStartDates = [Date]()
@@ -560,19 +587,19 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate,UICollecti
                              }*/
                             self.streamPaymentMode = streamObj["stream_payment_mode"] as? String ?? ""
                             self.appDelegate.selected_type = streamObj["selected_type"] as? String ?? ""
-
+                            
                             self.appDelegate.streamPaymentMode = self.streamPaymentMode
-
+                            
                             self.isUserSubscribe = self.priceDetails["subscription_status"] as?Bool ?? false
                             var strMinPrice = "0.00"
                             var strMaxPrice = "0.00"
-                                if (self.priceDetails["min"] as? Int) != nil {
-                                    strMinPrice = String(self.priceDetails["min"] as? Int ?? 0)
-                                }else if (self.priceDetails["min"] as? String) != nil {
-                                    strMinPrice = String(self.priceDetails["min"] as? String ?? "0.00")
-                                }else if (self.priceDetails["min"] as? Double) != nil {
-                                    strMinPrice = String(self.priceDetails["min"] as? Double ?? 0.00)
-                                }
+                            if (self.priceDetails["min"] as? Int) != nil {
+                                strMinPrice = String(self.priceDetails["min"] as? Int ?? 0)
+                            }else if (self.priceDetails["min"] as? String) != nil {
+                                strMinPrice = String(self.priceDetails["min"] as? String ?? "0.00")
+                            }else if (self.priceDetails["min"] as? Double) != nil {
+                                strMinPrice = String(self.priceDetails["min"] as? Double ?? 0.00)
+                            }
                             if (self.priceDetails["max"] as? Int) != nil {
                                 strMaxPrice = String(self.priceDetails["max"] as? Int ?? 0)
                             }else if (self.priceDetails["max"] as? String) != nil {
@@ -727,7 +754,7 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate,UICollecti
                                 //print("isUserSubscribe:",isUserSubscribe)
                                 let event_dates_json = streamObj["event_dates_json"] as? String ?? "";
                                 
-                                self.aryEventdatesJson = self.convertToArray(text:event_dates_json ) ?? [Any]()
+                                self.aryEventdatesJson = self.convertToArray(text:event_dates_json ) ?? [Dictionary<String, String>]()
                                 if(self.aryEventdatesJson.count == 0 ||      self.appDelegate.selected_type == "single_session_event"){
                                     for (index,element) in self.aryTabs.enumerated(){
                                         if(element.lowercased() == "schedule")
@@ -1679,31 +1706,38 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate,UICollecti
         
     }
     func gotoTicketTypes(){
-        if(self.lblAmount.text != "Free"){
-        let user_id = UserDefaults.standard.string(forKey: "user_id") ?? "";
-        let urlOpen = appDelegate.websiteURL + "/event/" + appDelegate.strSlug + "/place-order?user_id=" + user_id + "&platform=mobile"
-        guard let url = URL(string: urlOpen) else { return }
-        print("url to open:",url)
-        UIApplication.shared.open(url)
-            return
-        }
         let storyboard = UIStoryboard(name: "Main", bundle: nil);
-        let streamInfo = self.aryStreamInfo
-        let stream_video_title = streamInfo["stream_video_title"] as? String ?? "Channel Details"
-        appDelegate.isLiveLoad = "1"
-        let vc = storyboard.instantiateViewController(withIdentifier: "TicketTypesVC") as! TicketTypesVC
-        vc.chatDelegate = self
-        appDelegate.strTitle = stream_video_title
-        vc.isCameFromGetTickets = true
-        vc.currencySymbol = currencySymbol
-        vc.aryStreamInfo = self.aryStreamInfo
-        vc.isUserSubscribe = isUserSubscribe
-        vc.aryTicketsData = aryTickets
-        
-        if(self.lblAmount.text == "Free"){
-            appDelegate.streamPaymentMode = "Free"
+        if(self.lblAmount.text != "Free"){
+            let user_id = UserDefaults.standard.string(forKey: "user_id") ?? ""
+            let urlOpen = appDelegate.websiteURL + "/event/" + appDelegate.strSlug + "/place-order?user_id=" + user_id
+            print("urlOpen1:",urlOpen)
+            /*guard let url = URL(string: urlOpen) else { return }
+            print("url to open:",url)
+            UIApplication.shared.open(url)
+            return*/
+            let vc = storyboard.instantiateViewController(withIdentifier: "PaymentWebVC") as! PaymentWebVC
+            vc.strURL = urlOpen
+            self.navigationController?.pushViewController(vc, animated: true)
+            
+        }else{
+            let streamInfo = self.aryStreamInfo
+            let stream_video_title = streamInfo["stream_video_title"] as? String ?? "Channel Details"
+            appDelegate.isLiveLoad = "1"
+            let vc = storyboard.instantiateViewController(withIdentifier: "TicketTypesVC") as! TicketTypesVC
+            vc.chatDelegate = self
+            appDelegate.strTitle = stream_video_title
+            vc.isCameFromGetTickets = true
+            vc.currencySymbol = currencySymbol
+            vc.aryStreamInfo = self.aryStreamInfo
+            vc.isUserSubscribe = isUserSubscribe
+            vc.aryTicketsData = aryTickets
+            
+            if(self.lblAmount.text == "Free"){
+                appDelegate.streamPaymentMode = "Free"
+            }
+            self.navigationController?.pushViewController(vc, animated: true)
         }
-        self.navigationController?.pushViewController(vc, animated: true)
+        
     }
     func showConfirmation(strAge:String){
         let strMsg = "This video intended for person " + strAge + " years or older. I agree that my age is " + strAge + " or above."
@@ -1725,7 +1759,11 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate,UICollecti
             self.present(alert, animated: true)
         }
     }
+    func safariViewControllerDidFinish(_ controller: SFSafariViewController) {
+        dismiss(animated: true)
+    }
     @IBAction func payPerView(_ sender: Any) {
+        
         if(self.lblAmount.text == "Free"){
             setParamForRegisterEvent()
         }
@@ -2003,7 +2041,7 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate,UICollecti
                 cell.lblLine.tag = 10 + (indexPath.row);
                 cell.lblLine.isHidden = true
                 cell.configureCell(name: name)
-               
+                
                 
                 //cell.btn.setTitleColor(.white, for: .normal)
                 return cell
@@ -2026,16 +2064,16 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate,UICollecti
                 cell.btnDate.addTarget(self, action: #selector(btnDatePress(_:)), for: .touchUpInside)
                 cell.btnDate.tag = 20 + (indexPath.row);
                 /*if(indexPath.row == 0){
-                    let yellow = UIColor(red: 139, green: 230, blue: 213);
-                    cell.btnDate.backgroundColor = yellow
-                    cell.btnDate.setTitleColor(.black, for: .normal)
-                    
-                }else{
-                    let gray = UIColor(red: 70, green: 69, blue: 92);
-                    cell.btnDate.backgroundColor = gray
-                    cell.btnDate.layer.borderColor = UIColor.white.cgColor
-                    cell.btnDate.setTitleColor(.white, for: .normal)
-                }*/
+                 let yellow = UIColor(red: 139, green: 230, blue: 213);
+                 cell.btnDate.backgroundColor = yellow
+                 cell.btnDate.setTitleColor(.black, for: .normal)
+                 
+                 }else{
+                 let gray = UIColor(red: 70, green: 69, blue: 92);
+                 cell.btnDate.backgroundColor = gray
+                 cell.btnDate.layer.borderColor = UIColor.white.cgColor
+                 cell.btnDate.setTitleColor(.white, for: .normal)
+                 }*/
                 return cell
                 
             }
@@ -2083,7 +2121,7 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate,UICollecti
         }else{
             tootlTipText = stage
         }
-
+        
         let toolTipView = EasyTipView(text: tootlTipText, preferences: toolTipPreferences)
         
         toolTipView.show(forView: sender, withinSuperview: tblSchedule)
@@ -2091,7 +2129,7 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate,UICollecti
             toolTipView.dismiss()
         }
     }
-
+    
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         if(tableView == tblSchedule){
             let headerView = tableView.dequeueReusableHeaderFooterView(withIdentifier: "ScheduleHeaderViewCell") as! ScheduleHeaderViewCell
@@ -2136,7 +2174,7 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate,UICollecti
             let headerView = UIView(frame: CGRect(x: 0, y: 0, width: 0, height: 0))
             return headerView
         }
-       
+        
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -2177,11 +2215,11 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate,UICollecti
             print("aryAgendaGuestList1:",aryAgendaGuestList1)
             print("aryAgendaGuestList1 co:",aryAgendaGuestList1.count)
             print("indexPath.row:",indexPath.row)
-
+            
             let title = agendaObj["title"]as? String ?? ""
             let desc = agendaObj["description"]as? String ?? ""
             cell.updateCellWith(row: aryAgendaGuestList1)
-           
+            
             cell.lblTitle.text = title
             cell.txtDesc.text = desc
             let start_time = agendaObj["start_time"]as? String ?? ""
@@ -2222,7 +2260,7 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate,UICollecti
             cell.backgroundColor = UIColor.clear
             cell.imgUser.layer.borderColor = UIColor.white.cgColor
             var firstChar = ""
-
+            
             if(tableView == tblSpeakers){
                 let speakerObj = self.arySpeakers[indexPath.row] as? [String : Any] ?? [:];
                 let fn = speakerObj["first_name"] as? String ?? ""
@@ -2234,7 +2272,7 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate,UICollecti
                     firstChar = String(fn.first ?? "A") + String(ln.first ?? " ")
                 }
                 cell.btnUser.setTitle(firstChar, for: .normal)
-
+                
                 let username = fn + " " + ln
                 cell.lblName.text = username
                 if( user_type == "creator"){
@@ -2264,7 +2302,7 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate,UICollecti
                     firstChar = String(fn.first ?? "A") + String(ln.first ?? " ")
                 }
                 cell.btnUser.setTitle(firstChar, for: .normal)
-
+                
                 
                 let performerBio = self.dicPerformerInfo["performer_bio"] as? String ?? ""
                 
@@ -2321,7 +2359,7 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate,UICollecti
     func collectionView(collectionviewcell: SponsorsCVC?, index: Int, didTappedInTableViewCell: SponsorsCell) {
         
     }
-   
+    
     func getQuestionsByEventId(){
         let netAvailable = appDelegate.isConnectedToInternet()
         if(!netAvailable){

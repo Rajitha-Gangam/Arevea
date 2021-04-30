@@ -428,7 +428,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate , OpenChanannelChatDelegat
                             self.USER_NAME_FULL = (fn ) + " " + (ln )
                             self.USER_DISPLAY_NAME = displayName
                             self.isLiveLoad = "1"
-                            sendBirdConnect(streamInfo: streamInfo)
+                            self.gotoSchedule(streamInfo: streamInfo)
                         }else{
                             let strMsg = json["message"] as? String ?? ""
                             //self.showAlert(strMsg: strMsg)
