@@ -8,12 +8,8 @@
 
 import UIKit
 
-class ScheduleHeaderViewCell: UITableViewHeaderFooterView {
-    @IBOutlet weak var BtnJoin: UIButton!
+class EventRegHeaderViewCell: UITableViewHeaderFooterView {
     @IBOutlet weak var btnTitle: UIButton!
-    @IBOutlet weak var lblCompleted: UILabel!
-    @IBOutlet weak var lblNotickets: UILabel!
-    @IBOutlet weak var lblCompletedHeight: NSLayoutConstraint!
 
     override func awakeFromNib() {
         super.awakeFromNib()

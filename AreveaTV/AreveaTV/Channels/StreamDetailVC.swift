@@ -352,7 +352,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
         
         self.viewControls?.isHidden = true
         self.lblLive.isHidden = true
-        
+        self.sliderVolume.isHidden = true
         self.viewStream?.isHidden = false
         sliderVolume.value = 100;
         if(appDelegate.channel_name_subscription == ""){
@@ -446,8 +446,17 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                         self.currentSubscriber?.enableAudio()
                     }
                     
+                }else{
+                    if(self.currentSubscriber != nil){
+                        self.currentSubscriber?.disableAudio()
+                    }
                 }
                 
+            }else{
+                if(self.currentSubscriber != nil){
+                    //self.currentSubscriber?.disableAudio()
+                    unsubscribePhenix()
+                }
             }
         }
     }
@@ -1972,11 +1981,11 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
         
     }
     func proceedToPayment(type:String,charityId:Int){
-        
         //let url: String = appDelegate.baseURL +  "/proceedToPayment"
         let user_id = UserDefaults.standard.string(forKey: "user_id");
         let strUserId = user_id ?? "1"
         var streamId = appDelegate.streamId
+        let stageId = streamId
         if (parent_streams_id != 0){
             streamId = parent_streams_id//for doantion
         }
@@ -1984,8 +1993,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
         if(type == "performer_tip"){
             queryString = "stream_id=" + String(appDelegate.streamId) + "&user_id=" + strUserId
         }else if(type == "charity_donation"){
-            queryString = "stream_id=" + String(streamId) + "&user_id=" + strUserId
-            
+            queryString = "stream_id=" + String(streamId) +  "&stage_id=" + String(stageId) + "&user_id=" + strUserId
         }
         let session_token = UserDefaults.standard.string(forKey: "session_token") ?? ""
         
@@ -1994,7 +2002,9 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
         }else if(type == "charity_donation"){
             queryString = queryString + "&charity_id=" + String(charityId)
         }
-        queryString = queryString + "&token=" + session_token
+        if(appDelegate.isGuest){
+            queryString = queryString + "&token=" + session_token
+        }
         let urlOpen = appDelegate.paymentRedirectionURL + "/" + type + "?" + queryString
         guard let url = URL(string: urlOpen) else { return }
         print("url to open:",url)
@@ -4490,9 +4500,11 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
             btnVideo?.setImage(UIImage.init(named: "play-white"), for: .normal);
             if(self.currentSubscriber != nil){
                 ALToastView.toast(in: self.view, withText:"Pausing Video")
-                //self.currentSubscriber?.disableAudio()
+                self.currentSubscriber?.disableAudio()
                 //self.currentSubscriber?.disableVideo()
-                self.currentSubscriber?.stop()
+//               self.currentSubscriber?.stop()
+//                self.currentRenderer?.stop()
+                unsubscribePhenix()
 
             }
             /*if(self.subscribeStream1 != nil && self.subscribeStream1?.audioController != nil) {
@@ -4508,10 +4520,11 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
             if(self.currentSubscriber != nil){
                 ALToastView.toast(in: self.view, withText:"Playing Video")
                 self.currentSubscriber?.enableVideo()
-                
+                subscribePhenix()
                 if(play){
-                    self.currentSubscriber?.enableAudio()
+                    //self.currentSubscriber?.enableAudio()
                 }
+                
             }
             
             /*if(self.subscribeStream1 != nil && self.subscribeStream1?.audioController != nil) {
@@ -4904,6 +4917,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
         self.imgStreamThumbNail.isHidden = true
         self.lblLive.isHidden = false
         }
+        appCameToForeground()
         
     }
     

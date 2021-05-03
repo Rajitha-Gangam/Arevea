@@ -983,6 +983,9 @@ extension Array where Element : Equatable  {
             self.remove(at: index)
         }
     }
+    func contains<T>(obj: T) -> Bool where T : Equatable {
+            return self.filter({$0 as? T == obj}).count > 0
+    }
 }
 
 

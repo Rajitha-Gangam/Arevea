@@ -223,7 +223,7 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate,UICollecti
         tblSponsors.register(UINib(nibName: "SponsorsCell", bundle: nil), forCellReuseIdentifier: "SponsorsCell");
         tblHost.register(UINib(nibName: "SpeakersCell", bundle: nil), forCellReuseIdentifier: "SpeakersCell");
         
-        tblSchedule.register(UINib(nibName: "ScheduleHeaderViewCell", bundle: nil), forHeaderFooterViewReuseIdentifier: "ScheduleHeaderViewCell")
+        tblSchedule.register(UINib(nibName: "EventRegHeaderViewCell", bundle: nil), forHeaderFooterViewReuseIdentifier: "EventRegHeaderViewCell")
         
     }
     func hideViews(){
@@ -341,10 +341,6 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate,UICollecti
                 dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
                 self.arySelectedSubEvents = self.arySelectedSubEvents.sorted{[dateFormatter] one, two in
                     return dateFormatter.date(from:one["publish_date_time"] as! String )! < dateFormatter.date(from: two["publish_date_time"] as! String )! }
-                
-                
-                let sortedArray1 = sortArrayDictDescending(dict: aryEventdatesJson, dateFormat: "yyyy-MM-dd HH:mm")
-                print("sortedArray count:",sortedArray1.count)
             }
             //tblSchedule.reloadSections([index], with: .automatic)
             tblSchedule.reloadData()
@@ -1123,6 +1119,10 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate,UICollecti
                             let strError = json["message"] as? String
                             print("strError 1:",strError ?? "")
                             self.showAlert(strMsg: strError ?? "")
+                            self.btnGetTickets.isHidden = true
+                            self.aryTabs = []
+                            self.buttonCVC.reloadData()
+
                         }
                         
                     }
@@ -1162,6 +1162,7 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate,UICollecti
         let params: [String: Any] = ["paymentInfo": ["paymentType": "pay_per_view","payment_type": "pay_per_view","organization_id": appDelegate.orgId,"currency": currency_type,"amount": 0,"stream_id": appDelegate.streamId,"streamInfo": ["id": appDelegate.streamId,"stream_video_title": stream_video_title,"organization_id": appDelegate.orgId,"amount":amount,"currency": currency_type,"stream_amounts":stream_amounts,"publish_date_time": publish_date_time,"video_thumbnail_image": video_thumbnail_image,"performer_id": appDelegate.performerId,"user_first_name": user_first_name,"user_last_name": user_last_name,"user_display_name": user_display_name,"channel_name": channel_name,"number_of_creators": self.number_of_creators,"stream_status": stream_status,"currency_type": currency_type,"expected_end_date_time": expected_end_date_time]]]
         
         appDelegate.paramsForFreeRegistration = params
+        
     }
     // MARK: Handler for getCategoryOrganisations API
     func registerEvent(){
@@ -2132,7 +2133,7 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate,UICollecti
     
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         if(tableView == tblSchedule){
-            let headerView = tableView.dequeueReusableHeaderFooterView(withIdentifier: "ScheduleHeaderViewCell") as! ScheduleHeaderViewCell
+            let headerView = tableView.dequeueReusableHeaderFooterView(withIdentifier: "EventRegHeaderViewCell") as! EventRegHeaderViewCell
             headerView.tag = section
             headerView.btnTitle.addTarget(self, action: #selector(scheduleHeaderTapped(_:)), for: .touchUpInside)
             headerView.btnTitle.tag = section
@@ -2167,7 +2168,6 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate,UICollecti
                 headerView.btnTitle.setTitle(stage, for: .normal)
             }
             headerView.btnTitle.sizeToFit()
-            headerView.BtnJoin.isHidden = true
             
             return headerView
         }else{
@@ -2255,7 +2255,7 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate,UICollecti
             return cell
         }else if(tableView == tblSpeakers || tableView == tblHost){
             let cell = tableView.dequeueReusableCell(withIdentifier: "SpeakersCell") as! SpeakersCell
-            cell.viewContent.layer.borderColor = UIColor.white.cgColor
+            //cell.viewContent.layer.borderColor = UIColor.white.cgColor
             
             cell.backgroundColor = UIColor.clear
             cell.imgUser.layer.borderColor = UIColor.white.cgColor
@@ -2267,9 +2267,9 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate,UICollecti
                 let ln = speakerObj["last_name"]as? String ?? ""
                 let user_type = speakerObj["user_type"]as? String ?? ""
                 if (ln == ""){
-                    firstChar = String(fn.first ?? "A")
+                    firstChar = String(fn.first?.uppercased() ?? "A")
                 }else{
-                    firstChar = String(fn.first ?? "A") + String(ln.first ?? " ")
+                    firstChar = String(fn.first?.uppercased() ?? "A") + String(ln.first?.uppercased() ?? " ")
                 }
                 cell.btnUser.setTitle(firstChar, for: .normal)
                 
@@ -2297,7 +2297,7 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate,UICollecti
                 let fn = (fullName.count > 0) ? fullName[0] : ""
                 let ln = (fullName.count > 1) ? fullName[1] : " "
                 if (ln == ""){
-                    firstChar = String(fn.first ?? "A")
+                    firstChar = String(fn.first?.uppercased() ?? "A")
                 }else{
                     firstChar = String(fn.first ?? "A") + String(ln.first ?? " ")
                 }

@@ -72,9 +72,9 @@ class ContactChatVC: UIViewController , UITextFieldDelegate,UITableViewDataSourc
                 lastName = fullNameArr[1]
             }
             if (lastName == ""){
-                firstChar = String(firstName.first!)
+                firstChar = String(firstName.first?.uppercased() ?? "")
             }else{
-                firstChar = String(firstName.first!) + String(lastName.first!)
+                firstChar = String(firstName.first?.uppercased() ?? "") + String(lastName.first?.uppercased() ?? "")
             }
         }
         userName.setTitle(firstChar, for: .normal)

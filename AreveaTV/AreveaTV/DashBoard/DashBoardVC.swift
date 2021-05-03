@@ -103,7 +103,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
         
         UIDevice.current.setValue(self.preferredInterfaceOrientationForPresentation.rawValue, forKey: "orientation")
         lblVersion.text = "v" + getAppversion()
-        lblVersion.text = "v" + "2.1.2"
+        lblVersion.text = "v" + "2.1.3"
         
         self.imgProfilePic.layer.borderColor = UIColor.gray.cgColor
         self.imgProfilePic.layer.borderWidth = 2.0

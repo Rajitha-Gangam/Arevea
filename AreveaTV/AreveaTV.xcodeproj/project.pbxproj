@@ -43,6 +43,8 @@
 		182A5F05246166D700FF6147 /* CharityCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 182A5F03246166D700FF6147 /* CharityCell.swift */; };
 		182A5F06246166D700FF6147 /* CharityCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 182A5F04246166D700FF6147 /* CharityCell.xib */; };
 		182A5F0C24616B4B00FF6147 /* charity-img.png in Resources */ = {isa = PBXBuildFile; fileRef = 182A5F0B24616B4A00FF6147 /* charity-img.png */; };
+		1835CB57263C42C1005F6699 /* EventRegHeaderViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1835CB55263C42C1005F6699 /* EventRegHeaderViewCell.swift */; };
+		1835CB58263C42C1005F6699 /* EventRegHeaderViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1835CB56263C42C1005F6699 /* EventRegHeaderViewCell.xib */; };
 		18404764248A79AC000573A2 /* SearchViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18404763248A79AC000573A2 /* SearchViewController.swift */; };
 		18408E8325892A5A000F0F30 /* Q_And_A_Footer.xib in Resources */ = {isa = PBXBuildFile; fileRef = 18408E8125892A5A000F0F30 /* Q_And_A_Footer.xib */; };
 		18408E8425892A5A000F0F30 /* Q_And_A_Footer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18408E8225892A5A000F0F30 /* Q_And_A_Footer.swift */; };
@@ -231,6 +233,8 @@
 		182A5F03246166D700FF6147 /* CharityCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CharityCell.swift; sourceTree = "<group>"; };
 		182A5F04246166D700FF6147 /* CharityCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = CharityCell.xib; sourceTree = "<group>"; };
 		182A5F0B24616B4A00FF6147 /* charity-img.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "charity-img.png"; sourceTree = "<group>"; };
+		1835CB55263C42C1005F6699 /* EventRegHeaderViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EventRegHeaderViewCell.swift; sourceTree = "<group>"; };
+		1835CB56263C42C1005F6699 /* EventRegHeaderViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = EventRegHeaderViewCell.xib; sourceTree = "<group>"; };
 		18404763248A79AC000573A2 /* SearchViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchViewController.swift; sourceTree = "<group>"; };
 		18408E8125892A5A000F0F30 /* Q_And_A_Footer.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = Q_And_A_Footer.xib; sourceTree = "<group>"; };
 		18408E8225892A5A000F0F30 /* Q_And_A_Footer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Q_And_A_Footer.swift; sourceTree = "<group>"; };
@@ -461,6 +465,8 @@
 				18501B5025A846EA0046E58F /* Q_And_A_Final_Cell.xib */,
 				18D7EA4625CB07A600E87DD0 /* Q_And_A_Section.swift */,
 				18D7EA4725CB07A600E87DD0 /* Q_And_A_Section.xib */,
+				1835CB55263C42C1005F6699 /* EventRegHeaderViewCell.swift */,
+				1835CB56263C42C1005F6699 /* EventRegHeaderViewCell.xib */,
 				180BE7BE2609F87E00EB5A6D /* ScheduleHeaderViewCell.swift */,
 				180BE7BF2609F87E00EB5A6D /* ScheduleHeaderViewCell.xib */,
 			);
@@ -1107,6 +1113,7 @@
 				18DAF995248FBA1D00A6693A /* sr_audio.png in Resources */,
 				189BC6372591F0FE00445423 /* TicketTypesCell.xib in Resources */,
 				18DAF990248FBA1D00A6693A /* sr_stream.png in Resources */,
+				1835CB58263C42C1005F6699 /* EventRegHeaderViewCell.xib in Resources */,
 				189695CA24E6DA19000B7B9D /* env.json in Resources */,
 				182A5F012460837C00FF6147 /* GoogleService-Info.plist in Resources */,
 				18DF22DD25E01307004D6E44 /* SponsorsCVC.xib in Resources */,
@@ -1238,6 +1245,7 @@
 				182A5EF2245C59C700FF6147 /* SectionHeader.swift in Sources */,
 				18D480BD2452D0CE00640C1A /* SubscriptionPlanVC.swift in Sources */,
 				18D480B12451A30E00640C1A /* ChannelsVC.swift in Sources */,
+				1835CB57263C42C1005F6699 /* EventRegHeaderViewCell.swift in Sources */,
 				18D480AA24519D1100640C1A /* SubscribeTest.swift in Sources */,
 				18DF22DC25E01307004D6E44 /* SponsorsCVC.swift in Sources */,
 				1822FD16261C3FF3000EBD57 /* ScheduleUserCVC.swift in Sources */,
@@ -1466,7 +1474,7 @@
 				CODE_SIGN_ENTITLEMENTS = AreveaTV/AreveaTV.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 4.4;
+				CURRENT_PROJECT_VERSION = 0.2;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = J7XKYVP7J4;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -1479,7 +1487,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 2;
+				MARKETING_VERSION = 8;
 				PRODUCT_BUNDLE_IDENTIFIER = com.prod.arevea;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -1497,7 +1505,7 @@
 				CODE_SIGN_ENTITLEMENTS = AreveaTV/AreveaTV.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 4.4;
+				CURRENT_PROJECT_VERSION = 0.2;
 				DEVELOPMENT_TEAM = J7XKYVP7J4;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1509,7 +1517,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 2;
+				MARKETING_VERSION = 8;
 				PRODUCT_BUNDLE_IDENTIFIER = com.prod.arevea;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";

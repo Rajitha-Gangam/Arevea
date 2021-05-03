@@ -127,9 +127,9 @@ class OpenChannelMessageTableViewCell: UITableViewCell {
                     lastName = fullNameArr?[1] ?? ""
                 }
                 if (lastName == ""){
-                    firstChar = String(firstName.first ?? "A")
+                    firstChar = String(firstName.first?.uppercased() ?? "A")
                 }else{
-                    firstChar = String(firstName.first ?? "A") + String(lastName.first ?? " ")
+                    firstChar = String(firstName.first?.uppercased() ?? "A") + String(lastName.first?.uppercased() ?? " ")
                 }
             }
             self.userName.setTitle(firstChar, for: .normal)

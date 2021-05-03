@@ -19,21 +19,42 @@
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
         <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
         <view contentMode="scaleToFill" id="vzQ-EP-Qrk" customClass="ScheduleHeaderViewCell" customModule="AreveaTV" customModuleProvider="target">
-            <rect key="frame" x="0.0" y="0.0" width="375" height="44"/>
+            <rect key="frame" x="0.0" y="0.0" width="375" height="70"/>
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
             <subviews>
                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="HcS-9g-9NB">
-                    <rect key="frame" x="0.0" y="0.0" width="375" height="44"/>
+                    <rect key="frame" x="0.0" y="0.0" width="375" height="70"/>
                     <subviews>
-                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="OAS-WZ-47r">
-                            <rect key="frame" x="5" y="5.5" width="270" height="33"/>
+                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Completed" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Kvp-4M-ZEa">
+                            <rect key="frame" x="5" y="10" width="100" height="21"/>
+                            <color key="backgroundColor" red="0.1333333333" green="0.17254901959999999" blue="0.21176470589999999" alpha="1" colorSpace="calibratedRGB"/>
+                            <constraints>
+                                <constraint firstAttribute="height" constant="21" id="Kpq-h7-WfP"/>
+                                <constraint firstAttribute="width" constant="100" id="uzr-o4-cfN"/>
+                            </constraints>
+                            <fontDescription key="fontDescription" name="Poppins-Regular" family="Poppins" pointSize="15"/>
+                            <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            <nil key="highlightedColor"/>
+                        </label>
+                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="No tickets available" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="phC-Py-bda">
+                            <rect key="frame" x="110" y="10" width="160" height="21"/>
+                            <color key="backgroundColor" red="0.1333333333" green="0.17254901959999999" blue="0.21176470589999999" alpha="1" colorSpace="calibratedRGB"/>
+                            <constraints>
+                                <constraint firstAttribute="width" constant="160" id="sOk-Wn-2vF"/>
+                            </constraints>
+                            <fontDescription key="fontDescription" name="Poppins-Regular" family="Poppins" pointSize="15"/>
+                            <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            <nil key="highlightedColor"/>
+                        </label>
+                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" buttonType="system" lineBreakMode="tailTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="OAS-WZ-47r">
+                            <rect key="frame" x="5" y="33.5" width="270" height="33"/>
                             <fontDescription key="fontDescription" name="Poppins-Regular" family="Poppins" pointSize="15"/>
                             <state key="normal">
                                 <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             </state>
                         </button>
                         <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="r6W-5L-sG9">
-                            <rect key="frame" x="285" y="7" width="85" height="30"/>
+                            <rect key="frame" x="285" y="35" width="85" height="30"/>
                             <color key="backgroundColor" red="0.5450980392" green="0.90196078430000004" blue="0.83529411760000005" alpha="1" colorSpace="calibratedRGB"/>
                             <constraints>
                                 <constraint firstAttribute="height" constant="30" id="mge-h2-vW0"/>
@@ -52,11 +73,15 @@
                     </subviews>
                     <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                     <constraints>
-                        <constraint firstItem="r6W-5L-sG9" firstAttribute="centerY" secondItem="HcS-9g-9NB" secondAttribute="centerY" id="77f-Ei-0Fr"/>
+                        <constraint firstItem="phC-Py-bda" firstAttribute="top" secondItem="HcS-9g-9NB" secondAttribute="top" constant="10" id="4ud-Oi-QLH"/>
+                        <constraint firstItem="OAS-WZ-47r" firstAttribute="top" secondItem="Kvp-4M-ZEa" secondAttribute="bottom" constant="2.5" id="DvF-Ec-V1L"/>
                         <constraint firstItem="r6W-5L-sG9" firstAttribute="leading" secondItem="OAS-WZ-47r" secondAttribute="trailing" constant="10" id="Ns7-3k-RV3"/>
+                        <constraint firstItem="Kvp-4M-ZEa" firstAttribute="leading" secondItem="HcS-9g-9NB" secondAttribute="leading" constant="5" id="Nu1-L3-uOt"/>
                         <constraint firstItem="OAS-WZ-47r" firstAttribute="leading" secondItem="HcS-9g-9NB" secondAttribute="leading" constant="5" id="j3C-6l-8uv"/>
-                        <constraint firstItem="OAS-WZ-47r" firstAttribute="centerY" secondItem="HcS-9g-9NB" secondAttribute="centerY" id="jeV-Im-vHH"/>
+                        <constraint firstItem="phC-Py-bda" firstAttribute="leading" secondItem="Kvp-4M-ZEa" secondAttribute="trailing" constant="5" id="jkG-j0-UVe"/>
                         <constraint firstAttribute="trailing" secondItem="r6W-5L-sG9" secondAttribute="trailing" constant="5" id="kbB-I0-ge3"/>
+                        <constraint firstItem="Kvp-4M-ZEa" firstAttribute="top" secondItem="HcS-9g-9NB" secondAttribute="top" constant="10" id="mEY-BR-hKH"/>
+                        <constraint firstItem="r6W-5L-sG9" firstAttribute="centerY" secondItem="OAS-WZ-47r" secondAttribute="centerY" id="wG0-NU-8an"/>
                     </constraints>
                 </view>
             </subviews>
@@ -72,6 +97,9 @@
             <connections>
                 <outlet property="BtnJoin" destination="r6W-5L-sG9" id="VWn-q5-kcX"/>
                 <outlet property="btnTitle" destination="OAS-WZ-47r" id="0fn-lR-0jP"/>
+                <outlet property="lblCompleted" destination="Kvp-4M-ZEa" id="hMh-cf-D5Y"/>
+                <outlet property="lblCompletedHeight" destination="Kpq-h7-WfP" id="Hx2-c8-RP3"/>
+                <outlet property="lblNotickets" destination="phC-Py-bda" id="bfs-ZC-hyc"/>
             </connections>
             <point key="canvasLocation" x="12" y="-73.763118440779621"/>
         </view>

@@ -39,9 +39,9 @@ class ArtistProfileVC: UIViewController {
             lblUserName.text = username
             
             if (ln == ""){
-                firstChar = String(fn.first ?? "A")
+                firstChar = String(fn.first?.uppercased() ?? "A")
             }else{
-                firstChar = String(fn.first ?? "A") + String(ln.first ?? " ")
+                firstChar = String(fn.first?.uppercased() ?? "A") + String(ln.first?.uppercased() ?? " ")
             }
             btnUser.setTitle(firstChar, for: .normal)
 
@@ -66,9 +66,9 @@ class ArtistProfileVC: UIViewController {
             let fn = (fullName.count > 0) ? fullName[0] : ""
             let ln = (fullName.count > 1) ? fullName[1] : " "
             if (ln == ""){
-                firstChar = String(fn.first ?? "A")
+                firstChar = String(fn.first?.uppercased() ?? "A")
             }else{
-                firstChar = String(fn.first ?? "A") + String(ln.first ?? " ")
+                firstChar = String(fn.first?.uppercased() ?? "A") + String(ln.first?.uppercased() ?? " ")
             }
             btnUser.setTitle(firstChar, for: .normal)
 

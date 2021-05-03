@@ -120,9 +120,9 @@ class ScheduleCell: UITableViewCell,UICollectionViewDataSource, UICollectionView
             //cell.btnUserName.backgroundColor = UIColor.red
             var firstChar = ""
             if (ln == ""){
-                firstChar = String(fn.first ?? "A")
+                firstChar = String(fn.first?.uppercased() ?? "A")
             }else{
-                firstChar = String(fn.first ?? "A") + String(ln.first ?? " ")
+                firstChar = String(fn.first?.uppercased() ?? "A") + String(ln.first?.uppercased() ?? " ")
             }
             cell.btnUserNameShort.setTitle(firstChar, for: .normal)
             return cell
