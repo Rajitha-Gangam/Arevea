@@ -2299,7 +2299,7 @@ class EventRegistrationVC: UIViewController,OpenChanannelChatDelegate,UICollecti
                 if (ln == ""){
                     firstChar = String(fn.first?.uppercased() ?? "A")
                 }else{
-                    firstChar = String(fn.first ?? "A") + String(ln.first ?? " ")
+                    firstChar = String(fn.first?.uppercased() ?? "A") + String(ln.first?.uppercased() ?? " ")
                 }
                 cell.btnUser.setTitle(firstChar, for: .normal)
                 

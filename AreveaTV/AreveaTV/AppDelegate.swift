@@ -108,7 +108,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate , OpenChanannelChatDelegat
     //QA Variables END
     */
     // MARK: - Pre-prod Environmet Variables Declaration
-     var baseURL = "https://preprod-apis.arevea.tv"
+    var baseURL = "https://preprod-apis.arevea.tv"
      var websiteURL = "https://preprod.arevea.tv"
      var sendBirdAppId = "2115A8A2-36D7-4ABC-A8CE-758500A54DFD";
      var profileURL = "https://preprod.arevea.tv/api/user/v1"
@@ -175,12 +175,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate , OpenChanannelChatDelegat
     /*Phenix Variables Start*/
     public static let channelExpress: PhenixChannelExpress = { createChannelExpress() }()
 
-    var phenixChannelAlias = "352_1619179577237_single_day_event_with_multistages"
+    var phenixChannelAlias = ""
     private static let phenixBackendEndpoint = "https://pcast.phenixrts.com/pcast"
     
-    public static var phenixAccessToken = "DIGEST:eyJhcHBsaWNhdGlvbklkIjoiYXJldmVhLmNvbSIsImRpZ2VzdCI6IldsT2FlQkgwalh6YjhCUDlLU1ZUWnRYZE5YQkVRWlJqUjNIRzA2UVZaNTZIdkV4Tm5FZWxadUtnTEtHb2pFK0FQOW92OFh1aXdxMWc3bWJIUEdNd21BPT0iLCJ0b2tlbiI6IntcImV4cGlyZXNcIjoxNjE5MTg2NzMyMjQzLFwicmVxdWlyZWRUYWdcIjpcImNoYW5uZWxJZDp1cy13ZXN0I2FyZXZlYS5jb20jMzUyMTYxOTE3OTU3NzIzN1NpbmdsZURheUV2ZW50V2l0aE11bHRpc3RhZ2VzLmVnTUxiV0QzQlFERFwifSJ9"
-    var phenixAccessToken1 = "DIGEST:eyJhcHBsaWNhdGlvbklkIjoiYXJldmVhLmNvbSIsImRpZ2VzdCI6IldsT2FlQkgwalh6YjhCUDlLU1ZUWnRYZE5YQkVRWlJqUjNIRzA2UVZaNTZIdkV4Tm5FZWxadUtnTEtHb2pFK0FQOW92OFh1aXdxMWc3bWJIUEdNd21BPT0iLCJ0b2tlbiI6IntcImV4cGlyZXNcIjoxNjE5MTg2NzMyMjQzLFwicmVxdWlyZWRUYWdcIjpcImNoYW5uZWxJZDp1cy13ZXN0I2FyZXZlYS5jb20jMzUyMTYxOTE3OTU3NzIzN1NpbmdsZURheUV2ZW50V2l0aE11bHRpc3RhZ2VzLmVnTUxiV0QzQlFERFwifSJ9"
-    var phenixChannelId = "us-west#arevea.com#3521619179577237SingleDayEventWithMultistages.egMLbWD3BQDD"
+    public static var phenixAccessToken = ""
+    var phenixAccessToken1 = ""
+    var phenixChannelId = ""
     
     private static func createChannelExpress() -> PhenixChannelExpress {
         let pcastExpressOptions = PhenixPCastExpressFactory.createPCastExpressOptionsBuilder()

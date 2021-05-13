@@ -32,6 +32,8 @@ class QuestionsVC: UIViewController,OpenChanannelChatDelegate,UITableViewDataSou
     var aryStreamInfo = [String: Any]()
     var questionsObj = [Int:Any]()
     @IBOutlet weak var tblheight: NSLayoutConstraint!
+    var heightForTbl = 0
+    @IBOutlet weak var btnNext: UIButton!
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -79,6 +81,32 @@ class QuestionsVC: UIViewController,OpenChanannelChatDelegate,UITableViewDataSou
     //MARK:Tableview Delegates and Datasource Methods
     
     func numberOfSections(in tableView: UITableView) ->  Int {
+        heightForTbl = 0
+        for(index,_)in aryQuestions.enumerated(){
+            let questionInfo = aryQuestions[index] as? [String:Any] ?? [:]
+            let options = questionInfo["options"] as? String ?? ""
+            let aryOptions = self.convertToArray(text: options)
+            let option_type = questionInfo["option_type"] as? String ?? ""
+            heightForTbl = heightForTbl + 44
+            if(option_type == "textbox"){
+                heightForTbl = heightForTbl + 50
+            }else if(option_type == "textarea"){
+                heightForTbl = heightForTbl + 100
+            }else{
+                heightForTbl = heightForTbl + ((aryOptions?.count ?? 1 + 1) * 44)
+            }
+        }
+        //print("==heightForTbl:",heightForTbl)
+        let screenSize = UIScreen.main.bounds
+        let height = screenSize.height
+        //print("==heightForTbl1:",height - 250)
+
+        if(CGFloat(heightForTbl) > (height - 250)){
+            tblheight.constant = height - 250
+        }else{
+            tblheight.constant = CGFloat(heightForTbl)
+        }
+        tblQuestions.layoutIfNeeded()
         return aryQuestions.count
     }
     
@@ -128,10 +156,13 @@ class QuestionsVC: UIViewController,OpenChanannelChatDelegate,UITableViewDataSou
         let questionInfo = aryQuestions[indexPath.section] as? [String:Any] ?? [:]
         let option_type = questionInfo["option_type"] as? String ?? ""
         if(option_type == "textbox"){
+            heightForTbl = heightForTbl + 50
             return 50;
         }else if(option_type == "textarea"){
+            heightForTbl = heightForTbl + 100
             return 100;
         }
+        heightForTbl = heightForTbl + 44
         return 44;
     }
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {

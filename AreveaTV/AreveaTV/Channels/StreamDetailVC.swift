@@ -37,7 +37,8 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
     @IBOutlet weak var tbl_Q_And_A: UITableView!
     @IBOutlet weak var txt_Q_And_A: UITextField!
     @IBOutlet weak var viewRight: UIView!
-    @IBOutlet weak var viewRightShort: UIView!
+    @IBOutlet weak var viewMenu: UIView!
+
     @IBOutlet weak var viewRightTitle: UIView!
     @IBOutlet weak var lblRightTitle: UILabel!
     
@@ -259,10 +260,13 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
     @IBOutlet weak var viewSend_Q_and_A: UIView!
     @IBOutlet weak var viewSend_Chat: UIView!
     @IBOutlet weak var btnGoLive: UIButton!
+    @IBOutlet weak var btnWindow: UIButton!
+
     var isChatActive = false
     var isQ_And_A_Active = false
     var arysubEvents = [Any]();
     var phenix_info = [String:Any]()
+    var isShowRightView = false
     // MARK: - View Life cycle
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -273,7 +277,14 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
         addDoneButtonEmoji()
         addDoneButton_Q_And_A()
         
-        ////print("detail item in channnel page:\(detailItem)")
+//        viewRight.layer.borderColor = UIColor.gray.cgColor
+//        viewRight.layer.borderWidth = 1.0
+        viewRight.layer.shadowColor = UIColor.white.cgColor
+        viewRight.layer.shadowOpacity = 1
+        viewRight.layer.shadowOffset = CGSize(width: 1, height: 1)//.zero
+        viewRight.layer.shadowRadius = 5
+        
+
         
         viewLiveStream.isHidden = true;
         lblNoDataComments.text = ""
@@ -383,6 +394,9 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
         viewSend_Chat.layer.cornerRadius = 5
         //btnGoLive.layer.borderColor = UIColor.gray.cgColor
         btnGoLive.isHidden = true
+        streamHeaderCVC.isHidden = true
+        viewMenu.backgroundColor = UIColor.clear
+        
     }
     @IBAction func goLiveTapped(){
         print("goLiveTapped")
@@ -423,6 +437,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
         }
     }
     @objc func appCameToForeground() {
+        refreshHeaderBtns()//for tip icon dehilight
         print("App came to foreground!")
         if(isStreamStarted){
             print("== isStreamStarted")
@@ -1020,6 +1035,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
             //self.animateEmojis()
         }
     }
+    
     @IBAction func viewBGTap() {
         setBtnDefaultBG()
     }
@@ -1108,16 +1124,23 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
         }
     }
     // MARK: - Button Actions
-    
+    @IBAction func closeMenu() {
+        viewRight.isHidden = true
+        viewRightTitle.isHidden = true
+        setBtnDefaultBG()
+        refreshHeaderBtns()
+    }
     @IBAction func showRightView(){
         viewRight.isHidden = false
-        showAnimation()
-        viewRightShort.isHidden = true
+        viewRightTitle.isHidden = true
+        //showAnimation()
         setBtnDefaultBG()
-        viewRightTitle.isHidden = false
+        //viewRightTitle.isHidden = false
         isChatActive = false
-        
-        let index = buttonNames.firstIndex(where: {$0["title"]! == "chat"}) ?? -1
+        streamHeaderCVC.isHidden = false
+        viewMenu.backgroundColor = UIColor.black
+
+        /*let index = buttonNames.firstIndex(where: {$0["title"]! == "chat"}) ?? -1
         print("index:",index)
         if(index > 0 && stream_status == "progress"){
             lblRightTitle.text = "Chat"
@@ -1131,13 +1154,18 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
             btn?.setImage(UIImage.init(named: "s_info_active"), for: .normal)
             viewInfo.isHidden = false
             
-        }
+        }*/
         
     }
     
     @IBAction func hideRightView(){
         self.view.endEditing(true)
-        hideAnimation()
+        viewRight.isHidden = true;
+        streamHeaderCVC.isHidden = true
+        viewMenu.backgroundColor = UIColor.clear
+        viewRightTitle.isHidden = true
+        setBtnDefaultBG()
+       // hideAnimation()
         //viewRight.isHidden = true
     }
     
@@ -1174,7 +1202,6 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
         movement = -movementDistance
         UIView.animate(withDuration: 1.0, animations: { [self] in
                         self.viewRight.frame = self.viewRight.frame.offsetBy(dx: movement, dy: 0)}, completion: { [self]_ in
-                            viewRightShort.isHidden = false
                             setBtnDefaultBG()
                         })
     }
@@ -1631,6 +1658,16 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
             self.navigationController?.pushViewController(vc, animated: true)
         }
     }
+    @IBAction func btnWindowPressed(_ sender: UIButton){
+        if(isShowRightView){
+            isShowRightView = false
+            hideRightView()
+        }else{
+            isShowRightView = true
+            showRightView()
+        }
+    }
+
     @objc func subscribeBtnPressed(_ sender: UIButton){
         print("subscribeBtnPressed")
         
@@ -2012,7 +2049,6 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
         isSubscriptionNavigation = false
         UIApplication.shared.open(url)
         viewRight.isHidden = true
-        viewRightShort.isHidden = false
         //btnTips.setImage(UIImage.init(named: "s_tip"), for: .normal)
     }
     @IBAction func subscribe(_ sender: Any) {
@@ -4760,13 +4796,14 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
             let selectedObj = buttonNames[sender.tag - 10]
             let blinkTag = 100 + (sender.tag - 10)
             let title =  selectedObj["title"] ?? ""
-            //print("title:",title)
+            print("title--:",title)
             setBtnDefaultBG()
             viewRightTitle.isHidden = false
             switch title {
             case "info":
                 lblRightTitle.text = "Info"
                 sender.setImage(UIImage.init(named: "s_info_active"), for: .normal)
+                viewRight.isHidden = false
                 viewInfo.isHidden = false
             case "share":
                 //print("share")
@@ -4784,12 +4821,24 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                     popoverController.permittedArrowDirections = UIPopoverArrowDirection(rawValue: 0)
                 }
                 self.present(activityViewController, animated: true, completion: nil)
+                activityViewController.completionWithItemsHandler = { (activityType, completed:Bool, returnedItems:[Any]?, error: Error?) in
+                   if completed {
+                      // Do something
+                    //print("==completed")
+                    self.refreshHeaderBtns()//for share icon dehilight
+                   }else{
+                    //close btn tap
+                    //print("==dismiss")
+                    self.refreshHeaderBtns()//for share icon dehilight
+                   }
+                }
             case "emoji":
                 print("emoji")
                 txtEmoji.becomeFirstResponder()
             case "donation":
                 lblRightTitle.text = "Donations"
                 sender.setImage(UIImage.init(named: "s_donation_active"), for: .normal)
+                viewRight.isHidden = false
                 viewDonations.isHidden = false
             case "tip":
                 viewRightTitle.isHidden = true
@@ -4798,6 +4847,7 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
             case "chat":
                 lblRightTitle.text = "Chat"
                 sender.setImage(UIImage.init(named: "s_chat_active"), for: .normal)
+                viewRight.isHidden = false
                 viewComments.isHidden = false
                 let lblBlink = self.streamHeaderCVC.viewWithTag(blinkTag) as? UILabel
                 lblBlink?.isHidden = true
@@ -4805,11 +4855,13 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
             case "subscribe":
                 lblRightTitle.text = "Subscriptions"
                 sender.setImage(UIImage.init(named: "s_subscribe_active"), for: .normal)
+                viewRight.isHidden = false
                 viewSubscriptions.isHidden = false
             case "qa":
                 lblRightTitle.text = "Q&A"
                 sender.setImage(UIImage.init(named: "s_qa_active"), for: .normal)
                 view_Q_And_A.isHidden = false
+                viewRight.isHidden = false
                 loadPrevious_Q_And_A(initial: true)
                 let lblBlink = self.streamHeaderCVC.viewWithTag(blinkTag) as? UILabel
                 lblBlink?.isHidden = true
