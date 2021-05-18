@@ -42,7 +42,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
     @IBOutlet var imgProfilePic: UIImageView!
     var aryStreamInfo = [String: Any]()
 
-    var arySideMenu : [[String: String]] = [["name":"Home","icon":"home-white","icon_sel":"home_bl"],["name":"My Profile","icon":"user-white","icon_sel":"user_bl"],["name":"My Events","icon":"event-white","icon_sel":"event_bl"],["name":"My Payments","icon":"donation","icon_sel":"donation_bl"],["name":"My Purchases","icon":"purchase-white","icon_sel":"purchase_bl"],["name":"Subscribed Channels","icon":"video-sub-white","icon_sel":"video-sub_bl"],["name":"Logout","icon":"logout","icon_sel":"logout_bl"]];
+    var arySideMenu : [[String: String]] = [["name":"Home","icon":"home-white","icon_sel":"home_bl"],["name":"My Profile","icon":"user-white","icon_sel":"user_bl"],["name":"My Events","icon":"event-white","icon_sel":"event_bl"],["name":"My Payments","icon":"donation","icon_sel":"donation_bl"],["name":"My Purchases","icon":"purchase-white","icon_sel":"purchase_bl"],["name":"Subscribed Channels","icon":"video-sub-white","icon_sel":"video-sub_bl"],["name":"Private Chat","icon":"chat-white","icon_sel":"chat"],["name":"Logout","icon":"logout","icon_sel":"logout_bl"]];
 //["name":"Help","icon":"help-white","icon_sel":"help_bl"]
     //["name":"Private Chat","icon":"chat-white","icon_sel":"chat"]
     var arySideMenuGuest : [[String: String]] = [["name":"Home","icon":"home-white","icon_sel":"home_bl"]];
@@ -103,7 +103,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
         
         UIDevice.current.setValue(self.preferredInterfaceOrientationForPresentation.rawValue, forKey: "orientation")
         lblVersion.text = "v" + getAppversion()
-        lblVersion.text = "v" + "2.1.3"
+        //lblVersion.text = "v" + "3.0"
         
         self.imgProfilePic.layer.borderColor = UIColor.gray.cgColor
         self.imgProfilePic.layer.borderWidth = 2.0
@@ -123,7 +123,7 @@ class DashBoardVC: UIViewController,UITableViewDelegate,UITableViewDataSource,Co
         
         ipGeoLocation()
         
-        viewContacts.isHidden = true
+        //viewContacts.isHidden = true
         let yellow = UIColor(red: 139, green: 230, blue: 213);
         btnSignIn.layer.borderColor = yellow.cgColor
         btnSignUp.layer.borderColor = UIColor.white.cgColor

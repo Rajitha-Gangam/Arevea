@@ -2275,18 +2275,13 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                             self.settings_reactions = dicSettingsJson?["reactions"] as? Int ?? 0
                             self.settings_donation = dicSettingsJson?["donation"] as? Int ?? 0
                             self.settings_tip = dicSettingsJson?["tip"] as? Int ?? 0
-                            if(self.settings_fan_chat == 1){
-                                let predicate = NSPredicate(format:"title == %@", "chat")
+                            if(self.settings_reactions == 1){
+                                let predicate = NSPredicate(format:"title == %@", "emoji")
                                 let filteredArray = (buttonNames as NSArray).filtered(using: predicate)
-                                //for live only enable chat
-                                print("==>filteredArray.count:",filteredArray.count)
-                                print("==>stream_status:",stream_status)
-                                
-                                if(filteredArray.count == 0 && stream_status == "progress"){
-                                    let dicItem = ["title":"chat","icon":"s_chat","icon_active":"s_chat_active"]
+                                if(filteredArray.count == 0){
+                                    let dicItem = ["title":"emoji","icon":"s_emoji","icon_active":"s_emoji_active"]
                                     self.buttonNames.append(dicItem)
                                 }
-                                
                             }
                             if(self.settings_donation == 1){
                                 let predicate = NSPredicate(format:"title == %@", "donation")
@@ -2304,14 +2299,20 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                                     self.buttonNames.append(dicItem)
                                 }
                             }
-                            if(self.settings_reactions == 1){
-                                let predicate = NSPredicate(format:"title == %@", "emoji")
+                            if(self.settings_fan_chat == 1){
+                                let predicate = NSPredicate(format:"title == %@", "chat")
                                 let filteredArray = (buttonNames as NSArray).filtered(using: predicate)
-                                if(filteredArray.count == 0){
-                                    let dicItem = ["title":"emoji","icon":"s_emoji","icon_active":"s_emoji_active"]
+                                //for live only enable chat
+                                print("==>filteredArray.count:",filteredArray.count)
+                                print("==>stream_status:",stream_status)
+                                
+                                if(filteredArray.count == 0 && stream_status == "progress"){
+                                    let dicItem = ["title":"chat","icon":"s_chat","icon_active":"s_chat_active"]
                                     self.buttonNames.append(dicItem)
                                 }
+                                
                             }
+                            
                             if(self.settings_q_and_a == 1){
                                 //uncomment after this release
                                 let predicate = NSPredicate(format:"title == %@", "qa")
@@ -3765,14 +3766,13 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                                 self.settings_reactions = dicSettingsJson?["reactions"] as? Int ?? 0
                                 self.settings_donation = dicSettingsJson?["donation"] as? Int ?? 0
                                 self.settings_tip = dicSettingsJson?["tip"] as? Int ?? 0
-                                if(self.settings_fan_chat == 1){
-                                    let predicate = NSPredicate(format:"title == %@", "chat")
+                                if(self.settings_reactions == 1){
+                                    let predicate = NSPredicate(format:"title == %@", "emoji")
                                     let filteredArray = (buttonNames as NSArray).filtered(using: predicate)
                                     if(filteredArray.count == 0){
-                                        let dicItem = ["title":"chat","icon":"s_chat","icon_active":"s_chat_active"]
+                                        let dicItem = ["title":"emoji","icon":"s_emoji","icon_active":"s_emoji_active"]
                                         self.buttonNames.append(dicItem)
                                     }
-                                    
                                 }
                                 if(self.settings_donation == 1){
                                     let predicate = NSPredicate(format:"title == %@", "donation")
@@ -3790,14 +3790,16 @@ class StreamDetailVC: UIViewController,UITableViewDataSource,UITableViewDelegate
                                         self.buttonNames.append(dicItem)
                                     }
                                 }
-                                if(self.settings_reactions == 1){
-                                    let predicate = NSPredicate(format:"title == %@", "emoji")
+                                if(self.settings_fan_chat == 1){
+                                    let predicate = NSPredicate(format:"title == %@", "chat")
                                     let filteredArray = (buttonNames as NSArray).filtered(using: predicate)
                                     if(filteredArray.count == 0){
-                                        let dicItem = ["title":"emoji","icon":"s_emoji","icon_active":"s_emoji_active"]
+                                        let dicItem = ["title":"chat","icon":"s_chat","icon_active":"s_chat_active"]
                                         self.buttonNames.append(dicItem)
                                     }
+                                    
                                 }
+                                
                                 if(self.settings_q_and_a == 1){
                                     //uncomment after this release
                                     

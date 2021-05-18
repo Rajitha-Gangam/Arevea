@@ -174,7 +174,7 @@
                     switch response.result {
                     case .success(let value):
                         if let json = value as? [String: Any] {
-                            //print("OLLogin JSON:",json)
+                            print("OLLogin JSON:",json)
                             if(json["status"] as? Int == 0){
                                 let user = json["user"] as? [String:Any] ?? [:]
                                 //print("user:",user)
@@ -216,6 +216,8 @@
                                 }
                                 //user.custom_attributes.is_user_verify
                             }else{
+                                print("OLLogin failure:",json["message"] as? String ?? "")
+
                                 let strMsg = json["message"] as? String ?? ""
                                 self.showAlert(strMsg: strMsg)
                                 
@@ -223,6 +225,7 @@
                             
                         }
                     case .failure(let error):
+                        print("OLLogin failure1:",error)
                         let errorDesc = error.localizedDescription.replacingOccurrences(of: "URLSessionTask failed with error:", with: "")
                         self.showAlert(strMsg: errorDesc)
                         
